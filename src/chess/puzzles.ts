@@ -6,6 +6,7 @@ import { explainConsequence, NAMES, winPercent } from './coach';
 import { getEngine } from './engine';
 import { sounds } from './sound';
 import { profile, recordPuzzle } from './storage';
+import type { Theme } from './themes';
 import { confetti } from './ui';
 
 export interface Puzzle {
@@ -53,6 +54,12 @@ const THEME_TIPS: Record<string, string> = {
   winMaterial: 'Look for checks, captures and threats: that\'s how you win material.',
 };
 
+/** The most interesting idea in the puzzle gets the tip (a fork beats "free piece"). */
+function tipFor(p: Puzzle): string {
+  const t = Object.keys(THEME_TIPS).find((k) => p.themes.includes(k));
+  return t ? THEME_TIPS[t] : '';
+}
+
 let puzzlesCache: Puzzle[] | null = null;
 async function loadPuzzles(): Promise<Puzzle[]> {
   puzzlesCache ??= await fetch(`${import.meta.env.BASE_URL}puzzles.json`).then((r) => r.json());
@@ -99,7 +106,7 @@ export class PuzzleScreen {
           <button data-act="next"><span>⏭️</span>Next</button>
         </div>
       </div>`;
-    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p), plain: true });
+    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p), quiet: true });
     this.el.querySelector('.board-host')!.append(this.board.el);
     this.el.querySelector('.puzzle-controls')!.addEventListener('click', (e) => {
       const act = (e.target as HTMLElement).closest('button')?.dataset.act;
@@ -125,7 +132,13 @@ export class PuzzleScreen {
 
   stop() {
     this.token++;
+    this.board.skipAnimation();
     getEngine().cancelAll();
+  }
+
+  /** Puzzles use the theme last picked for a game. */
+  setTheme(theme: Theme) {
+    this.board.setTheme(theme);
   }
 
   private async next() {
@@ -148,6 +161,7 @@ export class PuzzleScreen {
 
   private load(p: Puzzle) {
     this.token++;
+    this.board.skipAnimation();
     getEngine().cancelAll();
     this.puzzle = p;
     this.el.dataset.puzzle = p.id;
@@ -223,14 +237,15 @@ export class PuzzleScreen {
       this.say('✅ Good move! Keep going…');
       this.busy = true;
       const t = this.token;
-      setTimeout(() => {
+      // Wait for your move (and any capture battle) to finish first.
+      void this.board.idle().then(() => setTimeout(() => {
         if (t !== this.token) return;
         this.playUci(p.moves[this.ply]);
         this.ply++;
         this.busy = false;
         this.render(true);
         this.say('✅ Correct! What\'s next?');
-      }, 600);
+      }, 600));
       return;
     }
     // Wrong: the first mistake counts as a failed puzzle, but you can keep trying.
@@ -262,9 +277,13 @@ export class PuzzleScreen {
     const clean = !this.failed && !this.hinted;
     const delta = clean ? recordPuzzle(p.id, p.rating, true) : 0;
     this.renderStats();
-    sounds.win();
-    if (clean && profile.puzzleStreak > 0 && profile.puzzleStreak % 5 === 0) confetti();
-    const tip = p.themes.map((t) => THEME_TIPS[t]).find(Boolean) ?? '';
+    const t = this.token;
+    void this.board.idle().then(() => {
+      if (t !== this.token) return;
+      sounds.win();
+      if (clean && profile.puzzleStreak > 0 && profile.puzzleStreak % 5 === 0) confetti();
+    });
+    const tip = tipFor(p);
     const praise = clean
       ? `🎉 Solved! Puzzle rating ${delta >= 0 ? '+' : ''}${delta}.${profile.puzzleStreak > 1 ? ` 🔥 ${profile.puzzleStreak} in a row!` : ''}`
       : '🎉 You got there! Tap Next for another one.';
@@ -302,6 +321,7 @@ export class PuzzleScreen {
     const t = this.token;
     const sans: string[] = [];
     while (this.ply < p.moves.length) {
+      await this.board.idle();
       await new Promise((r) => setTimeout(r, 800));
       if (t !== this.token) return;
       const u = p.moves[this.ply];
@@ -311,7 +331,7 @@ export class PuzzleScreen {
       this.render(true);
     }
     this.busy = false;
-    const tip = p.themes.map((th) => THEME_TIPS[th]).find(Boolean) ?? '';
+    const tip = tipFor(p);
     this.say(`👀 The solution was ${sans.join(' ')}. ${tip} Tap Next to try another!`);
     this.renderStats();
     this.render();

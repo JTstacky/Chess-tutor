@@ -83,6 +83,7 @@ function homeView(): HTMLElement {
     if (go === 'progress') show(progressView());
     if (go === 'arena') show(arenaView());
     if (go === 'puzzles') {
+      puzzles.setTheme(themeById(lastTheme));
       show(puzzles.el);
       void puzzles.start();
     }
@@ -307,6 +308,7 @@ function learnView(): HTMLElement {
 }
 
 function openLesson(l: Lesson) {
+  lesson.setTheme(themeById(lastTheme));
   show(lesson.el);
   lesson.start(l);
 }

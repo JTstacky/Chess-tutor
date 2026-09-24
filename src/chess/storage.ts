@@ -10,6 +10,7 @@ export interface Settings {
   funMoves: boolean; // each piece has its own way of moving
   battles: boolean; // captures play a battle animation
   unlockAllBots: boolean;
+  fxVersion: number; // bumped to switch the animations back on once
 }
 
 export interface Profile {
@@ -34,7 +35,6 @@ export interface Profile {
 const SETTINGS_KEY = 'tg-chess-settings';
 const PROFILE_KEY = 'tg-chess-profile';
 
-const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const defaultSettings: Settings = {
   sound: true,
   coaching: true,
@@ -42,9 +42,10 @@ const defaultSettings: Settings = {
   blunderWarnings: true,
   threatWarnings: true,
   openingNames: true,
-  funMoves: !calm,
-  battles: !calm,
+  funMoves: true,
+  battles: true,
   unlockAllBots: false,
+  fxVersion: 2,
 };
 const defaultProfile: Profile = {
   name: 'Player',
@@ -83,6 +84,13 @@ function save(key: string, value: unknown) {
 }
 
 export const settings: Settings = load(SETTINGS_KEY, defaultSettings);
+// The first release switched animations off on devices that ask for reduced motion.
+// Turn them back on once; the Settings toggles still work after that.
+if (settings.fxVersion !== 2) {
+  settings.funMoves = true;
+  settings.battles = true;
+  settings.fxVersion = 2;
+}
 export const profile: Profile = load(PROFILE_KEY, defaultProfile);
 
 /** A coaching feature is on only when coaching as a whole is on too. */
