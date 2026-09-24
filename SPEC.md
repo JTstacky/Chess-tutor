@@ -47,6 +47,13 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 - Gambits and traps: King's Gambit (accepted, declined, Falkbeer), Evans (accepted, declined), Fried Liver (all Black defences), Stafford, Scholar's Mate (and its defence), Légal's Mate, Blackburne Shilling
   - shows the **recommended replies** in each gambit and explains the consequences of the tempting wrong moves
 - Tactics puzzles: forks, pins, skewers, discovered attacks, mate in 1 and 2
+- **Keep playing** ✅: after an opening or gambit variation, "Play on" shows an opening report card (development, king safety, centre, material, Stockfish's verdict and winning chances, plus the line's key idea), then continues the game from that position against a bot of your choice
+
+### Puzzle trainer ✅
+- Hundreds of tactics puzzles generated with Stockfish (`scripts/gen-puzzles.mjs`, same method as lichess: find blunders in imperfect games where exactly one reply wins), merged by `scripts/build-puzzles.mjs` into `public/puzzles.json`
+- Themed sets: my level, mate in 1 / 2 / 3+, forks, pins and skewers, discovered attacks, free pieces, win material
+- Puzzle rating (Elo vs each puzzle's rating), streaks, best streak; opponent's move is played first, then you find the reply
+- Wrong moves are explained (engine consequence), two-step hints, "Solution" button, a tip about the theme after solving
 - Endgames: practise vs the computer: K+Q vs K and K+R vs K checkmate, K+P promotion (with stalemate and hanging-queen checks)
 - Stars (1–3) per lesson based on mistakes and hints; every lesson line and puzzle is checked by `npm run check:lessons` (legal moves + Stockfish)
 

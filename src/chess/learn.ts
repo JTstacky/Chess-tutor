@@ -5,7 +5,10 @@ import { explainConsequence, NAMES, winPercent } from './coach';
 import { getEngine } from './engine';
 import { branchesOnPath, CATEGORIES, leafPaths, LESSONS, type Branch, type Lesson, type LessonMove } from './lessons';
 import { sounds } from './sound';
-import { profile, recordLessonExplored, recordLessonStars } from './storage';
+import { BOTS } from './bots';
+import { openingReport, reportHtml } from './report';
+import { profile, recordLessonExplored, recordLessonStars, settings } from './storage';
+import type { Theme } from './themes';
 import { confetti, showModal } from './ui';
 
 const starsText = (n: number) => '★'.repeat(n) + '☆'.repeat(3 - n);
@@ -64,7 +67,11 @@ export class LessonScreen {
   private done = false;
   private choosing = false;
 
-  constructor(private onBack: () => void, private onNext: (l: Lesson) => void) {
+  constructor(
+    private onBack: () => void,
+    private onNext: (l: Lesson) => void,
+    private onPlay: (moves: string[], side: Color, botId: string, from: string) => void,
+  ) {
     this.el = document.createElement('section');
     this.el.className = 'view play lesson';
     this.el.dataset.view = 'lesson';
@@ -81,16 +88,18 @@ export class LessonScreen {
           <button data-act="hint"><span>💡</span>Hint</button>
           <button data-act="restart"><span>🔁</span>Restart</button>
           <button data-act="explore" hidden><span>🔀</span>More</button>
+          <button data-act="continue" hidden><span>▶️</span>Play on</button>
           <button data-act="back"><span>📚</span>Lessons</button>
         </div>
       </div>`;
-    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p), plain: true });
+    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p), quiet: true });
     this.el.querySelector('.board-host')!.append(this.board.el);
     this.el.querySelector('.lesson-controls')!.addEventListener('click', (e) => {
       const act = (e.target as HTMLElement).closest('button')?.dataset.act;
       if (act === 'hint') void this.hint();
       if (act === 'restart') this.restart();
       if (act === 'explore') this.exploreMore();
+      if (act === 'continue') void this.keepPlaying();
       if (act === 'back') this.onBack();
     });
     this.el.querySelector('.choices')!.addEventListener('click', (e) => {
@@ -98,6 +107,11 @@ export class LessonScreen {
       if (opt === undefined) return;
       this.choose(opt === 'random' ? this.randomOption() : Number(opt));
     });
+  }
+
+  /** Lessons use the theme last picked for a game. */
+  setTheme(theme: Theme) {
+    this.board.setTheme(theme);
   }
 
   start(lesson: Lesson) {
@@ -117,11 +131,21 @@ export class LessonScreen {
 
   stop() {
     this.token++;
+    this.board.skipAnimation();
     getEngine().cancelAll();
+  }
+
+  /** Run `fn` `ms` after the board has finished animating (a capture battle can take a few seconds). */
+  private after(ms: number, fn: () => void) {
+    const t = this.token;
+    void this.board.idle().then(() => {
+      if (t === this.token) setTimeout(fn, ms);
+    });
   }
 
   private reset() {
     this.token++;
+    this.board.skipAnimation();
     getEngine().cancelAll();
     this.hintLevel = 0;
     this.done = false;
@@ -131,6 +155,7 @@ export class LessonScreen {
     this.board.setMarks([]);
     this.showChoices(false);
     this.el.querySelector<HTMLElement>('[data-act="explore"]')!.hidden = true;
+    this.el.querySelector<HTMLElement>('[data-act="continue"]')!.hidden = true;
   }
 
   private restart() {
@@ -225,21 +250,21 @@ export class LessonScreen {
     const m = this.moves[this.ply];
     if (!m) {
       const b = this.branches.at(-1)!;
-      if (!b.then) return this.variationComplete();
+      if (!b.then) return this.after(0, () => this.variationComplete());
       this.busy = true;
       const t = this.token;
-      setTimeout(() => {
+      this.after(Math.min(delay, 1600), () => {
         if (t !== this.token) return;
         this.busy = false;
         this.showChoice();
-      }, Math.min(delay, 1600));
+      });
       return;
     }
     if (this.chess.turn() !== this.lesson.side) {
       this.busy = true;
       this.render();
       const t = this.token;
-      setTimeout(() => {
+      this.after(delay, () => {
         if (t !== this.token) return;
         const mv = this.chess.move(m.san);
         this.playSound(mv);
@@ -247,7 +272,7 @@ export class LessonScreen {
         if (m.note) this.say(m.note);
         this.render(true);
         this.advance(m.note ? 1800 : 700);
-      }, delay);
+      });
       return;
     }
     // Your move: the board is ready now; the prompt appears after time to read the last note.
@@ -255,11 +280,11 @@ export class LessonScreen {
     this.render();
     const t = this.token;
     const ply = this.ply;
-    setTimeout(() => {
+    this.after(this.ply === 0 ? 0 : Math.min(delay, 1200), () => {
       if (t !== this.token || ply !== this.ply) return;
       const demo = m.demo ? '🪤 ' : '';
       this.say(demo + (m.prompt ?? 'Your move! Which move do you think comes next?'));
-    }, this.ply === 0 ? 0 : Math.min(delay, 1200));
+    });
   }
 
   private async userMove(from: Square, to: Square, promotion?: string) {
@@ -359,19 +384,61 @@ export class LessonScreen {
     recordLessonExplored(this.lesson.id, [...this.explored]);
     const total = variationCount(this.lesson);
     this.render();
+    this.el.querySelector<HTMLElement>('[data-act="continue"]')!.hidden = !this.canKeepPlaying();
     if (this.explored.size < total) {
       sounds.win();
       const label = this.branches.slice(1).map((b) => b.label).join(' → ');
-      this.say(`🎉 Variation complete${label ? `: ${label}` : ''}! You've explored ${this.explored.size} of ${total}. Tap "More" to learn another one.`);
+      this.say(`🎉 Variation complete${label ? `: ${label}` : ''}! You've explored ${this.explored.size} of ${total}. Tap "More" to learn another one${this.canKeepPlaying() ? ', or "Play on" to keep playing this game' : ''}.`);
       this.el.querySelector<HTMLElement>('[data-act="explore"]')!.hidden = false;
       return;
     }
     this.finishLesson(true, total > 1 ? `You explored all ${total} variations!` : '');
   }
 
+  /** Openings and gambits can be continued as a real game (not trap demos or finished games). */
+  private canKeepPlaying(): boolean {
+    if (!this.lesson.tree || this.lesson.category === 'puzzles') return false;
+    if (this.moves.some((m) => m.demo) || this.chess.isGameOver()) return false;
+    return this.chess.history().length >= 4;
+  }
+
+  private async keepPlaying() {
+    const fen = this.chess.fen();
+    const moves = this.chess.history();
+    const side = this.lesson.side;
+    this.say('📊 Let me look at the position…');
+    const report = await openingReport(fen, side);
+    const keyIdea = [...this.moves].reverse().find((m) => m.note)?.note;
+    const unlocked = BOTS.filter((b) => settings.unlockAllBots || profile.unlockedBots.includes(b.id));
+    const suggested = unlocked[unlocked.length - 1];
+    const bots = unlocked
+      .map((b) => `<button class="chip ${b === suggested ? 'on' : ''}" data-bot="${b.id}">${b.avatar} ${b.name} <small>${b.rating}</small></button>`)
+      .join('');
+    this.say(`📊 ${report.verdict}! Pick an opponent to keep playing.`);
+    const m = showModal(
+      `📊 ${report.verdict}`,
+      `${reportHtml(report, keyIdea)}<h3>Keep playing against:</h3><div class="chips bot-chips">${bots}</div>`,
+      [{ label: 'Not now' }],
+    );
+    m.querySelectorAll<HTMLElement>('[data-bot]').forEach((b) =>
+      b.addEventListener('click', () => {
+        m.remove();
+        this.onPlay(moves, side, b.dataset.bot!, this.lesson.title);
+      }),
+    );
+  }
+
   private finishLesson(success: boolean, message = '') {
     this.done = true;
     this.render();
+    // Let the last move (and any battle) finish before the result pops up.
+    const t = this.token;
+    void this.board.idle().then(() => {
+      if (t === this.token) this.showResult(success, message);
+    });
+  }
+
+  private showResult(success: boolean, message: string) {
     if (!success) {
       sounds.lose();
       showModal('Oops! 😅', message, [
@@ -391,7 +458,8 @@ export class LessonScreen {
     const praise = stars === 3 ? 'Perfect! No mistakes and no hints!' : stars === 2 ? 'Great job! Try again with fewer hints for 3 stars.' : 'You did it! Practise it again to earn more stars.';
     this.say(`🎉 ${this.lesson.title} complete!`);
     showModal(`${this.lesson.title} complete!`, `<p class="big-stars">${starsText(stars)}</p><p>${message ? message + ' ' : ''}${praise}</p>`, [
-      ...(next ? [{ label: `Next: ${next.title}`, primary: true, onClick: () => this.onNext(next) }] : []),
+      ...(this.canKeepPlaying() ? [{ label: '▶️ Keep playing', primary: true, onClick: () => void this.keepPlaying() }] : []),
+      ...(next ? [{ label: `Next: ${next.title}`, primary: !this.canKeepPlaying(), onClick: () => this.onNext(next) }] : []),
       { label: 'Again', onClick: () => this.start(this.lesson) },
       { label: 'Lessons', onClick: () => this.onBack() },
     ]);
@@ -418,6 +486,7 @@ export class LessonScreen {
     const [lines] = await Promise.all([
       getEngine().analyse(this.chess.fen(), { depth: 12 }),
       new Promise((r) => setTimeout(r, 500)),
+      this.board.idle(),
     ]);
     if (t !== this.token || !lines[0]) return;
     const reply = this.chess.move({ from: lines[0].move.slice(0, 2), to: lines[0].move.slice(2, 4), promotion: lines[0].move[4] });

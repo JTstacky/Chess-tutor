@@ -39,6 +39,8 @@ export interface GameConfig {
   playerColor: Color; // for bot games; in friend mode this is just the starting orientation
   time: TimeControl;
   theme?: string;
+  startMoves?: string[]; // SAN moves already played (e.g. continuing a lesson)
+  from?: string; // where those moves came from, e.g. "Italian Game"
 }
 
 interface Result {
@@ -138,6 +140,7 @@ export class PlayScreen {
     this.board.setTheme(this.theme);
     document.body.style.background = this.theme.page;
     this.chess = new Chess();
+    for (const san of cfg.startMoves ?? []) this.chess.move(san);
     this.result = null;
     this.viewPly = null;
     this.botThinking = false;
@@ -151,14 +154,20 @@ export class PlayScreen {
     this.reviewing = false;
     const ms = cfg.time.minutes * 60_000;
     this.clocks = { w: ms, b: ms };
-    this.clockHistory = [{ ...this.clocks }];
+    this.clockHistory = Array.from({ length: this.chess.history().length + 1 }, () => ({ ...this.clocks }));
     this.stopClock();
     this.board.setArrows([]);
     this.board.setOrientation(cfg.playerColor);
     this.el.classList.toggle('no-clock', cfg.time.minutes === 0);
     this.el.querySelector<HTMLElement>('[data-act="hint"]')!.hidden = !(coachingOn('hints') && cfg.mode === 'bot');
     this.refresh(false);
-    if (cfg.mode === 'bot' && cfg.playerColor === 'b') {
+    if (cfg.startMoves?.length) {
+      this.openingName = openingOfMoves(this.chess)?.name ?? '';
+      this.renderOpening();
+      const botTurn = cfg.mode === 'bot' && this.chess.turn() !== cfg.playerColor;
+      this.say(`Let's keep playing your ${cfg.from ?? 'opening'}! ${botTurn ? `${cfg.bot!.name} is thinking…` : 'Your move.'}`);
+      if (botTurn) void this.playBot();
+    } else if (cfg.mode === 'bot' && cfg.playerColor === 'b') {
       this.say(`${cfg.bot!.name} plays first. You're Black!`);
       void this.playBot();
     } else if (cfg.mode === 'bot') {
@@ -166,6 +175,14 @@ export class PlayScreen {
     } else {
       this.say('Pass and play! White moves first. Hand the device over after each move.');
     }
+  }
+
+  /** Moves that can't be taken back: the bot's first move, or the lesson moves you continued from. */
+  private get basePly(): number {
+    const start = this.cfg.startMoves?.length ?? 0;
+    if (this.cfg.mode !== 'bot') return start;
+    // The first position you can return to must be your turn.
+    return start % 2 === (this.cfg.playerColor === 'w' ? 0 : 1) ? start : start + 1;
   }
 
   stop() {
@@ -489,8 +506,8 @@ export class PlayScreen {
         plies = 2;
       }
       // Never undo the bot's opening move when you're Black.
-      if (history - plies < (this.cfg.playerColor === 'b' ? 1 : 0)) return;
-    } else if (history === 0) return;
+      if (history - plies < this.basePly) return;
+    } else if (history <= this.basePly) return;
     this.gameId++; // invalidates any bot search in progress
     this.board.skipAnimation();
     getEngine().cancelAll();
@@ -719,7 +736,7 @@ export class PlayScreen {
   private renderButtons() {
     const total = this.chess.history().length;
     const btn = (a: string) => this.el.querySelector<HTMLButtonElement>(`[data-act="${a}"]`)!;
-    const minPly = this.cfg.mode === 'bot' && this.cfg.playerColor === 'b' ? 1 : 0;
+    const minPly = this.basePly;
     btn('undo').disabled = !!this.result || total <= minPly || (this.cfg.mode === 'bot' && !this.botThinking && total - 2 < minPly);
     btn('hint').disabled = !this.isUsersTurn();
     btn('draw').disabled = !!this.result || total < 2 || this.botThinking;
@@ -776,4 +793,15 @@ function formatClock(ms: number): string {
   const m = Math.floor(s / 60);
   const sec = Math.floor(s % 60);
   return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+/** The deepest named opening reached in a game. */
+function openingOfMoves(c: Chess): { name: string } | null {
+  const t = new Chess();
+  let found: { name: string } | null = null;
+  for (const san of c.history()) {
+    t.move(san);
+    found = openingFor(t.fen()) ?? found;
+  }
+  return found;
 }
