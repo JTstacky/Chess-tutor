@@ -3,6 +3,7 @@
 // attack, and nobody gets hurt: victims get bubbled, frogged, bounced or blown away.
 import './battle.css';
 import type { Color, PieceSymbol } from 'chess.js';
+import { characterEyes } from './characters';
 import { sfx, type Sfx } from './sound';
 import { glowFilter, pieceSrc, type Theme } from './themes';
 import type { Timeline } from './timeline';
@@ -48,9 +49,13 @@ const EYES: Record<PieceSymbol, { at: [number, number][]; size: number }> = {
   k: { at: [[33, 55], [67, 55]], size: 13 },
 };
 
+// Pixels per stage unit (1% of the stage width). Only one battle plays at a time.
+let unit = 4;
+const px = (n: number) => `${(n * unit).toFixed(2)}px`;
+
 /** A transform keyframe: offset from home (x, y), rotation, scale and opacity. */
 export function K(x = 0, y = 0, r = 0, sx = 1, sy = sx, o = 1): Keyframe {
-  return { transform: `translate(${x}cqw, ${y}cqw) rotate(${r}deg) scale(${sx}, ${sy})`, opacity: o };
+  return { transform: `translate(${px(x)}, ${px(y)}) rotate(${r}deg) scale(${sx}, ${sy})`, opacity: o };
 }
 const at = (offset: number, k: Keyframe, easing?: string): Keyframe => ({ ...k, offset, ...(easing ? { easing } : {}) });
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
@@ -64,9 +69,12 @@ export class Stage {
   constructor(
     readonly tl: Timeline,
     readonly theme: Theme,
+    width: number,
   ) {
+    unit = Math.max(1, width / 100);
     this.root = document.createElement('div');
     this.root.className = `battle bt-${theme.id}`;
+    this.root.style.setProperty('--u', px(1));
     this.world = document.createElement('div');
     this.world.className = 'bt-world';
     this.world.innerHTML = `<div class="bt-sky"></div><div class="bt-ground"></div>`;
@@ -80,8 +88,8 @@ export class Stage {
   fighter(type: PieceSymbol, color: Color, cx: number, facing: 1 | -1): Fighter {
     const el = document.createElement('div');
     el.className = 'bt-fighter';
-    el.style.left = `${cx - SIZE / 2}cqw`;
-    el.style.top = `${GROUND - SIZE}cqw`;
+    el.style.left = `${px(cx - SIZE / 2)}`;
+    el.style.top = `${px(GROUND - SIZE)}`;
     const inner = document.createElement('div');
     inner.className = 'bt-inner';
     const flip = document.createElement('div');
@@ -90,12 +98,13 @@ export class Stage {
     const native = type === 'n' ? -1 : 1;
     flip.style.transform = `scaleX(${facing * native})`;
     const img = document.createElement('img');
-    img.src = pieceSrc(this.theme, color, type);
+    const classic = this.theme.id === 'classic';
+    img.src = pieceSrc(this.theme, color, type, false); // the animated eyes go on top
     img.alt = '';
     img.draggable = false;
     img.style.filter = glowFilter(this.theme[color]);
     flip.append(img);
-    const eyes = EYES[type];
+    const eyes = classic ? EYES[type] : characterEyes(type);
     for (const [x, y] of eyes.at) {
       const eye = document.createElement('i');
       eye.className = 'bt-eye';
@@ -178,7 +187,7 @@ export class Stage {
   prop(content: string, x: number, y: number, size: number, cls = '', parent: HTMLElement = this.world): HTMLElement {
     const el = document.createElement('div');
     el.className = `bt-prop ${cls}`;
-    el.style.cssText = `left:${x}cqw;top:${y}cqw;font-size:${size}cqw`;
+    el.style.cssText = `left:${px(x)};top:${px(y)};font-size:${px(size)}`;
     el.innerHTML = `<div class="bt-pc">${content}</div>`;
     parent.append(el);
     return el;
@@ -196,7 +205,7 @@ export class Stage {
     el.className = `bt-beam ${cls}`;
     const len = Math.hypot(x2 - x1, y2 - y1);
     const ang = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
-    el.style.cssText = `left:${x1}cqw;top:${y1}cqw;width:${len}cqw;transform:rotate(${ang}deg)`;
+    el.style.cssText = `left:${px(x1)};top:${px(y1)};width:${px(len)};transform:rotate(${ang}deg)`;
     const bar = document.createElement('div');
     bar.style.transformOrigin = fromEnd ? 'right center' : 'left center';
     el.append(bar);
@@ -1061,7 +1070,7 @@ export async function playBattle(
   victim: { type: PieceSymbol; color: Color },
   { theme, tl, origin = { x: 50, y: 50 }, beforeReveal }: BattleOptions,
 ): Promise<void> {
-  const s = new Stage(tl, theme);
+  const s = new Stage(tl, theme, host.clientWidth);
   const battle = battleFor(attacker.type, victim.type);
   const A = s.fighter(attacker.type, attacker.color, AX, 1);
   const V = s.fighter(victim.type, victim.color, VX, -1);

@@ -6,6 +6,7 @@ import { getEngine } from './engine';
 import { branchesOnPath, CATEGORIES, leafPaths, LESSONS, type Branch, type Lesson, type LessonMove } from './lessons';
 import { sounds } from './sound';
 import { profile, recordLessonExplored, recordLessonStars } from './storage';
+import type { Theme } from './themes';
 import { confetti, showModal } from './ui';
 
 const starsText = (n: number) => '★'.repeat(n) + '☆'.repeat(3 - n);
@@ -84,7 +85,7 @@ export class LessonScreen {
           <button data-act="back"><span>📚</span>Lessons</button>
         </div>
       </div>`;
-    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p), plain: true });
+    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p), quiet: true });
     this.el.querySelector('.board-host')!.append(this.board.el);
     this.el.querySelector('.lesson-controls')!.addEventListener('click', (e) => {
       const act = (e.target as HTMLElement).closest('button')?.dataset.act;
@@ -98,6 +99,11 @@ export class LessonScreen {
       if (opt === undefined) return;
       this.choose(opt === 'random' ? this.randomOption() : Number(opt));
     });
+  }
+
+  /** Lessons use the theme last picked for a game. */
+  setTheme(theme: Theme) {
+    this.board.setTheme(theme);
   }
 
   start(lesson: Lesson) {
@@ -117,11 +123,21 @@ export class LessonScreen {
 
   stop() {
     this.token++;
+    this.board.skipAnimation();
     getEngine().cancelAll();
+  }
+
+  /** Run `fn` `ms` after the board has finished animating (a capture battle can take a few seconds). */
+  private after(ms: number, fn: () => void) {
+    const t = this.token;
+    void this.board.idle().then(() => {
+      if (t === this.token) setTimeout(fn, ms);
+    });
   }
 
   private reset() {
     this.token++;
+    this.board.skipAnimation();
     getEngine().cancelAll();
     this.hintLevel = 0;
     this.done = false;
@@ -225,21 +241,21 @@ export class LessonScreen {
     const m = this.moves[this.ply];
     if (!m) {
       const b = this.branches.at(-1)!;
-      if (!b.then) return this.variationComplete();
+      if (!b.then) return this.after(0, () => this.variationComplete());
       this.busy = true;
       const t = this.token;
-      setTimeout(() => {
+      this.after(Math.min(delay, 1600), () => {
         if (t !== this.token) return;
         this.busy = false;
         this.showChoice();
-      }, Math.min(delay, 1600));
+      });
       return;
     }
     if (this.chess.turn() !== this.lesson.side) {
       this.busy = true;
       this.render();
       const t = this.token;
-      setTimeout(() => {
+      this.after(delay, () => {
         if (t !== this.token) return;
         const mv = this.chess.move(m.san);
         this.playSound(mv);
@@ -247,7 +263,7 @@ export class LessonScreen {
         if (m.note) this.say(m.note);
         this.render(true);
         this.advance(m.note ? 1800 : 700);
-      }, delay);
+      });
       return;
     }
     // Your move: the board is ready now; the prompt appears after time to read the last note.
@@ -255,11 +271,11 @@ export class LessonScreen {
     this.render();
     const t = this.token;
     const ply = this.ply;
-    setTimeout(() => {
+    this.after(this.ply === 0 ? 0 : Math.min(delay, 1200), () => {
       if (t !== this.token || ply !== this.ply) return;
       const demo = m.demo ? '🪤 ' : '';
       this.say(demo + (m.prompt ?? 'Your move! Which move do you think comes next?'));
-    }, this.ply === 0 ? 0 : Math.min(delay, 1200));
+    });
   }
 
   private async userMove(from: Square, to: Square, promotion?: string) {
@@ -372,6 +388,14 @@ export class LessonScreen {
   private finishLesson(success: boolean, message = '') {
     this.done = true;
     this.render();
+    // Let the last move (and any battle) finish before the result pops up.
+    const t = this.token;
+    void this.board.idle().then(() => {
+      if (t === this.token) this.showResult(success, message);
+    });
+  }
+
+  private showResult(success: boolean, message: string) {
     if (!success) {
       sounds.lose();
       showModal('Oops! 😅', message, [
@@ -418,6 +442,7 @@ export class LessonScreen {
     const [lines] = await Promise.all([
       getEngine().analyse(this.chess.fen(), { depth: 12 }),
       new Promise((r) => setTimeout(r, 500)),
+      this.board.idle(),
     ]);
     if (t !== this.token || !lines[0]) return;
     const reply = this.chess.move({ from: lines[0].move.slice(0, 2), to: lines[0].move.slice(2, 4), promotion: lines[0].move[4] });

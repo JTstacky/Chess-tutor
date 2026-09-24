@@ -14,9 +14,12 @@ A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) f
   Trapdoor…). Tap to skip. Clocks pause while a battle plays. Pick any pair in the **Battle Arena** menu.
 - **Themes** (`src/chess/themes.ts`): Classic, Fantasy (Unicorn Kingdom vs Dragon Clan), Space (Robot Squad vs
   Alien Crew), Ocean (Dolphin Reef vs Shark Squad), Candy (Cupcake Crew vs Choco Gang) and Dino (Tricera-Team vs
-  T-Rex Gang). Chosen when starting a game. Pieces are recoloured versions of the cburnett set
-  (`src/chess/pieceart.ts`).
-- Both animation types can be switched off in Settings (they default to off if the device asks for reduced motion).
+  T-Rex Gang). Chosen when starting a game (lessons use the last one picked). Each team's pieces are drawn as
+  its own characters (`src/chess/characters.ts`): robots, aliens, fairy-tale royals, dragons, reef fish,
+  sharks, cupcakes, bonbons and dinosaurs, with a unicorn, dragon, seahorse… as the knight. Every piece
+  type keeps its signature headgear so it stays easy to read: cross crown (king), ball crown (queen),
+  battlements (rook), mitre (bishop).
+- Battles also play in lessons. Both animation types can be switched off in Settings.
 
 ## Develop
 
@@ -45,6 +48,6 @@ One-time setup:
 
 ## Credits and licences
 
-- Piece set "cburnett" by Colin M.L. Burnett, CC BY-SA 3.0 (`public/pieces`)
+- Piece set "cburnett" by Colin M.L. Burnett, CC BY-SA 3.0 (`public/pieces`, and the knight outline the themed knights in `src/chess/characters.ts` are built on)
 - Opening names from [lichess-org/chess-openings](https://github.com/lichess-org/chess-openings), CC0 (`data/*.tsv`, built into `public/openings.json` by `scripts/build-openings.mjs`)
 - Stockfish engine, GPLv3 (`public/stockfish`, see `COPYING.txt`); source: https://github.com/nmrugg/stockfish.js

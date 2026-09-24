@@ -29,8 +29,8 @@ type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
 export interface BoardOptions {
   onMove: (from: Square, to: Square, promotion?: PromotionPiece) => void;
-  /** Plain slides only: no fun moves, battles or sounds (lessons pace and voice their own moves). */
-  plain?: boolean;
+  /** Don't play move sounds: the owner plays its own (lessons). Battles keep their sound effects. */
+  quiet?: boolean;
 }
 
 const FILES = 'abcdefgh';
@@ -155,9 +155,9 @@ export class Board {
           board: this.el,
           fxLayer: this.fxEl,
           theme: this.theme,
-          funMoves: !this.opts.plain && settings.funMoves,
-          battles: !this.opts.plain && settings.battles,
-          sounds: !this.opts.plain,
+          funMoves: settings.funMoves,
+          battles: settings.battles,
+          sounds: !this.opts.quiet,
           xy: (sq) => this.squareXY(sq),
           pieceEl: (sq) => this.piecesEl.querySelector<HTMLElement>(`.piece[data-sq="${sq}"]`),
         },

@@ -294,6 +294,7 @@ function learnView(): HTMLElement {
 }
 
 function openLesson(l: Lesson) {
+  lesson.setTheme(themeById(lastTheme));
   show(lesson.el);
   lesson.start(l);
 }
