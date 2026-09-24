@@ -1,0 +1,46 @@
+:root {
+  --bg: #f4f0ff;
+  --ink: #2b2250;
+  --muted: #6d6594;
+  --card: #ffffff;
+  --brand: #6c4ee3;
+  --accent: #ffb400;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.site-header { padding: 16px; display: flex; justify-content: center; }
+.logo { font-size: 32px; font-weight: 700; color: var(--brand); }
+.logo span { color: var(--accent); }
+main { flex: 1; padding: 0 16px 32px; max-width: 900px; margin: 0 auto; width: 100%; }
+h1 { text-align: center; font-size: clamp(28px, 6vw, 44px); margin: 8px 0 24px; }
+.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.game-card {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 8px 0 rgba(108, 78, 227, 0.25);
+  transition: transform 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.game-card.chess:hover { transform: translateY(-4px) rotate(-1deg); }
+.game-card h2 { margin: 12px 0 4px; }
+.game-card p { color: var(--muted); margin: 0 0 16px; }
+.art { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 72px; gap: 4px; }
+.art img { height: 96px; }
+.chess .art { background: repeating-conic-gradient(#eeeed2 0 25%, #769656 0 50%) 0 0 / 55px 55px; border-radius: 16px; width: 100%; }
+.play-btn { background: var(--brand); color: #fff; padding: 10px 28px; border-radius: 999px; font-weight: 600; font-size: 20px; margin-top: auto; }
+.soon { opacity: 0.7; }
+footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px; }
