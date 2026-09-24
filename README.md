@@ -32,4 +32,5 @@ One-time setup:
 ## Credits and licences
 
 - Piece set "cburnett" by Colin M.L. Burnett, CC BY-SA 3.0 (`public/pieces`)
+- Opening names from [lichess-org/chess-openings](https://github.com/lichess-org/chess-openings), CC0 (`data/*.tsv`, built into `public/openings.json` by `scripts/build-openings.mjs`)
 - Stockfish engine, GPLv3 (`public/stockfish`, see `COPYING.txt`); source: https://github.com/nmrugg/stockfish.js

@@ -1,10 +1,19 @@
 // The game screen: vs a bot or pass-and-play, with clocks, takeback, hints, draw and resign.
 import { Chess, type Color, type Move, type Square } from 'chess.js';
-import { Board, type BoardState } from './board';
+import { Board, type Arrow, type BoardState } from './board';
 import { BOTS, botMove, type Bot } from './bots';
-import { getEngine } from './engine';
+import {
+  explainConsequence,
+  GRADE_INFO,
+  NAMES,
+  openingFor,
+  threatenedPieces,
+  winPercent,
+} from './coach';
+import { getEngine, type EngineLine } from './engine';
+import { reviewGame, type GameReview } from './review';
 import { sounds } from './sound';
-import { profile, recordBotResult, settings } from './storage';
+import { coachingOn, profile, recordBotResult } from './storage';
 import { confirmDialog, confetti, showModal } from './ui';
 
 export interface TimeControl {
@@ -54,6 +63,12 @@ export class PlayScreen {
   private botThinking = false;
   private hintsUsed = 0;
   private flagWarned = { w: false, b: false };
+  private checking = false; // blunder check in progress
+  private tentative: Chess | null = null; // position shown while checking a move
+  private pre: { fen: string; lines: Promise<EngineLine[]> } | null = null;
+  private openingName = '';
+  private review: GameReview | null = null;
+  private reviewing = false;
 
   constructor(private onExit: () => void) {
     this.el = document.createElement('section');
@@ -72,12 +87,14 @@ export class PlayScreen {
       </div>
       <div class="side-col">
         <div class="coach"><div class="mascot">🦉</div><div class="bubble"></div></div>
+        <div class="opening" hidden></div>
         <div class="controls">
           <button data-act="undo" title="Take back"><span>↶</span>Take back</button>
           <button data-act="hint" title="Hint"><span>💡</span>Hint</button>
           <button data-act="flip" title="Flip board"><span>🔄</span>Flip</button>
           <button data-act="draw" title="Offer draw"><span>🤝</span>Draw</button>
           <button data-act="resign" title="Resign"><span>🏳️</span>Resign</button>
+          <button data-act="review" title="Review game" hidden><span>⭐</span>Review</button>
           <button data-act="new" title="New game"><span>✨</span>New</button>
         </div>
         <ol class="moves"></ol>
@@ -119,6 +136,12 @@ export class PlayScreen {
     this.botThinking = false;
     this.hintsUsed = 0;
     this.flagWarned = { w: false, b: false };
+    this.checking = false;
+    this.tentative = null;
+    this.pre = null;
+    this.openingName = '';
+    this.review = null;
+    this.reviewing = false;
     const ms = cfg.time.minutes * 60_000;
     this.clocks = { w: ms, b: ms };
     this.clockHistory = [{ ...this.clocks }];
@@ -126,9 +149,7 @@ export class PlayScreen {
     this.board.setArrows([]);
     this.board.setOrientation(cfg.playerColor);
     this.el.classList.toggle('no-clock', cfg.time.minutes === 0);
-    this.el.querySelector<HTMLElement>('[data-act="hint"]')!.hidden =
-      !(settings.coaching && settings.hints && cfg.mode === 'bot');
-    this.el.querySelector<HTMLElement>('[data-act="draw"]')!.hidden = false;
+    this.el.querySelector<HTMLElement>('[data-act="hint"]')!.hidden = !(coachingOn('hints') && cfg.mode === 'bot');
     this.refresh(false);
     if (cfg.mode === 'bot' && cfg.playerColor === 'b') {
       this.say(`${cfg.bot!.name} plays first. You're Black!`);
@@ -149,15 +170,56 @@ export class PlayScreen {
   // ---- moves ----
 
   private isUsersTurn(): boolean {
-    if (this.result || this.viewPly !== null) return false;
+    if (this.result || this.viewPly !== null || this.checking) return false;
     if (this.cfg.mode === 'friend') return true;
     return !this.botThinking && this.chess.turn() === this.cfg.playerColor;
   }
 
-  private userMove(from: Square, to: Square, promotion?: 'q' | 'r' | 'b' | 'n') {
+  private async userMove(from: Square, to: Square, promotion?: 'q' | 'r' | 'b' | 'n') {
     if (!this.isUsersTurn()) return;
-    this.makeMove({ from, to, promotion });
-    if (!this.result && this.cfg.mode === 'bot') void this.playBot();
+    if (this.cfg.mode === 'bot' && coachingOn('blunderWarnings') && !(await this.blunderCheck(from, to, promotion))) return;
+    const move = this.makeMove({ from, to, promotion });
+    if (move && !this.result && this.cfg.mode === 'bot') void this.playBot();
+  }
+
+  /** Before a move goes through, check whether it throws the game away. Returns true to play it. */
+  private async blunderCheck(from: Square, to: Square, promotion?: string): Promise<boolean> {
+    const id = this.gameId;
+    const fen = this.chess.fen();
+    const test = new Chess(fen);
+    try {
+      test.move({ from, to, promotion });
+    } catch {
+      return false;
+    }
+    if (test.isGameOver()) return true;
+    this.checking = true;
+    this.tentative = test;
+    this.refresh(false);
+    const before = await (this.pre?.fen === fen ? this.pre.lines : getEngine().analyse(fen, { depth: 10 }));
+    const after = await getEngine().analyse(test.fen(), { depth: 10 });
+    if (id !== this.gameId) return false;
+    const beforeWin = before[0] ? winPercent(before[0].cp) : 50;
+    const afterWin = after[0] ? 100 - winPercent(after[0].cp) : 50;
+    // Only warn about real blunders, and not when you're still winning easily anyway.
+    if (!before[0] || !after[0] || beforeWin - afterWin < 20 || afterWin > 85) {
+      this.checking = false;
+      this.tentative = null;
+      return true;
+    }
+    // Keep showing the move on the board while asking, so the red arrow makes sense.
+    const why = explainConsequence(test.fen(), after[0], this.cfg.playerColor, this.cfg.bot!.name) ||
+      'This move makes your position a lot worse.';
+    const threat = after[0].pv[0];
+    if (threat) this.board.setArrows([{ from: threat.slice(0, 2) as Square, to: threat.slice(2, 4) as Square, color: 'rgba(220,50,50,0.85)' }]);
+    const go = !(await confirmDialog('🤔 Are you sure?', `${why} Do you want to try a different move?`, 'Let me rethink', 'Play it anyway'));
+    this.board.setArrows([]);
+    if (id !== this.gameId) return false;
+    this.checking = false;
+    this.tentative = null;
+    if (!go) this.refresh(false);
+    if (!go) this.say('Good thinking! Look for a safer move. Check what your opponent can capture.');
+    return go;
   }
 
   private makeMove(m: { from: string; to: string; promotion?: string }): Move | null {
@@ -199,6 +261,16 @@ export class PlayScreen {
   private commentOnMove(move: Move) {
     const botGame = this.cfg.mode === 'bot';
     const yourTurn = !botGame || this.chess.turn() === this.cfg.playerColor;
+    if (this.announceOpening()) return;
+    if (yourTurn && !this.chess.isCheck() && coachingOn('threatWarnings')) {
+      const t = threatenedPieces(this.chess, this.chess.turn())[0];
+      if (t && VALUE_OF[t.type] >= 3) {
+        const who = botGame ? 'your' : `${colorName(this.chess.turn())}'s`;
+        this.say(`Watch out! ${cap(who)} ${NAMES[t.type]} on ${t.square} is under attack by a ${NAMES[t.by]}.`);
+        this.board.setArrows([{ from: t.from, to: t.square, color: 'rgba(220,50,50,0.8)' }]);
+        return;
+      }
+    }
     if (this.chess.isCheck()) {
       this.say(yourTurn ? `Check! Your king is under attack. Move it, block, or capture the attacker.` : `Check! Nice one!`);
     } else if (move.captured && botGame && move.color === this.cfg.playerColor) {
@@ -210,6 +282,28 @@ export class PlayScreen {
     } else {
       this.say(`${colorName(this.chess.turn())} to move.`);
     }
+  }
+
+  /** Show the opening's name; returns true if Hoot announced a new one. */
+  private announceOpening(): boolean {
+    if (!coachingOn('openingNames')) return false;
+    const o = openingFor(this.chess.fen());
+    if (!o || o.name === this.openingName) return false;
+    const family = (n: string) => n.split(':')[0];
+    const isNew = family(o.name) !== family(this.openingName);
+    this.openingName = o.name;
+    this.renderOpening();
+    if (!isNew) return false;
+    const botGame = this.cfg.mode === 'bot';
+    const yourTurn = !botGame || this.chess.turn() === this.cfg.playerColor;
+    this.say(`📖 This is the ${family(o.name)}!${yourTurn ? ' Your move.' : ''}`);
+    return true;
+  }
+
+  private renderOpening() {
+    const el = this.el.querySelector<HTMLElement>('.opening')!;
+    el.hidden = !this.openingName || !coachingOn('openingNames');
+    el.textContent = `📖 ${this.openingName}`;
   }
 
   // ---- game end ----
@@ -258,10 +352,75 @@ export class PlayScreen {
     }
     this.say(title.replace(/<[^>]+>/g, ''));
     showModal(title, body, [
-      { label: 'Play again', primary: true, onClick: () => this.start(this.cfg) },
-      { label: 'Look at the game', onClick: () => {} },
+      { label: '⭐ Review game', primary: true, onClick: () => void this.startReview() },
+      { label: 'Play again', onClick: () => this.start(this.cfg) },
       { label: 'Menu', onClick: () => this.onExit() },
     ]);
+  }
+
+  // ---- review ----
+
+  private async startReview() {
+    if (!this.result || this.reviewing) return;
+    if (this.review) return this.showReviewSummary();
+    const id = this.gameId;
+    this.reviewing = true;
+    this.renderButtons();
+    const names: Record<Color, string> =
+      this.cfg.mode === 'bot'
+        ? this.cfg.playerColor === 'w'
+          ? { w: 'you', b: this.cfg.bot!.name }
+          : { w: this.cfg.bot!.name, b: 'you' }
+        : { w: 'White', b: 'Black' };
+    const review = await reviewGame(
+      this.chess.history({ verbose: true }),
+      names,
+      (done, total) => this.say(`🔍 Hoot is looking at your game… ${Math.round((done / total) * 100)}%`),
+      () => id !== this.gameId,
+    );
+    this.reviewing = false;
+    if (!review || id !== this.gameId) return;
+    this.review = review;
+    // Jump to your first big mistake so you can learn from it straight away.
+    const mine = (m: { color: Color }) => this.cfg.mode === 'friend' || m.color === this.cfg.playerColor;
+    const firstMistake = review.moves.find((m) => mine(m) && (m.grade === 'blunder' || m.grade === 'mistake'));
+    this.setView(firstMistake ? firstMistake.ply : this.chess.history().length);
+    this.showReviewSummary();
+  }
+
+  private showReviewSummary() {
+    const r = this.review!;
+    const sides: Color[] = this.cfg.mode === 'bot' ? [this.cfg.playerColor] : ['w', 'b'];
+    const grades = ['brilliant', 'best', 'good', 'book', 'inaccuracy', 'mistake', 'blunder'] as const;
+    const table = sides
+      .map((c) => {
+        const who = this.cfg.mode === 'bot' ? 'Your' : `${colorName(c)}'s`;
+        const rows = grades
+          .map((g) => `<tr><td style="color:${GRADE_INFO[g].color}">${GRADE_INFO[g].icon}</td><td>${GRADE_INFO[g].label}</td><td>${r.counts[c][g] ?? 0}</td></tr>`)
+          .join('');
+        return `<p class="accuracy">${who} accuracy: <b>${r.accuracy[c]}%</b></p><table class="grades">${rows}</table>`;
+      })
+      .join('');
+    showModal('⭐ Game review', `${table}<p>Use ◀ ▶ to step through the game. Hoot explains each move, and the green arrow shows the best move.</p>`, [
+      { label: 'Got it!', primary: true },
+    ]);
+  }
+
+  private showReviewMove(ply: number) {
+    const m = this.review?.moves[ply - 1];
+    const arrows: Arrow[] = [];
+    if (!m) {
+      this.say('This is the start of the game. Press ▶ to go through the moves.');
+    } else {
+      const g = GRADE_INFO[m.grade];
+      const who = this.cfg.mode === 'bot' ? (m.color === this.cfg.playerColor ? 'You' : this.cfg.bot!.name) : colorName(m.color);
+      this.say(`${g.icon} ${who} played ${m.san}: ${g.label}. ${m.comment}`.trim());
+      const bad = m.grade === 'inaccuracy' || m.grade === 'mistake' || m.grade === 'blunder';
+      if (bad && m.arrowUci) {
+        arrows.push({ from: m.arrowUci.slice(0, 2) as Square, to: m.arrowUci.slice(2, 4) as Square, color: 'rgba(40,180,90,0.85)' });
+      }
+    }
+    this.board.setArrows(arrows);
   }
 
   // ---- buttons ----
@@ -277,6 +436,8 @@ export class PlayScreen {
         return this.refresh(false);
       case 'draw':
         return this.offerDraw();
+      case 'review':
+        return this.startReview();
       case 'resign':
         if (this.result) return;
         if (await confirmDialog('Resign?', 'Are you sure you want to give up this game?', 'Resign')) {
@@ -315,6 +476,14 @@ export class PlayScreen {
     this.clocks = { ...this.clockHistory[this.clockHistory.length - 1] };
     if (this.chess.history().length === 0) this.stopClock();
     this.viewPly = null;
+    this.pre = null;
+    this.openingName = '';
+    for (let i = this.chess.history().length; i >= 0 && !this.openingName; i--) {
+      const c = new Chess();
+      this.chess.history().slice(0, i).forEach((san) => c.move(san));
+      this.openingName = openingFor(c.fen())?.name ?? '';
+    }
+    this.renderOpening();
     this.board.setArrows([]);
     this.refresh(false);
     this.say('Move taken back. Have another think!');
@@ -429,8 +598,8 @@ export class PlayScreen {
   private refresh(animate: boolean) {
     const total = this.chess.history().length;
     const viewing = this.viewPly !== null;
-    let pos = this.chess;
-    let lastMove: Move | undefined = this.chess.history({ verbose: true })[total - 1];
+    let pos = this.tentative ?? this.chess;
+    let lastMove: Move | undefined = pos.history({ verbose: true }).at(-1);
     if (viewing) {
       const moves = this.chess.history({ verbose: true }).slice(0, this.viewPly!);
       pos = new Chess();
@@ -453,7 +622,12 @@ export class PlayScreen {
       movable: this.isUsersTurn() ? pos.turn() : null,
     };
     this.board.setState(state, animate);
-    this.el.classList.toggle('viewing-history', viewing);
+    this.el.classList.toggle('viewing-history', viewing && !this.review);
+    if (this.review) this.showReviewMove(this.viewPly ?? total);
+    // Start analysing as soon as it's your turn so the blunder check is quick.
+    if (this.cfg.mode === 'bot' && coachingOn('blunderWarnings') && this.isUsersTurn() && this.pre?.fen !== pos.fen()) {
+      this.pre = { fen: pos.fen(), lines: getEngine().analyse(pos.fen(), { depth: 10 }) };
+    }
     this.renderPlayers(pos);
     this.renderMoves();
     this.renderClocks();
@@ -494,8 +668,12 @@ export class PlayScreen {
     const current = this.viewPly ?? sans.length;
     const parts: string[] = [];
     for (let i = 0; i < sans.length; i += 2) {
-      const cell = (ply: number) =>
-        sans[ply - 1] ? `<span data-ply="${ply}" class="${ply === current ? 'cur' : ''}">${sans[ply - 1]}</span>` : '';
+      const cell = (ply: number) => {
+        if (!sans[ply - 1]) return '';
+        const g = this.review?.moves[ply - 1]?.grade;
+        const icon = g ? `<i style="color:${GRADE_INFO[g].color}">${GRADE_INFO[g].icon}</i>` : '';
+        return `<span data-ply="${ply}" class="${ply === current ? 'cur' : ''}">${sans[ply - 1]}${icon}</span>`;
+      };
       parts.push(`<li><em>${i / 2 + 1}.</em>${cell(i + 1)}${cell(i + 2)}</li>`);
     }
     list.innerHTML = parts.join('');
@@ -510,6 +688,9 @@ export class PlayScreen {
     btn('hint').disabled = !this.isUsersTurn();
     btn('draw').disabled = !!this.result || total < 2 || this.botThinking;
     btn('resign').disabled = !!this.result;
+    btn('review').hidden = !this.result;
+    btn('draw').hidden = btn('resign').hidden = !!this.result;
+    btn('review').disabled = this.reviewing;
     const nav = (n: string) => this.el.querySelector<HTMLButtonElement>(`[data-nav="${n}"]`)!;
     const cur = this.viewPly ?? total;
     nav('start').disabled = nav('prev').disabled = cur === 0;
@@ -518,6 +699,9 @@ export class PlayScreen {
 }
 
 // ---- helpers ----
+
+const VALUE_OF = PIECE_VALUES;
+const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 export function pieceName(t: string): string {
   return { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }[t] ?? 'piece';
