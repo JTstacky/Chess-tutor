@@ -217,3 +217,9 @@
 {"fen":"2r2rk1/4b2p/p7/1p1nR1P1/1P6/2Bp1P2/6RP/7K b - - 2 32","moves":["f8f6","g5f6"],"themes":["discoveredAttack","winMaterial"],"rating":992,"eval":628}
 {"fen":"r4rk1/2p3p1/1pQp1nqp/2nPp3/4P3/P1N1NP2/1PP3PP/1R3R1K w - - 1 22","moves":["c6b7","c5b7"],"themes":["hangingPiece","winMaterial"],"rating":638,"eval":627}
 {"fen":"4r3/1p6/2p3k1/1p3R1p/1P6/P6P/2PP2P1/6K1 w - - 2 32","moves":["f5f8","e8f8"],"themes":["hangingPiece","winMaterial"],"rating":765,"eval":513}
+{"fen":"rnbq1rk1/pp3ppp/5n2/2pp4/1b1P4/2N1PN2/PPB2PPP/R1BQK2R b KQ - 1 3","moves":["c8f5","c2f5","b4c3","b2c3"],"themes":["winMaterial"],"rating":1241,"eval":626}
+{"fen":"r1bqk2r/pp1n1pp1/2p1p2p/b2p4/PPPPn3/2NQ1N2/4BPPP/R1B2RK1 b kq - 0 6","moves":["d5c4","d3e4"],"themes":["hangingPiece","pin","winMaterial"],"rating":707,"eval":462}
+{"fen":"rn2k2r/pp2nppp/4p3/q1ppP3/b2P3P/P1PQ1N2/2P2PP1/1RB1KB1R b Kkq - 2 4","moves":["a5b6","b1b6"],"themes":["winMaterial"],"rating":977,"eval":650}
+{"fen":"r3k2r/n2n1pp1/p3p2p/3pPb1P/P1pP4/2P2N1R/3QBPP1/2B1K3 w kq - 0 14","moves":["d2g5","h6g5"],"themes":["winMaterial"],"rating":989,"eval":597}
+{"fen":"1rb1q2k/pp2b1pp/3p1r2/1Pp5/P1PpQ3/6P1/1B3PBP/R3R1K1 b - - 2 12","moves":["b7b6","e4e7","e8e7","e1e7"],"themes":["fork","winMaterial"],"rating":1236,"eval":520}
+{"fen":"1r4k1/1p2bppp/pqn5/5R2/6Q1/2P5/PP3PPP/5RK1 w - - 6 24","moves":["f5f7","g8f7"],"themes":["hangingPiece","winMaterial"],"rating":603,"eval":614}
