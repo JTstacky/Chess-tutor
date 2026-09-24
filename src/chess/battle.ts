@@ -285,6 +285,37 @@ export class Stage {
     void this.anim(el, [{ opacity: 0.9 }, { opacity: 0 }], dur, 'ease-out').then(() => el.remove());
   }
 
+  /** A rope between two moving points (e.g. a prop held by a fighter and a lasso loop). Returns a remover. */
+  tether(from: HTMLElement, to: HTMLElement, color = '#b87333'): () => void {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'bt-rope');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.innerHTML = `<path fill="none" stroke="${color}" stroke-width="1.1" stroke-linecap="round"/><path fill="none" stroke="#6d4320" stroke-width="1.1" stroke-dasharray="0.6 1.2" stroke-linecap="round"/>`;
+    this.world.append(svg);
+    const paths = svg.querySelectorAll('path');
+    const point = (el: HTMLElement, w: DOMRect) => {
+      const r = el.getBoundingClientRect();
+      const k = 100 / w.width;
+      return [(r.left + r.width / 2 - w.left) * k, (r.top + r.height / 2 - w.top) * k];
+    };
+    let alive = true;
+    const draw = () => {
+      if (!alive || !svg.isConnected) return;
+      const w = this.world.getBoundingClientRect();
+      const [x1, y1] = point(from, w);
+      const [x2, y2] = point(to, w);
+      const sag = Math.min(8, Math.hypot(x2 - x1, y2 - y1) * 0.15);
+      const d = `M${x1.toFixed(2)} ${y1.toFixed(2)} Q${((x1 + x2) / 2).toFixed(2)} ${(Math.max(y1, y2) + sag).toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+      paths.forEach((p) => p.setAttribute('d', d));
+      requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      alive = false;
+      svg.remove();
+    };
+  }
+
   hide(f: Fighter) {
     f.el.style.visibility = 'hidden';
   }
@@ -308,6 +339,25 @@ interface Battle {
   title: string;
   run: Script;
 }
+
+// Drawn props that must point at the opponent (emoji face different ways on different devices).
+const GLOVE = `<svg viewBox="0 0 30 22" width="1.35em" height="1em" style="display:block">
+  <defs><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset="1" stop-color="#c81e1e"/></linearGradient></defs>
+  <rect x="1" y="5.5" width="8.5" height="11" rx="2" fill="#fff" stroke="#6b0f0f" stroke-width="1"/>
+  <path d="M3 8.5h4M3 11h4M3 13.5h4" stroke="#c81e1e" stroke-width="0.8"/>
+  <path d="M8.5 3.2H19C26 3.2 29 7 29 11S26 18.8 19 18.8H8.5Z" fill="url(#gl)" stroke="#6b0f0f" stroke-width="1"/>
+  <path d="M11 3.4C11.5 0.8 18 0.4 19.5 3.6" fill="url(#gl)" stroke="#6b0f0f" stroke-width="1"/>
+  <path d="M14 8.6C18 7.4 23 8.2 25.5 11" fill="none" stroke="#6b0f0f" stroke-width="0.8" stroke-linecap="round"/>
+  <ellipse cx="21" cy="6" rx="3.5" ry="1.2" fill="#fff" opacity="0.5"/>
+</svg>`;
+const TRUMPET = `<svg viewBox="0 0 34 16" width="1.6em" height="0.75em" style="display:block">
+  <defs><linearGradient id="tr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset="1" stop-color="#d4a017"/></linearGradient></defs>
+  <rect x="1" y="6.5" width="4" height="3" rx="1" fill="url(#tr)" stroke="#7a5500" stroke-width="0.8"/>
+  <rect x="5" y="7" width="18" height="2" fill="url(#tr)" stroke="#7a5500" stroke-width="0.8"/>
+  <path d="M10 9v3.5h8V9" fill="none" stroke="#7a5500" stroke-width="0.8"/>
+  <path d="M12 7V4.5M14.5 7V4.5M17 7V4.5" stroke="#7a5500" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M22 7.2L32.5 1.5V14.5L22 8.8Z" fill="url(#tr)" stroke="#7a5500" stroke-width="0.8" stroke-linejoin="round"/>
+</svg>`;
 
 const wiggle = (a: number) => [K(0, 0, -a), K(0, 0, a), K(0, 0, -a), K(0, 0, a), K(0, 0, 0)];
 const spin = (n: number) => Array.from({ length: n * 2 + 1 }, (_, i) => K(0, 0, 0, i % 2 ? -1 : 1, 1));
@@ -544,26 +594,38 @@ export const BATTLES: Record<string, Battle> = {
   nq: {
     title: 'Lasso Loop!',
     async run(s, A, V) {
+      // The rope is held in the knight's mouth and ends in a loop that twirls above its head.
+      const hand = s.hold(A, '', 11, 1, 1);
       const lasso = s.hold(A, '', 0, -19, 13, 'lasso');
+      let rope = s.tether(hand, lasso);
       void s.anim(lasso.firstElementChild as HTMLElement, [{ transform: 'translate(-50%,-50%) rotateX(70deg) rotate(0deg)' }, { transform: 'translate(-50%,-50%) rotateX(70deg) rotate(360deg)' }], { duration: 300, iterations: Infinity, easing: 'linear' });
+      void s.anim(lasso, [K(0, 0), K(3, -2), K(0, 0), K(-3, -2), K(0, 0)], { duration: 300, iterations: 3, easing: 'linear' });
       s.say(A, 'Yee-haw!');
       s.sfx('whirl');
-      await s.wait(800);
+      await s.wait(900);
       s.sfx('whoosh');
       await s.anim(lasso, [K(0, 0), at(0.5, K(24, -14)), K(48, 10, 0, 0.9, 0.9)], 500);
+      rope();
       lasso.remove();
       const loop = s.hold(V, '', 0, 6, 13, 'lasso tight');
-      void loop;
+      rope = s.tether(hand, loop);
       s.sfx('pop');
       s.mood(V, 'shock');
       s.say(V, 'Hey!');
       await s.wait(350);
       s.say(A, 'Yank!', 600);
       void s.fx(A, [K(0, 0, 0), K(0, 0, -15), K(0, 0, 0)], 300);
+      await s.go(V, [K(0, 0), K(-8, 0)], 250, 'ease-in');
       s.sfx('whirl');
       s.mood(V, 'dizzy');
       void s.fx(V, spin(6), { duration: 1100, easing: 'linear' });
-      await s.go(V, [K(0, 0), K(-4, -6), K(10, -14), K(30, -30), K(60, -50, 0, 0.6, 0.6, 0)], 1100, 'ease-in');
+      // Spin them like a top, then let go of the rope.
+      s.later(500, () => {
+        rope();
+        s.sfx('pop');
+      });
+      await s.go(V, [K(-8, 0), K(-4, -6), K(10, -14), K(30, -30), K(60, -50, 0, 0.6, 0.6, 0)], 1100, 'ease-in');
+      rope();
     },
   },
 
@@ -894,7 +956,7 @@ export const BATTLES: Record<string, Battle> = {
       s.say(A, 'Wind up…');
       await s.fx(A, [K(0, 0, 0), K(0, 0, -12)], 400);
       const spring = s.hold(A, '', 8, 0, 30, 'spring');
-      const glove = s.hold(A, '🥊', 10, 0, 11, 'glove');
+      const glove = s.hold(A, GLOVE, 10, 0, 11);
       s.sfx('boing');
       void s.fx(A, [K(0, 0, -12), K(0, 0, 4), K(0, 0, 0)], 250);
       void s.anim(spring, [{ transform: 'scaleX(0.02)' }, { transform: 'scaleX(1)' }], 170, 'ease-out');
@@ -1033,7 +1095,7 @@ export const BATTLES: Record<string, Battle> = {
   kq: {
     title: 'Trumpet Blast!',
     async run(s, A, V) {
-      const t = s.hold(A, '🎺', 12, -5, 11, 'flipx');
+      const t = s.hold(A, TRUMPET, 12, -5, 11);
       s.say(A, 'Toot toot!');
       await s.anim(t, [K(0, 0, 0), K(0, -2, -10)], 250);
       s.sfx('fanfare');

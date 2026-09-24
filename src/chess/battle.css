@@ -159,7 +159,15 @@
   clip-path: polygon(0 0, 100% 45%, 100% 55%, 0 100%);
 }
 .lance-l .bt-pc { transform: translate(-85%, -50%) scaleX(-1); }
-.lasso .bt-pc { width: 1em; height: 1em; border-radius: 50%; border: 0.07em dashed #c68642; transform: translate(-50%, -50%) rotateX(70deg); }
+.lasso .bt-pc {
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 0.085em solid #b87333;
+  box-shadow: 0 0 0 0.02em #6d4320, inset 0 0 0 0.02em #6d4320;
+  transform: translate(-50%, -50%) rotateX(70deg);
+}
+.bt-rope { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; overflow: visible; }
 .bubble .bt-pc {
   width: 1em;
   height: 1em;
