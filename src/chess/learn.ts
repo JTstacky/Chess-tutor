@@ -5,7 +5,9 @@ import { explainConsequence, NAMES, winPercent } from './coach';
 import { getEngine } from './engine';
 import { branchesOnPath, CATEGORIES, leafPaths, LESSONS, type Branch, type Lesson, type LessonMove } from './lessons';
 import { sounds } from './sound';
-import { profile, recordLessonExplored, recordLessonStars } from './storage';
+import { BOTS } from './bots';
+import { openingReport, reportHtml } from './report';
+import { profile, recordLessonExplored, recordLessonStars, settings } from './storage';
 import { confetti, showModal } from './ui';
 
 const starsText = (n: number) => '★'.repeat(n) + '☆'.repeat(3 - n);
@@ -64,7 +66,11 @@ export class LessonScreen {
   private done = false;
   private choosing = false;
 
-  constructor(private onBack: () => void, private onNext: (l: Lesson) => void) {
+  constructor(
+    private onBack: () => void,
+    private onNext: (l: Lesson) => void,
+    private onPlay: (moves: string[], side: Color, botId: string, from: string) => void,
+  ) {
     this.el = document.createElement('section');
     this.el.className = 'view play lesson';
     this.el.dataset.view = 'lesson';
@@ -81,6 +87,7 @@ export class LessonScreen {
           <button data-act="hint"><span>💡</span>Hint</button>
           <button data-act="restart"><span>🔁</span>Restart</button>
           <button data-act="explore" hidden><span>🔀</span>More</button>
+          <button data-act="continue" hidden><span>▶️</span>Play on</button>
           <button data-act="back"><span>📚</span>Lessons</button>
         </div>
       </div>`;
@@ -91,6 +98,7 @@ export class LessonScreen {
       if (act === 'hint') void this.hint();
       if (act === 'restart') this.restart();
       if (act === 'explore') this.exploreMore();
+      if (act === 'continue') void this.keepPlaying();
       if (act === 'back') this.onBack();
     });
     this.el.querySelector('.choices')!.addEventListener('click', (e) => {
@@ -131,6 +139,7 @@ export class LessonScreen {
     this.board.setMarks([]);
     this.showChoices(false);
     this.el.querySelector<HTMLElement>('[data-act="explore"]')!.hidden = true;
+    this.el.querySelector<HTMLElement>('[data-act="continue"]')!.hidden = true;
   }
 
   private restart() {
@@ -359,14 +368,48 @@ export class LessonScreen {
     recordLessonExplored(this.lesson.id, [...this.explored]);
     const total = variationCount(this.lesson);
     this.render();
+    this.el.querySelector<HTMLElement>('[data-act="continue"]')!.hidden = !this.canKeepPlaying();
     if (this.explored.size < total) {
       sounds.win();
       const label = this.branches.slice(1).map((b) => b.label).join(' → ');
-      this.say(`🎉 Variation complete${label ? `: ${label}` : ''}! You've explored ${this.explored.size} of ${total}. Tap "More" to learn another one.`);
+      this.say(`🎉 Variation complete${label ? `: ${label}` : ''}! You've explored ${this.explored.size} of ${total}. Tap "More" to learn another one${this.canKeepPlaying() ? ', or "Play on" to keep playing this game' : ''}.`);
       this.el.querySelector<HTMLElement>('[data-act="explore"]')!.hidden = false;
       return;
     }
     this.finishLesson(true, total > 1 ? `You explored all ${total} variations!` : '');
+  }
+
+  /** Openings and gambits can be continued as a real game (not trap demos or finished games). */
+  private canKeepPlaying(): boolean {
+    if (!this.lesson.tree || this.lesson.category === 'puzzles') return false;
+    if (this.moves.some((m) => m.demo) || this.chess.isGameOver()) return false;
+    return this.chess.history().length >= 4;
+  }
+
+  private async keepPlaying() {
+    const fen = this.chess.fen();
+    const moves = this.chess.history();
+    const side = this.lesson.side;
+    this.say('📊 Let me look at the position…');
+    const report = await openingReport(fen, side);
+    const keyIdea = [...this.moves].reverse().find((m) => m.note)?.note;
+    const unlocked = BOTS.filter((b) => settings.unlockAllBots || profile.unlockedBots.includes(b.id));
+    const suggested = unlocked[unlocked.length - 1];
+    const bots = unlocked
+      .map((b) => `<button class="chip ${b === suggested ? 'on' : ''}" data-bot="${b.id}">${b.avatar} ${b.name} <small>${b.rating}</small></button>`)
+      .join('');
+    this.say(`📊 ${report.verdict}! Pick an opponent to keep playing.`);
+    const m = showModal(
+      `📊 ${report.verdict}`,
+      `${reportHtml(report, keyIdea)}<h3>Keep playing against:</h3><div class="chips bot-chips">${bots}</div>`,
+      [{ label: 'Not now' }],
+    );
+    m.querySelectorAll<HTMLElement>('[data-bot]').forEach((b) =>
+      b.addEventListener('click', () => {
+        m.remove();
+        this.onPlay(moves, side, b.dataset.bot!, this.lesson.title);
+      }),
+    );
   }
 
   private finishLesson(success: boolean, message = '') {
@@ -391,7 +434,8 @@ export class LessonScreen {
     const praise = stars === 3 ? 'Perfect! No mistakes and no hints!' : stars === 2 ? 'Great job! Try again with fewer hints for 3 stars.' : 'You did it! Practise it again to earn more stars.';
     this.say(`🎉 ${this.lesson.title} complete!`);
     showModal(`${this.lesson.title} complete!`, `<p class="big-stars">${starsText(stars)}</p><p>${message ? message + ' ' : ''}${praise}</p>`, [
-      ...(next ? [{ label: `Next: ${next.title}`, primary: true, onClick: () => this.onNext(next) }] : []),
+      ...(this.canKeepPlaying() ? [{ label: '▶️ Keep playing', primary: true, onClick: () => void this.keepPlaying() }] : []),
+      ...(next ? [{ label: `Next: ${next.title}`, primary: !this.canKeepPlaying(), onClick: () => this.onNext(next) }] : []),
       { label: 'Again', onClick: () => this.start(this.lesson) },
       { label: 'Lessons', onClick: () => this.onBack() },
     ]);

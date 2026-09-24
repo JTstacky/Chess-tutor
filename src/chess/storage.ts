@@ -23,6 +23,11 @@ export interface Profile {
   draws: number;
   lessonStars: Record<string, number>; // lesson id -> best stars (1-3)
   lessonExplored: Record<string, string[]>; // lesson id -> finished variations (choice paths)
+  puzzleRating: number;
+  puzzleStreak: number;
+  puzzleBestStreak: number;
+  puzzlesSolved: number;
+  puzzleSeen: string[]; // recent puzzle ids, to avoid repeats
 }
 
 const SETTINGS_KEY = 'tg-chess-settings';
@@ -51,6 +56,11 @@ const defaultProfile: Profile = {
   draws: 0,
   lessonStars: {},
   lessonExplored: {},
+  puzzleRating: 600,
+  puzzleStreak: 0,
+  puzzleBestStreak: 0,
+  puzzlesSolved: 0,
+  puzzleSeen: [],
 };
 
 function load<T>(key: string, fallback: T): T {
@@ -94,6 +104,24 @@ export function recordLessonStars(id: string, stars: number) {
 export function recordLessonExplored(id: string, paths: string[]) {
   profile.lessonExplored = { ...profile.lessonExplored, [id]: paths };
   saveProfile();
+}
+
+/** Record a puzzle attempt; returns the puzzle-rating change. */
+export function recordPuzzle(id: string, puzzleRating: number, solved: boolean): number {
+  const expected = 1 / (1 + 10 ** ((puzzleRating - profile.puzzleRating) / 400));
+  const k = profile.puzzlesSolved < 30 ? 40 : 20;
+  const delta = Math.round(k * ((solved ? 1 : 0) - expected));
+  profile.puzzleRating = Math.max(100, profile.puzzleRating + delta);
+  if (solved) {
+    profile.puzzlesSolved++;
+    profile.puzzleStreak++;
+    profile.puzzleBestStreak = Math.max(profile.puzzleBestStreak, profile.puzzleStreak);
+  } else {
+    profile.puzzleStreak = 0;
+  }
+  profile.puzzleSeen = [id, ...profile.puzzleSeen.filter((x) => x !== id)].slice(0, 400);
+  saveProfile();
+  return delta;
 }
 
 export function resetProfile() {

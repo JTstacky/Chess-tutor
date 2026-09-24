@@ -1,3 +1,4 @@
 node_modules
 dist
 scripts/_e2e.mjs
+scripts/_e2e2.mjs

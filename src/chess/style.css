@@ -464,3 +464,28 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 .side-chips { margin-top: 14px; }
 .arena-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .arena-buttons .fight { font-size: 22px; padding: 12px 32px; }
+
+/* ---- opening report ---- */
+.key-idea { background: #fff4d6; color: #7a5200; border-radius: 12px; padding: 8px 12px; font-size: 16px; margin: 0 0 10px; }
+.report { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.report li { display: flex; gap: 10px; align-items: flex-start; background: #f5f3fb; border-radius: 12px; padding: 8px 10px; font-size: 15px; line-height: 1.35; border-left: 5px solid #cfc8e6; }
+.report li.good { border-left-color: var(--good); background: #eefaf3; }
+.report li.bad { border-left-color: #e58f2a; background: #fff5ea; }
+.report li span { font-size: 22px; line-height: 1; }
+.report li b { display: block; font-size: 15px; }
+.winbar { position: relative; height: 28px; border-radius: 999px; background: #3a3355; overflow: hidden; margin-top: 12px; }
+.winbar div { height: 100%; background: linear-gradient(90deg, #7b61ff, #2bb673); }
+.winbar span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 14px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); }
+.bot-chips .chip small { opacity: 0.7; }
+.modal h3 { margin: 14px 0 8px; }
+
+/* ---- puzzles ---- */
+.c6 { background: #8e5cf6; }
+.puzzle-bar { display: flex; gap: 14px; align-items: baseline; padding: 4px 2px 8px; font-size: 18px; }
+.puzzle-bar b { font-size: 22px; }
+.p-info { margin-left: auto; color: var(--muted); font-size: 14px; }
+.puzzle-sets { gap: 6px; }
+.puzzle-sets .chip { padding: 6px 12px; font-size: 14px; }
+.puzzle-controls { grid-template-columns: repeat(4, 1fr) !important; }
+.controls button.pulse { background: var(--brand); color: #fff; animation: glow 1.2s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 0 6px rgba(108, 78, 227, 0.35); } }

@@ -25,6 +25,8 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # outputs dist/
 npm run check:lessons  # validate lesson/puzzle content with chess.js + Stockfish
+node scripts/gen-puzzles.mjs <seed> <minutes> data/puzzles/gen-<seed>.jsonl  # generate puzzles with Stockfish
+node scripts/build-puzzles.mjs  # merge generated puzzles into public/puzzles.json
 ```
 
 Built with Vite + TypeScript, [chess.js](https://github.com/jhlywa/chess.js) for the rules and
