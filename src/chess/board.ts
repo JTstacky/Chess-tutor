@@ -39,6 +39,7 @@ export class Board {
   private state: BoardState = { pieces: [], dests: new Map(), movable: null };
   private selected: Square | null = null;
   private arrows: Arrow[] = [];
+  private marks: Square[] = [];
   private drag: { from: Square; el: HTMLElement; startX: number; startY: number; moved: boolean; wasSelected: boolean } | null = null;
   private promoting = false;
 
@@ -74,6 +75,12 @@ export class Board {
     this.state = state;
     if (this.selected && !state.dests.has(this.selected)) this.selected = null;
     this.render(animate);
+  }
+
+  /** Glowing highlight on squares (used for hints). */
+  setMarks(squares: Square[]) {
+    this.marks = squares;
+    this.render();
   }
 
   setArrows(arrows: Arrow[]) {
@@ -122,6 +129,7 @@ export class Board {
         if (lastMove && (lastMove.from === sq || lastMove.to === sq)) d.classList.add('last');
         if (this.selected === sq) d.classList.add('selected');
         if (check === sq) d.classList.add('check');
+        if (this.marks.includes(sq)) d.classList.add('mark');
         if (dests.includes(sq)) d.classList.add(this.pieceOn(sq) ? 'dest-capture' : 'dest');
         if (x === 0) d.insertAdjacentHTML('beforeend', `<span class="coord rank">${rank + 1}</span>`);
         if (y === 7) d.insertAdjacentHTML('beforeend', `<span class="coord file">${FILES[file]}</span>`);

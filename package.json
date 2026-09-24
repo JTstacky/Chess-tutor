@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:lessons": "node --experimental-strip-types scripts/check-lessons.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0"
