@@ -11,6 +11,27 @@
   cursor: pointer;
 }
 .bt-zoom { position: absolute; inset: 0; transform: scale(1.18); transform-origin: 50% 80%; }
+
+/* on the board: the board itself is the floor, and the camera does the zooming */
+.on-board { cursor: pointer; }
+.on-board .bt-zoom { transform: none; }
+.on-board .bt-ground { display: none; }
+.bt-floor { position: absolute; left: 0; top: 0; width: calc(var(--u) * 100); height: calc(var(--u) * 100); }
+.bt-floor .coord { display: none; }
+.bt-flat { position: absolute; inset: 0; pointer-events: none; }
+.bt-flat img { position: absolute; left: 0; top: 0; width: 12.5%; height: 12.5%; }
+.bt-stand { position: absolute; pointer-events: none; filter: drop-shadow(0 calc(var(--u) * 0.5) calc(var(--u) * 0.4) rgba(0, 0, 0, 0.35)); }
+.on-board .bt-fighter::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 7%;
+  height: 9%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(rgba(0, 0, 0, 0.4), transparent 70%);
+}
 .bt-world { position: absolute; inset: 0; }
 .bt-sky { position: absolute; inset: 0; }
 .bt-ground { position: absolute; left: 0; right: 0; top: calc(var(--u) * 77.5); bottom: 0; border-top: calc(var(--u) * 1) solid rgba(255, 255, 255, 0.35); }

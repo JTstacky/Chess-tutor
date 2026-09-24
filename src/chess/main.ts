@@ -1,6 +1,6 @@
 import './style.css';
 import type { Color, PieceSymbol } from 'chess.js';
-import { battleFor, playBattle } from './battle';
+import { battleFor, plainSquares, playBattle, type BattleFloor } from './battle';
 import { BOTS, botById } from './bots';
 import { loadOpenings } from './coach';
 import { getEngine } from './engine';
@@ -261,7 +261,25 @@ function arenaView(): HTMLElement {
     const tl = new Timeline();
     arenaTl = tl;
     stage.querySelector('.arena-idle')?.remove();
-    await playBattle(stage, { type: attacker, color: side }, { type: victim, color: other(side) }, { theme: themeById(lastTheme), tl });
+    const floor: BattleFloor | undefined = settings.arenaBattles
+      ? undefined
+      : {
+          squares: plainSquares(),
+          target: [5, 4],
+          attackerTo: [5, 4],
+          pieces: [
+            { type: attacker, color: side, x: 3, y: 4, role: 'a' },
+            { type: victim, color: other(side), x: 5, y: 4, role: 'v' },
+            // a few spectators
+            { type: 'k', color: side, x: 4, y: 7 },
+            { type: 'p', color: side, x: 2, y: 6 },
+            { type: 'p', color: side, x: 6, y: 6 },
+            { type: 'k', color: other(side), x: 4, y: 0 },
+            { type: 'p', color: other(side), x: 3, y: 1 },
+            { type: 'p', color: other(side), x: 6, y: 2 },
+          ],
+        };
+    await playBattle(stage, { type: attacker, color: side }, { type: victim, color: other(side) }, { theme: themeById(lastTheme), tl, floor });
     if (arenaTl === tl) {
       arenaTl = null;
       render();
@@ -355,7 +373,8 @@ function openSettings() {
     '⚙️ Settings',
     `${row('sound', 'Sounds')}
      ${row('funMoves', 'Fun piece moves', 'Every piece has its own way of moving')}
-     ${row('battles', 'Capture battles', 'Pieces have a cartoon battle when one captures another. Tap to skip.')}
+     ${row('battles', 'Capture battles', 'Pieces have a battle on the board when one captures another. Tap to skip.')}
+     ${row('arenaBattles', 'Cartoon arena', 'Battles happen in a cartoon scene instead of on the board')}
      ${row('coaching', 'Coaching', 'Hoot gives tips and help during games')}
      ${row('hints', 'Hint button', 'Shows the best move when you ask')}
      ${row('blunderWarnings', 'Blunder warnings', '"Are you sure?" before a move that loses a piece or the game')}

@@ -1,7 +1,8 @@
 // How pieces move on the board: every piece type has its own little walk,
 // and captures open the battle arena.
 import type { Color, PieceSymbol, Square } from 'chess.js';
-import { playBattle } from './battle';
+import type { BoardPiece } from './board';
+import { playBattle, type BattleFloor } from './battle';
 import { sfx, sounds, type Sfx } from './sound';
 import { pieceSrc, type Theme } from './themes';
 import type { Timeline } from './timeline';
@@ -24,12 +25,27 @@ export interface MoveContext {
   theme: Theme;
   funMoves: boolean;
   battles: boolean;
+  arena: boolean; // battles in the cartoon arena instead of on the board
   sounds: boolean; // play the plain move and capture sounds
+  squares: HTMLElement; // the board's squares (copied to stand the battle on)
   xy: (sq: Square) => [number, number]; // board grid position (0..7), orientation aware
   pieceEl: (sq: Square) => HTMLElement | null;
 }
 
 type Pt = [number, number];
+
+/** Board pieces from the placement part of a FEN. */
+export function fenPieces(fen: string): (BoardPiece | null)[][] {
+  return fen.split(' ')[0].split('/').map((row) => {
+    const out: (BoardPiece | null)[] = [];
+    for (const ch of row) {
+      if (/\d/.test(ch)) for (let i = 0; i < Number(ch); i++) out.push(null);
+      else out.push({ type: ch.toLowerCase() as PieceSymbol, color: ch === ch.toUpperCase() ? 'w' : 'b' });
+    }
+    return out;
+  });
+}
+
 
 /** Sound effects stay quiet once the animation has been skipped. */
 const snd = (ctx: MoveContext, name: Sfx) => {
@@ -41,6 +57,7 @@ const P = (x: number, y: number, r = 0, sx = 1, sy = sx, o = 1): Keyframe => ({
   transform: `translate(${x * 100}%, ${y * 100}%) rotate(${r}deg) scale(${sx}, ${sy})`,
   opacity: o,
 });
+const xyOf = ([x, y]: Pt) => ({ x, y });
 const lerp = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 const dist = (a: Pt, b: Pt) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 
@@ -202,6 +219,19 @@ export async function animateMove(ctx: MoveContext, m: MoveInfo): Promise<void> 
 
   if (battle) {
     const origin = { x: (b[0] + 0.5) * 12.5, y: (b[1] + 0.5) * 12.5 };
+    const floor: BattleFloor = {
+      squares: ctx.squares.cloneNode(true) as HTMLElement,
+      target: ctx.xy(capSq),
+      attackerTo: b,
+      pieces: fenPieces(m.before).flatMap((row, r) =>
+        row.flatMap((p, fi): BattleFloor['pieces'] => {
+          if (!p) return [];
+          const sq = `${'abcdefgh'[fi]}${8 - r}` as Square;
+          if (sq === m.from) return [{ ...p, x: dest[0], y: dest[1], role: 'a' }];
+          return [{ ...p, ...xyOf(ctx.xy(sq)), role: sq === capSq ? 'v' : undefined }];
+        }),
+      ),
+    };
     await playBattle(
       ctx.board,
       { type: m.piece, color: m.color },
@@ -210,6 +240,7 @@ export async function animateMove(ctx: MoveContext, m: MoveInfo): Promise<void> 
         theme: ctx.theme,
         tl: ctx.tl,
         origin,
+        floor: ctx.arena ? undefined : floor,
         beforeReveal: () => {
           victimEl?.remove();
           void ctx.tl.anim(el, [P(b[0], b[1])], 1);

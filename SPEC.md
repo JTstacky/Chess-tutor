@@ -26,7 +26,7 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 
 ### Fun (Phase 2.5) ✅
 - Every piece type has its own move animation (hop, leap, glide, rumble, teleport, waddle)
-- Battle-Chess-style capture battles, 2D and kid friendly: a unique cartoon attack for each of the 30 attacker/victim pairs, tap to skip, toggle in Settings
+- Battle-Chess-style capture battles on the board (the camera tilts the board into a floor and the pieces fight on the victim's square), 2D and kid friendly: a unique cartoon attack for each of the 30 attacker/victim pairs, tap to skip, toggle in Settings (or a cartoon arena instead)
 - Battle Arena menu to watch any battle
 - Themes chosen when starting a game, each with its own White and Black team: Classic, Fantasy, Space, Ocean, Candy, Dino
 

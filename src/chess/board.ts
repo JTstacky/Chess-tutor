@@ -1,7 +1,7 @@
 // Touch-friendly chess board: tap-to-move and drag-and-drop, legal move dots,
 // highlights, arrows, a promotion picker, themes and animated moves.
 import type { Color, PieceSymbol, Square } from 'chess.js';
-import { animateMove, type MoveInfo } from './moveanim';
+import { animateMove, fenPieces, type MoveInfo } from './moveanim';
 import { settings } from './storage';
 import { glowFilter, pieceSrc, THEMES, type Theme } from './themes';
 import { Timeline } from './timeline';
@@ -35,17 +35,6 @@ export interface BoardOptions {
 
 const FILES = 'abcdefgh';
 
-/** Board pieces from the placement part of a FEN. */
-function fenPieces(fen: string): (BoardPiece | null)[][] {
-  return fen.split(' ')[0].split('/').map((row) => {
-    const out: (BoardPiece | null)[] = [];
-    for (const ch of row) {
-      if (/\d/.test(ch)) for (let i = 0; i < Number(ch); i++) out.push(null);
-      else out.push({ type: ch.toLowerCase() as PieceSymbol, color: ch === ch.toUpperCase() ? 'w' : 'b' });
-    }
-    return out;
-  });
-}
 
 export class Board {
   readonly el: HTMLElement;
@@ -157,7 +146,9 @@ export class Board {
           theme: this.theme,
           funMoves: settings.funMoves,
           battles: settings.battles,
+          arena: settings.arenaBattles,
           sounds: !this.opts.quiet,
+          squares: this.squaresEl,
           xy: (sq) => this.squareXY(sq),
           pieceEl: (sq) => this.piecesEl.querySelector<HTMLElement>(`.piece[data-sq="${sq}"]`),
         },
