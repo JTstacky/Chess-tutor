@@ -3,7 +3,7 @@
 A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) for the requirements and roadmap.
 
 - `/`: Teng Games landing page (games menu)
-- `/chess/`: the chess app (play bots, pass-and-play, clocks, takeback, hints, themes, battle animations; lessons coming)
+- `/chess/`: the chess app (play bots, pass-and-play, clocks, takeback, hints, coaching, game review, lessons and puzzles, themes, battle animations)
 
 ## Battles and themes
 
@@ -24,6 +24,7 @@ A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) f
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # outputs dist/
+npm run check:lessons  # validate lesson/puzzle content with chess.js + Stockfish
 ```
 
 Built with Vite + TypeScript, [chess.js](https://github.com/jhlywa/chess.js) for the rules and

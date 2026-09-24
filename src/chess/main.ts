@@ -4,6 +4,8 @@ import { battleFor, playBattle } from './battle';
 import { BOTS, botById } from './bots';
 import { loadOpenings } from './coach';
 import { getEngine } from './engine';
+import { LessonScreen, learnMenu } from './learn';
+import type { Lesson } from './lessons';
 import { PlayScreen, TIME_CONTROLS, type GameConfig } from './play';
 import { profile, resetProfile, saveProfile, saveSettings, settings } from './storage';
 import { pieceSrc, themeById, THEMES } from './themes';
@@ -14,6 +16,7 @@ const app = document.getElementById('app')!;
 const backBtn = document.getElementById('back') as HTMLButtonElement;
 const play = new PlayScreen(() => show(homeView()));
 play.el.dataset.view = 'play';
+const lesson = new LessonScreen(() => show(learnView()), (l) => openLesson(l));
 
 // Start loading the engine in the background so the first bot move is quick.
 getEngine();
@@ -23,6 +26,7 @@ let current: HTMLElement | null = null;
 let arenaTl: Timeline | null = null; // battle playing in the arena
 function show(view: HTMLElement) {
   if (current === play.el && view !== play.el) play.stop();
+  if (current === lesson.el && view !== lesson.el) lesson.stop();
   arenaTl?.skip();
   current = view;
   app.replaceChildren(view);
@@ -32,7 +36,7 @@ function show(view: HTMLElement) {
 
 backBtn.addEventListener('click', async () => {
   if (current === play.el && !(await confirmDialog('Leave game?', 'Go back to the menu? This game will end.', 'Leave'))) return;
-  show(homeView());
+  show(current === lesson.el ? learnView() : homeView());
 });
 document.getElementById('settings-btn')!.addEventListener('click', openSettings);
 
@@ -56,7 +60,7 @@ function homeView(): HTMLElement {
       <div class="menu-grid">
         <button class="menu-card c1" data-go="bots"><span>🤖</span><b>Play a Bot</b><small>Beat bots to unlock tougher ones</small></button>
         <button class="menu-card c2" data-go="friend"><span>👫</span><b>Play a Friend</b><small>Two players, one device</small></button>
-        <button class="menu-card c3" data-go="learn"><span>📚</span><b>Learn</b><small>Openings, gambits, traps and puzzles</small></button>
+        <button class="menu-card c3" data-go="learn"><span>📚</span><b>Learn</b><small>Openings, gambits, traps, puzzles</small></button>
         <button class="menu-card c4" data-go="progress"><span>🏆</span><b>My Progress</b><small>Rating, wins and badges</small></button>
         <button class="menu-card c5" data-go="arena"><span>⚔️</span><b>Battle Arena</b><small>Watch the pieces battle</small></button>
       </div>
@@ -286,20 +290,12 @@ function arenaView(): HTMLElement {
 }
 
 function learnView(): HTMLElement {
-  return el(`
-    <section class="view setup" data-view="learn">
-      <h2>📚 Learn</h2>
-      <div class="coming-soon">
-        <div class="hero-mascot">🦉</div>
-        <p><b>Coming soon!</b> Hoot is getting lessons ready:</p>
-        <ul>
-          <li>♟ Openings: Italian Game, London System, Queen's Gambit…</li>
-          <li>⚔️ Gambits and traps: Fried Liver, Scholar's Mate and how to stop it…</li>
-          <li>🧩 Puzzles: forks, pins, skewers, mate in 1</li>
-          <li>👑 Basics and endgames</li>
-        </ul>
-      </div>
-    </section>`);
+  return learnMenu(openLesson);
+}
+
+function openLesson(l: Lesson) {
+  show(lesson.el);
+  lesson.start(l);
 }
 
 function progressView(): HTMLElement {
@@ -312,6 +308,7 @@ function progressView(): HTMLElement {
         <div><b>${profile.wins}</b><small>Wins</small></div>
         <div><b>${profile.draws}</b><small>Draws</small></div>
         <div><b>${profile.losses}</b><small>Losses</small></div>
+        <div><b>${Object.values(profile.lessonStars).reduce((a, b) => a + b, 0)}</b><small>Lesson ⭐</small></div>
       </div>
       <h3>Bot ladder</h3>
       <div class="ladder">

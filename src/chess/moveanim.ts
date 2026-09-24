@@ -24,6 +24,7 @@ export interface MoveContext {
   theme: Theme;
   funMoves: boolean;
   battles: boolean;
+  sounds: boolean; // play the plain move and capture sounds
   xy: (sq: Square) => [number, number]; // board grid position (0..7), orientation aware
   pieceEl: (sq: Square) => HTMLElement | null;
 }
@@ -32,7 +33,7 @@ type Pt = [number, number];
 
 /** Sound effects stay quiet once the animation has been skipped. */
 const snd = (ctx: MoveContext, name: Sfx) => {
-  if (!ctx.tl.skipped) sfx[name]();
+  if (ctx.sounds && !ctx.tl.skipped) sfx[name]();
 };
 
 /** A board piece transform: position in squares, plus rotation and scale. */
@@ -216,13 +217,13 @@ export async function animateMove(ctx: MoveContext, m: MoveInfo): Promise<void> 
       },
     );
   } else if (m.captured) {
-    if (!ctx.tl.skipped) sounds.capture();
+    if (ctx.sounds && !ctx.tl.skipped) sounds.capture();
     if (victimEl) {
       const v = ctx.xy(capSq);
       sparkles(ctx, v, 6);
       void ctx.tl.anim(victimEl, [P(v[0], v[1]), P(v[0], v[1], 90, 1.4, 1.4, 0)], { duration: 250, easing: 'ease-out' });
     }
-  } else if (!ctx.funMoves && !ctx.tl.skipped) {
+  } else if (!ctx.funMoves && ctx.sounds && !ctx.tl.skipped) {
     sounds.move();
   }
 

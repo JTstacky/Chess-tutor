@@ -29,6 +29,8 @@ type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
 export interface BoardOptions {
   onMove: (from: Square, to: Square, promotion?: PromotionPiece) => void;
+  /** Plain slides only: no fun moves, battles or sounds (lessons pace and voice their own moves). */
+  plain?: boolean;
 }
 
 const FILES = 'abcdefgh';
@@ -58,6 +60,7 @@ export class Board {
   private state: BoardState = { pieces: [], dests: new Map(), movable: null };
   private selected: Square | null = null;
   private arrows: Arrow[] = [];
+  private marks: Square[] = [];
   private drag: { from: Square; el: HTMLElement; startX: number; startY: number; moved: boolean; wasSelected: boolean } | null = null;
   private promoting = false;
 
@@ -107,6 +110,12 @@ export class Board {
     else this.render();
   }
 
+  /** Glowing highlight on squares (used for hints). */
+  setMarks(squares: Square[]) {
+    this.marks = squares;
+    this.render();
+  }
+
   setArrows(arrows: Arrow[]) {
     this.arrows = arrows;
     if (!this.tl) this.renderArrows();
@@ -146,8 +155,9 @@ export class Board {
           board: this.el,
           fxLayer: this.fxEl,
           theme: this.theme,
-          funMoves: settings.funMoves,
-          battles: settings.battles,
+          funMoves: !this.opts.plain && settings.funMoves,
+          battles: !this.opts.plain && settings.battles,
+          sounds: !this.opts.plain,
           xy: (sq) => this.squareXY(sq),
           pieceEl: (sq) => this.piecesEl.querySelector<HTMLElement>(`.piece[data-sq="${sq}"]`),
         },
@@ -214,6 +224,7 @@ export class Board {
         if (lastMove && (lastMove.from === sq || lastMove.to === sq)) d.classList.add('last');
         if (this.selected === sq) d.classList.add('selected');
         if (check === sq) d.classList.add('check');
+        if (this.marks.includes(sq)) d.classList.add('mark');
         if (dests.includes(sq)) d.classList.add(this.pieceOn(sq) ? 'dest-capture' : 'dest');
         if (x === 0) d.insertAdjacentHTML('beforeend', `<span class="coord rank">${rank + 1}</span>`);
         if (y === 7) d.insertAdjacentHTML('beforeend', `<span class="coord file">${FILES[file]}</span>`);

@@ -38,13 +38,14 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 - Post-game review ✅: accuracy %, each move graded Brilliant / Best / Good / Book / Inaccuracy / Mistake / Blunder, explanations, green arrow for the better move (or how to punish the bot's mistake), jumps to your first big mistake
 - **Consequence explanations** ("If you play this, you lose your knight in 3 moves"): engine-generated during games and review, hand-written in lessons
 
-### Learn (Phase 3)
+### Learn (Phase 3) ✅
 - **Guided play-along lessons**: a kid-friendly explanation for each move, then the child plays it; hints when stuck; stars and badges
 - Openings: Italian, Ruy Lopez, London, Queen's Gambit, Sicilian, Caro-Kann, …
 - Gambits and traps: King's Gambit, Evans, Fried Liver, Stafford, Scholar's Mate (and its defence), Légal's Mate, …
   - shows the **recommended replies** in each gambit and explains the consequences of the tempting wrong moves
 - Tactics puzzles: forks, pins, skewers, discovered attacks, mate in 1 and 2
-- Basics and endgames: how the pieces move, checkmate patterns, K+Q vs K, pawn endgames
+- Endgames: practise vs the computer: K+Q vs K and K+R vs K checkmate, K+P promotion (with stalemate and hanging-queen checks)
+- Stars (1–3) per lesson based on mistakes and hints; every lesson line and puzzle is checked by `npm run check:lessons` (legal moves + Stockfish)
 
 ## Out of scope for v1
 - Accounts and cloud save, online play vs other people, PGN/FEN import/export
