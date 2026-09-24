@@ -84,7 +84,7 @@ export class LessonScreen {
           <button data-act="back"><span>📚</span>Lessons</button>
         </div>
       </div>`;
-    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p) });
+    this.board = new Board({ onMove: (f, t, p) => void this.userMove(f, t, p), plain: true });
     this.el.querySelector('.board-host')!.append(this.board.el);
     this.el.querySelector('.lesson-controls')!.addEventListener('click', (e) => {
       const act = (e.target as HTMLElement).closest('button')?.dataset.act;
@@ -490,7 +490,7 @@ export class LessonScreen {
         dests,
         movable: this.isMyTurn() ? this.lesson.side : null,
       },
-      animate,
+      animate ? last : null,
     );
     const progress = this.el.querySelector('.progress')!;
     if (this.lesson.practice) {

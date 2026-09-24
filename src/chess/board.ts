@@ -1,6 +1,10 @@
 // Touch-friendly chess board: tap-to-move and drag-and-drop, legal move dots,
-// highlights, arrows and a promotion picker.
+// highlights, arrows, a promotion picker, themes and animated moves.
 import type { Color, PieceSymbol, Square } from 'chess.js';
+import { animateMove, type MoveInfo } from './moveanim';
+import { settings } from './storage';
+import { glowFilter, pieceSrc, THEMES, type Theme } from './themes';
+import { Timeline } from './timeline';
 
 export interface BoardPiece {
   type: PieceSymbol;
@@ -25,16 +29,33 @@ type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
 export interface BoardOptions {
   onMove: (from: Square, to: Square, promotion?: PromotionPiece) => void;
+  /** Plain slides only: no fun moves, battles or sounds (lessons pace and voice their own moves). */
+  plain?: boolean;
 }
 
 const FILES = 'abcdefgh';
-const pieceUrl = (p: BoardPiece) => `${import.meta.env.BASE_URL}pieces/${p.color}${p.type.toUpperCase()}.svg`;
+
+/** Board pieces from the placement part of a FEN. */
+function fenPieces(fen: string): (BoardPiece | null)[][] {
+  return fen.split(' ')[0].split('/').map((row) => {
+    const out: (BoardPiece | null)[] = [];
+    for (const ch of row) {
+      if (/\d/.test(ch)) for (let i = 0; i < Number(ch); i++) out.push(null);
+      else out.push({ type: ch.toLowerCase() as PieceSymbol, color: ch === ch.toUpperCase() ? 'w' : 'b' });
+    }
+    return out;
+  });
+}
 
 export class Board {
   readonly el: HTMLElement;
   private squaresEl: HTMLElement;
   private piecesEl: HTMLElement;
   private arrowsEl: SVGSVGElement;
+  private fxEl: HTMLElement;
+  private theme: Theme = THEMES[0];
+  private tl: Timeline | null = null; // the move animation that is playing
+  private anim: Promise<void> | null = null;
   private orientation: Color = 'w';
   private state: BoardState = { pieces: [], dests: new Map(), movable: null };
   private selected: Square | null = null;
@@ -53,7 +74,9 @@ export class Board {
     this.arrowsEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.arrowsEl.classList.add('arrows');
     this.arrowsEl.setAttribute('viewBox', '0 0 8 8');
-    this.el.append(this.squaresEl, this.piecesEl, this.arrowsEl);
+    this.fxEl = document.createElement('div');
+    this.fxEl.className = 'board-fx';
+    this.el.append(this.squaresEl, this.piecesEl, this.arrowsEl, this.fxEl);
     this.el.addEventListener('pointerdown', (e) => this.onPointerDown(e));
     this.el.addEventListener('pointermove', (e) => this.onPointerMove(e));
     this.el.addEventListener('pointerup', (e) => this.onPointerUp(e));
@@ -70,11 +93,21 @@ export class Board {
     return this.orientation;
   }
 
-  /** Update the position. `animate` slides the piece of the last move into place. */
-  setState(state: BoardState, animate = false) {
+  setTheme(theme: Theme) {
+    this.theme = theme;
+    this.el.style.setProperty('--light-sq', theme.light);
+    this.el.style.setProperty('--dark-sq', theme.dark);
+    this.el.style.setProperty('--glow-w', glowFilter(theme.w));
+    this.el.style.setProperty('--glow-b', glowFilter(theme.b));
+    this.render();
+  }
+
+  /** Update the position. With `move`, the move is animated from the position before it. */
+  setState(state: BoardState, move?: MoveInfo | null) {
     this.state = state;
     if (this.selected && !state.dests.has(this.selected)) this.selected = null;
-    this.render(animate);
+    if (move) this.playMove(move);
+    else this.render();
   }
 
   /** Glowing highlight on squares (used for hints). */
@@ -85,7 +118,62 @@ export class Board {
 
   setArrows(arrows: Arrow[]) {
     this.arrows = arrows;
-    this.renderArrows();
+    if (!this.tl) this.renderArrows();
+  }
+
+  /** True while a move (or battle) is being animated. The board ignores moves meanwhile. */
+  isBusy(): boolean {
+    return this.tl !== null;
+  }
+
+  /** Resolves when the current move animation has finished. */
+  idle(): Promise<void> {
+    return this.anim ?? Promise.resolve();
+  }
+
+  /** Jump to the end of the current animation. */
+  skipAnimation() {
+    this.tl?.skip();
+  }
+
+  private playMove(m: MoveInfo) {
+    const prev = this.anim;
+    this.tl?.skip();
+    const tl = new Timeline();
+    this.tl = tl;
+    this.selected = null;
+    this.el.classList.add('animating');
+    const run = async () => {
+      if (prev) await prev;
+      if (tl.skipped) return;
+      this.renderSquares();
+      this.renderPieces(fenPieces(m.before));
+      this.arrowsEl.innerHTML = '';
+      await animateMove(
+        {
+          tl,
+          board: this.el,
+          fxLayer: this.fxEl,
+          theme: this.theme,
+          funMoves: !this.opts.plain && settings.funMoves,
+          battles: !this.opts.plain && settings.battles,
+          sounds: !this.opts.plain,
+          xy: (sq) => this.squareXY(sq),
+          pieceEl: (sq) => this.piecesEl.querySelector<HTMLElement>(`.piece[data-sq="${sq}"]`),
+        },
+        m,
+      );
+    };
+    this.anim = run()
+      .catch((e) => console.error(e))
+      .finally(() => {
+        if (this.tl !== tl) return; // a newer animation has taken over
+        this.tl = null;
+        this.anim = null;
+        this.el.classList.remove('animating');
+        this.fxEl.replaceChildren();
+        this.render();
+      });
   }
 
   // ---- geometry ----
@@ -114,7 +202,14 @@ export class Board {
 
   // ---- rendering ----
 
-  private render(animate = false) {
+  private render() {
+    if (this.tl) return; // the final position is drawn when the animation ends
+    this.renderSquares();
+    this.renderPieces(this.state.pieces);
+    this.renderArrows();
+  }
+
+  private renderSquares() {
     const { lastMove, check } = this.state;
     const dests = this.selected ? this.state.dests.get(this.selected) ?? [] : [];
     const sqFrag = document.createDocumentFragment();
@@ -137,38 +232,26 @@ export class Board {
       }
     }
     this.squaresEl.replaceChildren(sqFrag);
+  }
 
+  private renderPieces(pieces: (BoardPiece | null)[][]) {
     const pFrag = document.createDocumentFragment();
-    let animated: { el: HTMLElement; to: [number, number] } | null = null;
-    this.state.pieces.forEach((row, r) =>
+    pieces.forEach((row, r) =>
       row.forEach((p, f) => {
         if (!p) return;
         const sq = `${FILES[f]}${8 - r}` as Square;
         const img = document.createElement('img');
-        img.className = 'piece';
-        img.src = pieceUrl(p);
+        img.className = `piece p${p.color}`;
+        img.src = pieceSrc(this.theme, p.color, p.type);
         img.alt = '';
         img.draggable = false;
         img.dataset.sq = sq;
         const [x, y] = this.squareXY(sq);
-        if (animate && lastMove && lastMove.to === sq) {
-          const [fx, fy] = this.squareXY(lastMove.from);
-          img.style.transform = `translate(${fx * 100}%, ${fy * 100}%)`;
-          animated = { el: img, to: [x, y] };
-        } else {
-          img.style.transform = `translate(${x * 100}%, ${y * 100}%)`;
-        }
+        img.style.transform = `translate(${x * 100}%, ${y * 100}%)`;
         pFrag.append(img);
       }),
     );
     this.piecesEl.replaceChildren(pFrag);
-    if (animated) {
-      const { el, to } = animated as { el: HTMLElement; to: [number, number] };
-      void el.offsetWidth; // flush the start position so the transition runs
-      el.classList.add('animating');
-      el.style.transform = `translate(${to[0] * 100}%, ${to[1] * 100}%)`;
-    }
-    this.renderArrows();
   }
 
   private renderArrows() {
@@ -197,6 +280,12 @@ export class Board {
   }
 
   private onPointerDown(e: PointerEvent) {
+    if (this.tl) {
+      // Tap to skip the animation.
+      e.preventDefault();
+      this.tl.skip();
+      return;
+    }
     if (this.promoting || e.button > 0) return;
     const sq = this.squareAt(e.clientX, e.clientY);
     if (!sq) return;
@@ -292,7 +381,7 @@ export class Board {
       };
       (['q', 'n', 'r', 'b'] as PromotionPiece[]).forEach((t) => {
         const b = document.createElement('button');
-        b.innerHTML = `<img src="${pieceUrl({ type: t, color })}" alt="${t}">`;
+        b.innerHTML = `<img src="${pieceSrc(this.theme, color, t)}" alt="${t}">`;
         b.addEventListener('pointerdown', (ev) => {
           ev.stopPropagation();
           finish(t);

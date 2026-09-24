@@ -24,6 +24,12 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 - Hint button (best move arrow)
 - Sounds (toggle)
 
+### Fun (Phase 2.5) ✅
+- Every piece type has its own move animation (hop, leap, glide, rumble, teleport, waddle)
+- Battle-Chess-style capture battles, 2D and kid friendly: a unique cartoon attack for each of the 30 attacker/victim pairs, tap to skip, toggle in Settings
+- Battle Arena menu to watch any battle
+- Themes chosen when starting a game, each with its own White and Black team: Classic, Fantasy, Space, Ocean, Candy, Dino
+
 ### Coaching (all can be switched off in Settings)
 - Hint button ✅
 - Blunder warnings ("Are you sure? Sprout can take your bishop on a6") with a red arrow showing the threat ✅
@@ -45,4 +51,4 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 - Stars (1–3) per lesson based on mistakes and hints; every lesson line and puzzle is checked by `npm run check:lessons` (legal moves + Stockfish)
 
 ## Out of scope for v1
-- Accounts and cloud save, online play vs other people, PGN/FEN import/export, board and piece themes
+- Accounts and cloud save, online play vs other people, PGN/FEN import/export

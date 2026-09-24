@@ -7,6 +7,8 @@ export interface Settings {
   blunderWarnings: boolean;
   threatWarnings: boolean;
   openingNames: boolean;
+  funMoves: boolean; // each piece has its own way of moving
+  battles: boolean; // captures play a battle animation
   unlockAllBots: boolean;
 }
 
@@ -26,7 +28,18 @@ export interface Profile {
 const SETTINGS_KEY = 'tg-chess-settings';
 const PROFILE_KEY = 'tg-chess-profile';
 
-const defaultSettings: Settings = { sound: true, coaching: true, hints: true, blunderWarnings: true, threatWarnings: true, openingNames: true, unlockAllBots: false };
+const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const defaultSettings: Settings = {
+  sound: true,
+  coaching: true,
+  hints: true,
+  blunderWarnings: true,
+  threatWarnings: true,
+  openingNames: true,
+  funMoves: !calm,
+  battles: !calm,
+  unlockAllBots: false,
+};
 const defaultProfile: Profile = {
   name: 'Player',
   rating: 400,
