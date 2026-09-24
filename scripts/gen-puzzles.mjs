@@ -2,7 +2,7 @@
 // imperfect games, find the moments where one side blunders and the other has exactly one
 // clearly winning reply, then keep that line as a puzzle.
 //
-// Usage: node scripts/gen-puzzles.mjs <seed> <minutes> <out.jsonl>
+// Usage: node scripts/gen-puzzles.mjs <seed> <minutes> <out.jsonl> [--varied]
 // Then:  node scripts/build-puzzles.mjs   (merges data/puzzles/*.jsonl -> public/puzzles.json)
 import { spawn } from 'node:child_process';
 import { appendFileSync, readFileSync } from 'node:fs';
@@ -10,6 +10,7 @@ import { Chess } from 'chess.js';
 
 const [seedArg = '1', minutesArg = '10', out = 'data/puzzles/out.jsonl'] = process.argv.slice(2);
 const deadline = Date.now() + Number(minutesArg) * 60_000;
+const VARIED = process.argv.includes('--varied');
 
 // Small deterministic PRNG so runs with different seeds explore different games.
 let seed = Number(seedArg) * 2654435761 >>> 0;
@@ -233,6 +234,9 @@ while (Date.now() < deadline) {
     const after = evals[i];
     if (after === undefined || after < 200 || after - before < 200) continue;
     const p = await tryPuzzle(fens[i - 1], ucis[i - 1], fens[i]);
+    // With --varied, keep only a few plain "free piece" puzzles (we have lots already).
+    const plain = p && p.themes.every((t) => t === 'hangingPiece' || t === 'winMaterial');
+    if (p && VARIED && plain && rand() < 0.8) continue;
     if (p) {
       appendFileSync(out, JSON.stringify(p) + '\n');
       count++;
