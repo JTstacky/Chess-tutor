@@ -4,6 +4,9 @@ export interface Settings {
   sound: boolean;
   coaching: boolean; // master switch for all coaching features
   hints: boolean;
+  blunderWarnings: boolean;
+  threatWarnings: boolean;
+  openingNames: boolean;
   unlockAllBots: boolean;
 }
 
@@ -21,7 +24,7 @@ export interface Profile {
 const SETTINGS_KEY = 'tg-chess-settings';
 const PROFILE_KEY = 'tg-chess-profile';
 
-const defaultSettings: Settings = { sound: true, coaching: true, hints: true, unlockAllBots: false };
+const defaultSettings: Settings = { sound: true, coaching: true, hints: true, blunderWarnings: true, threatWarnings: true, openingNames: true, unlockAllBots: false };
 const defaultProfile: Profile = {
   name: 'Player',
   rating: 400,
@@ -52,6 +55,11 @@ function save(key: string, value: unknown) {
 
 export const settings: Settings = load(SETTINGS_KEY, defaultSettings);
 export const profile: Profile = load(PROFILE_KEY, defaultProfile);
+
+/** A coaching feature is on only when coaching as a whole is on too. */
+export function coachingOn(feature: 'hints' | 'blunderWarnings' | 'threatWarnings' | 'openingNames'): boolean {
+  return settings.coaching && settings[feature];
+}
 
 export function saveSettings() {
   save(SETTINGS_KEY, settings);

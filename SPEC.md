@@ -25,10 +25,11 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 - Sounds (toggle)
 
 ### Coaching (all can be switched off in Settings)
-- Hint button: Phase 1
-- Blunder warnings ("Are you sure? That hangs your queen!"): Phase 2
-- Opening name display ("You're playing the Italian Game!"): Phase 2
-- Post-game review: each move labelled Brilliant / Good / Inaccuracy / Mistake / Blunder, with the better move shown: Phase 2
+- Hint button ✅
+- Blunder warnings ("Are you sure? Sprout can take your bishop on a6") with a red arrow showing the threat ✅
+- Danger alerts ("Watch out! Your knight on f3 is under attack by a pawn") ✅
+- Opening name display ("This is the Italian Game!"), from the lichess opening list ✅
+- Post-game review ✅: accuracy %, each move graded Brilliant / Best / Good / Book / Inaccuracy / Mistake / Blunder, explanations, green arrow for the better move (or how to punish the bot's mistake), jumps to your first big mistake
 - **Consequence explanations** ("If you play this, you lose your knight in 3 moves"): engine-generated during games and review, hand-written in lessons
 
 ### Learn (Phase 3)

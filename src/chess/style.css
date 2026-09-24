@@ -304,6 +304,21 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 .moves em { color: var(--muted); font-style: normal; font-size: 14px; }
 .moves span { padding: 2px 6px; border-radius: 6px; cursor: pointer; font-weight: 500; }
 .moves span.cur { background: var(--brand); color: #fff; }
+.opening {
+  background: #fff4d6;
+  color: #7a5200;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-weight: 500;
+  font-size: 15px;
+}
+.moves span i { font-style: normal; font-weight: 700; margin-left: 3px; font-size: 13px; }
+.moves span.cur i { color: #fff !important; }
+.accuracy { font-size: 20px; margin: 4px 0 8px; }
+.grades { border-collapse: collapse; width: 100%; margin-bottom: 8px; }
+.grades td { padding: 3px 8px; border-bottom: 1px solid #eee; }
+.grades td:first-child { font-weight: 700; width: 36px; text-align: center; }
+.grades td:last-child { text-align: right; font-weight: 600; }
 .nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .nav button { border: 0; background: var(--card); border-radius: 12px; padding: 8px; font-size: 18px; box-shadow: var(--shadow); }
 .viewing-history .board { outline: 4px solid var(--accent); outline-offset: 2px; }

@@ -1,6 +1,7 @@
 import './style.css';
 import type { Color } from 'chess.js';
 import { BOTS, botById } from './bots';
+import { loadOpenings } from './coach';
 import { getEngine } from './engine';
 import { PlayScreen, TIME_CONTROLS, type GameConfig } from './play';
 import { profile, resetProfile, saveProfile, saveSettings, settings } from './storage';
@@ -13,6 +14,7 @@ play.el.dataset.view = 'play';
 
 // Start loading the engine in the background so the first bot move is quick.
 getEngine();
+void loadOpenings();
 
 let current: HTMLElement | null = null;
 function show(view: HTMLElement) {
@@ -209,6 +211,9 @@ function openSettings() {
     `${row('sound', 'Sounds')}
      ${row('coaching', 'Coaching', 'Hoot gives tips and help during games')}
      ${row('hints', 'Hint button', 'Shows the best move when you ask')}
+     ${row('blunderWarnings', 'Blunder warnings', '"Are you sure?" before a move that loses a piece or the game')}
+     ${row('threatWarnings', 'Danger alerts', 'Tells you when one of your pieces is under attack')}
+     ${row('openingNames', 'Opening names', 'Shows which opening you are playing')}
      <h3>For grown-ups</h3>
      ${row('unlockAllBots', 'Unlock all bots')}
      <button class="btn danger reset">Reset all progress</button>`,
