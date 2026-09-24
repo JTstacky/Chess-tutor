@@ -87,12 +87,13 @@ for (const f of readdirSync('data/puzzles').filter((f) => f.endsWith('.jsonl')).
     const key = t.fen().split(' ').slice(0, 4).join(' ');
     if (seen.has(key)) continue;
     seen.add(key);
-    const id = createHash('sha1').update(key).digest('hex').slice(0, 8);
-    if (VERIFY) {
+    const id = p.id ?? createHash('sha1').update(key).digest('hex').slice(0, 8);
+    // Lichess puzzles are already verified by lichess (and rated by thousands of players).
+    if (VERIFY && p.src !== 'lichess') {
       cache[id] ??= await verify(p);
       if (!cache[id]) { rejected++; continue; }
     }
-    out.push({ id, fen: p.fen, moves: p.moves, rating: p.rating, themes: p.themes });
+    out.push({ id, fen: p.fen, moves: p.moves, rating: p.rating, themes: p.themes, ...(p.src ? { src: p.src } : {}) });
   }
 }
 out.sort((a, b) => a.rating - b.rating);
@@ -100,5 +101,6 @@ writeFileSync('public/puzzles.json', JSON.stringify(out));
 const count = (t) => out.filter((p) => p.themes.includes(t)).length;
 if (VERIFY) writeFileSync(CACHE, JSON.stringify(cache));
 console.log(`${out.length} puzzles (${bad} illegal, ${rejected} failed deep verification)`);
-for (const t of ['mateIn1', 'mateIn2', 'mateIn3', 'mateIn4', 'backRankMate', 'fork', 'knightFork', 'pin', 'skewer', 'discoveredAttack', 'hangingPiece', 'promotion', 'winMaterial']) console.log(`  ${t}: ${count(t)}`);
+console.log(`  from lichess: ${out.filter((p) => p.src === 'lichess').length}`);
+for (const t of ['mateIn1', 'mateIn2', 'mateIn3', 'mateIn4', 'backRankMate', 'fork', 'knightFork', 'pin', 'skewer', 'discoveredAttack', 'hangingPiece', 'promotion', 'winMaterial', 'deflection', 'attraction', 'sacrifice']) console.log(`  ${t}: ${count(t)}`);
 sf?.kill();

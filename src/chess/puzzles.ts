@@ -15,6 +15,7 @@ export interface Puzzle {
   moves: string[]; // UCI: opponent's move, then your solution (alternating)
   rating: number;
   themes: string[];
+  src?: 'lichess'; // from the lichess.org puzzle database (CC0); otherwise generated with Stockfish
 }
 
 interface PuzzleSet {
@@ -28,12 +29,14 @@ const has = (...t: string[]) => (p: Puzzle) => t.some((x) => p.themes.includes(x
 export const SETS: PuzzleSet[] = [
   { id: 'mix', label: '⭐ My level', match: () => true },
   { id: 'm1', label: '♚ Mate in 1', match: has('mateIn1') },
-  { id: 'm2', label: '♚♚ Mate in 2+', match: has('mateIn2', 'mateIn3', 'mateIn4') },
+  { id: 'm2', label: '♚♚ Mate in 2', match: has('mateIn2') },
+  { id: 'm3', label: '🏆 Mate in 3+', match: has('mateIn3', 'mateIn4', 'mateIn5') },
   { id: 'fork', label: '🍴 Forks', match: has('fork', 'knightFork') },
   { id: 'pin', label: '📌 Pins & skewers', match: has('pin', 'skewer') },
   { id: 'disc', label: '💥 Discovered attacks', match: has('discoveredAttack') },
   { id: 'hang', label: '🎁 Free pieces', match: has('hangingPiece') },
-  { id: 'mat', label: '💰 Win material', match: has('winMaterial') },
+  { id: 'trick', label: '🪄 Sneaky tricks', match: has('deflection', 'attraction', 'sacrifice', 'trappedPiece', 'doubleCheck') },
+  { id: 'mat', label: '💰 Win material', match: has('winMaterial', 'crushing', 'advantage') },
 ];
 
 const THEME_TIPS: Record<string, string> = {
@@ -41,6 +44,8 @@ const THEME_TIPS: Record<string, string> = {
   mateIn2: 'Mate in 2: a forcing first move (usually a check) that leaves only one reply, then checkmate.',
   mateIn3: 'Long mates are all about forcing moves: checks first, then captures, then threats.',
   mateIn4: 'Long mates are all about forcing moves: checks first, then captures, then threats.',
+  mateIn5: 'Long mates are all about forcing moves: checks first, then captures, then threats.',
+  doubleCheck: 'Double check: two pieces give check at once, so the king MUST move. Nothing can block both!',
   backRankMate: 'Back-rank mate: the king is trapped behind its own pawns. Give your own king an escape square!',
   smotheredMate: 'Smothered mate: the king is boxed in by its own pieces, and a knight delivers checkmate.',
   knightFork: 'Knight fork: knights attack in a funny L-shape, so they can hit two pieces that can\'t hit back.',
@@ -50,6 +55,10 @@ const THEME_TIPS: Record<string, string> = {
   discoveredAttack: 'Discovered attack: move one piece out of the way to unleash an attack from the piece behind it.',
   hangingPiece: 'Free piece! Before every move, check: is anything undefended? Take it!',
   promotion: 'Promotion: a pawn that reaches the end becomes a queen (or anything you want).',
+  deflection: 'Deflection: chase a defender away from the job it was doing, then strike.',
+  attraction: 'Attraction: lure a piece (often the king) onto a bad square with a sacrifice.',
+  trappedPiece: 'Trapped piece: a piece with no safe squares to run to can be won.',
+  sacrifice: 'Sacrifice: give something away on purpose to get something even better back.',
   winMaterial: 'Look for checks, captures and threats: that\'s how you win material.',
 };
 
@@ -176,7 +185,7 @@ export class PuzzleScreen {
     this.board.setArrows([]);
     this.board.setMarks([]);
     this.el.querySelectorAll<HTMLElement>('[data-set]').forEach((b) => b.classList.toggle('on', b.dataset.set === this.set.id));
-    this.el.querySelector('.p-info')!.textContent = `This puzzle: ${p.rating}`;
+    this.el.querySelector('.p-info')!.textContent = `This puzzle: ${p.rating}${p.src === 'lichess' ? ' · lichess.org' : ''}`;
     this.renderStats();
     this.render();
     this.say('Watch your opponent\'s move…');
