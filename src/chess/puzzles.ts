@@ -54,6 +54,12 @@ const THEME_TIPS: Record<string, string> = {
   winMaterial: 'Look for checks, captures and threats: that\'s how you win material.',
 };
 
+/** The most interesting idea in the puzzle gets the tip (a fork beats "free piece"). */
+function tipFor(p: Puzzle): string {
+  const t = Object.keys(THEME_TIPS).find((k) => p.themes.includes(k));
+  return t ? THEME_TIPS[t] : '';
+}
+
 let puzzlesCache: Puzzle[] | null = null;
 async function loadPuzzles(): Promise<Puzzle[]> {
   puzzlesCache ??= await fetch(`${import.meta.env.BASE_URL}puzzles.json`).then((r) => r.json());
@@ -277,7 +283,7 @@ export class PuzzleScreen {
       sounds.win();
       if (clean && profile.puzzleStreak > 0 && profile.puzzleStreak % 5 === 0) confetti();
     });
-    const tip = p.themes.map((t) => THEME_TIPS[t]).find(Boolean) ?? '';
+    const tip = tipFor(p);
     const praise = clean
       ? `🎉 Solved! Puzzle rating ${delta >= 0 ? '+' : ''}${delta}.${profile.puzzleStreak > 1 ? ` 🔥 ${profile.puzzleStreak} in a row!` : ''}`
       : '🎉 You got there! Tap Next for another one.';
@@ -325,7 +331,7 @@ export class PuzzleScreen {
       this.render(true);
     }
     this.busy = false;
-    const tip = p.themes.map((th) => THEME_TIPS[th]).find(Boolean) ?? '';
+    const tip = tipFor(p);
     this.say(`👀 The solution was ${sans.join(' ')}. ${tip} Tap Next to try another!`);
     this.renderStats();
     this.render();

@@ -24,6 +24,7 @@ export interface Profile {
   draws: number;
   lessonStars: Record<string, number>; // lesson id -> best stars (1-3)
   lessonExplored: Record<string, string[]>; // lesson id -> finished variations (choice paths)
+  lessonMastered: Record<string, boolean>; // passed "Test yourself" with no mistakes
   puzzleRating: number;
   puzzleStreak: number;
   puzzleBestStreak: number;
@@ -57,6 +58,7 @@ const defaultProfile: Profile = {
   draws: 0,
   lessonStars: {},
   lessonExplored: {},
+  lessonMastered: {},
   puzzleRating: 600,
   puzzleStreak: 0,
   puzzleBestStreak: 0,
@@ -106,6 +108,11 @@ export function saveProfile() {
 
 export function recordLessonStars(id: string, stars: number) {
   profile.lessonStars = { ...profile.lessonStars, [id]: Math.max(stars, profile.lessonStars[id] ?? 0) };
+  saveProfile();
+}
+
+export function recordLessonMastered(id: string) {
+  profile.lessonMastered = { ...profile.lessonMastered, [id]: true };
   saveProfile();
 }
 
