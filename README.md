@@ -55,4 +55,5 @@ One-time setup:
 - Piece set "cburnett" by Colin M.L. Burnett, CC BY-SA 3.0 (`public/pieces`, and the knight outline the themed knights in `src/chess/characters.ts` are built on)
 - Puzzles: 2,100 from the [lichess.org puzzle database](https://database.lichess.org/#puzzles) (CC0), via the 50k sample in [mcognetta/lichess-combined-puzzle-game-db](https://github.com/mcognetta/lichess-combined-puzzle-game-db) (`scripts/import_lichess_puzzles.py` → `data/puzzles/lichess.jsonl`); the rest generated with Stockfish
 - Opening names from [lichess-org/chess-openings](https://github.com/lichess-org/chess-openings), CC0 (`data/*.tsv`, built into `public/openings.json` by `scripts/build-openings.mjs`)
+- Puzzles: 2,100 from the [lichess.org puzzle database](https://database.lichess.org/#puzzles) (CC0), via the 50k sample in [mcognetta/lichess-combined-puzzle-game-db](https://github.com/mcognetta/lichess-combined-puzzle-game-db) (`scripts/import_lichess_puzzles.py` → `data/puzzles/lichess.jsonl`); the rest are generated with Stockfish (`scripts/gen-puzzles.mjs`)
 - Stockfish engine, GPLv3 (`public/stockfish`, see `COPYING.txt`); source: https://github.com/nmrugg/stockfish.js
