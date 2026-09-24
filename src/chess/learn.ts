@@ -7,7 +7,7 @@ import { branchesOnPath, CATEGORIES, leafPaths, LESSONS, type Branch, type Lesso
 import { sounds } from './sound';
 import { BOTS } from './bots';
 import { openingReport, reportHtml } from './report';
-import { profile, recordLessonExplored, recordLessonStars, settings } from './storage';
+import { profile, recordLessonExplored, recordLessonMastered, recordLessonStars, settings } from './storage';
 import { confetti, showModal } from './ui';
 
 const starsText = (n: number) => '★'.repeat(n) + '☆'.repeat(3 - n);
@@ -37,6 +37,7 @@ export function learnMenu(open: (l: Lesson) => void): HTMLElement {
             <b>${l.title}</b>
             <small>${l.side === 'b' ? 'Play as Black · ' : ''}${l.blurb}</small>
             ${varText}
+            ${profile.lessonMastered[l.id] ? '<span class="mastered">🏅 Mastered</span>' : ''}
             <span class="stars ${profile.lessonStars[l.id] ? 'got' : ''}">${starsText(profile.lessonStars[l.id] ?? 0)}</span>
           </button>`;
         }).join('')}
@@ -65,6 +66,9 @@ export class LessonScreen {
   private token = 0;
   private done = false;
   private choosing = false;
+  private testMode = false; // replay with no prompts or hints; mistakes are corrected
+  private pending: number[] | null = null; // test mode: options the student may pick by playing their first move
+  private corrected = false; // test mode: mistake already counted for the current move
 
   constructor(
     private onBack: () => void,
@@ -88,6 +92,7 @@ export class LessonScreen {
           <button data-act="restart"><span>🔁</span>Restart</button>
           <button data-act="explore" hidden><span>🔀</span>More</button>
           <button data-act="continue" hidden><span>▶️</span>Play on</button>
+          <button data-act="test" hidden><span>🎯</span>Test</button>
           <button data-act="back"><span>📚</span>Lessons</button>
         </div>
       </div>`;
@@ -96,7 +101,11 @@ export class LessonScreen {
     this.el.querySelector('.lesson-controls')!.addEventListener('click', (e) => {
       const act = (e.target as HTMLElement).closest('button')?.dataset.act;
       if (act === 'hint') void this.hint();
-      if (act === 'restart') this.restart();
+      if (act === 'restart') {
+        if (this.testMode) this.startTest();
+        else this.restart();
+      }
+      if (act === 'test') this.startTest();
       if (act === 'explore') this.exploreMore();
       if (act === 'continue') void this.keepPlaying();
       if (act === 'back') this.onBack();
@@ -140,10 +149,16 @@ export class LessonScreen {
     this.showChoices(false);
     this.el.querySelector<HTMLElement>('[data-act="explore"]')!.hidden = true;
     this.el.querySelector<HTMLElement>('[data-act="continue"]')!.hidden = true;
+    this.el.querySelector<HTMLElement>('[data-act="test"]')!.hidden = true;
+    this.pending = null;
+    this.corrected = false;
   }
 
   private restart() {
+    this.testMode = false;
     this.reset();
+    this.el.querySelector<HTMLElement>('[data-act="hint"]')!.hidden = false;
+    this.el.querySelector<HTMLElement>('[data-act="test"]')!.hidden = !this.canTest();
     this.chess = new Chess(this.lesson.fen);
     if (this.lesson.practice) {
       this.say(this.lesson.practice.intro);
@@ -157,6 +172,107 @@ export class LessonScreen {
     this.say(intro ?? this.lesson.blurb);
     this.render();
     this.advance(intro ? 2200 : 1200);
+  }
+
+  // ---- test yourself ----
+
+  /** Openings and gambits you've started learning can be tested. */
+  private canTest(): boolean {
+    if (!this.lesson.tree || (this.lesson.category !== 'openings' && this.lesson.category !== 'gambits')) return false;
+    return this.explored.size > 0 || (profile.lessonStars[this.lesson.id] ?? 0) > 0;
+  }
+
+  private startTest() {
+    this.reset();
+    this.testMode = true;
+    this.mistakes = 0;
+    this.el.querySelector<HTMLElement>('[data-act="hint"]')!.hidden = true;
+    this.chess = new Chess(this.lesson.fen);
+    this.path = [];
+    this.moves = [...this.lesson.tree!.moves];
+    this.ply = 0;
+    this.say('🎯 Test yourself! No hints this time. Play the moves you learned, and I\'ll correct you if you slip.');
+    this.render();
+    this.advance(2200);
+  }
+
+  /** Test mode: at a decision point the computer picks a reply, or you pick a plan by playing it. */
+  private testChoice(delay: number) {
+    const choice = this.branches.at(-1)!.then!;
+    const noDemo = (o: Branch) => !o.moves.some((m) => m.demo);
+    let opts = choice.options.map((o, i) => ({ o, i })).filter(({ o }) => noDemo(o));
+    if (!opts.length) opts = choice.options.map((o, i) => ({ o, i }));
+    if (this.chess.turn() === this.lesson.side) {
+      this.pending = opts.map(({ i }) => i);
+      this.advance(delay);
+      return;
+    }
+    // Prefer replies you've already learned.
+    const total = (i: number) => leafPaths(branchesOnPath(this.lesson.tree!, [...this.path, i]).at(-1)!, [...this.path, i]).length;
+    const learned = opts.filter(({ i }) => this.unexploredUnder([...this.path, i]) < total(i));
+    const pool = learned.length ? learned : opts;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    this.path = [...this.path, pick.i];
+    this.moves = [...this.moves, ...pick.o.moves];
+    this.advance(delay);
+  }
+
+  private testMove(mv: Move, test: Chess) {
+    const bare = (san: string) => san.replace(/[+#]/g, '');
+    const options = this.branches.at(-1)!.then?.options ?? [];
+    const candidates = this.pending
+      ? this.pending.map((i) => ({ i, m: options[i].moves[0] }))
+      : [{ i: -1, m: this.moves[this.ply] }];
+    const hit = candidates.find(({ m }) => bare(m.san) === bare(mv.san) || (m.san.endsWith('#') && test.isCheckmate()));
+    if (hit) {
+      if (this.pending) {
+        this.path = [...this.path, hit.i];
+        this.moves = [...this.moves, ...options[hit.i].moves];
+        this.pending = null;
+      }
+      this.chess.move(mv.san);
+      this.playSound(mv);
+      this.ply++;
+      const fixed = this.corrected;
+      this.corrected = false;
+      this.board.setArrows([]);
+      this.say(fixed ? '👍 That\'s it! Keep going.' : `✅ ${hit.m.note ?? 'Correct!'}`);
+      this.render(true);
+      this.advance(hit.m.note && !fixed ? 1800 : 700);
+      return;
+    }
+    // Wrong: correct it. Explain why, show the right move, and have them play it.
+    if (!this.corrected) {
+      this.mistakes++;
+      this.corrected = true;
+    }
+    sounds.lose();
+    const right = candidates[0].m;
+    const rm = new Chess(this.chess.fen()).move(right.san);
+    const others = candidates.slice(1).map((c) => c.m.san);
+    const why = candidates.map((c) => c.m.wrong?.[mv.san]).find(Boolean);
+    const purpose = right.prompt ? ` ${right.prompt}` : '';
+    this.board.setArrows([{ from: rm.from, to: rm.to, color: 'rgba(40,180,90,0.85)' }]);
+    this.say(`❌ Not quite! ${why ? why + ' ' : ''}The move here is ${right.san}${others.length ? ` (or ${others.join(', ')})` : ''}.${purpose} Play it to continue.`);
+    this.render();
+  }
+
+  private testComplete() {
+    this.done = true;
+    this.render();
+    const perfect = this.mistakes === 0;
+    const label = this.branches.slice(1).map((b) => b.label).join(' → ');
+    if (perfect) {
+      recordLessonMastered(this.lesson.id);
+      sounds.win();
+      confetti();
+      this.say(`🏅 Perfect! You played ${label || 'the whole line'} with no mistakes. ${this.lesson.title} mastered! Tap Test to try a different variation.`);
+    } else {
+      sounds.win();
+      this.say(`🎯 Test complete${label ? ` (${label})` : ''}! You made ${this.mistakes} mistake${this.mistakes === 1 ? '' : 's'}, and now you know the right moves. Tap Test to try again. Can you get a perfect score?`);
+    }
+    this.el.querySelector<HTMLElement>('[data-act="test"]')!.hidden = false;
+    this.el.querySelector<HTMLElement>('[data-act="continue"]')!.hidden = !this.canKeepPlaying();
   }
 
   // ---- tree navigation ----
@@ -232,9 +348,10 @@ export class LessonScreen {
   /** Auto-play the opponent's moves until it's your turn, a choice, or the end of a variation. */
   private advance(delay = 700) {
     const m = this.moves[this.ply];
-    if (!m) {
+    if (!m && !this.pending) {
       const b = this.branches.at(-1)!;
-      if (!b.then) return this.variationComplete();
+      if (!b.then) return this.testMode ? this.testComplete() : this.variationComplete();
+      if (this.testMode) return this.testChoice(delay);
       this.busy = true;
       const t = this.token;
       setTimeout(() => {
@@ -244,7 +361,7 @@ export class LessonScreen {
       }, Math.min(delay, 1600));
       return;
     }
-    if (this.chess.turn() !== this.lesson.side) {
+    if (m && this.chess.turn() !== this.lesson.side) {
       this.busy = true;
       this.render();
       const t = this.token;
@@ -253,9 +370,10 @@ export class LessonScreen {
         const mv = this.chess.move(m.san);
         this.playSound(mv);
         this.ply++;
-        if (m.note) this.say(m.note);
+        if (this.testMode) this.say(`${this.lesson.side === 'w' ? 'Black' : 'White'} plays ${mv.san}.`);
+        else if (m.note) this.say(m.note);
         this.render(true);
-        this.advance(m.note ? 1800 : 700);
+        this.advance(m.note && !this.testMode ? 1800 : 700);
       }, delay);
       return;
     }
@@ -266,8 +384,12 @@ export class LessonScreen {
     const ply = this.ply;
     setTimeout(() => {
       if (t !== this.token || ply !== this.ply) return;
-      const demo = m.demo ? '🪤 ' : '';
-      this.say(demo + (m.prompt ?? 'Your move! Which move do you think comes next?'));
+      if (this.testMode) {
+        if (!this.corrected) this.say('🎯 Your move!');
+        return;
+      }
+      const demo = m!.demo ? '🪤 ' : '';
+      this.say(demo + (m!.prompt ?? 'Your move! Which move do you think comes next?'));
     }, this.ply === 0 ? 0 : Math.min(delay, 1200));
   }
 
@@ -282,6 +404,7 @@ export class LessonScreen {
     } catch {
       return;
     }
+    if (this.testMode) return this.testMove(mv, test);
     const bare = (san: string) => san.replace(/[+#]/g, '');
     if (bare(mv.san) === bare(expected.san) || (expected.san.endsWith('#') && test.isCheckmate())) {
       this.chess.move(mv.san);
@@ -330,7 +453,7 @@ export class LessonScreen {
   }
 
   private async hint() {
-    if (this.done || this.busy) return;
+    if (this.done || this.busy || this.testMode) return;
     if (this.choosing) {
       this.say('Pick one of the options below! Each one teaches a different way the game can go.');
       return;
@@ -369,6 +492,7 @@ export class LessonScreen {
     const total = variationCount(this.lesson);
     this.render();
     this.el.querySelector<HTMLElement>('[data-act="continue"]')!.hidden = !this.canKeepPlaying();
+    this.el.querySelector<HTMLElement>('[data-act="test"]')!.hidden = !this.canTest();
     if (this.explored.size < total) {
       sounds.win();
       const label = this.branches.slice(1).map((b) => b.label).join(' → ');
@@ -434,8 +558,9 @@ export class LessonScreen {
     const praise = stars === 3 ? 'Perfect! No mistakes and no hints!' : stars === 2 ? 'Great job! Try again with fewer hints for 3 stars.' : 'You did it! Practise it again to earn more stars.';
     this.say(`🎉 ${this.lesson.title} complete!`);
     showModal(`${this.lesson.title} complete!`, `<p class="big-stars">${starsText(stars)}</p><p>${message ? message + ' ' : ''}${praise}</p>`, [
-      ...(this.canKeepPlaying() ? [{ label: '▶️ Keep playing', primary: true, onClick: () => void this.keepPlaying() }] : []),
-      ...(next ? [{ label: `Next: ${next.title}`, primary: !this.canKeepPlaying(), onClick: () => this.onNext(next) }] : []),
+      ...(this.canTest() ? [{ label: '🎯 Test yourself', primary: true, onClick: () => this.startTest() }] : []),
+      ...(this.canKeepPlaying() ? [{ label: '▶️ Keep playing', onClick: () => void this.keepPlaying() }] : []),
+      ...(next ? [{ label: `Next: ${next.title}`, primary: !this.canTest(), onClick: () => this.onNext(next) }] : []),
       { label: 'Again', onClick: () => this.start(this.lesson) },
       { label: 'Lessons', onClick: () => this.onBack() },
     ]);
@@ -536,6 +661,10 @@ export class LessonScreen {
       },
       animate ? last : null,
     );
+    // State for automated tests.
+    this.el.dataset.path = this.path.join('.');
+    this.el.dataset.ply = String(this.ply);
+    this.el.dataset.turn = this.isMyTurn() ? (this.pending ? 'choose' : 'me') : '';
     const progress = this.el.querySelector('.progress')!;
     if (this.lesson.practice) {
       progress.textContent = this.lesson.practice.goal === 'mate' ? 'Goal: checkmate' : 'Goal: make a queen';
@@ -543,7 +672,9 @@ export class LessonScreen {
       const total = variationCount(this.lesson);
       const first = new Chess(this.lesson.fen).turn();
       const mineDone = this.moves.slice(0, this.ply).filter((_, i) => (i % 2 === 0) === (first === this.lesson.side)).length;
-      progress.textContent = `${total > 1 ? `${this.explored.size}/${total} variations · ` : ''}move ${mineDone}`;
+      progress.textContent = this.testMode
+        ? `🎯 Test · ${this.mistakes} mistake${this.mistakes === 1 ? '' : 's'}`
+        : `${total > 1 ? `${this.explored.size}/${total} variations · ` : ''}move ${mineDone}`;
     }
     this.el.querySelector<HTMLButtonElement>('[data-act="hint"]')!.disabled = this.done;
   }

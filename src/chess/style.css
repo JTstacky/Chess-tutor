@@ -489,3 +489,5 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 .puzzle-controls { grid-template-columns: repeat(4, 1fr) !important; }
 .controls button.pulse { background: var(--brand); color: #fff; animation: glow 1.2s ease-in-out infinite; }
 @keyframes glow { 50% { box-shadow: 0 0 0 6px rgba(108, 78, 227, 0.35); } }
+.mastered { font-size: 12px; color: #7a5200; font-weight: 700; background: #fff0c2; border-radius: 999px; padding: 2px 10px; }
+.lesson-controls { grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)) !important; }
