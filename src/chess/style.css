@@ -491,3 +491,12 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 @keyframes glow { 50% { box-shadow: 0 0 0 6px rgba(108, 78, 227, 0.35); } }
 .mastered { font-size: 12px; color: #7a5200; font-weight: 700; background: #fff0c2; border-radius: 999px; padding: 2px 10px; }
 .lesson-controls { grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)) !important; }
+
+/* Keep the board still: headers above it never change height. */
+.lesson-title, .puzzle-bar { flex-wrap: nowrap; min-height: 40px; overflow: hidden; }
+.lesson-title .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.puzzle-bar { white-space: nowrap; }
+.player-bar { height: 44px; }
+.player-bar .who { overflow: hidden; }
+.captured { overflow: hidden; text-overflow: clip; }
+.moves { position: relative; }

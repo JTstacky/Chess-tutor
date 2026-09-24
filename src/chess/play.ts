@@ -716,7 +716,7 @@ export class PlayScreen {
   }
 
   private renderMoves() {
-    const list = this.el.querySelector('.moves')!;
+    const list = this.el.querySelector<HTMLElement>('.moves')!;
     const sans = this.chess.history();
     const current = this.viewPly ?? sans.length;
     const parts: string[] = [];
@@ -730,7 +730,15 @@ export class PlayScreen {
       parts.push(`<li><em>${i / 2 + 1}.</em>${cell(i + 1)}${cell(i + 2)}</li>`);
     }
     list.innerHTML = parts.join('');
-    list.querySelector('.cur')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    // Scroll only the move list itself (scrollIntoView would also scroll the page and move the board).
+    const cur = list.querySelector<HTMLElement>('.cur');
+    if (cur) {
+      const top = cur.offsetTop - list.offsetTop;
+      if (top < list.scrollTop) list.scrollTop = top;
+      else if (top + cur.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = top + cur.offsetHeight - list.clientHeight;
+    } else {
+      list.scrollTop = list.scrollHeight;
+    }
   }
 
   private renderButtons() {
