@@ -28,8 +28,7 @@ const has = (...t: string[]) => (p: Puzzle) => t.some((x) => p.themes.includes(x
 export const SETS: PuzzleSet[] = [
   { id: 'mix', label: '⭐ My level', match: () => true },
   { id: 'm1', label: '♚ Mate in 1', match: has('mateIn1') },
-  { id: 'm2', label: '♚♚ Mate in 2', match: has('mateIn2') },
-  { id: 'm3', label: '🏆 Mate in 3+', match: has('mateIn3', 'mateIn4') },
+  { id: 'm2', label: '♚♚ Mate in 2+', match: has('mateIn2', 'mateIn3', 'mateIn4') },
   { id: 'fork', label: '🍴 Forks', match: has('fork', 'knightFork') },
   { id: 'pin', label: '📌 Pins & skewers', match: has('pin', 'skewer') },
   { id: 'disc', label: '💥 Discovered attacks', match: has('discoveredAttack') },
