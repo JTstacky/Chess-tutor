@@ -7,6 +7,8 @@ export interface Settings {
   blunderWarnings: boolean;
   threatWarnings: boolean;
   openingNames: boolean;
+  funMoves: boolean; // each piece has its own way of moving
+  battles: boolean; // captures play a battle animation
   unlockAllBots: boolean;
 }
 
@@ -20,12 +22,24 @@ export interface Profile {
   losses: number;
   draws: number;
   lessonStars: Record<string, number>; // lesson id -> best stars (1-3)
+  lessonExplored: Record<string, string[]>; // lesson id -> finished variations (choice paths)
 }
 
 const SETTINGS_KEY = 'tg-chess-settings';
 const PROFILE_KEY = 'tg-chess-profile';
 
-const defaultSettings: Settings = { sound: true, coaching: true, hints: true, blunderWarnings: true, threatWarnings: true, openingNames: true, unlockAllBots: false };
+const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const defaultSettings: Settings = {
+  sound: true,
+  coaching: true,
+  hints: true,
+  blunderWarnings: true,
+  threatWarnings: true,
+  openingNames: true,
+  funMoves: !calm,
+  battles: !calm,
+  unlockAllBots: false,
+};
 const defaultProfile: Profile = {
   name: 'Player',
   rating: 400,
@@ -36,6 +50,7 @@ const defaultProfile: Profile = {
   losses: 0,
   draws: 0,
   lessonStars: {},
+  lessonExplored: {},
 };
 
 function load<T>(key: string, fallback: T): T {
@@ -73,6 +88,11 @@ export function saveProfile() {
 
 export function recordLessonStars(id: string, stars: number) {
   profile.lessonStars = { ...profile.lessonStars, [id]: Math.max(stars, profile.lessonStars[id] ?? 0) };
+  saveProfile();
+}
+
+export function recordLessonExplored(id: string, paths: string[]) {
+  profile.lessonExplored = { ...profile.lessonExplored, [id]: paths };
   saveProfile();
 }
 

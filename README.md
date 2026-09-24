@@ -3,7 +3,20 @@
 A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) for the requirements and roadmap.
 
 - `/`: Teng Games landing page (games menu)
-- `/chess/`: the chess app (play bots, pass-and-play, clocks, takeback, hints, coaching, game review, lessons and puzzles)
+- `/chess/`: the chess app (play bots, pass-and-play, clocks, takeback, hints, coaching, game review, lessons and puzzles, themes, battle animations)
+
+## Battles and themes
+
+- **Fun piece moves** (`src/chess/moveanim.ts`): pawns hop, knights leap, bishops glide with a sparkle trail,
+  rooks rumble and land with a thud, queens teleport, kings waddle.
+- **Capture battles** (`src/chess/battle.ts`): every capture opens a little 2D arena on the board. Each of the
+  30 attacker/victim pairs has its own cartoon attack (Pillow Fight, Frog Spell, Tower Sumo, Dance-Off, Royal
+  Trapdoor…). Tap to skip. Clocks pause while a battle plays. Pick any pair in the **Battle Arena** menu.
+- **Themes** (`src/chess/themes.ts`): Classic, Fantasy (Unicorn Kingdom vs Dragon Clan), Space (Robot Squad vs
+  Alien Crew), Ocean (Dolphin Reef vs Shark Squad), Candy (Cupcake Crew vs Choco Gang) and Dino (Tricera-Team vs
+  T-Rex Gang). Chosen when starting a game. Pieces are recoloured versions of the cburnett set
+  (`src/chess/pieceart.ts`).
+- Both animation types can be switched off in Settings (they default to off if the device asks for reduced motion).
 
 ## Develop
 

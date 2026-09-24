@@ -1,5 +1,6 @@
 import './style.css';
-import type { Color } from 'chess.js';
+import type { Color, PieceSymbol } from 'chess.js';
+import { battleFor, playBattle } from './battle';
 import { BOTS, botById } from './bots';
 import { loadOpenings } from './coach';
 import { getEngine } from './engine';
@@ -7,6 +8,8 @@ import { LessonScreen, learnMenu } from './learn';
 import type { Lesson } from './lessons';
 import { PlayScreen, TIME_CONTROLS, type GameConfig } from './play';
 import { profile, resetProfile, saveProfile, saveSettings, settings } from './storage';
+import { pieceSrc, themeById, THEMES } from './themes';
+import { Timeline } from './timeline';
 import { confirmDialog, showModal } from './ui';
 
 const app = document.getElementById('app')!;
@@ -20,9 +23,11 @@ getEngine();
 void loadOpenings();
 
 let current: HTMLElement | null = null;
+let arenaTl: Timeline | null = null; // battle playing in the arena
 function show(view: HTMLElement) {
   if (current === play.el && view !== play.el) play.stop();
   if (current === lesson.el && view !== lesson.el) lesson.stop();
+  arenaTl?.skip();
   current = view;
   app.replaceChildren(view);
   backBtn.hidden = view.dataset.view === 'home';
@@ -57,6 +62,7 @@ function homeView(): HTMLElement {
         <button class="menu-card c2" data-go="friend"><span>👫</span><b>Play a Friend</b><small>Two players, one device</small></button>
         <button class="menu-card c3" data-go="learn"><span>📚</span><b>Learn</b><small>Openings, gambits, traps, puzzles</small></button>
         <button class="menu-card c4" data-go="progress"><span>🏆</span><b>My Progress</b><small>Rating, wins and badges</small></button>
+        <button class="menu-card c5" data-go="arena"><span>⚔️</span><b>Battle Arena</b><small>Watch the pieces battle</small></button>
       </div>
     </section>`);
   v.querySelector('.player-name')!.textContent = profile.name;
@@ -66,6 +72,7 @@ function homeView(): HTMLElement {
     if (go === 'friend') show(friendSetupView());
     if (go === 'learn') show(learnView());
     if (go === 'progress') show(progressView());
+    if (go === 'arena') show(arenaView());
   });
   return v;
 }
@@ -89,6 +96,24 @@ function wireChips(v: HTMLElement, attr: string, onPick: (value: string) => void
 let lastBotId = localStorage.getItem('tg-chess-last-bot') ?? 'sprout';
 let lastTime = 0;
 let lastColor: Color | 'random' = 'w';
+let lastTheme = themeById(localStorage.getItem('tg-chess-theme') ?? undefined).id;
+
+function themeCards(selected: string, attr = 'theme'): string {
+  return THEMES.map((t) => {
+    const teams = t.id === 'classic' ? 'White vs Black' : `${t.w.pet} ${t.w.name} vs ${t.b.pet} ${t.b.name}`;
+    return `<button class="theme-card ${t.id === selected ? 'on' : ''}" data-${attr}="${t.id}" style="--l:${t.light};--d:${t.dark}">
+      <span class="theme-preview"><img src="${pieceSrc(t, 'w', 'k')}" alt=""><img src="${pieceSrc(t, 'b', 'k')}" alt=""></span>
+      <b>${t.icon} ${t.name}</b><small>${teams}</small>
+    </button>`;
+  }).join('');
+}
+
+function wireThemes(v: HTMLElement) {
+  wireChips(v, 'theme', (id) => {
+    lastTheme = id;
+    localStorage.setItem('tg-chess-theme', id);
+  });
+}
 
 function botSetupView(): HTMLElement {
   const unlocked = (id: string) => settings.unlockAllBots || profile.unlockedBots.includes(id);
@@ -116,6 +141,8 @@ function botSetupView(): HTMLElement {
       </div>
       <h3>Clock</h3>
       <div class="chips">${timeChips(lastTime)}</div>
+      <h3>Theme</h3>
+      <div class="theme-grid">${themeCards(lastTheme)}</div>
       <button class="btn primary big start">Play!</button>
     </section>`);
   const blurb = v.querySelector('.bot-blurb')!;
@@ -131,9 +158,10 @@ function botSetupView(): HTMLElement {
   });
   wireChips(v, 'color', (c) => (lastColor = c as Color | 'random'));
   wireChips(v, 'time', (i) => (lastTime = Number(i)));
+  wireThemes(v);
   v.querySelector('.start')!.addEventListener('click', () => {
     const color: Color = lastColor === 'random' ? (Math.random() < 0.5 ? 'w' : 'b') : lastColor;
-    startGame({ mode: 'bot', bot: botById(lastBotId), playerColor: color, time: TIME_CONTROLS[lastTime] });
+    startGame({ mode: 'bot', bot: botById(lastBotId), playerColor: color, time: TIME_CONTROLS[lastTime], theme: lastTheme });
   });
   return v;
 }
@@ -145,11 +173,14 @@ function friendSetupView(): HTMLElement {
       <p>Take turns on the same device. White moves first!</p>
       <h3>Clock</h3>
       <div class="chips">${timeChips(lastTime)}</div>
+      <h3>Theme</h3>
+      <div class="theme-grid">${themeCards(lastTheme)}</div>
       <button class="btn primary big start">Start game</button>
     </section>`);
   wireChips(v, 'time', (i) => (lastTime = Number(i)));
+  wireThemes(v);
   v.querySelector('.start')!.addEventListener('click', () =>
-    startGame({ mode: 'friend', playerColor: 'w', time: TIME_CONTROLS[lastTime] }),
+    startGame({ mode: 'friend', playerColor: 'w', time: TIME_CONTROLS[lastTime], theme: lastTheme }),
   );
   return v;
 }
@@ -157,6 +188,105 @@ function friendSetupView(): HTMLElement {
 function startGame(cfg: GameConfig) {
   show(play.el);
   play.start(cfg);
+}
+
+const PIECE_ORDER: PieceSymbol[] = ['p', 'n', 'b', 'r', 'q', 'k'];
+const PIECE_NAMES: Record<PieceSymbol, string> = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
+
+/** Pick any two pieces and watch their battle. */
+function arenaView(): HTMLElement {
+  let attacker: PieceSymbol = 'n';
+  let victim: PieceSymbol = 'q';
+  let side: Color = 'w';
+  const v = el(`
+    <section class="view setup arena" data-view="arena">
+      <h2>⚔️ Battle Arena</h2>
+      <p>Every piece has its own attack for every other piece. That's 30 different battles! In a game, a battle happens whenever one piece captures another.</p>
+      <div class="arena-wrap">
+        <div class="arena-stage"></div>
+        <div class="arena-controls">
+          <h3>Attacker</h3>
+          <div class="piece-picks" data-role="a"></div>
+          <h3>Target</h3>
+          <div class="piece-picks" data-role="v"></div>
+          <div class="chips side-chips">
+            <button class="chip on" data-side="w">White attacks</button>
+            <button class="chip" data-side="b">Black attacks</button>
+          </div>
+          <div class="arena-buttons">
+            <button class="btn primary fight">⚔️ Fight!</button>
+            <button class="btn surprise">🎲 Surprise me</button>
+          </div>
+        </div>
+      </div>
+      <h3>Theme</h3>
+      <div class="theme-grid">${themeCards(lastTheme)}</div>
+    </section>`);
+  const stage = v.querySelector<HTMLElement>('.arena-stage')!;
+  const other = (c: Color): Color => (c === 'w' ? 'b' : 'w');
+
+  const render = () => {
+    const theme = themeById(lastTheme);
+    stage.style.setProperty('--l', theme.light);
+    stage.style.setProperty('--d', theme.dark);
+    const pick = (role: 'a' | 'v', color: Color, chosen: PieceSymbol) =>
+      PIECE_ORDER.filter((t) => role === 'a' || t !== 'k')
+        .map((t) => `<button class="piece-pick ${t === chosen ? 'on' : ''}" data-piece="${t}" title="${PIECE_NAMES[t]}"><img src="${pieceSrc(theme, color, t)}" alt="${PIECE_NAMES[t]}"></button>`)
+        .join('');
+    v.querySelector('[data-role="a"]')!.innerHTML = pick('a', side, attacker);
+    v.querySelector('[data-role="v"]')!.innerHTML = pick('v', other(side), victim);
+    if (!arenaTl || arenaTl.skipped) {
+      stage.innerHTML = `<div class="arena-idle">
+        <img src="${pieceSrc(theme, side, attacker)}" alt=""><b>VS</b><img src="${pieceSrc(theme, other(side), victim)}" alt="">
+        <p>${battleFor(attacker, victim).title}</p></div>`;
+    }
+  };
+
+  const fight = async () => {
+    arenaTl?.skip();
+    const tl = new Timeline();
+    arenaTl = tl;
+    stage.querySelector('.arena-idle')?.remove();
+    await playBattle(stage, { type: attacker, color: side }, { type: victim, color: other(side) }, { theme: themeById(lastTheme), tl });
+    if (arenaTl === tl) {
+      arenaTl = null;
+      render();
+    }
+  };
+
+  v.querySelectorAll<HTMLElement>('.piece-picks').forEach((row) =>
+    row.addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest<HTMLElement>('[data-piece]')?.dataset.piece as PieceSymbol | undefined;
+      if (!t) return;
+      if (row.dataset.role === 'a') attacker = t;
+      else victim = t;
+      render();
+    }),
+  );
+  wireChips(v, 'side', (c) => {
+    side = c as Color;
+    render();
+  });
+  v.querySelectorAll<HTMLElement>('[data-theme]').forEach((b) =>
+    b.addEventListener('click', () => {
+      v.querySelectorAll('[data-theme]').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      lastTheme = b.dataset.theme!;
+      localStorage.setItem('tg-chess-theme', lastTheme);
+      render();
+    }),
+  );
+  v.querySelector('.fight')!.addEventListener('click', () => void fight());
+  v.querySelector('.surprise')!.addEventListener('click', () => {
+    attacker = PIECE_ORDER[Math.floor(Math.random() * 6)];
+    victim = PIECE_ORDER[Math.floor(Math.random() * 5)];
+    side = Math.random() < 0.5 ? 'w' : 'b';
+    v.querySelectorAll('[data-side]').forEach((x) => x.classList.toggle('on', (x as HTMLElement).dataset.side === side));
+    render();
+    void fight();
+  });
+  render();
+  return v;
 }
 
 function learnView(): HTMLElement {
@@ -206,6 +336,8 @@ function openSettings() {
   const m = showModal(
     '⚙️ Settings',
     `${row('sound', 'Sounds')}
+     ${row('funMoves', 'Fun piece moves', 'Every piece has its own way of moving')}
+     ${row('battles', 'Capture battles', 'Pieces have a cartoon battle when one captures another. Tap to skip.')}
      ${row('coaching', 'Coaching', 'Hoot gives tips and help during games')}
      ${row('hints', 'Hint button', 'Shows the best move when you ask')}
      ${row('blunderWarnings', 'Blunder warnings', '"Are you sure?" before a move that loses a piece or the game')}
