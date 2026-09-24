@@ -14,6 +14,7 @@ import { getEngine, type EngineLine } from './engine';
 import { reviewGame, type GameReview } from './review';
 import { sounds } from './sound';
 import { coachingOn, profile, recordBotResult } from './storage';
+import { themeById, THEMES, type Theme } from './themes';
 import { confirmDialog, confetti, showModal } from './ui';
 
 export interface TimeControl {
@@ -37,6 +38,7 @@ export interface GameConfig {
   bot?: Bot;
   playerColor: Color; // for bot games; in friend mode this is just the starting orientation
   time: TimeControl;
+  theme?: string;
 }
 
 interface Result {
@@ -53,6 +55,7 @@ export class PlayScreen {
   private board: Board;
   private chess = new Chess();
   private cfg!: GameConfig;
+  private theme: Theme = THEMES[0];
   private clocks: { w: number; b: number } = { w: 0, b: 0 };
   private clockHistory: { w: number; b: number }[] = [];
   private tickTimer: number | undefined;
@@ -129,7 +132,11 @@ export class PlayScreen {
   start(cfg: GameConfig) {
     this.cfg = cfg;
     this.gameId++;
+    this.board.skipAnimation();
     getEngine().cancelAll();
+    this.theme = themeById(cfg.theme);
+    this.board.setTheme(this.theme);
+    document.body.style.background = this.theme.page;
     this.chess = new Chess();
     this.result = null;
     this.viewPly = null;
@@ -164,7 +171,9 @@ export class PlayScreen {
   stop() {
     this.gameId++;
     this.stopClock();
+    this.board.skipAnimation();
     getEngine().cancelAll();
+    document.body.style.background = '';
   }
 
   // ---- moves ----
@@ -177,35 +186,45 @@ export class PlayScreen {
 
   private async userMove(from: Square, to: Square, promotion?: 'q' | 'r' | 'b' | 'n') {
     if (!this.isUsersTurn()) return;
-    if (this.cfg.mode === 'bot' && coachingOn('blunderWarnings') && !(await this.blunderCheck(from, to, promotion))) return;
-    const move = this.makeMove({ from, to, promotion });
+    let shown = false;
+    if (this.cfg.mode === 'bot' && coachingOn('blunderWarnings')) {
+      const check = await this.blunderCheck(from, to, promotion);
+      if (check === 'no') return;
+      shown = check === 'shown';
+    }
+    const move = this.makeMove({ from, to, promotion }, shown);
     if (move && !this.result && this.cfg.mode === 'bot') void this.playBot();
   }
 
-  /** Before a move goes through, check whether it throws the game away. Returns true to play it. */
-  private async blunderCheck(from: Square, to: Square, promotion?: string): Promise<boolean> {
+  /**
+   * Before a move goes through, check whether it throws the game away. The move is shown
+   * (and animated) while the engine checks it. Returns 'no' to cancel the move, 'shown' when
+   * the board already shows it, or 'play' to play it normally.
+   */
+  private async blunderCheck(from: Square, to: Square, promotion?: string): Promise<'no' | 'shown' | 'play'> {
     const id = this.gameId;
     const fen = this.chess.fen();
     const test = new Chess(fen);
     try {
       test.move({ from, to, promotion });
     } catch {
-      return false;
+      return 'no';
     }
-    if (test.isGameOver()) return true;
+    if (test.isGameOver()) return 'play';
     this.checking = true;
     this.tentative = test;
-    this.refresh(false);
+    this.refresh(true);
     const before = await (this.pre?.fen === fen ? this.pre.lines : getEngine().analyse(fen, { depth: 10 }));
     const after = await getEngine().analyse(test.fen(), { depth: 10 });
-    if (id !== this.gameId) return false;
+    await this.board.idle();
+    if (id !== this.gameId) return 'no';
     const beforeWin = before[0] ? winPercent(before[0].cp) : 50;
     const afterWin = after[0] ? 100 - winPercent(after[0].cp) : 50;
     // Only warn about real blunders, and not when you're still winning easily anyway.
     if (!before[0] || !after[0] || beforeWin - afterWin < 20 || afterWin > 85) {
       this.checking = false;
       this.tentative = null;
-      return true;
+      return 'shown';
     }
     // Keep showing the move on the board while asking, so the red arrow makes sense.
     const why = explainConsequence(test.fen(), after[0], this.cfg.playerColor, this.cfg.bot!.name) ||
@@ -214,15 +233,16 @@ export class PlayScreen {
     if (threat) this.board.setArrows([{ from: threat.slice(0, 2) as Square, to: threat.slice(2, 4) as Square, color: 'rgba(220,50,50,0.85)' }]);
     const go = !(await confirmDialog('🤔 Are you sure?', `${why} Do you want to try a different move?`, 'Let me rethink', 'Play it anyway'));
     this.board.setArrows([]);
-    if (id !== this.gameId) return false;
+    if (id !== this.gameId) return 'no';
     this.checking = false;
     this.tentative = null;
     if (!go) this.refresh(false);
     if (!go) this.say('Good thinking! Look for a safer move. Check what your opponent can capture.');
-    return go;
+    return go ? 'shown' : 'no';
   }
 
-  private makeMove(m: { from: string; to: string; promotion?: string }): Move | null {
+  /** Play a move. `shown` means the board already shows (and has animated) it. */
+  private makeMove(m: { from: string; to: string; promotion?: string }, shown = false): Move | null {
     let move: Move;
     try {
       move = this.chess.move(m);
@@ -236,11 +256,14 @@ export class PlayScreen {
     }
     this.clockHistory.push({ ...this.clocks });
     this.board.setArrows([]);
-    if (this.chess.isCheck()) sounds.check();
-    else if (move.captured) sounds.capture();
-    else sounds.move();
+    // The board plays the move and capture sounds as the pieces land.
+    const id = this.gameId;
+    const ply = this.chess.history().length;
+    void this.board.idle().then(() => {
+      if (id === this.gameId && ply === this.chess.history().length && this.chess.isCheck()) sounds.check();
+    });
+    this.refresh(!shown);
     this.checkGameOver();
-    this.refresh(true);
     if (!this.result) this.commentOnMove(move);
     return move;
   }
@@ -252,6 +275,7 @@ export class PlayScreen {
     this.refresh(false);
     this.say(`${this.cfg.bot!.name} is thinking…`);
     const uci = await botMove(this.cfg.bot!, this.chess.fen());
+    await this.board.idle(); // let your move (and any battle) finish first
     // Ignore stale answers after a takeback, new game or leaving the screen.
     if (id !== this.gameId || ply !== this.chess.history().length || this.result) return;
     this.botThinking = false;
@@ -327,6 +351,7 @@ export class PlayScreen {
 
     let title: string;
     let body = `By ${result.reason}.`;
+    let celebrate: 'win' | 'lose' | 'draw';
     if (this.cfg.mode === 'bot') {
       const bot = this.cfg.bot!;
       const score = result.winner === null ? 0.5 : result.winner === this.cfg.playerColor ? 1 : 0;
@@ -338,24 +363,24 @@ export class PlayScreen {
       body += ` Your rating: <b>${profile.rating}</b> (${delta >= 0 ? '+' : ''}${delta}).`;
       if (newlyUnlocked) body += `<br><br>🔓 You unlocked <b>${next.avatar} ${next.name}</b>!`;
       if (score === 0) body += '<br><br>Every game makes you stronger. Try again!';
-      if (score === 1) {
-        sounds.win();
-        confetti();
-      } else if (score === 0.5) sounds.draw();
-      else sounds.lose();
+      celebrate = score === 1 ? 'win' : score === 0.5 ? 'draw' : 'lose';
     } else {
-      title = result.winner ? `${colorName(result.winner)} wins! 🎉` : 'Draw 🤝';
-      if (result.winner) {
-        sounds.win();
-        confetti();
-      } else sounds.draw();
+      title = result.winner ? `${this.sideName(result.winner)} wins! 🎉` : 'Draw 🤝';
+      celebrate = result.winner ? 'win' : 'draw';
     }
     this.say(title.replace(/<[^>]+>/g, ''));
-    showModal(title, body, [
-      { label: '⭐ Review game', primary: true, onClick: () => void this.startReview() },
-      { label: 'Play again', onClick: () => this.start(this.cfg) },
-      { label: 'Menu', onClick: () => this.onExit() },
-    ]);
+    // Let the last move (and its battle) finish before the result pops up.
+    const id = this.gameId;
+    void this.board.idle().then(() => {
+      if (id !== this.gameId) return;
+      sounds[celebrate]();
+      if (celebrate === 'win') confetti();
+      showModal(title, body, [
+        { label: '⭐ Review game', primary: true, onClick: () => void this.startReview() },
+        { label: 'Play again', onClick: () => this.start(this.cfg) },
+        { label: 'Menu', onClick: () => this.onExit() },
+      ]);
+    });
   }
 
   // ---- review ----
@@ -467,6 +492,7 @@ export class PlayScreen {
       if (history - plies < (this.cfg.playerColor === 'b' ? 1 : 0)) return;
     } else if (history === 0) return;
     this.gameId++; // invalidates any bot search in progress
+    this.board.skipAnimation();
     getEngine().cancelAll();
     this.botThinking = false;
     for (let i = 0; i < plies; i++) {
@@ -559,6 +585,11 @@ export class PlayScreen {
 
   private tick() {
     const now = performance.now();
+    if (this.board.isBusy()) {
+      // Clocks pause while a move or battle is animating.
+      this.lastTick = now;
+      return;
+    }
     const side = this.chess.turn();
     this.clocks[side] -= now - this.lastTick;
     this.lastTick = now;
@@ -621,7 +652,7 @@ export class PlayScreen {
       dests,
       movable: this.isUsersTurn() ? pos.turn() : null,
     };
-    this.board.setState(state, animate);
+    this.board.setState(state, animate && !viewing && lastMove ? lastMove : null);
     this.el.classList.toggle('viewing-history', viewing && !this.review);
     if (this.review) this.showReviewMove(this.viewPly ?? total);
     // Start analysing as soon as it's your turn so the blunder check is quick.
@@ -649,8 +680,8 @@ export class PlayScreen {
         name = `${profile.name} (${profile.rating})`;
         avatar = '🙂';
       } else {
-        name = colorName(color);
-        avatar = color === 'w' ? '⚪' : '⚫';
+        name = this.sideName(color);
+        avatar = this.theme[color].pet || (color === 'w' ? '⚪' : '⚫');
       }
       bar.querySelector('.avatar')!.textContent = avatar;
       bar.querySelector('.pname')!.textContent = name;
@@ -660,6 +691,11 @@ export class PlayScreen {
       bar.querySelector('.captured')!.textContent = taken.map((t) => PIECE_ICONS[t]).join('') + (diff > 0 ? ` +${diff}` : '');
       bar.classList.toggle('to-move', !this.result && pos.turn() === color);
     }
+  }
+
+  /** "White", or the theme's team name in pass-and-play. */
+  private sideName(c: Color): string {
+    return this.theme.id === 'classic' ? colorName(c) : `${this.theme[c].name} (${colorName(c)})`;
   }
 
   private renderMoves() {
