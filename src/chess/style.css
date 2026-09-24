@@ -229,6 +229,8 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
   border-radius: 50%;
   border: 6px solid rgba(0, 0, 0, 0.18);
 }
+.sq.mark { box-shadow: inset 0 0 0 5px rgba(40, 180, 90, 0.9); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: inset 0 0 0 2px rgba(40, 180, 90, 0.5); } }
 .sq.drag-over { box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.75); }
 .coord { position: absolute; font-size: clamp(9px, 1.6vw, 13px); font-weight: 600; pointer-events: none; }
 .coord.rank { top: 2px; left: 3px; }
@@ -365,3 +367,33 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 @keyframes fall {
   to { transform: translate(var(--drift), 105vh) rotate(720deg); }
 }
+
+/* ---- learn ---- */
+.star-total { font-size: 18px; font-weight: 600; color: var(--brand); margin: 0; }
+.learn h3 small { display: block; font-weight: 400; font-size: 14px; }
+.lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.lesson-card {
+  border: 0;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.lesson-card:active { transform: scale(0.97); }
+.lesson-icon { font-size: 36px; }
+.lesson-card b { font-size: 17px; }
+.lesson-card small { color: var(--muted); font-size: 13px; line-height: 1.3; }
+.stars { color: #d6d0ee; font-size: 20px; letter-spacing: 2px; margin-top: auto; }
+.stars.got { color: var(--accent); }
+.big-stars { font-size: 48px; color: var(--accent); text-align: center; margin: 0; letter-spacing: 4px; }
+.lesson-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 4px 2px 8px; }
+.lesson-title .t { font-size: 22px; font-weight: 700; }
+.lesson-title .progress { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.tips { background: var(--card); border-radius: 14px; margin: 0; padding: 10px 14px 10px 30px; font-size: 15px; line-height: 1.5; }
+.lesson-controls { grid-template-columns: repeat(4, 1fr) !important; }
+.lesson-controls button[hidden] { display: none; }
