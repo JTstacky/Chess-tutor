@@ -35,12 +35,14 @@ h1 { text-align: center; font-size: clamp(28px, 6vw, 44px); margin: 8px 0 24px; 
   align-items: center;
   text-align: center;
 }
-.game-card.chess:hover { transform: translateY(-4px) rotate(-1deg); }
+a.game-card:hover { transform: translateY(-4px) rotate(-1deg); }
 .game-card h2 { margin: 12px 0 4px; }
 .game-card p { color: var(--muted); margin: 0 0 16px; }
 .art { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 72px; gap: 4px; }
 .art img { height: 96px; }
 .chess .art { background: repeating-conic-gradient(#eeeed2 0 25%, #769656 0 50%) 0 0 / 55px 55px; border-radius: 16px; width: 100%; }
+.dragon .art { background: linear-gradient(135deg, #3a1c4a, #b3361f); border-radius: 16px; width: 100%; }
+.beasts .art { background: linear-gradient(135deg, #1d3b5c, #3f8f4a); border-radius: 16px; width: 100%; }
 .play-btn { background: var(--brand); color: #fff; padding: 10px 28px; border-radius: 999px; font-weight: 600; font-size: 20px; margin-top: auto; }
 .soon { opacity: 0.7; }
 footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px; }

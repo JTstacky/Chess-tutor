@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Beast Binder</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud" class="hidden">
+    <div id="hud-status" class="box">
+      <div class="row"><span class="lbl">HP</span><div class="bar hp"><i id="hp-fill"></i><b id="hp-text"></b></div></div>
+      <div class="row"><span class="lbl" id="lv-lbl">LV 1</span><div class="bar xp"><i id="xp-fill"></i><b id="xp-text"></b></div></div>
+      <div class="row"><span class="lbl">RANK</span><div class="bar renown"><i id="rn-fill"></i><b id="rn-text"></b></div></div>
+      <div class="row stats"><span id="horde-count" title="Beasts marching / horde size"></span><span id="den-count"></span><span id="essence"></span></div>
+      <div class="row" id="cores" title="Titan cores aboard the rocket"></div>
+      <div id="resonance" class="row hidden" title="Elemental resonance of the marching horde (Tab for details)"></div>
+    </div>
+
+    <div id="hud-right">
+      <div class="box mapbox"><canvas id="minimap" width="152" height="152"></canvas><div id="region-name"></div></div>
+      <div id="objective" class="box"></div>
+    </div>
+
+    <div id="frenzy" class="hidden"><div id="frenzy-count"></div><div id="frenzy-mult"></div><div class="fbar"><i id="frenzy-fill"></i></div></div>
+    <div id="bossbar" class="hidden"><div id="boss-name"></div><div class="bar boss"><i id="boss-fill"></i></div></div>
+    <div id="region-toast"></div>
+    <div id="banner"><div id="banner-title"></div><div id="banner-sub"></div></div>
+    <div id="toasts"></div>
+
+    <button id="prompt" class="hidden"></button>
+    <div id="abilities">
+      <button class="ab" data-act="bolt"><span class="key">LMB</span><span class="name">Bolt</span><i class="cd"></i></button>
+      <button class="ab" data-act="net"><span class="key">RMB</span><span class="name">Net</span><i class="cd"></i></button>
+      <button class="ab" data-act="dash"><span class="key">Shift</span><span class="name">Dash</span><i class="cd"></i></button>
+      <button class="ab" data-act="stomp"><span class="key">C</span><span class="name">Stomp</span><i class="cd"></i></button>
+      <button class="ab" data-act="charge"><span class="key">G</span><span class="name">Charge</span><i class="cd"></i></button>
+      <button class="ab" data-act="recall"><span class="key">R</span><span class="name">Recall</span><i class="cd"></i></button>
+      <button class="ab" data-act="horn"><span class="key">F</span><span class="name">War Horn</span><i class="cd"></i></button>
+      <button class="ab" data-act="stance"><span class="key">1·2·3</span><span class="name">Swarm</span><i class="cd"></i></button>
+    </div>
+    <div id="menu-buttons">
+      <button data-panel="horde"><span class="key">Tab</span> Horde</button>
+      <button data-panel="upgrades" id="btn-upgrades"><span class="key">U</span> Workshop</button>
+      <button data-panel="pause"><span class="key">P</span> Pause</button>
+    </div>
+    <div id="stick"><i></i></div>
+  </div>
+
+  <div id="boons" class="hidden"><div class="boon-head"><div id="boon-title"></div><div class="boon-sub">Choose a boon</div></div><div id="boon-cards"></div></div>
+
+  <div id="panel" class="hidden"><div id="panel-inner"></div></div>
+
+  <div id="base" class="hidden"><canvas id="base-bg"></canvas><div id="base-ui"></div><div id="base-fx"></div></div>
+
+  <div id="title">
+    <div class="title-card">
+      <h1>BEAST BINDER</h1>
+      <p class="tag">An intergalactic poacher. A rocket. A planet full of monsters worth a fortune.</p>
+      <p class="tag2">Bind the little ones · command the colossal · take the Titans' cores · sell, harvest and breed your catch · on to the next world</p>
+      <div class="title-buttons">
+        <button id="btn-continue" class="big">Continue</button>
+        <button id="btn-new" class="big">New Journey</button>
+      </div>
+      <div class="howto">
+        <div><b>WASD</b> move</div><div><b>Q / E</b> strafe</div><div><b>Hold Click</b> staff bolts</div><div><b>Right-click / Space</b> throw net</div>
+        <div><b>Shift</b> dash</div><div><b>G</b> charge</div><div><b>1·2·3</b> stance</div><div><b>R</b> recall</div><div><b>F</b> war horn</div><div><b>Tab</b> horde</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/species_data.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/pixelart.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/mech.js"></script>
+  <script src="js/units.js"></script>
+  <script src="js/combat.js"></script>
+  <script src="js/titananim.js"></script>
+  <script src="js/spawn.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/voyage.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
