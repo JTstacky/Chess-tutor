@@ -203,3 +203,6 @@
 {"fen":"3r1rk1/pR3pbp/4b1p1/2pB2N1/P4P2/2P5/6PP/3R3K w - - 3 25","moves":["d5b3","e6b3","d1d8","f8d8"],"themes":["fork","winMaterial"],"rating":1259,"eval":604}
 {"fen":"r1bqk1r1/2np1pPp/4p2B/8/1pBP4/8/P1P1NPPP/3QK2R b Kq - 2 12","moves":["g8g7","h6g7"],"themes":["hangingPiece","winMaterial"],"rating":724,"eval":497}
 {"fen":"r3kb1r/1P4p1/p1pp3p/4p3/1n1Bn2q/4P2N/3PB2R/R2K4 b kq - 0 21","moves":["a8c8","b7c8q"],"themes":["promotion","hangingPiece","winMaterial"],"rating":725,"eval":507}
+{"fen":"r2q1bkr/p3pp2/1np2Ppp/8/PpQP4/6P1/1P3PBP/R1BRN1K1 w - - 1 15","moves":["g2h3","b6c4"],"themes":["hangingPiece","winMaterial"],"rating":764,"eval":544}
+{"fen":"rnbqk1nr/pppp1ppp/8/4b3/8/4P3/PPP2PPP/RNBQKBNR w KQkq - 0 3","moves":["b2b4","e5a1"],"themes":["hangingPiece","winMaterial"],"rating":601,"eval":571}
+{"fen":"r4rk1/1p3pp1/2p1p2p/2n5/Pp6/R4BPP/1P1N1P2/4RK2 b - - 0 19","moves":["c5b3","a3b3"],"themes":["hangingPiece","winMaterial"],"rating":618,"eval":631}
