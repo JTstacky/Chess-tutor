@@ -9,9 +9,11 @@ A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) f
 
 - **Fun piece moves** (`src/chess/moveanim.ts`): pawns hop, knights leap, bishops glide with a sparkle trail,
   rooks rumble and land with a thud, queens teleport, kings waddle.
-- **Capture battles** (`src/chess/battle.ts`): every capture opens a little 2D arena on the board. Each of the
-  30 attacker/victim pairs has its own cartoon attack (Pillow Fight, Frog Spell, Tower Sumo, Dance-Off, Royal
-  Trapdoor…). Tap to skip. Clocks pause while a battle plays. Pick any pair in the **Battle Arena** menu.
+- **Capture battles** (`src/chess/battle.ts`), Battle Chess style: on every capture the camera swoops down,
+  the board tilts into a floor, the other pieces stand up on their squares, and the two pieces fight on the
+  victim's square. Each of the 30 attacker/victim pairs has its own cartoon attack (Pillow Fight, Frog Spell,
+  Tower Sumo, Dance-Off, Royal Trapdoor…). Tap to skip. Clocks pause while a battle plays. Settings can move
+  the battles into a cartoon arena scene instead. Pick any pair in the **Battle Arena** menu.
 - **Themes** (`src/chess/themes.ts`): Classic, Fantasy (Unicorn Kingdom vs Dragon Clan), Space (Robot Squad vs
   Alien Crew), Ocean (Dolphin Reef vs Shark Squad), Candy (Cupcake Crew vs Choco Gang) and Dino (Tricera-Team vs
   T-Rex Gang). Chosen when starting a game (lessons use the last one picked). Each team's pieces are drawn as

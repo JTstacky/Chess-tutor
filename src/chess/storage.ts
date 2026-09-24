@@ -9,6 +9,7 @@ export interface Settings {
   openingNames: boolean;
   funMoves: boolean; // each piece has its own way of moving
   battles: boolean; // captures play a battle animation
+  arenaBattles: boolean; // battles in a cartoon arena instead of on the board
   unlockAllBots: boolean;
   fxVersion: number; // bumped to switch the animations back on once
 }
@@ -44,6 +45,7 @@ const defaultSettings: Settings = {
   openingNames: true,
   funMoves: true,
   battles: true,
+  arenaBattles: false,
   unlockAllBots: false,
   fxVersion: 2,
 };

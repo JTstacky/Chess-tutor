@@ -1056,11 +1056,144 @@ export function battleFor(attacker: PieceSymbol, victim: PieceSymbol): Battle {
   return BATTLES[attacker + victim] ?? BATTLES[`${attacker}p`];
 }
 
+/** The chessboard the fighters stand on (Battle Chess style), in board display coordinates. */
+export interface BattleFloor {
+  squares: HTMLElement; // an 8x8 grid of squares to stand on (a copy of the board's)
+  pieces: { type: PieceSymbol; color: Color; x: number; y: number; role?: 'a' | 'v' }[];
+  target: [number, number]; // the victim's square
+  attackerTo: [number, number]; // where the attacker ends up
+}
+
 export interface BattleOptions {
   theme: Theme;
   tl: Timeline;
   origin?: { x: number; y: number }; // where the arena opens from, % of the host
-  beforeReveal?: () => void; // called just before the arena fades out
+  floor?: BattleFloor; // fight on the board instead of in a cartoon arena
+  beforeReveal?: () => void; // called just before the battle goes away
+}
+
+// On the board: the camera tilts the board into a floor and zooms in on the victim's square.
+const FEET = 78.5; // where the fighters' feet are
+const TILT = 55;
+const ZOOM = 1.9;
+
+class BoardCamera {
+  private floor: HTMLElement;
+  private flat: HTMLElement;
+  private flatA: HTMLElement | null = null;
+  private flatV: HTMLElement | null = null;
+  private stands: HTMLElement[] = [];
+  private start = '';
+  private end = '';
+
+  constructor(
+    private s: Stage,
+    private f: BattleFloor,
+  ) {
+    const [tx, ty] = f.target;
+    const cx = (tx + 0.5) * 12.5;
+    const cy = (ty + 0.5) * 12.5;
+    // Near the left edge the attacker would stand off the board: look from the other side instead.
+    const spin = tx < 2 ? 180 : 0;
+    this.floor = document.createElement('div');
+    this.floor.className = 'bt-floor';
+    this.floor.style.transformOrigin = `${px(cx)} ${px(cy)}`;
+    this.floor.style.setProperty('--light-sq', s.theme.light);
+    this.floor.style.setProperty('--dark-sq', s.theme.dark);
+    f.squares.querySelectorAll('.coord').forEach((c) => c.remove());
+    this.flat = document.createElement('div');
+    this.flat.className = 'bt-flat';
+    for (const p of f.pieces) {
+      const img = document.createElement('img');
+      img.src = pieceSrc(s.theme, p.color, p.type);
+      img.alt = '';
+      img.style.transform = `translate(${p.x * 100}%, ${p.y * 100}%)`;
+      if (p.role === 'a') this.flatA = img;
+      if (p.role === 'v') this.flatV = img;
+      this.flat.append(img);
+    }
+    this.floor.append(f.squares, this.flat);
+    // Above the backdrop (sky and decorations), below the fighters.
+    s.world.insertBefore(this.floor, s.world.querySelector('.bt-fighter'));
+    const P = px(150);
+    this.start = `translate(0px, 0px) perspective(${P}) rotateX(0deg) scale(1) rotateZ(0deg)`;
+    this.end = `translate(${px(VX - cx)}, ${px(FEET - cy)}) perspective(${P}) rotateX(${TILT}deg) scale(${ZOOM}) rotateZ(${spin}deg)`;
+  }
+
+  /** Stand the other pieces up on their squares, as seen by the tilted camera. */
+  private standUp() {
+    this.floor.style.transform = this.end;
+    const world = this.s.world.getBoundingClientRect();
+    const k = 100 / world.width; // px -> stage units
+    const sqs = this.f.squares.querySelectorAll<HTMLElement>('.sq');
+    const out: { img: HTMLImageElement; bottom: number }[] = [];
+    for (const p of this.f.pieces) {
+      if (p.role) continue;
+      const sq = sqs[Math.round(p.y) * 8 + Math.round(p.x)];
+      if (!sq) continue;
+      const r = sq.getBoundingClientRect();
+      const w = r.width * k;
+      const x = (r.left + r.width / 2 - world.left) * k;
+      const bottom = (r.bottom - world.top) * k - r.height * k * 0.3;
+      // Only pieces behind the fight: nearer ones would be huge and block the view.
+      if (bottom > FEET - 4) continue;
+      // …and not right behind a fighter's head.
+      if (bottom > FEET - 16 && (Math.abs(x - AX) < 11 || Math.abs(x - VX) < 11)) continue;
+      if (bottom < -5 || x < -w || x > 100 + w) continue;
+      const img = document.createElement('img');
+      img.className = 'bt-stand';
+      img.src = pieceSrc(this.s.theme, p.color, p.type);
+      img.alt = '';
+      img.style.cssText = `left:${px(x - w / 2)};top:${px(bottom - w)};width:${px(w)};height:${px(w)};z-index:1`;
+      out.push({ img, bottom });
+    }
+    out.sort((a, b) => a.bottom - b.bottom).forEach(({ img }) => {
+      this.s.world.append(img);
+      this.stands.push(img);
+    });
+    this.floor.style.transform = this.start;
+  }
+
+  async swoopIn(A: Fighter, V: Fighter) {
+    const s = this.s;
+    this.standUp();
+    const sky = s.world.querySelector<HTMLElement>('.bt-sky')!;
+    const show = (el: HTMLElement, delay: number) => s.anim(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay, easing: 'ease-out' });
+    [A.el, V.el, ...this.stands].forEach((el) => (el.style.opacity = '0'));
+    void s.anim(sky, [{ opacity: 0 }, { opacity: 1 }], 700);
+    void s.anim(this.flat, [{ opacity: 1 }, { opacity: 0 }], { duration: 350, delay: 250 });
+    this.stands.forEach((el) => void show(el, 450));
+    void s.anim(this.floor, [{ transform: this.start }, { transform: this.end }], 750, 'ease-in-out');
+    void show(A.el, 500);
+    await show(V.el, 500);
+    A.el.style.opacity = V.el.style.opacity = '';
+    this.stands.forEach((el) => (el.style.opacity = ''));
+  }
+
+  async swoopOut(A: Fighter, V: Fighter) {
+    const s = this.s;
+    // The board as it is after the capture.
+    this.flatV?.remove();
+    if (this.flatA) this.flatA.style.transform = `translate(${this.f.attackerTo[0] * 100}%, ${this.f.attackerTo[1] * 100}%)`;
+    const gone = [A.el, V.el, ...this.stands, ...s.world.querySelectorAll<HTMLElement>('.bt-prop:not(.bt-deco), .bt-beam')];
+    gone.forEach((el) => void s.anim(el, [{ opacity: 0 }], 200));
+    void s.anim(s.root.querySelector<HTMLElement>('.bt-banner')!, [{ opacity: 0 }], 250);
+    void s.anim(s.world.querySelector<HTMLElement>('.bt-sky')!, [{ opacity: 1 }, { opacity: 0 }], 650);
+    void s.anim(this.flat, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: 150 });
+    await s.anim(this.floor, [{ transform: this.end }, { transform: this.start }], 650, 'ease-in-out');
+  }
+}
+
+/** A plain 8x8 board of the theme's squares (for the Battle Arena screen). */
+export function plainSquares(): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'squares';
+  for (let i = 0; i < 64; i++) {
+    const sq = document.createElement('div');
+    sq.className = `sq ${(Math.floor(i / 8) + i) % 2 ? 'dark' : 'light'}`;
+    el.append(sq);
+  }
+  return el;
 }
 
 /** Play the battle for `attacker` capturing `victim` over `host`. Tap to skip. */
@@ -1068,9 +1201,10 @@ export async function playBattle(
   host: HTMLElement,
   attacker: { type: PieceSymbol; color: Color },
   victim: { type: PieceSymbol; color: Color },
-  { theme, tl, origin = { x: 50, y: 50 }, beforeReveal }: BattleOptions,
+  { theme, tl, origin = { x: 50, y: 50 }, floor, beforeReveal }: BattleOptions,
 ): Promise<void> {
   const s = new Stage(tl, theme, host.clientWidth);
+  if (floor) s.root.classList.add('on-board');
   const battle = battleFor(attacker.type, victim.type);
   const A = s.fighter(attacker.type, attacker.color, AX, 1);
   const V = s.fighter(victim.type, victim.color, VX, -1);
@@ -1091,15 +1225,21 @@ export async function playBattle(
     tl.skip();
   });
   host.append(s.root);
+  const camera = floor ? new BoardCamera(s, floor) : null;
 
   try {
-    // Open the arena from the square where the capture happens.
-    const o = `${origin.x}% ${origin.y}%`;
-    void s.anim(s.root, [{ clipPath: `circle(0% at ${o})` }, { clipPath: `circle(150% at ${o})` }], 450, 'ease-in');
-    void s.anim(banner, [K(0, -20), K(0, 2), K(0, 0)], { duration: 450, delay: 150 });
+    void s.anim(banner, [K(0, -20), K(0, 2), K(0, 0)], { duration: 450, delay: camera ? 500 : 150 });
     s.sfx('whoosh');
-    void s.go(A, [K(-30, 0), K(0, 0)], 450, 'ease-out');
-    await s.go(V, [K(30, 0), K(0, 0)], 450, 'ease-out');
+    if (camera) {
+      // Swoop down onto the board: it tilts into a floor and the pieces stand up.
+      await camera.swoopIn(A, V);
+    } else {
+      // Open the arena from the square where the capture happens.
+      const o = `${origin.x}% ${origin.y}%`;
+      void s.anim(s.root, [{ clipPath: `circle(0% at ${o})` }, { clipPath: `circle(150% at ${o})` }], 450, 'ease-in');
+      void s.go(A, [K(-30, 0), K(0, 0)], 450, 'ease-out');
+      await s.go(V, [K(30, 0), K(0, 0)], 450, 'ease-out');
+    }
     s.mood(V, 'shock');
     await s.fx(V, [K(0, 0, 0, 1, 1), K(0, 0, 0, 1.05, 0.93), K(0, 0, 0, 1, 1)], 200);
     s.mood(V, null);
@@ -1113,7 +1253,8 @@ export async function playBattle(
     await s.go(A, [K(0, 0), K(0, -8), K(0, 0), K(0, -5), K(0, 0)], 600);
   } finally {
     beforeReveal?.();
-    await s.anim(s.root, [{ opacity: 1 }, { opacity: 0 }], 250);
+    if (camera) await camera.swoopOut(A, V);
+    else await s.anim(s.root, [{ opacity: 1 }, { opacity: 0 }], 250);
     s.root.remove();
   }
 }
