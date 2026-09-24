@@ -3,7 +3,7 @@
 // Run: node --experimental-strip-types scripts/check-lessons.mjs
 import { spawn } from 'node:child_process';
 import { Chess } from 'chess.js';
-import { LESSONS } from '../src/chess/lessons.ts';
+import { LESSONS, branchesOnPath, leafPaths } from '../src/chess/lessons.ts';
 
 const sf = spawn(process.execPath, ['node_modules/stockfish/bin/stockfish-19-lite-single.js']);
 let buf = '';
@@ -40,26 +40,36 @@ for (const l of LESSONS) {
     if (c.turn() !== l.side) fail('practice: side to move is not the student');
     continue;
   }
-  for (const line of l.lines ?? []) {
+  if (!l.tree) { fail('no tree'); continue; }
+  const checked = new Set(); // "fen|san" already engine-checked (shared prefixes)
+  for (const path of leafPaths(l.tree)) {
+    const branches = branchesOnPath(l.tree, path);
+    const title = branches.map((b) => b.label).join(' > ');
+    for (const b of branches) if (b.then && b.then.options.length < 2) fail(`${title}: choice with < 2 options`);
+    const moves = branches.flatMap((b) => b.moves);
     const c = new Chess(start);
-    for (const [i, m] of line.moves.entries()) {
+    let demoSeen = false;
+    for (const [i, m] of moves.entries()) {
       const fen = c.fen();
       const mine = c.turn() === l.side;
       for (const w of Object.keys(m.wrong ?? {})) {
-        try { new Chess(fen).move(w); } catch { fail(`${line.title} #${i + 1}: wrong move ${w} is illegal`); }
+        try { new Chess(fen).move(w); } catch { fail(`${title} #${i + 1}: wrong move ${w} is illegal`); }
       }
       let mv;
-      try { mv = c.move(m.san); } catch { fail(`${line.title} #${i + 1}: ${m.san} is illegal`); break; }
-      if (mv.san !== m.san) fail(`${line.title} #${i + 1}: write ${m.san} as ${mv.san}`);
+      try { mv = c.move(m.san); } catch { fail(`${title} #${i + 1}: ${m.san} is illegal`); break; }
+      if (mv.san !== m.san) fail(`${title} #${i + 1}: write ${m.san} as ${mv.san}`);
       if (!mine) continue;
-      if (!m.prompt && l.category === 'puzzles') fail(`${line.title}: ${m.san} has no prompt`);
+      if (m.demo) { demoSeen = true; continue; }
+      if (!m.prompt && l.category === 'puzzles') fail(`${title}: ${m.san} has no prompt`);
+      if (demoSeen || checked.has(fen + '|' + m.san)) continue;
+      checked.add(fen + '|' + m.san);
       const before = await analyse(fen);
       const after = await analyse(c.fen());
       const loss = before.cp - -after.cp;
       const limit = l.category === 'puzzles' ? 60 : 120;
       const mateKept = before.cp > 90000 && -after.cp > 90000;
       if (loss > limit && !mateKept && !c.isCheckmate()) {
-        fail(`${line.title} #${i + 1}: ${mv.san} loses ${loss}cp (engine prefers ${before.best}, eval ${before.cp})`);
+        fail(`${title} #${i + 1}: ${mv.san} loses ${loss}cp (engine prefers ${before.best}, eval ${before.cp})`);
       }
     }
   }

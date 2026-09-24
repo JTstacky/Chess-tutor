@@ -20,6 +20,7 @@ export interface Profile {
   losses: number;
   draws: number;
   lessonStars: Record<string, number>; // lesson id -> best stars (1-3)
+  lessonExplored: Record<string, string[]>; // lesson id -> finished variations (choice paths)
 }
 
 const SETTINGS_KEY = 'tg-chess-settings';
@@ -36,6 +37,7 @@ const defaultProfile: Profile = {
   losses: 0,
   draws: 0,
   lessonStars: {},
+  lessonExplored: {},
 };
 
 function load<T>(key: string, fallback: T): T {
@@ -73,6 +75,11 @@ export function saveProfile() {
 
 export function recordLessonStars(id: string, stars: number) {
   profile.lessonStars = { ...profile.lessonStars, [id]: Math.max(stars, profile.lessonStars[id] ?? 0) };
+  saveProfile();
+}
+
+export function recordLessonExplored(id: string, paths: string[]) {
+  profile.lessonExplored = { ...profile.lessonExplored, [id]: paths };
   saveProfile();
 }
 

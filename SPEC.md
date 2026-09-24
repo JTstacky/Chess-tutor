@@ -34,8 +34,11 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 
 ### Learn (Phase 3) ✅
 - **Guided play-along lessons**: a kid-friendly explanation for each move, then the child plays it; hints when stuck; stars and badges
+- **Branching variations**: at key moments Hoot asks which way to go ("Black can accept or decline the gambit, which do you want to learn?"), with buttons for each main reply and 🎲 Surprise me. Each branch teaches what to play next against that reply
+- **Trap demos** ("🪤 Show me the trap"): play the tempting wrong moves on purpose to see how the trap works (Elephant, Lasker, Blackburne Shilling, Stafford, Caro-Kann smothered mate)
+- A lesson is complete when every variation has been explored; explored variations are saved on the device
 - Openings: Italian, Ruy Lopez, London, Queen's Gambit, Sicilian, Caro-Kann, …
-- Gambits and traps: King's Gambit, Evans, Fried Liver, Stafford, Scholar's Mate (and its defence), Légal's Mate, …
+- Gambits and traps: King's Gambit (accepted, declined, Falkbeer), Evans (accepted, declined), Fried Liver (all Black defences), Stafford, Scholar's Mate (and its defence), Légal's Mate, Blackburne Shilling
   - shows the **recommended replies** in each gambit and explains the consequences of the tempting wrong moves
 - Tactics puzzles: forks, pins, skewers, discovered attacks, mate in 1 and 2
 - Endgames: practise vs the computer: K+Q vs K and K+R vs K checkmate, K+P promotion (with stalemate and hanging-queen checks)
