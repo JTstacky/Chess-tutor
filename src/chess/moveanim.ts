@@ -157,7 +157,6 @@ const rookRumble: Mover = async (ctx, el, a, b) => {
   snd(ctx, 'thud');
   dust(ctx, b, 5);
   void ctx.tl.anim(el, [P(b[0], b[1], 0, 1.1, 0.88), P(b[0], b[1])], { duration: 180, easing: 'ease-out' });
-  await ctx.tl.anim(ctx.board, [{ transform: 'translateY(0)' }, { transform: 'translateY(3px)' }, { transform: 'translateY(-2px)' }, { transform: 'translateY(0)' }], { duration: 180, fill: 'none' });
 };
 
 /** Queen: vanishes in a twirl and pops up where she wants to be. */
