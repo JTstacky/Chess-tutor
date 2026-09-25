@@ -38,6 +38,7 @@ const Game = {
   binderLevel: 1, binderXp: 0, boons: {}, pendingBoons: 0, frenzy: 0, frenzyT: 0, frenzyBest: 0, gems: [],
   // horde stance, elemental resonance of the marching horde, and bullet-time after a perfect dodge
   stanceId: "swarm", resonance: {}, slowT: 0,
+  hero: "blade", pickIntro: true,   // which Binder landed on this planet (HEROES in heroes.js); chosen on the pick screen
 
   upg(id) { return this.upgrades[id] || 0; },
   stance() { return STANCES[this.stanceId] || STANCES.swarm; },
@@ -224,7 +225,7 @@ const Game = {
     this.newWorld();
     try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* storage unavailable */ }
     this.begin();
-    Voyage.startLanding(true);
+    UI.showHeroPick(true);
   },
 
   continueGame() {
@@ -242,8 +243,18 @@ const Game = {
     for (const u of crew) { u.down = 0; u.target = null; u.benchedByPlayer = false; u.x = p.x; u.y = p.y; recalcUnit(u); u.hp = u.maxHp; this.army.push(u); this.seen[u.sp.id] = true; }
     this.essence = 150 * this.shipUpg("stash");
     this.begin();
+    UI.showHeroPick(false);
+  },
+
+  // the pick screen's answer: land as this Binder (keys 1-3, a tap on a card, or Enter / a skip keeps the last one)
+  pickHero(id) {
+    if (this.state !== "pick") return;
+    this.hero = HEROES[id] ? id : "blade";
+    Heroes.reset(); this.player.atkT = 0; this.player.charging = false;
+    UI.hideHeroPick();
+    Voyage.startLanding(this.pickIntro);
     this.save();
-    Voyage.startLanding(false);
+    UI.dirtyHud = true;
   },
 
   begin() {
@@ -463,6 +474,7 @@ const Game = {
       return;
     }
     if (this.state === "boon") { const i = ["Digit1", "Digit2", "Digit3"].indexOf(code); if (i >= 0) UI.pickBoon(i); return; }
+    if (this.state === "pick") { const i = ["Digit1", "Digit2", "Digit3"].indexOf(code); if (i >= 0) this.pickHero(HERO_IDS[i]); else if (code === "Enter" || code === "Space") this.pickHero(this.hero); return; }
     if (this.state === "cut") { if (code === "Enter" || code === "Space" || code === "Escape") Voyage.skip(); return; }
     if (this.state === "base") { if (code === "Escape") Base.dismiss(); return; }
     if (code === "Escape" || code === "KeyP") { UI.togglePanel(UI.openPanel ? UI.openPanel : "pause"); return; }
@@ -609,12 +621,12 @@ const Game = {
   },
   hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } },
   save() {
-    if (this.state === "title" || this.state === "cut") return;
+    if (this.state === "title" || this.state === "cut" || this.state === "pick") return;
     const p = this.player;
     const data = { v: 2, seed: this.seed, meta: this.meta, base: this.state === "base" ? 1 : 0, px: Math.round(p.x), py: Math.round(p.y), renown: this.renown, essence: this.essence, upgrades: this.upgrades,
       blv: this.binderLevel, bxp: Math.round(this.binderXp), boons: this.boons, pend: this.pendingBoons, fbest: this.frenzyBest,
       seen: this.seen, sighted: this.sighted, titans: this.titansDefeated, victory: this.victory, stats: this.stats, time: Math.round(this.time),
-      recall: Math.round(this.recallWait()), stance: this.stanceId,
+      recall: Math.round(this.recallWait()), stance: this.stanceId, hero: this.hero,
       army: this.army.map((u) => this.packUnit(u)), reserve: this.reserve.map((u) => this.packUnit(u)) };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); localStorage.setItem(SAVE_KEY + ".settings", JSON.stringify(this.settings)); } catch (e) { /* storage full or blocked */ }
   },
@@ -635,6 +647,7 @@ const Game = {
     this.binderLevel = d.blv || 1; this.binderXp = d.bxp || 0; this.boons = d.boons || {}; this.pendingBoons = d.pend || 0; this.frenzyBest = d.fbest || 0;
     this.recallAt = this.time + (d.recall || 0);
     this.stanceId = STANCES[d.stance] ? d.stance : "swarm";
+    this.hero = HEROES[d.hero] ? d.hero : "blade"; Heroes.reset();
     this.rankIndex = 0;
     while (this.rankIndex < Math.min(CONFIG.ranks.length - 1, this.rankLimit()) && this.renown >= CONFIG.ranks[this.rankIndex + 1].renown) this.rankIndex++;
     const p = this.player;
@@ -824,6 +837,7 @@ const Game = {
         ctx.strokeStyle = "#ffb03a"; ctx.lineWidth = 3; ctx.globalAlpha = 0.8;
         ctx.beginPath(); ctx.ellipse(r.x, r.y, 46 + pulse, 36 + pulse * 0.8, 0, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
       }
+      Heroes.drawGround(ctx, time);
       for (const m of this.netMarks) {
         ctx.globalAlpha = m.life * 1.6; ctx.strokeStyle = "#e8f6ff"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.ellipse(m.x, m.y, m.r, m.r * 0.8, 0, 0, TAU); ctx.stroke();

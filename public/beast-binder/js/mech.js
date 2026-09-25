@@ -1,10 +1,15 @@
 "use strict";
 // mech.js — the Bindframe: the war-machine the Binder pilots. It is painted
 // procedurally (same texel grid as the world) in six growing tiers, as separate
-// parts — legs, body, arms — so it can stride, bob and recoil. Each tier has its
+// parts — legs, body, arms — so it can stride, bob and swing. Each tier has its
 // own armour palette and piles on animated spectacle: aura rings, a cape, energy
 // wings, a halo, lightning. On top of the tier, the whole frame is drawn larger
 // as the horde grows (Mech.grow), so it towers over a sea of beasts.
+// The frame is the pilot's (js/heroes.js): its lights burn in the Binder's colour
+// and the near arm carries their tool — the Vanguard's great sword (which swings
+// with the blade combo and reaches further the bigger the frame: Mech.swordReach),
+// the Trapper's grenade launcher, the Vet's beam emitter (Mech.tool / toolState).
+// The frame's own auto-cannon sits on the shoulder (Mech.gunPos / muzzle).
 
 const MECH_PAL = {
   steel:  ["#0e121c", "#343e56", "#56637f", "#8696b4", "#cbd8ec"],
@@ -45,9 +50,16 @@ const Mech = {
   growTarget(army) { return 1 + 0.75 * Math.sqrt(Math.min(army, 400) / 400); },
   update(dt, army) { this.grow = lerp(this.grow, this.growTarget(army), Math.min(1, dt * 1.2)); },
 
-  parts(tier) {
-    if (this.cache[tier]) return this.cache[tier];
-    const T = MECH_TIERS[tier], s = T.s, seed = tier * 97;
+  // The frame is the pilot's: which Binder is riding (js/heroes.js) decides the colour of its lights and what
+  // the near arm carries. The pick-card portrait passes a fake p with p.hero; in play it is Game.hero.
+  heroOf(p) { return (p && p.hero) || (typeof Game !== "undefined" && Game.hero) || "blade"; },
+  accentOf(hero, T) { const h = typeof HEROES !== "undefined" && HEROES[hero]; return (h && h.color) || T.accent; },
+
+  parts(tier, hero) {
+    hero = hero || this.heroOf();
+    const key = tier + ":" + hero;
+    if (this.cache[key]) return this.cache[key];
+    const T = MECH_TIERS[tier], s = T.s, seed = tier * 97, accent = this.accentOf(hero, T);
     const ST = MECH_PAL[T.steel], DK = MECH_PAL[T.dark], TR = MECH_PAL[T.trim], CL = T.cloth ? MECH_PAL[T.cloth] : null;
     const R = (v) => Math.round(v * s);
     const one = Math.max(1, R(1));
@@ -65,8 +77,8 @@ const Mech = {
     }
     if (tier >= 4) { m = leg.newMask(); leg.maskPoly(m, [[lcx - R(1.5), R(8)], [lcx + R(2.5), R(8)], [lcx + R(4.5), R(1.5)]]); leg.shade(m, TR, seed + 22, 0.1, true); }
     m = leg.newMask(); leg.maskEllipse(m, lcx, R(8), R(tier >= 2 ? 3.8 : 3.2), R(tier >= 2 ? 3 : 2.6), seed, 0); leg.shade(m, TR, seed + 2, 0.1);
-    leg.rect(lcx - R(2), R(11), one, R(tier >= 3 ? 5 : 3), T.accent);
-    if (tier >= 5) leg.rect(lcx + R(1), R(11), one, R(5), T.accent);
+    leg.rect(lcx - R(2), R(11), one, R(tier >= 3 ? 5 : 3), accent);
+    if (tier >= 5) leg.rect(lcx + R(1), R(11), one, R(5), accent);
 
     // ---- arm: pauldron, upper arm, cannon forearm. Anchor = shoulder centre (armAy).
     const ay0 = R(8), A = (v) => R(v) + ay0;
@@ -77,16 +89,16 @@ const Mech = {
     m = arm.newMask(); arm.maskPoly(m, [[acx - R(fw), A(11)], [acx + R(fw), A(11)], [acx + R(fw + 0.5), A(21)], [acx - R(fw + 0.5), A(21)]]); arm.shade(m, ST, seed + 5, 0.2, true);
     if (tier >= 4) { m = arm.newMask(); arm.maskPoly(m, [[acx + R(4), A(11)], [acx + R(8.5), A(9)], [acx + R(5), A(20)]]); arm.shade(m, TR, seed + 23, 0.1, true); }   // forearm blade
     arm.rect(acx - R(fw - 1), A(21), R(fw * 2 - 2), Math.max(2, R(2)), "#0e121c");
-    if (tier >= 3) { arm.rect(acx - R(3), A(21), R(2.2), Math.max(1, R(1.4)), T.accent); arm.rect(acx + R(0.8), A(21), R(2.2), Math.max(1, R(1.4)), T.accent); }
-    else arm.rect(acx - R(1.5), A(21), R(3), Math.max(1, R(1.4)), T.accent);
+    if (tier >= 3) { arm.rect(acx - R(3), A(21), R(2.2), Math.max(1, R(1.4)), accent); arm.rect(acx + R(0.8), A(21), R(2.2), Math.max(1, R(1.4)), accent); }
+    else arm.rect(acx - R(1.5), A(21), R(3), Math.max(1, R(1.4)), accent);
     arm.rect(acx - R(fw), A(14), R(fw * 2), one, TR[3]);
-    if (tier >= 5) { arm.rect(acx - R(fw), A(16.5), R(fw * 2), one, T.accent); arm.rect(acx - R(fw), A(19), R(fw * 2), one, T.accent); }   // energy coils
+    if (tier >= 5) { arm.rect(acx - R(fw), A(16.5), R(fw * 2), one, accent); arm.rect(acx - R(fw), A(19), R(fw * 2), one, accent); }   // energy coils
     if (tier >= 3) {
       // layered pauldron: trim under-plate, armour dome, rim
       m = arm.newMask(); arm.maskEllipse(m, acx + R(0.5), A(6.5), R(8), R(4.5), seed, 0); arm.shade(m, TR, seed + 24, 0.1);
       m = arm.newMask(); arm.maskEllipse(m, acx, A(4), R(8.5), R(6), seed, 0); arm.shade(m, ST, seed + 6, 0.15);
       arm.rect(acx - R(7), A(7.5), R(14), one, TR[3]);
-      arm.rect(acx - R(1), A(1), R(2), R(4), T.accent);
+      arm.rect(acx - R(1), A(1), R(2), R(4), accent);
       if (tier >= 4) {
         m = arm.newMask(); arm.maskPoly(m, [[acx + R(2), A(0)], [acx + R(7), A(3)], [acx + R(9.5), A(-7)]]); arm.shade(m, TR, seed + 7, 0.1, true);
         m = arm.newMask(); arm.maskPoly(m, [[acx - R(3.5), A(-1)], [acx + R(1), A(-1.5)], [acx - R(0.5), A(-6.5)]]); arm.shade(m, TR, seed + 25, 0.1, true);
@@ -104,22 +116,22 @@ const Mech = {
     // back details first (they sit behind the torso)
     if (tier >= 2) {                                                   // antenna + pennant
       body.rect(cx - R(10), base - R(31), one, R(10), DK[3]);
-      body.rect(cx - R(10) + one, base - R(31), R(3.5), R(2), T.accent);
+      body.rect(cx - R(10) + one, base - R(31), R(3.5), R(2), accent);
       body.px(cx - R(10), base - R(31) - 1, "#ffffff");
     }
     if (tier >= 3) {
       for (const sx of [-1, 1]) {
         // exhaust stacks
         m = body.newMask(); body.maskRect(m, cx + sx * R(9) - R(1.5), base - R(33), R(3), R(12)); body.shade(m, DK, seed + 8, 0.15, true);
-        body.rect(cx + sx * R(9) - R(1.5), base - R(33), R(3), one, T.accent);
+        body.rect(cx + sx * R(9) - R(1.5), base - R(33), R(3), one, accent);
         if (tier >= 4) {
           m = body.newMask(); body.maskRect(m, cx + sx * R(12.5) - R(1.2), base - R(30), R(2.5), R(9)); body.shade(m, DK, seed + 27, 0.15, true);
-          body.rect(cx + sx * R(12.5) - R(1.2), base - R(30), R(2.5), one, T.accent);
+          body.rect(cx + sx * R(12.5) - R(1.2), base - R(30), R(2.5), one, accent);
         }
         // shoulder cannon, angled up and out
         m = body.newMask(); body.maskPoly(m, [[cx + sx * R(11), base - R(20)], [cx + sx * R(15.5), base - R(20)], [cx + sx * R(20), base - R(30)], [cx + sx * R(16.5), base - R(31.5)]]);
         body.shade(m, DK, seed + 28, 0.15, true);
-        body.rect(cx + sx * R(18.2) - R(1.5), base - R(31.5), R(3), one * 2, T.accent);
+        body.rect(cx + sx * R(18.2) - R(1.5), base - R(31.5), R(3), one * 2, accent);
       }
     }
     if (tier >= 5) {
@@ -140,7 +152,7 @@ const Mech = {
         body.line(cx + R(6.5), base - R(17.5) + k, cx, base - R(9) + k, TR[3]);
       }
     }
-    if (tier >= 5) for (const sx of [-1, 1]) { body.rect(cx + sx * R(8.5) - R(1), base - R(17), R(2), R(2), T.accent); body.px(cx + sx * R(8.5), base - R(16.5), "#ffffff"); }
+    if (tier >= 5) for (const sx of [-1, 1]) { body.rect(cx + sx * R(8.5) - R(1), base - R(17), R(2), R(2), accent); body.px(cx + sx * R(8.5), base - R(16.5), "#ffffff"); }
     // vents
     for (let i = 0; i < 3; i++) { body.rect(cx - R(10.5), base - R(9 + i * 3), R(2.5), 1, "#0e121c"); body.rect(cx + R(8), base - R(9 + i * 3), R(2.5), 1, "#0e121c"); }
     if (T.open) {
@@ -153,7 +165,7 @@ const Mech = {
       // sealed head with a glowing visor
       m = body.newMask(); body.maskEllipse(m, cx, base - R(25), R(6.5), R(5.5), seed, 0); body.shade(m, ST, seed + 14, 0.15);
       body.rect(cx - R(4.5), base - R(26), R(9), Math.max(2, R(2)), "#0e121c");
-      body.rect(cx - R(3.5), base - R(26), R(7), Math.max(1, R(1.2)), T.accent);
+      body.rect(cx - R(3.5), base - R(26), R(7), Math.max(1, R(1.2)), accent);
       if (tier >= 4) {
         for (let i = -1; i <= 1; i++) body.rect(cx + i * R(1.8) - one / 2, base - R(23.5), one, R(2.5), "#0e121c");   // jaw grille
         for (const sx of [-1, 1]) { m = body.newMask(); body.maskPoly(m, [[cx + sx * R(4), base - R(29)], [cx + sx * R(7), base - R(27.5)], [cx + sx * R(tier >= 5 ? 11 : 9.5), base - R(tier >= 5 ? 37 : 35)]]); body.shade(m, TR, seed + 15, 0.1, true); }
@@ -172,12 +184,21 @@ const Mech = {
     // rivets
     for (const [rx, ry] of [[-6, 6], [6, 6], [-9, 19], [9, 19]]) body.px(cx + R(rx), base - R(ry), ST[4]);
 
-    const out = { leg, arm, body, s, tier, T, lcx, acx, armAy: R(5) + ay0, bcx: cx, bbase: base, accent: T.accent, open: T.open,
+    const out = { leg, arm, body, s, tier, T, lcx, acx, armAy: R(5) + ay0, bcx: cx, bbase: base, accent: accent, open: T.open,
       hipY: R(21), hipX: R(5.5), shoulderX: R(14.5), shoulderY: R(19), coreY: R(13), rimY: R(23), headY: R(25),
       height: (R(21) + R(tier >= 4 ? 37 : 34)) * CONFIG.texel };
     this.detail(out, tier);
-    out.gun = this.gun(out, tier);
-    this.cache[tier] = out;
+    if (tier < 3) {
+      // a stubby auto-cannon rides the pauldron: the frame's own gun, since the forearm carries the pilot's tool
+      // (the great frames have shoulder cannons on the hull instead). Mech.muzzle points at its bore. Painted after
+      // the detailing pass, which rebuilds the salvage frame's shoulder.
+      const ay = out.armAy;
+      arm.rect(acx + R(1), ay - R(7.5) - 1, R(9), R(2.5) + 2, DK[0]);
+      arm.rect(acx + R(1.5), ay - R(7.5), R(8), R(2.5), ST[2]); arm.rect(acx + R(1.5), ay - R(7.5), R(8), one, ST[4]);
+      arm.rect(acx + R(8), ay - R(8), R(2), R(3.5), TR[2]); arm.rect(acx + R(9.5), ay - R(7), one, R(1.5), accent);
+    }
+    out.tool = this.tool(out, tier, hero);
+    this.cache[key] = out;
     return out;
   },
 
@@ -275,32 +296,75 @@ const Mech = {
     }
   },
 
-  // The cannon forearm, painted pointing right with its pivot at (gunPx, gunPy); draw() rotates it onto the aim.
-  gun(p, tier) {
-    const s = p.s, R = (v) => Math.round(v * s), st = MECH_PAL[p.T.steel], dk = MECH_PAL[p.T.dark], tr = MECH_PAL[p.T.trim];
-    const len = R(15 + tier), hh = R(3.5), padX = R(3), g = new Painter(len + padX + R(2), hh * 2 + R(4)), cy = hh + R(2);
-    g.rect(0, cy - hh - 1, len + padX, hh * 2 + 2, dk[0]);                     // casing / outline
-    g.rect(padX - R(1), cy - hh, len - R(1), hh * 2, st[2]);
-    g.rect(padX - R(1), cy - hh, len - R(2), Math.max(1, R(1)), st[4]);        // top highlight
-    g.rect(padX - R(1), cy + hh - Math.max(1, R(1)), len - R(2), Math.max(1, R(1)), st[1]);
-    g.rect(padX + R(1), cy + R(1.5), len - R(6), Math.max(1, R(0.8)), tr[2]);  // brass feed rail
-    for (let i = 0; i < 3 + (tier >> 1); i++) g.rect(padX + R(2 + i * 2.4), cy - hh + R(1), Math.max(1, R(0.9)), hh * 2 - R(2), dk[1]);   // cooling ribs
-    g.rect(0, cy - hh + R(0.5), padX, hh * 2 - R(1), dk[2]);                   // elbow block
-    g.rect(padX + len - R(4.5), cy - hh - R(1.5), R(4), hh * 2 + R(3), tr[2]); // muzzle brake
-    g.rect(padX + len - R(4.5), cy - hh - R(1.5), R(4), Math.max(1, R(0.8)), tr[4]);
-    g.rect(padX + len - R(2.5), cy - hh - R(0.5), R(2.5), hh * 2 + R(1), dk[0]);
-    g.rect(padX + len - R(1.2), cy - R(1.5), R(1.2), R(3), p.accent);          // the bore, lit
-    if (tier >= 3) g.rect(padX + R(1), cy - hh - R(1.5), R(5), R(1.5), tr[3]);  // sight / heat shield
-    if (tier >= 5) for (let i = 0; i < 3; i++) g.px(padX + R(3 + i * 3), cy, p.accent);
+  // The near forearm carries the pilot's tool, painted pointing right with its pivot (the elbow) at (px, py);
+  // draw() rotates it onto the swing, the throw or the beam. `len` is elbow to tip, in texels.
+  //   blade   — a great double-edged sword, runes lit in the pilot's colour (serrated and edged on the big frames)
+  //   trapper — a grenade launcher: a revolving drum behind a short fat barrel with a wide, hot bore
+  //   vet     — a beam emitter: a coiled sleeve ending in a flared cup around a bright crystal
+  tool(p, tier, hero) {
+    const s = p.s, R = (v) => Math.round(v * s), st = MECH_PAL[p.T.steel], dk = MECH_PAL[p.T.dark], tr = MECH_PAL[p.T.trim], ac = p.accent;
+    const one = Math.max(1, R(1)), padX = R(3);
+    let m;
+    if (hero === "trapper") {
+      const len = R(14 + tier), hh = R(4.5), dr = R(5.5), g = new Painter(padX + len + R(3), dr * 2 + R(4)), cy = dr + R(2), dx = padX + R(4);
+      g.rect(0, cy - R(2.5), padX + R(2), R(5), dk[2]);                                          // elbow block
+      m = g.newMask(); g.maskEllipse(m, dx, cy, dr, dr, tier, 0); g.shade(m, dk, tier * 3 + 1, 0.15);   // the drum
+      m = g.newMask(); g.maskEllipse(m, dx, cy, dr - R(1.5), dr - R(1.5), tier, 0); g.shade(m, st, tier * 3 + 2, 0.12);
+      for (let i = 0; i < 5; i++) {                                                             // chambers, three of them loaded and lit
+        const a = (i * TAU) / 5 + 0.3, rr = dr - R(2.6), cw = Math.max(1, R(1.2));
+        g.rect(dx + Math.round(Math.cos(a) * rr) - (cw >> 1), cy + Math.round(Math.sin(a) * rr) - (cw >> 1), cw, cw, i < 3 ? ac : dk[0]);
+      }
+      g.rect(padX + R(6), cy - hh - 1, len - R(4), hh * 2 + 2, dk[0]);                          // barrel
+      g.rect(padX + R(7), cy - hh, len - R(6), hh * 2, st[2]);
+      g.rect(padX + R(7), cy - hh, len - R(7), one, st[4]); g.rect(padX + R(7), cy + hh - one, len - R(7), one, st[1]);
+      for (let i = 0; i < 2 + (tier >> 1); i++) g.rect(padX + R(9 + i * 3), cy - hh, one, hh * 2, tr[2]);   // bands
+      g.rect(padX + len - R(3), cy - hh - R(1), R(4), hh * 2 + R(2), tr[1]);                     // the flared muzzle
+      g.rect(padX + len - R(3), cy - hh - R(1), R(4), one, tr[4]);
+      g.rect(padX + len - R(1.5), cy - hh + R(0.5), R(2.5), hh * 2 - R(1), ac);                  // hot ring
+      g.rect(padX + len - R(0.5), cy - hh + R(1.5), R(1.5), hh * 2 - R(3), "#1a0c04");            // the bore
+      if (tier >= 3) g.rect(padX + R(7), cy - hh - R(2), R(5), R(2), tr[3]);                     // sight
+      return { canvas: g.canvas, px: padX, py: cy, len: len + R(1) };
+    }
+    if (hero === "vet") {
+      const sleeve = R(9 + tier), cup = R(6), ch = R(5.5), hh = R(3), g = new Painter(padX + sleeve + cup + R(4), ch * 2 + R(4)), cy = ch + R(2), ex = padX + sleeve;
+      g.rect(0, cy - R(2.5), padX + R(1), R(5), dk[2]);                                          // elbow block
+      g.rect(padX, cy - hh - 1, sleeve + 1, hh * 2 + 2, dk[0]);                                  // sleeve
+      g.rect(padX + 1, cy - hh, sleeve - 1, hh * 2, st[2]); g.rect(padX + 1, cy - hh, sleeve - 1, one, st[4]); g.rect(padX + 1, cy + hh - one, sleeve - 1, one, st[1]);
+      for (let i = 0; i < 2 + (tier >> 1); i++) g.rect(padX + R(2 + i * 2.6), cy - hh, one, hh * 2, ac);   // coils
+      m = g.newMask(); g.maskPoly(m, [[ex, cy - hh - 1], [ex + cup, cy - ch], [ex + cup, cy + ch], [ex, cy + hh + 1]]); g.shade(m, tr, tier * 7, 0.1, true);   // the cup
+      m = g.newMask(); g.maskPoly(m, [[ex + R(1.5), cy - hh], [ex + cup - one, cy - ch + R(1.5)], [ex + cup - one, cy + ch - R(1.5)], [ex + R(1.5), cy + hh]]); g.shade(m, dk, tier * 7 + 1, 0, true);
+      g.rect(ex + cup - one, cy - ch, R(2.5), one, tr[3]); g.rect(ex + cup - one, cy + ch - one, R(2.5), one, tr[3]);   // prongs
+      const cx0 = ex + cup - R(1);
+      g.rect(cx0 - R(1.5), cy - R(2), R(3), R(4), ac); g.rect(cx0 - Math.max(1, R(0.5)), cy - R(1), Math.max(1, R(1)), R(2), "#ffffff");   // the crystal
+      return { canvas: g.canvas, px: padX, py: cy, len: cx0 - padX };
+    }
+    // the sword
+    const grip = R(7), blade = R(22 + tier * 2), len = grip + R(2) + blade, gh = R(5), g = new Painter(padX + len + R(3), gh * 2 + R(6)), cy = gh + R(2);
+    g.rect(0, cy - R(2), padX + R(1), R(4), dk[2]);                                              // wrist block
+    g.rect(padX, cy - R(1.5), grip, R(3), dk[1]); g.rect(padX, cy - R(1.5), grip, one, dk[3]);   // wrapped grip
+    for (let i = 0; i < 3; i++) g.rect(padX + R(1 + i * 2), cy - R(1.5), one, R(3), dk[0]);
+    g.rect(padX - R(1), cy - R(2), R(2), R(4), tr[2]); g.rect(padX - R(1), cy - R(2), R(2), one, tr[4]);   // pommel
+    g.rect(padX + grip - R(1), cy - gh, R(3), gh * 2, tr[1]); g.rect(padX + grip - R(1), cy - gh, R(3), one, tr[4]);   // crossguard
+    g.rect(padX + grip, cy - gh + one, one, gh * 2 - 2 * one, tr[3]);
+    const bx = padX + grip + R(2), bw = R(3.2), tip = bx + blade, pt = Math.max(2, R(5));
+    m = g.newMask(); g.maskPoly(m, [[bx, cy - bw - 1], [tip - pt, cy - bw - 1], [tip + 1, cy], [tip - pt, cy + bw + 1], [bx, cy + bw + 1]]); g.shade(m, dk, tier * 5, 0, true);   // outline
+    m = g.newMask(); g.maskPoly(m, [[bx, cy - bw], [tip - pt, cy - bw], [tip, cy], [tip - pt, cy + bw], [bx, cy + bw]]); g.shade(m, st, tier * 5 + 1, 0.08, true);   // the slab
+    g.rect(bx, cy - bw, tip - pt - bx, one, st[4]); g.rect(bx, cy + bw - one, tip - pt - bx, one, st[1]);   // edges
+    g.rect(bx + R(1), cy - (one >> 1), tip - pt - bx - R(2), one, dk[1]);                       // fuller
+    for (let i = 0; i < 2 + tier; i++) g.rect(bx + R(2 + i * 3.2), cy - (one >> 1), one, one, ac);   // runes lit in the pilot's colour
+    if (tier >= 3) for (let i = 0; i < 3; i++) { m = g.newMask(); g.maskPoly(m, [[bx + R(2 + i * 4), cy + bw], [bx + R(5 + i * 4), cy + bw], [bx + R(4 + i * 4), cy + bw + R(1.8)]]); g.shade(m, tr, tier * 5 + 2 + i, 0, true); }   // serrated teeth
+    if (tier >= 5) g.rect(bx, cy - bw - one, tip - pt - bx, one, ac);                            // an energy edge
     return { canvas: g.canvas, px: padX, py: cy, len };
   },
 
   // Back-mounted hardware per tier (from the art proposals): backpack + aerials, snorkel pylons,
   // mortar cassettes, siege standards, mechanical vanes, the six core reliquaries. Static; cached.
   regaliaCache: {},
-  regalia(tier) {
-    if (this.regaliaCache[tier]) return this.regaliaCache[tier];
-    const p = this.parts(tier), s = p.s, r = new Painter(400, 280), cx = 200, foot = 260;
+  regalia(tier, hero) {
+    hero = hero || this.heroOf();
+    const key = tier + ":" + hero;
+    if (this.regaliaCache[key]) return this.regaliaCache[key];
+    const p = this.parts(tier, hero), s = p.s, r = new Painter(400, 280), cx = 200, foot = 260;
     const tr = MECH_PAL[p.T.trim], dk = MECH_PAL[p.T.dark], st = MECH_PAL[p.T.steel];
     const X = (v) => cx + Math.round(v * s), Y = (v) => foot + Math.round(v * s);
     const plate = (points, pal, seed = tier * 61) => { const mask = r.newMask(); r.maskPoly(mask, points.map(([x, y]) => [X(x), Y(y)])); r.shade(mask, pal, seed, 0.08, true); };
@@ -339,15 +403,17 @@ const Mech = {
       r.line(X(x), Y(y + 6), X(x * 0.8), Y(y + 10), tr[2]);
       lamps.push([X(x) - cx, Y(y) - foot]);
     }
-    return (this.regaliaCache[tier] = { canvas: r.canvas, cx, foot, lamps });
+    return (this.regaliaCache[key] = { canvas: r.canvas, cx, foot, lamps });
   },
 
   // The rear of the hull, shown when the frame walks away from the camera: radiator armour over
   // the reactor, no visor.
   backCache: {},
-  back(tier) {
-    if (this.backCache[tier]) return this.backCache[tier];
-    const p = this.parts(tier), b = new Painter(p.body.w, p.body.h), s = p.s, R = (v) => Math.round(v * s);
+  back(tier, hero) {
+    hero = hero || this.heroOf();
+    const key = tier + ":" + hero;
+    if (this.backCache[key]) return this.backCache[key];
+    const p = this.parts(tier, hero), b = new Painter(p.body.w, p.body.h), s = p.s, R = (v) => Math.round(v * s);
     b.ctx.drawImage(p.body.canvas, 0, 0);
     const cx = p.bcx, base = p.bbase, dk = MECH_PAL[p.T.dark], st = MECH_PAL[p.T.steel], tr = MECH_PAL[p.T.trim];
     b.rect(cx - R(12), base - R(25), R(24), R(25), dk[0]);
@@ -358,23 +424,76 @@ const Mech = {
     b.rect(cx - R(1), base - R(23), R(2), R(20), tr[3]);
     if (!p.open) { b.rect(cx - R(4), base - R(27.5), R(8), R(4), st[2]); b.rect(cx - R(4), base - R(27.5), R(8), Math.max(1, R(0.8)), st[3]); b.rect(cx - R(0.5), base - R(27), Math.max(1, R(1)), R(3.5), dk[1]); }   // the back of the helm: no visor
     for (const side of [-1, 1]) { b.rect(cx + side * R(9) - R(1), base - R(20), R(2), R(12), dk[0]); b.rect(cx + side * R(9) - R(1), base - R(19), Math.max(1, R(1)), R(10), p.accent); }
-    return (this.backCache[tier] = b);
+    return (this.backCache[key] = b);
   },
 
-  // where the cannon pivots (px, relative to the feet, before grow) and which way it points on screen
-  gunPose(p, P, aim) {
+  // where the tool arm pivots (px, relative to the feet, before grow) and which way it points on screen
+  armPose(p, P, aim) {
     const tx = CONFIG.texel, face = p.facing < 0 ? -1 : 1;
     const dx = Math.cos(aim), dy = Math.sin(aim) * 0.72, l = Math.hypot(dx, dy) || 1;   // vertical aim is foreshortened
-    return { px: face * P.shoulderX * tx, py: -(P.hipY + P.shoulderY) * tx + 4 + Math.round(5 * P.s) * tx, ux: dx / l, uy: dy / l, len: P.gun.len * tx * (0.72 + 0.28 * Math.abs(dx / l)) };
+    return { px: face * P.shoulderX * tx, py: -(P.hipY + P.shoulderY) * tx + 4 + Math.round(5 * P.s) * tx, ux: dx / l, uy: dy / l, len: P.tool.len * tx * (0.72 + 0.28 * Math.abs(dx / l)) };
+  },
+
+  // What the tool arm is doing this frame: the world angle it wants (a), whether it snaps there (a swing, a
+  // throw, a pulse) or eases (rate), and the trimmings — a sword trail from a0, a thrust push, launcher
+  // recoil and flash, the emitter's glow. Rest is hanging down and a little forward.
+  toolState(p, hero, time) {
+    const face = p.facing < 0 ? -1 : 1, up = (a) => a - (Math.cos(a) < 0 ? -1 : 1) * 0.35;   // tilt an angle a little skyward
+    const o = { a: Math.PI / 2 - face * 0.3, snap: false, rate: 0.12 };
+    if (p.atkT > 0) {
+      const S = hero === "blade" && typeof PlayerCtl !== "undefined" ? PlayerCtl.SWINGS[p.atkKind] : null;
+      if (S) {
+        const k = clamp(1 - p.atkT / S.dur, 0, 1), e = k * k * (3 - 2 * k);
+        o.snap = true; o.k = k;
+        if (S.thrust) { o.a = p.swingA; o.push = Math.sin(k * Math.PI); }
+        else {
+          // a spin goes exactly once round (span = pi); the other swings overshoot a little, like the suit's blade
+          const span = S.spin ? Math.PI : S.half + 0.3;
+          o.a0 = p.swingA - p.sweep * span; o.a = p.swingA + p.sweep * (-span + 2 * span * e); o.sweep = p.sweep;
+          o.trail = S.spin ? 0.45 * (1 - k) + 0.2 : 0.28 * (1 - k);
+        }
+        return o;
+      }
+      if (p.atkKind === "toss") {                                        // the throw lasts Traps.TOSS: kick hardest at the start, flash for the first tenth
+        const T = (typeof Traps !== "undefined" && Traps.TOSS) || 0.25;
+        o.snap = true; o.a = up(p.swingA); o.recoil = (5 * p.atkT) / T; o.flash = p.atkT > T - 0.1 ? (p.atkT - (T - 0.1)) / 0.1 : 0; return o;
+      }
+      if (p.atkKind === "pulse") { o.snap = true; o.a = -Math.PI / 2 + face * 0.45; o.glow = 0.9; o.push = 0.5 * Math.sin(clamp(p.atkT / 0.3, 0, 1) * Math.PI); return o; }
+    }
+    if (p.charging) {
+      const j = Math.sin(time * 40) * 0.06 * p.chargeK;
+      o.rate = 0.35; o.a = hero === "blade" ? p.faceA - face * 2.3 + j : up(p.faceA) + j;   // the sword winds up behind, the others come up to the aim
+      if (hero !== "blade") o.glow = 0.3 + 0.6 * p.chargeK;
+      return o;
+    }
+    if (hero === "vet" && typeof Mend !== "undefined" && Mend.target) {
+      const t = Mend.target, P = this.parts(Game.mechTier(), hero), ap = this.armPose(p, P, 0), g = this.grow;
+      o.rate = 0.35; o.track = true; o.a = Math.atan2(t.y - t.r * 0.6 - (p.y + ap.py * g), t.x - (p.x + ap.px * g)); o.glow = 0.5 + 0.3 * Math.sin(time * 9);
+      return o;
+    }
+    return o;
+  },
+
+  // the tip of the tool arm in world space — where a mine leaves the launcher or the mending beam starts
+  // (BinderArt.toolPos uses it while riding); null on foot
+  armTip(p) {
+    const tier = Game.mechTier();
+    if (!tier) return null;
+    const hero = this.heroOf(p), P = this.parts(tier, hero), st = this.toolState(p, hero, Game.time);
+    const a = st.snap || p.toolA === undefined ? st.a : p.toolA, ap = this.armPose(p, P, a), g = this.grow;
+    return { x: p.x + (ap.px + ap.ux * ap.len) * g, y: p.y + (ap.py + ap.uy * ap.len) * g };
   },
 
   // total standing height in world px (for camera, chevron, floating text) — includes the horde growth
   height(tier) { return tier ? this.parts(tier).height * this.grow : CONFIG.playerHeight; },
   // extra reach for things that come off the frame's feet / hull (slam, walk-over bind)
   reach(tier) { return tier ? this.grow : 1; },
+  // how much further than the suit's blade the frame's sword reaches: the ratio of the two blades as drawn (the
+  // suit's is 11 texels), capped so the Worldbinder's does not clear a whole screen. PlayerCtl.swingHit uses it.
+  swordReach(tier) { return tier ? this.grow * clamp((0.75 * this.parts(tier, "blade").tool.len) / 11, 1, 5) : 1; },
 
   draw(ctx, p, tier, time) {
-    const P = this.parts(tier), T = P.T, tx = CONFIG.texel, s = P.s, g = this.grow;
+    const hero = this.heroOf(p), P = this.parts(tier, hero), T = P.T, tx = CONFIG.texel, s = P.s, g = this.grow;
     const moving = p.moving || p.dashT > 0;
     const phase = p.animT * Math.max(3.2, 7.5 - s) / Math.sqrt(g);
     const stride = moving ? 1 : 0;
@@ -382,15 +501,12 @@ const Mech = {
     // stomp: rear up on one leg through the wind-up, then sink into the impact
     const stK = p.stompT > 0 ? 1 - p.stompT / 0.34 : 0, land = p.stompLand > 0 ? p.stompLand / 0.3 : 0;
     const bob = (moving ? Math.abs(Math.cos(phase)) * 2.5 * s : Math.sin(time * 2.2) * 1.2) + stK * 5 * s - land * 4 * s;
-    const recoil = p.attackT > 0 ? (p.attackT / 0.25) * 4 * s : 0;
     const face = p.facing < 0 ? -1 : 1;
     const rear = p.dir === "up" || p.dir === "updiag";
-    // the cannon eases between hanging at rest and the aim; it stays up for a moment after each shot
-    if (p.attackT > 0 || p.beamT > 0) p.gunT = 0.7; else if (p.gunT > 0) p.gunT -= 1 / 60;
-    const rest = Math.PI / 2, want = p.gunT > 0 ? (p.gunAim !== undefined ? p.gunAim : p.aim) : rest;   // the cannon tracks its own target, not the blade
-    if (p.gunA === undefined) p.gunA = rest;
-    let dA = want - p.gunA; while (dA > Math.PI) dA -= TAU; while (dA < -Math.PI) dA += TAU;
-    p.gunA += dA * (p.gunT > 0 ? 0.45 : 0.12);
+    // the tool arm: snaps into a swing, a throw or a pulse, otherwise eases toward its rest or its target
+    const TS = this.toolState(p, hero, time);
+    if (p.toolA === undefined || TS.snap) p.toolA = TS.a;
+    else { let dA = TS.a - p.toolA; while (dA > Math.PI) dA -= TAU; while (dA < -Math.PI) dA += TAU; p.toolA += dA * TS.rate; }
     const hipY = -P.hipY * tx, by = hipY - bob + 4;                  // pelvis bottom sits on the hips
 
     // footfalls: dust, and the big frames shake the earth
@@ -475,7 +591,7 @@ const Mech = {
       }
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
     }
-    const REG = this.regalia(tier);
+    const REG = this.regalia(tier, hero);
     const regalia = () => {
       ctx.globalAlpha = blink;
       ctx.drawImage(REG.canvas, X - REG.cx * tx, Math.round(Y - REG.foot * tx - bob), REG.canvas.width * tx, REG.canvas.height * tx);
@@ -582,7 +698,7 @@ const Mech = {
       BinderArt.bust(ctx, X, ry, p, time);
       ctx.restore();
     }
-    img(rear ? this.back(tier) : P.body, P.bcx, P.bbase, 0, by, false);
+    img(rear ? this.back(tier, hero) : P.body, P.bcx, P.bbase, 0, by, false);
     // reactor core: a pulsing diamond in the chest, and a burning visor
     const pulse = 0.55 + 0.45 * Math.sin(time * 5), cy = Y + by - P.coreY * tx, cs = Math.round(2 * s) * 2;
     if (!rear) {
@@ -593,26 +709,43 @@ const Mech = {
       if (!P.open) glow(X, Y + by - (P.headY + 0.5 * s) * tx, 9 * s, P.accent, 0.5 * blink);
     } else { cape(); regalia(); }
     ctx.globalAlpha = blink;
-    // near arm: the cannon arm, raised toward the aim and kicking back on each shot
+    // muzzle flash: a hot four-point star, on the frame's gun when a bolt leaves and on the launcher's bore
+    const star = (mx, k, big) => {
+      const fl = (10 + tier * 3) * s * (0.5 + k) * (big ? 1.4 : 1), fw = (3 + tier * 0.5) * s * (big ? 1.5 : 1);
+      ctx.fillStyle = P.accent; ctx.beginPath(); ctx.moveTo(mx, -fw); ctx.lineTo(mx + fl * 0.35, -fw * 0.5); ctx.lineTo(mx + fl * 0.45, -fw * 2); ctx.lineTo(mx + fl * 0.6, -fw * 0.4); ctx.lineTo(mx + fl, 0);
+      ctx.lineTo(mx + fl * 0.6, fw * 0.4); ctx.lineTo(mx + fl * 0.45, fw * 2); ctx.lineTo(mx + fl * 0.35, fw * 0.5); ctx.lineTo(mx, fw); ctx.fill();
+      ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.moveTo(mx, -fw * 0.5); ctx.lineTo(mx + fl * 0.7, 0); ctx.lineTo(mx, fw * 0.5); ctx.fill();
+    };
+    // near arm: the pilot's tool — the sword sweeping through its swing, the launcher kicking, the emitter
+    // glowing — pivoting under the pauldron. It follows the body's walking swing only while idle.
     {
-      const G = P.gun, gp = this.gunPose(p, P, p.gunA), gx = X + gp.px, gy = Y + gp.py - bob - (p.gunT > 0 ? 0 : swing);
-      const ang = Math.atan2(gp.uy, gp.ux), sq = gp.len / (G.len * tx);
-      ctx.save(); ctx.translate(Math.round(gx), Math.round(gy)); ctx.rotate(ang); if (Math.abs(ang) > Math.PI / 2) ctx.scale(1, -1);   // keep the sight on top when aiming left
-      ctx.drawImage(G.canvas, -G.px * tx - recoil, -G.py * tx, G.canvas.width * tx * sq, G.canvas.height * tx);
-      if (p.gunT > 0) { ctx.globalAlpha = blink * (0.35 + 0.5 * Math.min(1, p.attackT / 0.2)); ctx.fillStyle = P.accent; ctx.fillRect(2 * s * tx * sq - recoil, -s, (G.len - 6 * s) * tx * sq, 2 * s); ctx.globalAlpha = blink; }
-      if (p.attackT > 0.1) {                                             // muzzle flash: a hot four-point star on the bore
-        const k = (p.attackT - 0.1) / 0.15, fl = (10 + tier * 3) * s * (0.5 + k), fw = (3 + tier * 0.5) * s, mx = gp.len - recoil;
-        ctx.fillStyle = P.accent; ctx.beginPath(); ctx.moveTo(mx, -fw); ctx.lineTo(mx + fl * 0.35, -fw * 0.5); ctx.lineTo(mx + fl * 0.45, -fw * 2); ctx.lineTo(mx + fl * 0.6, -fw * 0.4); ctx.lineTo(mx + fl, 0);
-        ctx.lineTo(mx + fl * 0.6, fw * 0.4); ctx.lineTo(mx + fl * 0.45, fw * 2); ctx.lineTo(mx + fl * 0.35, fw * 0.5); ctx.lineTo(mx, fw); ctx.fill();
-        ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.moveTo(mx, -fw * 0.5); ctx.lineTo(mx + fl * 0.7, 0); ctx.lineTo(mx, fw * 0.5); ctx.fill();
+      const Tl = P.tool, ap = this.armPose(p, P, p.toolA), gx = X + ap.px, gy = Y + ap.py - bob - (TS.snap || TS.track || p.charging ? 0 : swing);
+      const ang = Math.atan2(ap.uy, ap.ux), sq = ap.len / (Tl.len * tx), tipX = Tl.len * tx * sq;
+      if (TS.trail) {                                                    // the sword's wake, a sector from where the swing began
+        ctx.save(); ctx.translate(Math.round(gx), Math.round(gy)); ctx.scale(1, 0.72);
+        ctx.globalAlpha = TS.trail * blink; ctx.fillStyle = P.accent;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, Tl.len * tx * 0.96, TS.a0, TS.a, TS.sweep < 0); ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = blink; ctx.restore();
       }
+      ctx.save(); ctx.translate(Math.round(gx), Math.round(gy)); ctx.rotate(ang);
+      if (hero !== "blade" && Math.abs(ang) > Math.PI / 2) ctx.scale(1, -1);   // the sword is double-edged; the others keep their sights on top
+      ctx.translate((TS.push || 0) * 10 * s - (TS.recoil || 0) * s * tx * 0.5, 0);
+      ctx.drawImage(Tl.canvas, -Tl.px * tx, -Tl.py * tx, Tl.canvas.width * tx * sq, Tl.canvas.height * tx);
+      if (TS.glow) glow(tipX, 0, (7 + tier * 2) * s, P.accent, TS.glow * blink);
+      if (TS.flash) star(tipX, TS.flash, true);
+      if (hero === "vet" && !TS.glow) glow(tipX, 0, (4 + tier) * s, P.accent, (0.25 + 0.1 * Math.sin(time * 4)) * blink);   // the crystal never quite goes dark
       ctx.restore();
-      // the pauldron stays on the shoulder while the cannon pivots under it
+      // the pauldron stays on the shoulder while the tool pivots under it
       const cut = P.armAy + Math.round(7 * s), ax = X + face * P.shoulderX * tx, ay = shY - swing * 0;
       ctx.save(); ctx.translate(ax, ay); if (face < 0) ctx.scale(-1, 1);
       ctx.drawImage(P.arm.canvas, 0, 0, P.arm.canvas.width, cut, -P.acx * tx, -P.armAy * tx, P.arm.canvas.width * tx, cut * tx);
       ctx.restore();
-      if (p.attackT > 0.12) glow(gx + gp.ux * gp.len, gy + gp.uy * gp.len, 12 * s, P.accent, 0.8);
+      // the frame's own gun fires from the shoulder
+      if (p.attackT > 0.1) {
+        const m = this.gunPos(p, P), mA = p.gunAim !== undefined ? p.gunAim : p.aim, mx0 = X + m.x, my0 = Y + m.y - bob;
+        ctx.save(); ctx.translate(mx0, my0); ctx.rotate(Math.atan2(Math.sin(mA) * 0.72, Math.cos(mA))); star(0, (p.attackT - 0.1) / 0.15, false); ctx.restore();
+        glow(mx0, my0, 10 * s, P.accent, 0.7 * blink);
+      }
     }
     if (p.flash > 0) { ctx.globalAlpha = 0.4; ctx.fillStyle = "#ff5a5a"; ctx.fillRect(X - 24 * s, Y + by - 42 * s, 48 * s, 34 * s); }
     ctx.globalAlpha = 1;
@@ -662,9 +795,16 @@ const Mech = {
     ctx.restore();
   },
 
+  // the frame's own gun: the pauldron stub on the small frames, the hull's shoulder cannon on the great ones —
+  // relative to the feet, before grow (px). Bolts leave from here; the tool arm is the pilot's.
+  gunPos(p, P) {
+    const tx = CONFIG.texel, face = p.facing < 0 ? -1 : 1, s = P.s, R = (v) => Math.round(v * s), by = -P.hipY * tx + 4;
+    if (P.tier >= 3) return { x: face * R(18.2) * tx, y: by - R(31.5) * tx };
+    return { x: face * (P.shoulderX + R(10)) * tx, y: by - (P.shoulderY + R(7)) * tx };
+  },
   // muzzle position for bolts, in world space
   muzzle(p, tier) {
-    const P = this.parts(tier), g = this.grow, gp = this.gunPose(p, P, p.gunAim !== undefined ? p.gunAim : p.aim);
-    return { x: p.x + (gp.px + gp.ux * gp.len) * g, y: p.y + (gp.py + gp.uy * gp.len) * g };
+    const P = this.parts(tier), g = this.grow, m = this.gunPos(p, P);
+    return { x: p.x + m.x * g, y: p.y + m.y * g };
   },
 };

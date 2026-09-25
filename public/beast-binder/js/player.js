@@ -167,7 +167,7 @@ const PlayerCtl = {
     if (p.dashT > 0) {
       p.dashT -= dt;
       World.move(p, p.dashX * C.dashSpeed * dt, p.dashY * C.dashSpeed * dt, p.pass);
-      if (Math.random() < 0.8) FX.mote(p.x, p.y - Mech.height(tier) * (0.2 + Math.random() * 0.5), 0, 0, tier ? MECH_TIERS[tier].accent : "#b8e8ff", 0.3, (6 + tier * 2) * Mech.reach(tier));
+      if (Math.random() < 0.8) FX.mote(p.x, p.y - Mech.height(tier) * (0.2 + Math.random() * 0.5), 0, 0, tier ? Mech.parts(tier).accent : "#b8e8ff", 0.3, (6 + tier * 2) * Mech.reach(tier));
       if (p.dashT <= 0) this.slam(p, tier);
     } else if (mv.x || mv.y) {
       // winding up a heavy blow roots you; a swing in progress only slows you
@@ -203,9 +203,11 @@ const PlayerCtl = {
       else p.dir = ad < 25 || ad > 155 ? "side" : ad < 65 || ad > 115 ? "updiag" : "up";
     }
 
-    // the blade is yours; the drone (or the frame's cannon) picks its own targets and fires on its own
+    // the attack button is yours (blade, mines or mending — see heroes.js); the drone (or the frame's cannon)
+    // picks its own targets and fires on its own
     if (Game.state === "play") {
-      this.sword(p, dt);
+      this.attack(p, dt);
+      Heroes.update(p, dt);
       const tgt = this.autoFire(p, dt, tier);
       this.weapons(p, dt, tier, tgt);
     }
@@ -225,7 +227,7 @@ const PlayerCtl = {
     const C = CONFIG.player;
     return (C.boltDmg + C.boltDmgPerRank * Game.rankIndex + 0.6 * (Game.binderLevel - 1)) * (1 + 0.15 * Game.upg("bolt")) * (1 + 0.1 * Game.forge("capacitor")) * CONFIG.mech[Game.mechTier()].bolt * (1 + Game.res("light"));
   },
-  swordDamage() { return this.boltDamage() * 1.5; },
+  swordDamage() { return this.boltDamage() * 1.7; },
 
   // ---------------------------------------------------------------- the drone
   // What the drone shoots at: whatever your blade last marked, else the nearest provoked foe in range. It never
@@ -275,7 +277,7 @@ const PlayerCtl = {
       p.gunAim = Math.atan2(ty - sy, t.x - sx); p.attackT = 0.22;
     } else { sx = p.drone.x; sy = p.drone.y; p.drone.flash = 0.1; }
     const a0 = Math.atan2(ty - sy, t.x - sx), dmg = this.boltDamage();
-    const n = 1 + Game.boon("twin"), color = tier ? MECH_TIERS[tier].accent : "#7be0ff";
+    const n = 1 + Game.boon("twin"), color = tier ? Mech.parts(tier).accent : "#7be0ff";
     // every fifth shot is a LANCE: a heavy bolt that punches through a whole line and shoves it back
     const lance = ++p.shotN % 5 === 0, g = Mech.reach(tier);
     for (let i = 0; i < n; i++) {
@@ -309,13 +311,18 @@ const PlayerCtl = {
     const k = clamp(1 - p.atkT / S.dur, 0, 1), e = k * k * (3 - 2 * k);
     return p.swingA + p.sweep * (-Math.PI + TAU * e);
   },
-  sword(p, dt) {
-    const C = CONFIG.player, A = Input.atk;
+  // The attack button for every hero: a press starts a hold, the release decides what it was — a tap (a quick
+  // strike, a mine, a heal pulse), a heavy blow, or a fully charged one. Heroes.quick / Heroes.heavy do the deed.
+  attack(p, dt) {
+    const C = CONFIG.player, A = Input.atk, col = Heroes.current().color;
     if (p.atkT > 0) {
       p.atkT -= dt;
-      const S = this.SWINGS[p.atkKind], k = 1 - p.atkT / S.dur;
-      if (S.thrust && k < 0.5) World.move(p, Math.cos(p.swingA) * S.thrust * dt / (S.dur * 0.5), Math.sin(p.swingA) * S.thrust * dt / (S.dur * 0.5), p.pass);
-      if (!p.atkHit && k >= 0.38) { p.atkHit = true; this.swingHit(p, S); }
+      const S = this.SWINGS[p.atkKind];                                   // a blade swing plays out; other tools just animate
+      if (S) {
+        const k = 1 - p.atkT / S.dur;
+        if (S.thrust && k < 0.5) World.move(p, Math.cos(p.swingA) * S.thrust * dt / (S.dur * 0.5), Math.sin(p.swingA) * S.thrust * dt / (S.dur * 0.5), p.pass);
+        if (!p.atkHit && k >= 0.38) { p.atkHit = true; this.swingHit(p, S); }
+      }
     }
     if (p.comboT > 0) { p.comboT -= dt; if (p.comboT <= 0) p.combo = 0; }
     // the button: press starts the hold, release decides what it was
@@ -330,20 +337,20 @@ const PlayerCtl = {
       }
       if (p.charging) {
         p.chargeK = clamp((p.holdT - p.chargeT0) / C.heavyCharge, 0, 1);
-        if (p.chargeK >= 1 && !p.chargeFull) { p.chargeFull = true; FX.ring(p.x, p.y, 8, 40 * Mech.reach(Game.mechTier()), "#9df0ff", 0.3, 3); SFX.play("chink", 0.7, 1.5); }
-        if (Math.random() < 0.25 + p.chargeK * 0.5) FX.mote(p.x + (Math.random() - 0.5) * 24, p.y - 30 - Math.random() * 16, 0, -30, p.chargeK >= 1 ? "#ffffff" : "#9df0ff", 0.3, 2);
+        if (p.chargeK >= 1 && !p.chargeFull) { p.chargeFull = true; FX.ring(p.x, p.y, 8, 40 * Mech.reach(Game.mechTier()), col, 0.3, 3); SFX.play("chink", 0.7, 1.5); }
+        if (Math.random() < 0.25 + p.chargeK * 0.5) FX.mote(p.x + (Math.random() - 0.5) * 24, p.y - 30 - Math.random() * 16, 0, -30, p.chargeK >= 1 ? "#ffffff" : col, 0.3, 2);
       }
     }
     if (A.released) {
       A.released = false;
       if (p.holdT >= 0) {
-        if (p.charging) this.swing(p, p.chargeK >= 1 ? "charged" : "heavy");
-        else if (p.holdT < C.heavyHold) { if (p.atkT > 0.1) p.queued = true; else this.quick(p); }
-        else if (p.atkT <= 0.1) this.quick(p);               // held through a swing, released before the wind-up began
+        if (p.charging) Heroes.heavy(p, p.chargeK);
+        else if (p.holdT < C.heavyHold) { if (p.atkT > 0.1) p.queued = true; else Heroes.quick(p); }
+        else if (p.atkT <= 0.1) Heroes.quick(p);             // held through a swing, released before the wind-up began
       }
       p.holdT = -1; p.charging = false; p.chargeK = 0; p.chargeFull = false;
     }
-    if (p.queued && p.atkT <= 0.1) { p.queued = false; this.quick(p); }
+    if (p.queued && p.atkT <= 0.1) { p.queued = false; Heroes.quick(p); }
   },
   quick(p) {
     const kind = ["q1", "q2", "q3"][p.combo % 3];
@@ -360,8 +367,8 @@ const PlayerCtl = {
   },
   // the blow lands part-way through the swing: a cone in front of the binder, wider and longer for heavy blows
   swingHit(p, S) {
-    const tier = Game.mechTier(), g = Mech.reach(tier), reach = S.reach * g + p.r, a = p.swingA;
-    const riposte = p.riposte > 0, col = tier ? MECH_TIERS[tier].accent : "#9df0ff";
+    const tier = Game.mechTier(), g = Mech.reach(tier), reach = S.reach * Mech.swordReach(tier) + p.r, a = p.swingA;   // the frame's sword reaches as far as it is drawn
+    const riposte = p.riposte > 0, col = tier ? Mech.parts(tier).accent : "#9df0ff";
     const dmg = this.swordDamage() * S.dmg * (riposte ? 3 : 1), kb = riposte ? Math.max(S.kb, 15) : S.kb;
     if (riposte) { p.riposte = 0; FX.text(p.x, p.y - Mech.height(tier) - 24, "RIPOSTE!", "#9dffff", 1, 15); FX.ring(p.x, p.y, 6, 70 * g, "#9dffff", 0.35, 4); }
     let n = 0;
@@ -385,7 +392,7 @@ const PlayerCtl = {
   // target; the rune lightning and the Sunfall pick their own.
   weapons(p, dt, tier, tgt) {
     if (tier < 3) return;
-    const dmg = this.boltDamage(), g = Mech.reach(tier), P = Mech.parts(tier), tx = CONFIG.texel, color = MECH_TIERS[tier].accent;
+    const dmg = this.boltDamage(), g = Mech.reach(tier), P = Mech.parts(tier), tx = CONFIG.texel, color = Mech.parts(tier).accent;
     const topY = p.y - (P.hipY + P.shoulderY + 12 * P.s) * tx * g;
     const gunA = p.gunAim !== undefined ? p.gunAim : p.aim;
     // shoulder mortars: a pair of shells lobbed at the target
@@ -466,7 +473,7 @@ const PlayerCtl = {
     const base = CONFIG.mech[tier].slam, b = Game.boon("slam");
     if (!base && !b) return;
     const rad = (base || 60) * (1 + 0.1 * b) * Mech.reach(tier), dmg = this.boltDamage() * 2.5 * (1 + 0.35 * b);
-    const color = tier ? MECH_TIERS[tier].accent : "#7be0ff";
+    const color = tier ? Mech.parts(tier).accent : "#7be0ff";
     FX.ring(p.x, p.y, 10, rad, color, 0.4, 5); FX.burst(p.x, p.y, color, 14 + tier * 5, 200 + tier * 40, 0.5, 4);
     FX.addShake(3 + tier * 1.5); SFX.play("bigHit", 0.6 + tier * 0.1);
     Grid.query(p.x, p.y, rad + 60, (e) => { if (e.team === 1 && targetable(e) && dist2(e.x, e.y, p.x, p.y) < (rad + e.r) * (rad + e.r)) dealDamage(p, e, dmg, "arcane", { text: true, kb: 18 }); });
@@ -497,7 +504,7 @@ const PlayerCtl = {
   },
   stompLand(p, tier) {
     if (!tier) return;
-    const rad = this.stompRadius(tier), color = MECH_TIERS[tier].accent, b = Game.boon("slam");
+    const rad = this.stompRadius(tier), color = Mech.parts(tier).accent, b = Game.boon("slam");
     const dmg = this.boltDamage() * (3 + tier * 0.9) * (1 + 0.35 * b);
     p.stompLand = 0.3;
     // shockwave rings, a dust wall racing outward, cracks of binding-light, and debris thrown up
@@ -557,6 +564,7 @@ const PlayerCtl = {
         for (let i = 0; i < 2; i++) { const k = (time * 0.8 + i * 0.5) % 1; ctx.globalAlpha = (1 - k) * 0.8; ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, (22 * s + 8) * g * (0.8 + k * 0.7), (8 * s + 3) * g * (0.8 + k * 0.7), 0, 0, TAU); ctx.stroke(); }
         ctx.globalAlpha = 1;
       }
+      Heroes.drawWorld(ctx, p, time);
       this.chevron(ctx, p, Mech.height(tier), time); return;
     }
     const H = CONFIG.playerHeight;
@@ -565,6 +573,7 @@ const PlayerCtl = {
     ctx.globalAlpha = p.invuln > 0 && p.dashT <= 0 && Math.floor(time * 20) % 2 ? 0.45 : 1;
     BinderArt.draw(ctx, p, time);
     ctx.globalAlpha = 1;
+    Heroes.drawWorld(ctx, p, time);
     if (p.drone) BinderArt.drone(ctx, p.drone, time, !!p.drone.t);
     this.chevron(ctx, p, H, time);
   },
@@ -573,7 +582,7 @@ const PlayerCtl = {
   drawCharge(ctx, p, time, tier) {
     if (!p.charging) return;
     const k = p.chargeK, r = (16 + 10 * k) * Mech.reach(tier), full = k >= 1;
-    ctx.lineWidth = full ? 4 : 3; ctx.strokeStyle = full ? "#ffffff" : "#9df0ff"; ctx.globalAlpha = full ? 0.7 + 0.3 * Math.sin(time * 20) : 0.35 + 0.45 * k;
+    ctx.lineWidth = full ? 4 : 3; ctx.strokeStyle = full ? "#ffffff" : Heroes.current().color; ctx.globalAlpha = full ? 0.7 + 0.3 * Math.sin(time * 20) : 0.35 + 0.45 * k;
     ctx.beginPath(); ctx.ellipse(p.x, p.y, r, r * 0.6, 0, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0.04, k)); ctx.stroke();
     ctx.globalAlpha = 1;
   },

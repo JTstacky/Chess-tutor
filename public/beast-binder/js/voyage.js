@@ -23,7 +23,9 @@ const Voyage = {
     UI.banner("ALL ABOARD", "Six Titan cores. One overloaded rocket.", "#7dffb0");
   },
   hideCrew() { return this.cut && this.cut.kind === "landing" && !this.cut.out; },
-  skip() { if (!this.cut) return; if (this.cut.kind === "landing") this.cut.t = Math.max(this.cut.t, this.cut.touched ? 99 : 2.75); else this.cut.t = Math.max(this.cut.t, 5.9); },
+  skip() {
+    if (Game.state === "pick") { Game.pickHero(Game.hero); return; }          // skipping the pick keeps the last Binder
+    if (!this.cut) return; if (this.cut.kind === "landing") this.cut.t = Math.max(this.cut.t, this.cut.touched ? 99 : 2.75); else this.cut.t = Math.max(this.cut.t, 5.9); },
 
   update(dt) {
     const c = this.cut; if (!c) return;

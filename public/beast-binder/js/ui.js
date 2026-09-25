@@ -10,7 +10,7 @@ const UI = {
     for (const id of ["hud", "hp-fill", "hp-text", "rn-fill", "rn-text", "horde-count", "den-count", "essence", "minimap", "region-name", "objective",
       "bossbar", "boss-name", "boss-fill", "region-toast", "banner", "banner-title", "banner-sub", "toasts", "panel", "panel-inner", "title",
       "btn-continue", "btn-new", "btn-upgrades", "stick", "lv-lbl", "xp-fill", "xp-text", "frenzy", "frenzy-count", "frenzy-mult", "frenzy-fill",
-      "boons", "boon-title", "boon-cards", "prompt", "cores", "resonance"]) this.el[id] = this.$(id);
+      "boons", "boon-title", "boon-cards", "prompt", "cores", "resonance", "heroes", "hero-cards", "hero-sub"]) this.el[id] = this.$(id);
     this.el.prompt.onclick = () => { SFX.unlock(); if (Game.nearRocket()) Game.tryLaunch(); else Game.recallToShip(); };
     this.el["btn-continue"].onclick = () => { SFX.unlock(); Game.continueGame(); };
     this.el["btn-new"].onclick = () => {
@@ -103,7 +103,7 @@ const UI = {
   update(dt) {
     if (this.bannerT > 0) { this.bannerT -= dt; if (this.bannerT <= 0) this.el.banner.classList.remove("on"); }
     if (this.regionT > 0) { this.regionT -= dt; if (this.regionT <= 0) this.el["region-toast"].classList.remove("on"); }
-    if (Game.state === "title" || Game.state === "base") return;
+    if (Game.state === "title" || Game.state === "base" || Game.state === "pick") return;
     this.hudT -= dt; this.mapT -= dt;
     if (this.hudT <= 0) { this.hudT = 0.1; this.drawHud(); }
     if (this.mapT <= 0) { this.mapT = 0.25; this.drawMinimap(); }
@@ -163,6 +163,7 @@ const UI = {
       // on a phone the pad only shows Stomp once there is a frame to stomp with
       if (act === "stomp") { const gone = Input.touch && !Game.mechTier(); if (b.classList.contains("gone") !== gone) { b.classList.toggle("gone", gone); padChanged = true; } }
       if (act === "stance") { const S = Game.stance(); b.children[1].textContent = S.name; b.style.borderColor = S.color; }
+      if (act === "sword") { const H = Heroes.current(); if (b.children[1].textContent !== H.tool) { b.children[1].textContent = H.tool; b.title = H.desc.join(" · "); } }
       if (act === "dash") b.classList.toggle("active", p.riposte > 0);
     }
     if (padChanged) this.layoutPad();
@@ -188,8 +189,7 @@ const UI = {
   objectiveHtml() {
     const g = Game;
     if (g.fuelled()) return "<b>Fly home</b><small>All six Titan cores are aboard. Bind whatever else you want to sell — then walk up to your <b>rocket</b> at camp (green arrow) and press <b>Enter</b>. Only your catch comes with you.</small>";
-    if (g.stats.bound === 0) return Input.touch ? "<b>Bind your first beast</b><small>Tap your right thumb at a wild beast to cut it with your blade; your drone joins in. When it is weak — or dazed — tap NET.</small>"
-      : "<b>Bind your first beast</b><small>Click at a wild beast to cut it with your blade; your drone joins in. When it is weak — or dazed — throw your net with right-click or Space.</small>";
+    if (g.stats.bound === 0) return "<b>Bind your first beast</b><small>" + Heroes.current().hint(Input.touch) + (Input.touch ? " When it is weak — or dazed — tap NET.</small>" : " When it is weak — or dazed — throw your net with right-click or Space.</small>");
     if (g.stats.bound < 3) return "<b>Grow your pack (" + g.stats.bound + "/3)</b><small>Your beasts fight on their own. Beasts they defeat are <b>dazed</b>: net them or simply walk over them to bind.</small>";
     const nt = g.nextTitanIndex();
 
@@ -251,9 +251,25 @@ const UI = {
     this.dirtyHud = true;
   },
 
+  // ---------------------------------------------------------------- the Binder pick (start of every planet)
+  showHeroPick(intro) {
+    Game.state = "pick"; Game.pickIntro = !!intro;
+    this.el.banner.classList.remove("on"); this.el["region-toast"].classList.remove("on");
+    this.el["hero-sub"].textContent = intro ? "Who steps off the rocket first?" : "A new world. Who leads the landing?";
+    this.el["hero-cards"].innerHTML = HERO_IDS.map((id, i) => {
+      const H = HEROES[id];
+      return '<div class="boon hero' + (id === Game.hero ? " last" : "") + '" data-id="' + id + '" style="--c:' + H.color + '"><span class="hot">' + (i + 1) + '</span><canvas class="hero-art" width="96" height="96"></canvas>' +
+        '<div class="rar">' + H.role + '</div><div class="bn">' + H.name + '</div><div class="bd">' + H.desc.map((d) => "<div>" + d + "</div>").join("") + "</div></div>";
+    }).join("");
+    for (const c of this.el["hero-cards"].children) { BinderArt.portrait(c.querySelector("canvas"), c.dataset.id, 1.5); c.onclick = () => { SFX.unlock(); Game.pickHero(c.dataset.id); }; }
+    this.el.heroes.classList.remove("hidden"); document.body.classList.add("pick");
+    SFX.play("boon", 0.6);
+  },
+  hideHeroPick() { this.el.heroes.classList.add("hidden"); document.body.classList.remove("pick"); Game.lastTs = performance.now(); this.dirtyHud = true; },
+
   // ---------------------------------------------------------------- panels
   togglePanel(name) {
-    if (Game.state === "title" || Game.state === "dead" || Game.state === "boon") return;
+    if (Game.state === "title" || Game.state === "dead" || Game.state === "boon" || Game.state === "pick") return;
     SFX.play("ui");
     if (this.openPanel === name || !name) { this.openPanel = null; this.el.panel.classList.add("hidden"); Game.state = "play"; Game.lastTs = performance.now(); return; }
     this.openPanel = name; Game.state = "panel";
@@ -356,7 +372,7 @@ const UI = {
         "<b>Command.</b> Bound beasts march with you and fight on their own. Anything they defeat is <b>dazed</b> — a guaranteed bind. Fell a pack's crowned <b>Alpha</b> and the whole pack submits.<br>" +
         "<b>Grow.</b> Renown raises your rank and the size of your horde. Three identical beasts fuse into a ★ beast. Fell the six Titans — and bind them.<br>" +
         "<b>Ascend.</b> Every level offers a boon (keys 1–3). Chain kills into a <b>Frenzy</b> for bonus XP and essence. Every <b>Titan core</b> is forged into your <b>Bindframe</b> — a bigger, stronger frame, and only a bigger frame can command a bigger horde (ranks lock until the next Titan falls). Frames <b>stomp</b> (C), trample small beasts underfoot, and the bigger ones simply <b>wade rivers, stride over rock ridges and cross the chasm</b> that wall off the deadlier regions. Essence upgrades are fitted at your <b>ship</b>, at camp.</div>" +
-        "<div class='guide' style='margin-top:8px'><b>The blade.</b> Tap to strike: forehand, backhand, then a lunging thrust. <b>Hold</b> to wind up a heavy blow and release it; hold until the ring at your feet closes for a <b>spin</b>: a full turn with the blade out that throws everything around you into the air. Every swing goes the way you are facing. <b>The drone</b> needs no button: it shoots whatever you are fighting, and every fifth bolt is a piercing Lance.</div>" +
+        "<div class='guide' style='margin-top:8px'>" + Heroes.current().guide + "</div><div class='guide' style='margin-top:8px'><b>Three Binders.</b> You choose who lands at the start of every planet: the <b>Vanguard</b> and their blade, the <b>Trapper</b> and their mines, or the <b>Vet</b> and their mending beam. All three share the drone, the net, the dash and the horde.</div>" +
         "<div class='guide' style='margin-top:8px'><b>Fight smart.</b> " + (Input.touch ? "Move with your left thumb and strike with your right: the blade goes the way you are walking or facing, so walk at a foe and tap." : "You always face the cursor: <b>Q / E</b> strafe around a foe while you keep cutting it.") + " Dash <i>through</i> a blow at the last moment for a <b>Perfect Dodge</b> — time slows, the dash is ready again and your next blade hit is a <b>Riposte</b>. Pack <b>Alphas</b> wind up telegraphed charges, stomps, breaths and barrages — get out of the red. <b>Elites</b> (a ◆ and a coloured ring) carry a trait they keep once bound: a <b>Warded</b> one shrugs off damage until your net shatters its ward; a <b>Volatile</b> one explodes a moment after it is dazed. Set the horde's <b>stance</b> with 1 · 2 · 3, and march beasts that share an element for <b>Resonance</b> bonuses (Tab).</div>" +
         (Input.touch ? "<h3>Touch controls</h3><div class='keys'><div><b>Left thumb</b> move (the stick appears where you touch)</div><div><b>Right thumb</b> tap to strike there · hold, then release for a heavy blow</div>" +
           "<div><b>Drone</b> fires on its own at whatever you fight</div><div><b>NET</b> throw at your thumb, or the nearest dazed beast</div><div><b>DASH</b> dash — through a blow for a perfect dodge</div>" +

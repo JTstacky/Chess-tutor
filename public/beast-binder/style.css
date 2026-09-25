@@ -401,3 +401,18 @@ body.touch .bgrid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr))
 .howto div { background: rgba(6, 8, 18, 0.55); padding: 2px 7px; border-radius: 3px; }
 .tag, .tag2 { text-shadow: 2px 2px 0 #000, 0 0 10px rgba(0, 0, 0, 0.9); } .tag2 { color: #c8d0e8; }
 .bleft { background: rgba(8, 11, 22, 0.58); } .bbox { background: rgba(8, 11, 22, 0.8); }
+
+/* ---------- the Binder pick (start of every planet): three cards, like the boons ---------- */
+#heroes { position: fixed; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: radial-gradient(ellipse at center, rgba(6, 10, 24, 0.6), rgba(4, 6, 14, 0.92)); }
+#hero-title { font-size: 34px; font-weight: bold; letter-spacing: 5px; color: var(--gold); text-shadow: 3px 3px 0 #000; }
+#hero-cards { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; padding: 0 12px; }
+.boon.hero { width: 236px; min-height: 0; color: var(--c); border-color: var(--c); background: #121a30; padding-top: 12px; }
+.boon.hero.last { box-shadow: 0 0 0 3px var(--ink), 0 8px 0 3px rgba(0, 0, 0, 0.45), 0 0 18px var(--c); }
+.boon.hero .hero-art { display: block; width: 96px; height: 96px; margin: 0 auto 4px; image-rendering: pixelated; }
+.boon.hero .rar { color: var(--dim); } .boon.hero .bn { color: var(--c); font-size: 21px; margin: 4px 0 8px; }
+.boon.hero .bd { color: var(--text); font-size: 12.5px; line-height: 1.45; min-height: 0; text-align: left; } .boon.hero .bd div { padding-left: 12px; position: relative; } .boon.hero .bd div::before { content: "▸"; position: absolute; left: 0; color: var(--c); }
+.hero-foot { font-size: 12px; color: var(--dim); letter-spacing: 1px; text-shadow: 1px 1px 0 #000; }
+body.touch .hero-foot { display: none; }
+body.pick #hud { visibility: hidden; }   /* the HUD waits behind the pick */
+@media (max-height: 520px) { #heroes { gap: 8px; } #hero-title { font-size: 22px; } .boon.hero { width: 200px; padding: 8px 10px 10px; } .boon.hero .hero-art { width: 64px; height: 64px; } .boon.hero .bn { font-size: 16px; margin: 2px 0 4px; } .boon.hero .bd { font-size: 11px; } }
+@media (orientation: portrait) { body.touch #heroes { gap: 10px; justify-content: flex-start; padding-top: max(20px, env(safe-area-inset-top)); overflow-y: auto; } body.touch #hero-title { font-size: 26px; } body.touch .boon.hero { width: 88vw; display: grid; grid-template-columns: 72px 1fr; grid-template-rows: auto auto auto; column-gap: 10px; text-align: left; padding: 10px 12px; } body.touch .boon.hero .hero-art { grid-row: 1 / 4; width: 72px; height: 72px; margin: 0; } }

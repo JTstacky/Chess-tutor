@@ -12,7 +12,13 @@ const BinderArt = {
     acc: "#ff8a3a", accDk: "#b8501a", pack: "#3a4256", packLt: "#5a667e", boot: "#2a3040", grip: "#20242e",
     glow: "#7be0ff", blade: "#9df0ff", core: "#ffffff",
   },
-  _mix: {},
+  _mix: {}, _pal: {},
+  // the suit colours of a hero: HEROES[id].pal laid over the default palette (cached per hero)
+  pal(p) {
+    const id = (p && p.hero) || Game.hero || "blade", h = typeof HEROES !== "undefined" && HEROES[id];
+    if (!h || !h.pal || !Object.keys(h.pal).length) return this.PAL;
+    return this._pal[id] || (this._pal[id] = Object.assign({}, this.PAL, h.pal));
+  },
   // a colour pulled part-way toward another (the hit flash); cached per pair
   mix(a, b, k) {
     const key = a + b + k;
@@ -30,7 +36,7 @@ const BinderArt = {
   bust(ctx, x, yBottom, p, time) { this.body(ctx, p, time, Math.round(x / CONFIG.texel) * CONFIG.texel, Math.round(yBottom / CONFIG.texel) * CONFIG.texel + 10 * CONFIG.texel, true); },
 
   body(ctx, p, time, ox, oy, bust) {
-    const tx = CONFIG.texel, P = this.PAL, face = p.facing < 0 ? -1 : 1, flash = p.flash > 0 && !bust;
+    const tx = CONFIG.texel, P = this.pal(p), face = p.facing < 0 ? -1 : 1, flash = p.flash > 0 && !bust;
     const col = (c) => (flash ? this.mix(c, "#ff6a6a", 0.55) : c);
     const R = (x, y, w, h, c) => { ctx.fillStyle = col(c); ctx.fillRect(x * tx, y * tx, w * tx, h * tx); };
     ctx.save(); ctx.translate(ox, oy); ctx.scale(face, 1);
@@ -52,7 +58,7 @@ const BinderArt = {
       R(-5, -19 + bob, 1, 9, P.out); R(4, -19 + bob, 1, 9, P.out);
       R(-4, -19 + bob, 8, 9, P.suit); R(-4, -19 + bob, 8, 1, P.suitLt); R(-4, -11 + bob, 8, 1, P.accDk);
       R(1, -17 + bob, 3, 3, P.acc); R(2, -16 + bob, 1, 1, P.glow);                                       // chest unit
-      this.helmet(R, 0, -19 + bob, "side");
+      this.helmet(R, P, 0, -19 + bob, "side");
     } else {
       if (!bust) {
         const lL = moving ? Math.max(0, Math.round(Math.sin(phase))) : 0, lR = moving ? Math.max(0, Math.round(-Math.sin(phase))) : 0;
@@ -68,26 +74,27 @@ const BinderArt = {
         R(-5, -19 + bob, 10, 8, P.out); R(-4, -19 + bob, 8, 8, P.pack); R(-4, -19 + bob, 8, 1, P.packLt); R(-1, -18 + bob, 2, 7, P.packLt);
         R(-3, -15 + bob, 1, 2, P.glow); R(2, -15 + bob, 1, 2, P.glow);
       } else { R(-2 + (diag ? 1 : 0), -17 + bob, 4, 3, P.acc); R(-1 + (diag ? 1 : 0), -16 + bob, 1, 1, P.glow); R(1 + (diag ? 1 : 0), -16 + bob, 1, 1, P.glow); }
-      this.helmet(R, 0, -19 + bob, dir);
+      this.helmet(R, P, 0, -19 + bob, dir);
     }
 
-    // the sword arm and the blade
+    // the tool arm and what it holds: the blade, a mine, or the mending emitter
     if (!bust) {
-      const A = this.bladePose(p, side, face, bob, time), sx = side ? 3 : 5, sy = -18 + bob;
+      const hero = (p.hero || Game.hero || "blade"), A = hero === "blade" ? this.bladePose(p, side, face, bob, time) : this.toolPose(p, side, face, bob, time), sx = side ? 3 : 5, sy = -18 + bob;
       for (let i = 0; i <= 3; i++) R(Math.round(sx + (A.hx - sx) * (i / 3)) - 1, Math.round(sy + (A.hy - sy) * (i / 3)) - 1, 2, 2, i === 3 ? P.acc : P.suit);
       if (A.trail) {
         ctx.globalAlpha = A.trail; ctx.fillStyle = P.glow;
         ctx.beginPath(); ctx.moveTo(0, -14 * tx); ctx.arc(0, -14 * tx, (A.len + 4) * tx, A.a0, A.a, A.a < A.a0); ctx.closePath(); ctx.fill();
         ctx.globalAlpha = 1;
       }
-      this.blade(ctx, A.hx * tx, A.hy * tx, A.a, A.len, A.k);
+      if (hero === "blade") this.blade(ctx, A.hx * tx, A.hy * tx, A.a, A.len, A.k);
+      else if (hero === "trapper") this.mine(ctx, A.hx * tx, A.hy * tx, p, P, time);
+      else this.emitter(ctx, A.hx * tx, A.hy * tx, A.a, p, P, time);
     }
     ctx.restore();
   },
 
   // dome, visor and trim. y0 is the neck line; the dome fills the eight rows above it.
-  helmet(R, cx, y0, view) {
-    const P = this.PAL;
+  helmet(R, P, cx, y0, view) {
     R(cx - 4, y0 - 9, 8, 1, P.out); R(cx - 5, y0 - 8, 10, 7, P.out); R(cx - 4, y0 - 1, 8, 1, P.out);
     R(cx - 3, y0 - 8, 6, 1, P.suitLt); R(cx - 4, y0 - 7, 8, 6, P.suitLt); R(cx - 3, y0 - 1, 6, 1, P.suit);
     R(cx + 2, y0 - 3, 2, 2, P.suit); R(cx - 3, y0 - 7, 2, 1, P.core);
@@ -131,6 +138,55 @@ const BinderArt = {
     ctx.fillStyle = P.blade; ctx.fillRect(tx, -tx, (len - 1) * tx, 2 * tx); ctx.fillRect(len * tx, -0.5 * tx, tx, tx);
     ctx.fillStyle = P.core; ctx.fillRect(tx, -0.5 * tx, (len - 2) * tx, tx);
     ctx.restore();
+  },
+
+  // the hand for the Trapper's mines and the Vet's emitter, in local texels: at the hip when idle, thrust out
+  // toward the aim for a toss, raised for a pulse, drawn back while a charge builds
+  toolPose(p, side, face, bob, time) {
+    const toLocal = (a) => (face > 0 ? a : Math.PI - a);
+    const sx = side ? 3 : 5, sy = -18 + bob;
+    if (p.atkT > 0 && p.atkKind === "toss") { const k = 1 - p.atkT / Traps.TOSS, la = toLocal(p.swingA), r = 3 + 6 * Math.sin(Math.min(1, k * 1.4) * Math.PI); return { hx: sx + Math.cos(la) * r, hy: sy + Math.sin(la) * r, a: la }; }
+    if (p.atkT > 0 && p.atkKind === "pulse") { const k = 1 - p.atkT / 0.3; return { hx: sx + 1, hy: sy - 3 - Math.round(3 * Math.sin(k * Math.PI)), a: -Math.PI / 2 }; }
+    if (p.charging) { const a = -2.2 + Math.sin(time * 30) * 0.05 * p.chargeK; return { hx: sx + Math.cos(a) * 3, hy: sy + Math.sin(a) * 3, a }; }
+    const walkSw = p.moving && p.dashT <= 0 ? Math.round(Math.sin(p.animT * 10)) : 0;
+    return { hx: (side ? 4 : 7) - walkSw * 0.5, hy: (side ? -11 : -12) + bob, a: side ? 0.2 : 0.6 };
+  },
+  // a proximity mine in the hand: a dark puck with an amber light; a charge swells it into a bomb
+  mine(ctx, hx, hy, p, P, time) {
+    const tx = CONFIG.texel, k = p.charging ? p.chargeK : 0, s = (2 + 2 * k) * tx, lit = p.charging ? Math.sin(time * (10 + 30 * k)) > 0 : ((time * 2) | 0) % 2 === 0;
+    ctx.fillStyle = P.out; ctx.fillRect(hx - s - tx, hy - s * 0.7 - tx, s * 2 + 2 * tx, s * 1.4 + 2 * tx);
+    ctx.fillStyle = "#3a3428"; ctx.fillRect(hx - s, hy - s * 0.7, s * 2, s * 1.4);
+    ctx.fillStyle = "#5a5040"; ctx.fillRect(hx - s * 0.6, hy - s * 0.7, s * 1.2, s * 0.6);
+    ctx.fillStyle = lit ? P.glow : P.accDk; ctx.fillRect(hx - tx / 2, hy - s * 0.7, tx, tx);
+    if (p.charging) { ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = 0.15 + 0.35 * k; ctx.fillStyle = P.glow; ctx.beginPath(); ctx.arc(hx, hy, s * 1.8, 0, TAU); ctx.fill(); ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1; }
+  },
+  // the Vet's emitter: a short grey wand with a green lens that burns while the beam is on or a burst charges
+  emitter(ctx, hx, hy, a, p, P, time) {
+    const tx = CONFIG.texel, on = (typeof Mend !== "undefined" && Mend.target) || p.charging || p.atkT > 0, k = p.charging ? p.chargeK : 0;
+    ctx.save(); ctx.translate(hx, hy); ctx.rotate(a);
+    ctx.fillStyle = P.out; ctx.fillRect(-tx, -1.5 * tx, 6 * tx, 3 * tx);
+    ctx.fillStyle = "#8a92a0"; ctx.fillRect(-tx, -tx, 5 * tx, 2 * tx); ctx.fillStyle = "#c8d0dc"; ctx.fillRect(0, -tx, 3 * tx, tx);
+    ctx.fillStyle = P.accDk; ctx.fillRect(tx, -tx, tx, 2 * tx);
+    ctx.fillStyle = on ? "#e8fff0" : P.glow; ctx.fillRect(4 * tx, -tx, tx, 2 * tx);
+    if (on) { ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = 0.25 + 0.4 * k + 0.1 * Math.sin(time * 12); ctx.fillStyle = P.glow; ctx.beginPath(); ctx.arc(4.5 * tx, 0, (2 + 3 * k) * tx, 0, TAU); ctx.fill(); ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1; }
+    ctx.restore();
+  },
+  // where the tool's business end is in world space (the beam starts here)
+  toolPos(p) {
+    const tx = CONFIG.texel, tier = Game.mechTier();
+    if (tier) { const m = (Mech.armTip && Mech.armTip(p)) || Mech.muzzle(p, tier); return { x: m.x, y: m.y }; }   // the frame's arm (mech.js) when riding
+    const side = p.dir === "side", face = p.facing < 0 ? -1 : 1, A = this.toolPose(p, side, face, 0, Game.time);
+    return { x: p.x + face * (A.hx + Math.cos(A.a) * 4) * tx, y: p.y + (A.hy + Math.sin(A.a) * 4) * tx };
+  },
+  // a hero on a card: the suit and tool, standing, facing the camera
+  portrait(canvas, hero, scale) {
+    const ctx = canvas.getContext("2d"), s = scale || 3;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.imageSmoothingEnabled = false;
+    ctx.setTransform(s, 0, 0, s, canvas.width / 2, canvas.height - 6 * s);
+    const fake = { hero, facing: 1, dir: "downdiag", moving: false, dashT: 0, flash: 0, animT: 0, atkT: 0, atkKind: "q1", charging: false, chargeK: 0, faceA: Math.PI / 2, swingA: Math.PI / 2 };
+    ctx.globalAlpha = 0.3; ctx.fillStyle = "#0a0e18"; ctx.beginPath(); ctx.ellipse(0, 0, 12, 5, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+    this.body(ctx, fake, 0, 0, 0, false);
+    if (hero === "blade") this.drone(ctx, { x: -18, y: -CONFIG.playerHeight - 8, a: 0.3, flash: 0 }, 0, false);
   },
 
   // ---------------------------------------------------------------- the drone
