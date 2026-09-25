@@ -363,3 +363,109 @@ export const FIN = svg('0 0 22 16', 1.37, 1, `<path d="M2 16 C8 12 12 5 13 0 C16
 export const HORN = svg('0 0 22 10', 1, 0.45, `<path d="M0 1.5 C8 2 16 3.5 22 5 C16 6.5 8 8 0 8.5 Z" fill="#fffbe6" stroke="#34520c" stroke-width="0.9" stroke-linejoin="round"/><path d="M6 2.5 v5 M12 3.4 v3.2" stroke="#d8cfa0" stroke-width="0.8"/>`);
 
 export const MARSHMALLOW = svg('0 0 16 22', 0.73, 1, `<path d="M8 22 V10" stroke="#8a5a2b" stroke-width="1.4"/><rect x="2" y="1" width="12" height="10" rx="4" fill="#fff" stroke="#c9a26b" stroke-width="0.8"/><path d="M3 4 q5 -3 10 0" stroke="#e8b070" stroke-width="1.4" fill="none"/>`);
+
+// ---- props for the pair-special battles ----
+
+export const MOUSE_TOY = svg(
+  '0 0 30 18',
+  1.67,
+  1,
+  `<path d="M3 13 C0 11 1 6 4 7" stroke="#6b7280" stroke-width="1" fill="none"/>
+  <ellipse cx="14" cy="11" rx="10" ry="6" fill="#b8c0c8" stroke="#4a5560" stroke-width="0.9"/>
+  <circle cx="19" cy="5.5" r="3" fill="#b8c0c8" stroke="#4a5560" stroke-width="0.8"/><circle cx="19" cy="5.5" r="1.6" fill="#ffb3c6"/>
+  <path d="M24 10 L29 12 L24 13 Z" fill="#b8c0c8" stroke="#4a5560" stroke-width="0.8"/><circle cx="29" cy="12" r="1" fill="#ff6b9a"/>
+  <circle cx="22.5" cy="9" r="1" fill="#222"/>
+  <path d="M10 5 v-3 M8 2 h4 M8 2 v-1.5 h4 v1.5" stroke="#c99a14" stroke-width="1.2" fill="none"/>
+  <circle cx="9" cy="17" r="1.3" fill="#4a5560"/><circle cx="19" cy="17" r="1.3" fill="#4a5560"/>`,
+);
+
+export const SUGAR_CUBE = svg('0 0 12 12', 1, 1, `<path d="M1 4 L6 1 L11 4 L11 10 L6 11.5 L1 10 Z" fill="#fff" stroke="#b8c2cc" stroke-width="0.7"/><path d="M1 4 L6 6 L11 4 M6 6 V11.5" stroke="#d7dee5" stroke-width="0.7" fill="none"/><circle cx="4" cy="8" r="0.4" fill="#cfe"/><circle cx="8" cy="3.5" r="0.4" fill="#cfe"/>`);
+
+export const CRATE = svg(
+  '0 0 40 30',
+  1.33,
+  1,
+  `${grad('cr', '#e0b070', '#a8743a')}
+  <rect x="1" y="1" width="38" height="28" rx="1.5" fill="url(#cr)" stroke="#5a3210" stroke-width="1"/>
+  <path d="M1 8 H39 M1 22 H39 M4 8 L14 22 M26 8 L36 22" stroke="#7a4a1e" stroke-width="1"/>
+  <rect x="11" y="11" width="18" height="8" rx="1" fill="#fff8e6" stroke="#7a4a1e" stroke-width="0.6"/>
+  <text x="20" y="17.4" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="5.4" fill="#b5462a">SUGAR</text>`,
+);
+
+export const DOOR = svg('0 0 16 20', 0.8, 1, `${grad('dr', '#b07a45', '#6d4320')}<path d="M1 20 V8 C1 3 15 3 15 8 V20 Z" fill="url(#dr)" stroke="#3d220c" stroke-width="1"/><path d="M8 4.5 V20 M1 12 H15" stroke="#3d220c" stroke-width="0.6"/><circle cx="11" cy="14" r="0.9" fill="#ffd45a"/>`);
+
+export const PAPER_CROWN = svg('0 0 30 16', 1.88, 1, `<path d="M1 15 L2 3 L8 9 L15 1 L22 9 L28 3 L29 15 Z" fill="#ffe14d" stroke="#b8860b" stroke-width="1" stroke-linejoin="round"/><path d="M3 12 H27" stroke="#ff8fc8" stroke-width="1.4" stroke-dasharray="2 1.4"/><circle cx="15" cy="7" r="1.4" fill="#3ec1ff"/>`);
+
+export const PARTY_HAT = svg('0 0 16 20', 0.8, 1, `<path d="M8 1 L15 19 H1 Z" fill="#b57bff" stroke="#5b2a86" stroke-width="0.9" stroke-linejoin="round"/><path d="M5 11 l2 -1 M9 14 l2 -1 M6 17 l2 -1" stroke="#ffd23f" stroke-width="1.4"/><circle cx="8" cy="1.5" r="1.8" fill="#ff5a8a"/>`);
+
+export const WOODEN_HORSE = svg(
+  '0 0 44 40',
+  1.1,
+  1,
+  `${grad('wh', '#d9a060', '#8a5a2b')}
+  <path d="M8 30 V18 C8 13 12 12 16 12 H30 L33 4 C35 1 40 2 41 6 L42 12 C42 14 40 15 38 14 L36 12 L34 16 V30 Z" fill="url(#wh)" stroke="#4a2a10" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M33 4 C31 2 29 4 30 7" fill="#5a3210"/><circle cx="37.5" cy="7" r="1" fill="#222"/>
+  <path d="M12 18 H32 M12 24 H32" stroke="#6d4320" stroke-width="0.8"/><rect x="18" y="19" width="8" height="8" fill="#6d4320" stroke="#3d220c" stroke-width="0.6"/>
+  <rect x="5" y="30" width="34" height="3" rx="1.5" fill="#6d4320"/>
+  <circle cx="10" cy="35" r="4" fill="#5a3a1e" stroke="#2b1a08" stroke-width="0.8"/><circle cx="34" cy="35" r="4" fill="#5a3a1e" stroke="#2b1a08" stroke-width="0.8"/>`,
+);
+
+export const CARRIAGE = svg(
+  '0 0 40 34',
+  1.18,
+  1,
+  `${grad('ca', '#ffe98a', '#d4a017')}
+  <path d="M6 24 C2 12 10 3 20 3 C30 3 38 12 34 24 Z" fill="url(#ca)" stroke="#7a5500" stroke-width="1"/>
+  <path d="M13 22 V11 C13 8 20 7 20 7 C20 7 27 8 27 11 V22" fill="#8a1030" stroke="#7a5500" stroke-width="0.8"/>
+  <path d="M20 3 V0" stroke="#7a5500" stroke-width="1"/><circle cx="20" cy="0" r="1.2" fill="#ff5fa2"/>
+  <path d="M34 20 L40 20" stroke="#6d4320" stroke-width="1.6"/>
+  <circle cx="9" cy="27" r="6" fill="none" stroke="#7a5500" stroke-width="1.6"/><circle cx="31" cy="27" r="6" fill="none" stroke="#7a5500" stroke-width="1.6"/>
+  <path d="M9 21 V33 M3 27 H15 M31 21 V33 M25 27 H37" stroke="#7a5500" stroke-width="0.8"/>`,
+);
+
+export const LADDER = svg('0 0 16 60', 0.27, 1, `<path d="M2 60 L3 0 M14 60 L13 0" stroke="#ff5fa2" stroke-width="2"/><path d="M2.2 52 H13.8 M2.3 44 H13.7 M2.5 36 H13.5 M2.6 28 H13.4 M2.8 20 H13.2 M2.9 12 H13.1 M3 4 H13" stroke="#ffd23f" stroke-width="1.6"/>`);
+
+export const SIGN = (text: string) =>
+  svg(
+    '0 0 44 30',
+    1.47,
+    1,
+    `<rect x="20.5" y="12" width="3" height="18" fill="#8a5a2b"/><path d="M2 2 H36 L42 8 L36 14 H2 Z" fill="#fff4d6" stroke="#8a5a2b" stroke-width="1"/>
+    <text x="19" y="10.2" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="6" fill="#7b2cbf">${text}</text>`,
+  );
+
+export const ROCKING_HORSE = svg(
+  '0 0 40 34',
+  1.18,
+  1,
+  `${grad('rh', '#ff9a7a', '#c0522d')}
+  <path d="M1 27 Q20 38 39 27" stroke="#6d4320" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M10 28 L12 20 M30 28 L28 20" stroke="#6d4320" stroke-width="2"/>
+  <path d="M8 20 H30 C33 20 33 16 30 15 H14 L12 8 C11 4 6 4 5 8 L4 13 C4 15 6 15 7 14 L9 13 Z" fill="url(#rh)" stroke="#5c1c08" stroke-width="1" stroke-linejoin="round"/>
+  <circle cx="8" cy="8.5" r="0.9" fill="#222"/><path d="M30 15 C35 12 37 16 35 19" stroke="#ffd45a" stroke-width="2" fill="none"/>
+  <path d="M12 8 C14 6 16 8 17 10" stroke="#ffd45a" stroke-width="2" fill="none"/>`,
+);
+
+export const BELL = svg('0 0 24 24', 1, 1, `${grad('bl', '#fff2a8', '#d4a017')}<path d="M12 1 V3 M4 19 C5 16 5 9 7 7 C9 4 15 4 17 7 C19 9 19 16 20 19 Z" fill="url(#bl)" stroke="#7a5500" stroke-width="1" stroke-linejoin="round"/><rect x="3" y="18.5" width="18" height="2.5" rx="1.2" fill="#d4a017" stroke="#7a5500" stroke-width="0.8"/><circle cx="12" cy="22.5" r="1.6" fill="#7a5500"/>`);
+
+export const BEANSTALK = svg(
+  '0 0 24 80',
+  0.3,
+  1,
+  `<path d="M12 80 C4 66 20 56 12 44 C4 32 20 22 12 8 C10 4 12 1 12 0" stroke="#2f8a2f" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M12 70 C18 66 22 68 22 64 C18 62 14 66 12 70 Z M12 54 C6 50 2 52 2 48 C6 46 10 50 12 54 Z M12 36 C18 32 22 34 22 30 C18 28 14 32 12 36 Z M12 20 C6 16 2 18 2 14 C6 12 10 16 12 20 Z" fill="#6fd46f" stroke="#2f6b25" stroke-width="0.6"/>`,
+);
+
+export const BOWLING_BALL = svg('0 0 20 20', 1, 1, `${grad('bb', '#6a4ab8', '#2c1a5c')}<circle cx="10" cy="10" r="9" fill="url(#bb)" stroke="#140a2c" stroke-width="0.8"/><circle cx="7" cy="7" r="1.3" fill="#140a2c"/><circle cx="11" cy="6" r="1.3" fill="#140a2c"/><circle cx="9" cy="10" r="1.3" fill="#140a2c"/><path d="M11 13 l1 -2 1 2 1 -2 1 2 v1 h-4 z" fill="#ffd45a"/>`);
+
+export const MEDAL = svg('0 0 16 26', 0.62, 1, `<path d="M3 0 L8 10 L13 0" fill="none" stroke="#3ec1ff" stroke-width="3"/><path d="M5 0 L8 7 L11 0" fill="none" stroke="#e63946" stroke-width="1.2"/>${grad('md', '#fff2a8', '#d4a017')}<circle cx="8" cy="17" r="7.5" fill="url(#md)" stroke="#7a5500" stroke-width="1"/><path d="M8 12.5 l1.3 2.7 3 .4 -2.2 2 .6 3 -2.7 -1.5 -2.7 1.5 .6 -3 -2.2 -2 3 -.4 z" fill="#fff6c2" stroke="#b8860b" stroke-width="0.4"/>`);
+
+export const BROOM = svg('0 0 14 40', 0.35, 1, `<rect x="6" y="0" width="2" height="26" rx="1" fill="#b07a45" stroke="#6d4320" stroke-width="0.5"/><path d="M2 26 H12 L14 40 H0 Z" fill="#ffd966" stroke="#b8860b" stroke-width="0.7" stroke-linejoin="round"/><path d="M3 30 L2 40 M6 30 V40 M9 30 V40 M12 30 L13 40" stroke="#c99a14" stroke-width="0.6"/><rect x="2" y="26" width="10" height="3" fill="#e63946"/>`);
+
+export const JESTER_HAT = svg('0 0 36 22', 1.64, 1, `<path d="M4 20 C4 12 2 6 1 2 C8 5 12 10 14 16 C15 8 18 3 22 1 C22 8 22 12 22 16 C25 10 30 6 35 5 C32 10 32 15 32 20 Z" fill="#b5172e" stroke="#5c0a1f" stroke-width="0.9" stroke-linejoin="round"/><path d="M14 16 C15 8 18 3 22 1 C22 8 22 12 22 16 Z" fill="#ffd23f" stroke="#7a5500" stroke-width="0.7"/><rect x="3" y="18" width="30" height="4" rx="2" fill="#3ec1ff" stroke="#1f6fb8" stroke-width="0.7"/><circle cx="1.5" cy="2.5" r="2" fill="#ffd23f"/><circle cx="22" cy="1.5" r="2" fill="#ff5fa2"/><circle cx="35" cy="5" r="2" fill="#ffd23f"/>`);
+
+export const TEAPOT = svg('0 0 34 24', 1.42, 1, `${grad('tp', '#ffffff', '#cfe6f5')}<path d="M6 10 C6 4 22 4 22 10 L23 19 C23 23 5 23 5 19 Z" fill="url(#tp)" stroke="#3d6b8a" stroke-width="1"/><path d="M22 12 C27 12 28 8 33 6" stroke="#3d6b8a" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M22 12 C27 12 28 8 33 6" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round"/><path d="M6 11 C0 11 0 19 5 18" stroke="#3d6b8a" stroke-width="1.6" fill="none"/><ellipse cx="14" cy="5" rx="4" ry="1.4" fill="#fff" stroke="#3d6b8a" stroke-width="0.8"/><circle cx="14" cy="3.2" r="1.2" fill="#ff8fc8"/><path d="M9 15 q2 -2 4 0 q2 2 4 0" stroke="#ff8fc8" stroke-width="1" fill="none"/>`);
+
+export const DOLLY = svg('0 0 20 36', 0.56, 1, `<path d="M4 1 V30 H18" stroke="#4a5560" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="0" width="4" height="4" rx="1" fill="#e63946"/><circle cx="6" cy="32" r="3.4" fill="#222"/><circle cx="6" cy="32" r="1.2" fill="#aaa"/>`);
+
+export const ROLLER = svg('0 0 30 16', 1.88, 1, `<rect x="14" y="1" width="15" height="7" rx="3" fill="#ff8fc8" stroke="#a8286a" stroke-width="0.8"/><path d="M14 4.5 H9 V12 H3" stroke="#9aa0a6" stroke-width="1.4" fill="none"/><rect x="0" y="10.5" width="4" height="5" rx="1.2" fill="#3ec1ff" stroke="#1f6fb8" stroke-width="0.6"/>`);
