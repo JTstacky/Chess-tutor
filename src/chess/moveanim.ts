@@ -183,9 +183,198 @@ const kingWaddle: Mover = (ctx, el, a, b) => {
   return ctx.tl.anim(el, frames, { duration: steps * 170, easing: 'ease-in-out' });
 };
 
+// ---- second and third walks, picked at random so moves don't get boring ----
+
+/** Pawn: marches like a toy soldier, rocking left and right. */
+const pawnMarch: Mover = (ctx, el, a, b) => {
+  const steps = Math.max(3, Math.round(dist(a, b) * 3));
+  const frames: Keyframe[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const [x, y] = lerp(a, b, i / steps);
+    const r = i === 0 || i === steps ? 0 : i % 2 ? 8 : -8;
+    frames.push(P(x, y - (i % 2 ? 0.06 : 0), r));
+  }
+  for (let i = 0; i < steps; i++) ctx.tl.later(i * 130, () => snd(ctx, 'step'));
+  return ctx.tl.anim(el, frames, { duration: steps * 130, easing: 'linear' });
+};
+
+/** Pawn: one happy skip that ends in a twirl. */
+const pawnSkip: Mover = async (ctx, el, a, b) => {
+  const [mx, my] = lerp(a, b, 0.5);
+  snd(ctx, 'hop');
+  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 0.8, 0, 1.05), offset: 0.5 }, { ...P(b[0], b[1], 0, 1.1, 0.9), offset: 0.8 }, P(b[0], b[1])], { duration: 460, easing: 'ease-in-out' });
+  snd(ctx, 'pop');
+  sparkles(ctx, b, 5);
+  await ctx.tl.anim(el, [P(b[0], b[1], 0), P(b[0], b[1], 360)], { duration: 300, easing: 'ease-out' });
+};
+
+/** Knight: trots along the actual L of its move, with little gallop bounces. */
+const knightTrot: Mover = async (ctx, el, a, b) => {
+  const corner: Pt = Math.abs(b[1] - a[1]) > Math.abs(b[0] - a[0]) ? [a[0], b[1]] : [b[0], a[1]];
+  const leg = (p: Pt, q: Pt, n: number): Keyframe[] =>
+    Array.from({ length: n * 2 + 1 }, (_, i) => {
+      const [x, y] = lerp(p, q, i / (n * 2));
+      return P(x, y - (i % 2 ? 0.2 : 0), i % 2 ? -6 : 0);
+    });
+  snd(ctx, 'gallop');
+  await ctx.tl.anim(el, leg(a, corner, Math.max(1, Math.round(dist(a, corner) * 1.5))), { duration: 380, easing: 'linear' });
+  dust(ctx, corner, 3);
+  snd(ctx, 'gallop');
+  await ctx.tl.anim(el, leg(corner, b, Math.max(1, Math.round(dist(corner, b) * 1.5))), { duration: 280, easing: 'linear' });
+  snd(ctx, 'thud');
+};
+
+/** Knight: a showy leap with a full somersault. */
+const knightFlip: Mover = async (ctx, el, a, b) => {
+  const [mx, my] = lerp(a, b, 0.5);
+  const dir = b[0] >= a[0] ? -1 : 1;
+  snd(ctx, 'whoosh');
+  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 1.4, dir * 180, 1.2), offset: 0.5 }, { ...P(b[0], b[1], dir * 360, 1.1, 0.88), offset: 0.88 }, P(b[0], b[1], dir * 360)], { duration: 640, easing: 'ease-in-out' });
+  snd(ctx, 'thud');
+  dust(ctx, b);
+  sparkles(ctx, b, 4, '⭐');
+};
+
+/** Bishop: ice-skates there in graceful swerves. */
+const bishopSkate: Mover = async (ctx, el, a, b) => {
+  const d = dist(a, b);
+  const n = Math.max(2, Math.round(d * 1.5));
+  const [nx, ny] = [-(b[1] - a[1]) / d, (b[0] - a[0]) / d];
+  const frames: Keyframe[] = [];
+  for (let i = 0; i <= n; i++) {
+    const [x, y] = lerp(a, b, i / n);
+    const w = i === 0 || i === n ? 0 : (i % 2 ? 0.22 : -0.22);
+    frames.push(P(x + nx * w, y + ny * w, w * 60));
+  }
+  snd(ctx, 'glide');
+  for (let i = 0; i < n * 2; i++) {
+    ctx.tl.later(i * 80, () => {
+      const p = lerp(a, b, i / (n * 2));
+      particle(ctx, '❄️', [p[0], p[1] + 0.3], [off(0, 0, 0, 0.5), off(0, 0.2, 0, 0.8, 0)], 500, 0.2);
+    });
+  }
+  await ctx.tl.anim(el, frames, { duration: 260 + d * 110, easing: 'ease-in-out' });
+};
+
+/** Bishop: floats up by magic and drifts down onto the square. */
+const bishopFloat: Mover = async (ctx, el, a, b) => {
+  snd(ctx, 'sparkle');
+  await ctx.tl.anim(el, [P(a[0], a[1]), P(a[0], a[1] - 0.5, 0, 1.15)], { duration: 250, easing: 'ease-out' });
+  await ctx.tl.anim(el, [P(a[0], a[1] - 0.5, 0, 1.15), P(b[0], b[1] - 0.5, 0, 1.15)], { duration: 200 + dist(a, b) * 90, easing: 'ease-in-out' });
+  await ctx.tl.anim(el, [P(b[0], b[1] - 0.5, 0, 1.15), P(b[0], b[1])], { duration: 220, easing: 'ease-in' });
+  sparkles(ctx, b, 8);
+};
+
+/** Rook: tips over and rolls end over end like a barrel. */
+const rookRoll: Mover = async (ctx, el, a, b) => {
+  const d = dist(a, b);
+  const dir = b[0] > a[0] || (b[0] === a[0] && b[1] > a[1]) ? 1 : -1;
+  snd(ctx, 'rumble');
+  const turns = Math.max(1, Math.round(d)) * 90 * dir;
+  await ctx.tl.anim(el, [P(a[0], a[1], 0), { ...P(lerp(a, b, 0.5)[0], lerp(a, b, 0.5)[1] - 0.1, turns / 2), offset: 0.5 }, P(b[0], b[1], turns)], { duration: 200 + d * 110, easing: 'ease-in-out' });
+  await ctx.tl.anim(el, [P(b[0], b[1], turns), P(b[0], b[1], Math.round(turns / 360) * 360)], { duration: 160, easing: 'ease-out' });
+  snd(ctx, 'thud');
+  dust(ctx, b, 5);
+};
+
+/** Rook: giant stomps, one square at a time. The board shakes on every stomp. */
+const rookStomp: Mover = async (ctx, el, a, b) => {
+  const n = Math.max(1, Math.round(dist(a, b)));
+  let p = a;
+  for (let i = 1; i <= n; i++) {
+    const q = lerp(a, b, i / n);
+    await ctx.tl.anim(el, [P(p[0], p[1], 0, 1, 1), { ...P((p[0] + q[0]) / 2, (p[1] + q[1]) / 2 - 0.35, 0, 0.95, 1.08), offset: 0.5 }, P(q[0], q[1], 0, 1.12, 0.86)], { duration: 170, easing: 'ease-in' });
+    snd(ctx, 'thud');
+    dust(ctx, q, 2);
+    void ctx.tl.anim(ctx.board, [{ transform: 'translateY(0)' }, { transform: 'translateY(2px)' }, { transform: 'translateY(0)' }], { duration: 110, fill: 'none' });
+    p = q;
+  }
+  await ctx.tl.anim(el, [P(b[0], b[1], 0, 1.12, 0.86), P(b[0], b[1])], { duration: 120, easing: 'ease-out' });
+};
+
+/** Queen: flies in a big swoop, leaving a trail of hearts. */
+const queenSwoop: Mover = async (ctx, el, a, b) => {
+  const d = dist(a, b);
+  const dur = 380 + d * 70;
+  const [mx, my] = lerp(a, b, 0.5);
+  const lean = b[0] >= a[0] ? 12 : -12;
+  snd(ctx, 'whoosh');
+  const n = Math.max(3, Math.round(d * 2));
+  for (let i = 0; i < n; i++) {
+    ctx.tl.later((i / n) * dur, () => {
+      const t = i / n;
+      const [x, y] = lerp(a, b, t);
+      particle(ctx, '💖', [x, y - Math.sin(t * Math.PI) * (0.6 + d * 0.15)], [off(0, 0, 0, 0.6), off(0, 0.3, 0, 0.9, 0)], 600, 0.25);
+    });
+  }
+  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 0.6 - d * 0.15, lean, 1.2), offset: 0.5 }, P(b[0], b[1])], { duration: dur, easing: 'ease-in-out' });
+  snd(ctx, 'appear');
+};
+
+/** Queen: dashes there so fast she leaves afterimages behind. */
+const queenDash: Mover = async (ctx, el, a, b) => {
+  const img = el as HTMLImageElement;
+  snd(ctx, 'teleport');
+  const n = Math.max(3, Math.round(dist(a, b) * 1.5));
+  for (let i = 0; i < n; i++) {
+    const [x, y] = lerp(a, b, i / n);
+    const ghost = img.cloneNode() as HTMLImageElement;
+    ghost.style.transform = `translate(${x * 100}%, ${y * 100}%)`;
+    ghost.style.zIndex = '4';
+    ghost.style.opacity = '0';
+    ctx.fxLayer.append(ghost);
+    ctx.tl.later(i * 25, () => void ctx.tl.anim(ghost, [{ opacity: 0.5 }, { opacity: 0 }], { duration: 350, easing: 'ease-out' }).then(() => ghost.remove()));
+  }
+  await ctx.tl.anim(el, [P(a[0], a[1], 0, 1, 1), { ...P(lerp(a, b, 0.8)[0], lerp(a, b, 0.8)[1], 0, 1.25, 0.85), offset: 0.7 }, P(b[0], b[1])], { duration: 180 + dist(a, b) * 25, easing: 'ease-in' });
+  sparkles(ctx, b, 5);
+};
+
+/** King: a red carpet rolls out first, then he waddles along it. */
+const kingCarpet: Mover = async (ctx, el, a, b) => {
+  const carpet = document.createElement('div');
+  carpet.className = 'fx-carpet';
+  const len = dist(a, b);
+  const ang = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+  carpet.style.left = `${(a[0] + 0.5) * 12.5}%`;
+  carpet.style.top = `${(a[1] + 0.5) * 12.5}%`;
+  carpet.style.width = `${len * 12.5}%`;
+  carpet.style.transform = `rotate(${ang}deg)`;
+  ctx.squares.append(carpet); // under the pieces
+  snd(ctx, 'fanfare');
+  await ctx.tl.anim(carpet, [{ transform: `rotate(${ang}deg) scaleX(0)` }, { transform: `rotate(${ang}deg) scaleX(1)` }], { duration: 350, easing: 'ease-out' });
+  await kingWaddle(ctx, el, a, b);
+  void ctx.tl.anim(carpet, [{ opacity: 1 }, { opacity: 0 }], { duration: 300 }).then(() => carpet.remove());
+};
+
+/** King: bouncy royal hops. */
+const kingBounce: Mover = async (ctx, el, a, b) => {
+  const hops = Math.max(2, Math.round(dist(a, b) * 2));
+  const frames: Keyframe[] = [];
+  for (let i = 0; i <= hops; i++) {
+    const [x, y] = lerp(a, b, i / hops);
+    frames.push({ ...P(x, y, 0, 1.12, 0.86), offset: i / hops });
+    if (i < hops) {
+      const [mx, my] = lerp(a, b, (i + 0.5) / hops);
+      frames.push({ ...P(mx, my - 0.35, 0, 0.94, 1.1), offset: (i + 0.5) / hops });
+    }
+  }
+  frames[frames.length - 1] = { ...P(b[0], b[1]), offset: 1 };
+  for (let i = 0; i < hops; i++) ctx.tl.later(i * 200, () => snd(ctx, 'boing'));
+  await ctx.tl.anim(el, frames, { duration: hops * 200, easing: 'linear' });
+  sparkles(ctx, b, 4, '👑');
+};
+
 const slide: Mover = (ctx, el, a, b) => ctx.tl.anim(el, [P(a[0], a[1]), P(b[0], b[1])], { duration: 180, easing: 'ease-out' });
 
-const MOVERS: Record<PieceSymbol, Mover> = { p: pawnHop, n: knightLeap, b: bishopGlide, r: rookRumble, q: queenTeleport, k: kingWaddle };
+const MOVERS: Record<PieceSymbol, Mover[]> = {
+  p: [pawnHop, pawnMarch, pawnSkip],
+  n: [knightLeap, knightTrot, knightFlip],
+  b: [bishopGlide, bishopSkate, bishopFloat],
+  r: [rookRumble, rookRoll, rookStomp],
+  q: [queenTeleport, queenSwoop, queenDash],
+  k: [kingWaddle, kingCarpet, kingBounce],
+};
+const pickMover = (t: PieceSymbol) => MOVERS[t][Math.floor(Math.random() * MOVERS[t].length)];
 
 /** Animate a move from the position before it. The board re-renders the final position afterwards. */
 export async function animateMove(ctx: MoveContext, m: MoveInfo): Promise<void> {
@@ -197,7 +386,7 @@ export async function animateMove(ctx: MoveContext, m: MoveInfo): Promise<void> 
   const capSq = (m.flags.includes('e') ? m.to[0] + m.from[1] : m.to) as Square;
   const victimEl = m.captured ? ctx.pieceEl(capSq) : null;
   const battle = !!m.captured && ctx.battles;
-  const move = ctx.funMoves ? MOVERS[m.piece] : slide;
+  const move = ctx.funMoves ? pickMover(m.piece) : slide;
 
   // In a battle the attacker stops just short of its target, then the arena opens.
   let dest = b;

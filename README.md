@@ -7,12 +7,17 @@ A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) f
 
 ## Battles and themes
 
-- **Fun piece moves** (`src/chess/moveanim.ts`): pawns hop, knights leap, bishops glide with a sparkle trail,
-  rooks rumble and land with a thud, queens teleport, kings waddle.
+- **Fun piece moves** (`src/chess/moveanim.ts`): each piece picks one of three moves at random. Pawns hop, march
+  or skip; knights leap, trot along their L or somersault; bishops glide, skate or float; rooks rumble, roll or
+  stomp; queens teleport, swoop or dash; kings waddle, bounce or walk a red carpet.
 - **Capture battles** (`src/chess/battle.ts`), Battle Chess style: on every capture the camera swoops down,
   the board tilts into a floor, the other pieces stand up on their squares, and the two pieces fight on the
-  victim's square. Each of the 30 attacker/victim pairs has its own cartoon attack (Pillow Fight, Frog Spell,
-  Tower Sumo, Dance-Off, Royal Trapdoor…). Tap to skip. Clocks pause while a battle plays. Settings can move
+  victim's square. Each of the 30 attacker/victim pairs has its own special battle (Pillow Fight, Frog Spell,
+  Tower Sumo, Dance-Off, Royal Trapdoor…), and each piece type has five more attacks (`src/chess/attacks.ts`:
+  slingshot, pogo stick, catapult, drawbridge, rocket throne, bee swarm, fireworks…), each finished with one of
+  twelve random endings (twinkle into the sky, white flag, turned to stone, confetti pop, portal, balloons…).
+  A capture picks one at random and never repeats the last two for that pair; random taunts and victory poses
+  add more variety. Props are hand-drawn SVG (`src/chess/props.ts`). Tap to skip. Clocks pause while a battle plays. Settings can move
   the battles into a cartoon arena scene instead. Pick any pair in the **Battle Arena** menu.
 - **Themes** (`src/chess/themes.ts`): Classic, Fantasy (Unicorn Kingdom vs Dragon Clan), Space (Robot Squad vs
   Alien Crew), Ocean (Dolphin Reef vs Shark Squad), Candy (Cupcake Crew vs Choco Gang) and Dino (Tricera-Team vs

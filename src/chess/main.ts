@@ -1,6 +1,7 @@
 import './style.css';
 import type { Color, PieceSymbol } from 'chess.js';
-import { battleFor, plainSquares, playBattle, type BattleFloor } from './battle';
+import { battleOptions } from './attacks';
+import { plainSquares, playBattle, type BattleFloor } from './battle';
 import { BOTS, botById } from './bots';
 import { loadOpenings } from './coach';
 import { getEngine } from './engine';
@@ -212,10 +213,11 @@ function arenaView(): HTMLElement {
   let attacker: PieceSymbol = 'n';
   let victim: PieceSymbol = 'q';
   let side: Color = 'w';
+  let battleId = 'random';
   const v = el(`
     <section class="view setup arena" data-view="arena">
       <h2>⚔️ Battle Arena</h2>
-      <p>Every piece has its own attack for every other piece. That's 30 different battles! In a game, a battle happens whenever one piece captures another.</p>
+      <p>Every pair of pieces has its own special battle, and every piece has five more attacks, each with a surprise ending. In a game, a random one happens whenever one piece captures another.</p>
       <div class="arena-wrap">
         <div class="arena-stage"></div>
         <div class="arena-controls">
@@ -223,6 +225,8 @@ function arenaView(): HTMLElement {
           <div class="piece-picks" data-role="a"></div>
           <h3>Target</h3>
           <div class="piece-picks" data-role="v"></div>
+          <h3>Attack</h3>
+          <div class="chips attack-chips"></div>
           <div class="chips side-chips">
             <button class="chip on" data-side="w">White attacks</button>
             <button class="chip" data-side="b">Black attacks</button>
@@ -249,10 +253,16 @@ function arenaView(): HTMLElement {
         .join('');
     v.querySelector('[data-role="a"]')!.innerHTML = pick('a', side, attacker);
     v.querySelector('[data-role="v"]')!.innerHTML = pick('v', other(side), victim);
+    const options = battleOptions(attacker, victim);
+    if (!options.some((o) => o.id === battleId)) battleId = 'random';
+    v.querySelector('.attack-chips')!.innerHTML = [{ id: 'random', title: '🎲 Random' }, ...options]
+      .map((o) => `<button class="chip ${o.id === battleId ? 'on' : ''}" data-attack="${o.id}">${o.id === 'special' ? '⭐ ' : ''}${o.title}</button>`)
+      .join('');
     if (!arenaTl || arenaTl.skipped) {
+      const title = options.find((o) => o.id === battleId)?.title ?? 'Random battle!';
       stage.innerHTML = `<div class="arena-idle">
         <img src="${pieceSrc(theme, side, attacker)}" alt=""><b>VS</b><img src="${pieceSrc(theme, other(side), victim)}" alt="">
-        <p>${battleFor(attacker, victim).title}</p></div>`;
+        <p>${title}</p></div>`;
     }
   };
 
@@ -279,7 +289,12 @@ function arenaView(): HTMLElement {
             { type: 'p', color: other(side), x: 6, y: 2 },
           ],
         };
-    await playBattle(stage, { type: attacker, color: side }, { type: victim, color: other(side) }, { theme: themeById(lastTheme), tl, floor });
+    await playBattle(stage, { type: attacker, color: side }, { type: victim, color: other(side) }, {
+      theme: themeById(lastTheme),
+      tl,
+      floor,
+      battle: battleId === 'random' ? undefined : battleId,
+    });
     if (arenaTl === tl) {
       arenaTl = null;
       render();
@@ -295,6 +310,12 @@ function arenaView(): HTMLElement {
       render();
     }),
   );
+  v.querySelector('.attack-chips')!.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest<HTMLElement>('[data-attack]')?.dataset.attack;
+    if (!id) return;
+    battleId = id;
+    render();
+  });
   wireChips(v, 'side', (c) => {
     side = c as Color;
     render();
@@ -313,6 +334,7 @@ function arenaView(): HTMLElement {
     attacker = PIECE_ORDER[Math.floor(Math.random() * 6)];
     victim = PIECE_ORDER[Math.floor(Math.random() * 5)];
     side = Math.random() < 0.5 ? 'w' : 'b';
+    battleId = 'random';
     v.querySelectorAll('[data-side]').forEach((x) => x.classList.toggle('on', (x as HTMLElement).dataset.side === side));
     render();
     void fight();
