@@ -1,57 +1,93 @@
 "use strict";
-// player.js — input (keyboard / mouse / touch) and the Binder: movement, staff
-// bolts, the binding net, dash, and the horde commands.
+// player.js — input (keyboard / mouse / touch) and the Binder: movement, the energy blade (quick combos and
+// the held heavy blow), the drone that fires on its own, the binding net, dash, and the horde commands.
 
 const Input = {
   keys: {}, mouse: { x: 0, y: 0, down: false, has: false },
   touch: false, stick: { id: null, ox: 0, oy: 0, x: 0, y: 0 }, held: {},
+  // touch aim: a thumb held on the right side of the screen aims (and swings) at the point under it
+  aim: { id: null, x: 0, y: 0 },
+  // the attack button, as edges: pressed / released are set by the event and consumed by PlayerCtl.sword once a
+  // frame, so a tap that begins and ends between two frames still lands. pos says whether x,y mean anything.
+  atk: { down: false, pressed: false, released: false, x: 0, y: 0, pos: false },
   wheel: 0,
 
+  // Phones and tablets play in touch mode from the moment the page loads (a coarse primary pointer, or a
+  // touch screen with a mobile browser); anything else switches over on its first touch. Desktop with a
+  // mouse never enters it, so none of the touch layout reaches desktop browsers.
+  isMobile() {
+    const coarse = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+    return coarse || (navigator.maxTouchPoints > 0 && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+  },
+  enableTouch() {
+    if (this.touch) return;
+    this.touch = true;
+    document.body.classList.add("touch");
+    if (typeof UI !== "undefined" && UI.el.hud) UI.touchLayout();
+    if (typeof Game !== "undefined" && Game.canvas) Game.resize();
+  },
+  press(x, y, pos) { const a = this.atk; a.down = true; a.pressed = true; a.pos = !!pos; if (pos) { a.x = x; a.y = y; } },
+  release() { const a = this.atk; if (a.down || a.pressed) a.released = true; a.down = false; },
+
   init(canvas) {
+    window.addEventListener("touchstart", () => this.enableTouch(), { passive: true, capture: true });
     window.addEventListener("keydown", (e) => {
       if (e.repeat) { if (["Space", "Tab", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) >= 0) e.preventDefault(); return; }
       this.keys[e.code] = true;
       if (["Space", "Tab", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) >= 0) e.preventDefault();
+      if (e.code === "KeyJ") this.press(0, 0, false);
       Game.onKey(e.code);
     });
-    window.addEventListener("keyup", (e) => { this.keys[e.code] = false; });
-    window.addEventListener("blur", () => { this.keys = {}; this.mouse.down = false; });
+    window.addEventListener("keyup", (e) => { this.keys[e.code] = false; if (e.code === "KeyJ") this.release(); });
+    window.addEventListener("blur", () => { this.keys = {}; this.mouse.down = false; this.held = {}; this.aim.id = null; this.stick.id = null; this.stick.x = 0; this.stick.y = 0; this.release(); });
     canvas.addEventListener("mousemove", (e) => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; this.mouse.has = true; });
     canvas.addEventListener("mousedown", (e) => {
       SFX.unlock();
       this.mouse.x = e.clientX; this.mouse.y = e.clientY; this.mouse.has = true;
-      if (e.button === 0) this.mouse.down = true;
+      if (e.button === 0) { this.mouse.down = true; this.press(e.clientX, e.clientY, true); }
       if (e.button === 2) Game.onKey("Net");
       if (e.button === 1) { e.preventDefault(); Game.onKey("KeyG"); }
     });
-    window.addEventListener("mouseup", (e) => { if (e.button === 0) this.mouse.down = false; });
+    window.addEventListener("mouseup", (e) => { if (e.button === 0) { this.mouse.down = false; this.release(); } });
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("wheel", (e) => { e.preventDefault(); Game.userZoom = clamp(Game.userZoom * (e.deltaY > 0 ? 0.9 : 1.1), 0.6, 1.6); }, { passive: false });
 
-    // touch: left half = movement stick (floating), buttons live in the DOM
+    // touch: left side = movement stick (floating); right side = the sword hand — tap to strike toward the
+    // point, hold to charge a heavy blow and release it there; buttons live in the DOM
     canvas.addEventListener("touchstart", (e) => {
       SFX.unlock(); e.preventDefault();
-      if (!this.touch) { this.touch = true; document.body.classList.add("touch"); }
+      this.enableTouch();
+      if (Game.state === "cut") { Voyage.skip(); return; }                // a tap hurries the rocket along
       for (const t of e.changedTouches) {
-        if (this.stick.id === null && t.clientX < window.innerWidth * 0.55) {
+        if (this.stick.id === null && t.clientX < window.innerWidth * 0.5) {
           this.stick.id = t.identifier; this.stick.ox = t.clientX; this.stick.oy = t.clientY; this.stick.x = 0; this.stick.y = 0;
+        } else if (this.aim.id === null && t.clientX >= window.innerWidth * 0.5) {
+          this.aim.id = t.identifier; this.aim.x = t.clientX; this.aim.y = t.clientY;
+          this.press(t.clientX, t.clientY, true);
         }
       }
     }, { passive: false });
     canvas.addEventListener("touchmove", (e) => {
       e.preventDefault();
-      for (const t of e.changedTouches) if (t.identifier === this.stick.id) {
-        const dx = t.clientX - this.stick.ox, dy = t.clientY - this.stick.oy, d = Math.hypot(dx, dy), m = 56;
-        this.stick.x = d > 8 ? (dx / d) * Math.min(1, d / m) : 0; this.stick.y = d > 8 ? (dy / d) * Math.min(1, d / m) : 0;
-        if (d > m) { this.stick.ox = t.clientX - (dx / d) * m; this.stick.oy = t.clientY - (dy / d) * m; }
+      for (const t of e.changedTouches) {
+        if (t.identifier === this.stick.id) {
+          const dx = t.clientX - this.stick.ox, dy = t.clientY - this.stick.oy, d = Math.hypot(dx, dy), m = 56;
+          this.stick.x = d > 8 ? (dx / d) * Math.min(1, d / m) : 0; this.stick.y = d > 8 ? (dy / d) * Math.min(1, d / m) : 0;
+          if (d > m) { this.stick.ox = t.clientX - (dx / d) * m; this.stick.oy = t.clientY - (dy / d) * m; }
+        } else if (t.identifier === this.aim.id) { this.aim.x = t.clientX; this.aim.y = t.clientY; this.atk.x = t.clientX; this.atk.y = t.clientY; }
       }
     }, { passive: false });
-    const end = (e) => { for (const t of e.changedTouches) if (t.identifier === this.stick.id) { this.stick.id = null; this.stick.x = 0; this.stick.y = 0; } };
+    const end = (e) => {
+      for (const t of e.changedTouches) {
+        if (t.identifier === this.stick.id) { this.stick.id = null; this.stick.x = 0; this.stick.y = 0; }
+        if (t.identifier === this.aim.id) { this.aim.id = null; this.release(); }
+      }
+    };
     canvas.addEventListener("touchend", end); canvas.addEventListener("touchcancel", end);
   },
 
   // WASD moves on the screen's axes; Q / E strafe left / right of where the binder is aiming
-  // (perpendicular to the cursor), so you can circle a foe while your staff stays on it
+  // (perpendicular to the cursor), so you can circle a foe while facing it
   moveVec(p) {
     let x = 0, y = 0;
     const k = this.keys;
@@ -72,6 +108,10 @@ function createPlayer() {
     hp: CONFIG.player.baseHp, maxHp: CONFIG.player.baseHp, invuln: 0, hurtT: 99, flash: 0,
     moveX: 0, moveY: 0, facing: 1, dir: "down", animT: 0, moving: false, attackT: 0,
     aim: 0, aimX: 0, aimY: 0,
+    // the blade: the swing playing out, the combo it belongs to, and the button held for a heavy blow
+    atkT: 0, atkKind: "q1", atkHit: false, swingA: 0, sweep: 1, combo: 0, comboT: 0, queued: false,
+    holdT: -1, charging: false, chargeT0: 0, chargeK: 0, chargeFull: false, holdAimX: 0, holdAimY: 0,
+    mark: null, markT: 0, drone: null, gunAim: undefined,
     stompT: 0, stompCd: 0, stompLand: 0,
     boltT: 0, netT: 0, dashT: 0, dashCd: 0, dashX: 0, dashY: 0, hornCd: 0, chargeCd: 0,
     shotN: 0, riposte: 0, dodgeT: 0, dodged: false, mortarT: 1.5, beamCd: 4, beamT: 0, beamTick: 0, arcT: 1, sunT: 5, pass: 0, kvx: 0, kvy: 0, gateHintT: 0,
@@ -79,9 +119,12 @@ function createPlayer() {
 }
 
 const PlayerCtl = {
-  // where the player is aiming, in world space. Touch auto-aims.
+  // where the player is aiming, in world space. Touch with no thumb down aims at what you are fighting.
   resolveAim(p) {
-    if (!Input.touch && Input.mouse.has) {
+    if (Input.aim.id !== null) {
+      const w = Game.screenToWorld(Input.aim.x, Input.aim.y);
+      p.aimX = w.x; p.aimY = w.y;
+    } else if (!Input.touch && Input.mouse.has) {
       const w = Game.screenToWorld(Input.mouse.x, Input.mouse.y);
       p.aimX = w.x; p.aimY = w.y;
     } else {
@@ -98,7 +141,7 @@ const PlayerCtl = {
       if (h.removed || h.hp < 0) continue;
       const bindable = h.dazed > 0 || h.cowed > 0;
       if (preferDazed ? !bindable : bindable) continue;
-      if (!preferDazed && !h.aggro && !Input.held.bolt) continue;
+      if (!preferDazed && !h.aggro) continue;
       const d = dist2(h.x, h.y, p.x, p.y);
       if (d < bd) { bd = d; best = h; }
     }
@@ -108,7 +151,7 @@ const PlayerCtl = {
   update(p, dt) {
     const C = CONFIG.player;
     p.animT += dt; p.hurtT += dt;
-    for (const k of ["boltT", "netT", "dashCd", "hornCd", "invuln", "flash", "attackT", "stompCd", "stompLand", "dodgeT", "riposte"]) if (p[k] > 0) p[k] -= dt;
+    for (const k of ["boltT", "netT", "dashCd", "hornCd", "invuln", "flash", "attackT", "stompCd", "stompLand", "dodgeT", "riposte", "markT"]) if (p[k] > 0) p[k] -= dt;
     if (p.stompT > 0) { p.stompT -= dt; if (p.stompT <= 0) this.stompLand(p, Game.mechTier()); }
     this.resolveAim(p);
 
@@ -127,7 +170,8 @@ const PlayerCtl = {
       if (Math.random() < 0.8) FX.mote(p.x, p.y - Mech.height(tier) * (0.2 + Math.random() * 0.5), 0, 0, tier ? MECH_TIERS[tier].accent : "#b8e8ff", 0.3, (6 + tier * 2) * Mech.reach(tier));
       if (p.dashT <= 0) this.slam(p, tier);
     } else if (mv.x || mv.y) {
-      const sp = speed * (wet ? 0.8 : 1);
+      // winding up a heavy blow roots you; a swing in progress only slows you
+      const sp = speed * (wet ? 0.8 : 1) * (p.charging ? 0.45 : p.atkT > 0 ? 0.7 : 1);
       World.move(p, mv.x * sp * dt, mv.y * sp * dt, p.pass);
       // stopped dead by a river, ridge or chasm? say which frame could cross it
       if (p.gateHintT > 0) p.gateHintT -= dt;
@@ -143,11 +187,12 @@ const PlayerCtl = {
     if (wet && (mv.x || mv.y || p.dashT > 0) && Math.random() < 0.3) { FX.ring(p.x, p.y, p.r * 0.6, p.r * 1.6 + 10, "#e8f6ff", 0.5, 2); if (Math.random() < 0.3) SFX.play("splash", 0.25, 0.8 + Math.random() * 0.4); }
     p.moving = !!(mv.x || mv.y);
 
-    // facing: with a mouse the binder always faces the cursor (move and strafe independently of it);
-    // on touch it faces the way it walks, and turns to its target while attacking
+    // facing: mid-swing (or winding up) you face the blow; with a mouse the binder otherwise faces the cursor
+    // (move and strafe independently of it); on touch they face a held thumb, else the way they walk
     let fx = mv.x, fy = mv.y;
-    if (!Input.touch && Input.mouse.has) { fx = Math.cos(p.aim); fy = Math.sin(p.aim); }
-    else if (p.attackT > 0 || !p.moving) { if (p.attackT > 0) { fx = Math.cos(p.aim); fy = Math.sin(p.aim); } else { fx = 0; fy = 0; } }
+    if (p.atkT > 0) { fx = Math.cos(p.swingA); fy = Math.sin(p.swingA); }
+    else if ((!Input.touch && Input.mouse.has) || Input.aim.id !== null || p.charging) { fx = Math.cos(p.aim); fy = Math.sin(p.aim); }
+    else if (!p.moving) { fx = 0; fy = 0; }
     if (fx || fy) {
       const a = Math.atan2(fy, fx), deg = (a * 180) / Math.PI;
       if (Math.abs(fx) > 0.05) p.facing = fx > 0 ? 1 : -1;
@@ -156,10 +201,12 @@ const PlayerCtl = {
       else p.dir = ad < 25 || ad > 155 ? "side" : ad < 65 || ad > 115 ? "updiag" : "up";
     }
 
-    // staff bolts: hold the button (touch fires automatically at provoked beasts)
-    const wantFire = Input.mouse.down || Input.keys.KeyJ || Input.held.bolt || (Input.touch && this.autoTarget(p, false));
-    if (wantFire && p.boltT <= 0 && Game.state === "play") this.bolt(p);
-    if (Game.state === "play") this.weapons(p, dt, tier, !!wantFire);
+    // the blade is yours; the drone (or the frame's cannon) picks its own targets and fires on its own
+    if (Game.state === "play") {
+      this.sword(p, dt);
+      const tgt = this.autoFire(p, dt, tier);
+      this.weapons(p, dt, tier, tgt);
+    }
 
     // regen
     if (p.hurtT > C.regenDelay && p.hp < p.maxHp) p.hp = Math.min(p.maxHp, p.hp + C.regen * (1 + Game.rankIndex * 0.25) * dt);
@@ -171,45 +218,168 @@ const PlayerCtl = {
     }
   },
 
+  // the one damage scalar the blade, the drone and the frame's weapons all grow from
   boltDamage() {
     const C = CONFIG.player;
     return (C.boltDmg + C.boltDmgPerRank * Game.rankIndex + 0.6 * (Game.binderLevel - 1)) * (1 + 0.15 * Game.upg("bolt")) * (1 + 0.1 * Game.forge("capacitor")) * CONFIG.mech[Game.mechTier()].bolt * (1 + Game.res("light"));
   },
+  swordDamage() { return this.boltDamage() * 1.5; },
 
-  bolt(p) {
+  // ---------------------------------------------------------------- the drone
+  // What the drone shoots at: whatever your blade last marked, else the nearest provoked foe in range. It never
+  // starts a fight on its own — a wild beast that has not been provoked is left alone until you or the horde hit it.
+  droneTarget(p) {
+    const R = CONFIG.player.boltRange * (1 + Game.mechTier() * 0.12), R2 = R * R;
+    if (p.markT > 0 && targetable(p.mark) && dist2(p.mark.x, p.mark.y, p.x, p.y) < R2) return p.mark;
+    let best = null, bd = R2;
+    for (const h of Game.hostiles) {
+      if (h.removed || !h.aggro || !targetable(h)) continue;
+      const d = dist2(h.x, h.y, p.x, p.y);
+      if (d < bd) { bd = d; best = h; }
+    }
+    return best;
+  },
+
+  // The drone hovers over the binder's shoulder and drifts to the side its target is on; in a Bindframe it is
+  // docked and the frame's cannon fires instead. Returns the current target (null when there is nothing to shoot).
+  autoFire(p, dt, tier) {
+    const H = CONFIG.playerHeight, time = Game.time;
+    if (!p.drone) p.drone = { x: p.x - 14, y: p.y - H - 10, a: 0, t: null, retarget: 0, flash: 0 };
+    const d = p.drone;
+    d.retarget -= dt;
+    if (d.retarget <= 0 || !targetable(d.t)) { d.retarget = 0.15; d.t = this.droneTarget(p); }
+    if (d.flash > 0) d.flash -= dt;
+    if (!tier) {
+      const side = d.t ? Math.sign(d.t.x - p.x) || p.facing : -p.facing;
+      const wx = p.x + side * 16 + Math.sin(time * 1.7) * 3, wy = p.y - H - 10 + Math.sin(time * 2.3) * 3 - (p.dashT > 0 ? 6 : 0);
+      const k = Math.min(1, dt * (p.dashT > 0 ? 12 : 5));
+      d.x += (wx - d.x) * k; d.y += (wy - d.y) * k;
+      const want = d.t ? Math.atan2(d.t.y - d.t.r * 0.6 - d.y, d.t.x - d.x) : (p.facing > 0 ? 0.3 : Math.PI - 0.3);
+      let da = want - d.a; while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
+      d.a += da * Math.min(1, dt * 10);
+    }
+    if (d.t && p.boltT <= 0) this.bolt(p, d.t);
+    return d.t;
+  },
+
+  bolt(p, t) {
     const C = CONFIG.player, tier = Game.mechTier();
-    p.boltT = C.boltCd * Math.pow(0.88, Game.boon("rapid")); p.attackT = 0.22;
-    const dmg = this.boltDamage();
-    let sx = p.x + Math.cos(p.aim) * 14, sy = p.y - 22 + Math.sin(p.aim) * 10;
-    if (tier) { const m = Mech.muzzle(p, tier); sx = m.x; sy = m.y; p.aim = Math.atan2(p.aimY - sy, p.aimX - sx); if (Math.abs(Math.cos(p.aim)) > 0.1) p.facing = Math.cos(p.aim) > 0 ? 1 : -1; }
+    p.boltT = C.boltCd * Math.pow(0.88, Game.boon("rapid"));
+    const ty = t.y - t.r * 0.6;
+    let sx, sy;
+    if (tier) {
+      p.gunAim = Math.atan2(ty - (p.y - Mech.height(tier) * 0.5), t.x - p.x);
+      const m = Mech.muzzle(p, tier); sx = m.x; sy = m.y;
+      p.gunAim = Math.atan2(ty - sy, t.x - sx); p.attackT = 0.22;
+    } else { sx = p.drone.x; sy = p.drone.y; p.drone.flash = 0.1; }
+    const a0 = Math.atan2(ty - sy, t.x - sx), dmg = this.boltDamage();
     const n = 1 + Game.boon("twin"), color = tier ? MECH_TIERS[tier].accent : "#7be0ff";
-    // every fifth shot is a LANCE: a heavy bolt that punches through a whole line and shoves it back.
-    // A RIPOSTE (the shot after a perfect dodge) is a lance too, and hits three times as hard again.
-    const riposte = p.riposte > 0, lance = ++p.shotN % 5 === 0 || riposte, g = Mech.reach(tier);
-    if (riposte) { p.riposte = 0; FX.text(sx, sy - 24, "RIPOSTE!", "#9dffff", 1, 15); FX.ring(sx, sy, 6, 60 * g, "#9dffff", 0.35, 4); }
+    // every fifth shot is a LANCE: a heavy bolt that punches through a whole line and shoves it back
+    const lance = ++p.shotN % 5 === 0, g = Mech.reach(tier);
     for (let i = 0; i < n; i++) {
-      const a = p.aim + (i - (n - 1) / 2) * 0.13, big = lance && i === ((n - 1) >> 1);
+      const a = a0 + (i - (n - 1) / 2) * 0.13, big = lance && i === ((n - 1) >> 1);
       Game.projectiles.push({ kind: "shot", x: sx, y: sy, vx: Math.cos(a) * C.boltSpeed * (big ? 1.25 : 1), vy: Math.sin(a) * C.boltSpeed * (big ? 1.25 : 1), speed: C.boltSpeed,
-        team: 0, dmg: dmg * (big ? 2.4 : 1) * (big && riposte ? 3 : 1), type: "arcane", look: big ? "power" : "arcane", src: p, life: C.boltRange * (1 + tier * 0.12) / C.boltSpeed, color, age: 0,
-        size: (7 + tier * 2) * g * (big ? (riposte ? 2.1 : 1.5) : 1), r: (9 + tier * 2) * g * (big ? (riposte ? 2.1 : 1.5) : 1), fromPlayer: true, kb: big ? (riposte ? 15 : 11) : 0,
-        pierce: Game.boon("pierce") + (big ? (riposte ? 9 : 4) : 0), blast: Game.boon("blast") ? 18 + 28 * Game.boon("blast") + tier * 6 : (tier >= 3 ? 30 + tier * 6 : 0) });
+        team: 0, dmg: dmg * (big ? 2.4 : 1), type: "arcane", look: big ? "power" : "arcane", src: p, life: C.boltRange * (1 + tier * 0.12) / C.boltSpeed, color, age: 0,
+        size: (7 + tier * 2) * g * (big ? 1.5 : 1), r: (9 + tier * 2) * g * (big ? 1.5 : 1), fromPlayer: true, kb: big ? 11 : 0,
+        pierce: Game.boon("pierce") + (big ? 4 : 0), blast: Game.boon("blast") ? 18 + 28 * Game.boon("blast") + tier * 6 : (tier >= 3 ? 30 + tier * 6 : 0) });
     }
     FX.burst(sx, sy, "#ffffff", 3 + tier + (lance ? 6 : 0), 60 + tier * 20, 0.18, 3);
     if (lance) { FX.ring(sx, sy, 4, 26 * g, color, 0.25, 3); SFX.play("lance", 0.8, 1 - tier * 0.07); }
     else SFX.play("bolt", 1, (1 - tier * 0.1) * (0.94 + Math.random() * 0.12));
   },
 
-  // The Bindframe's own weapon systems. They need no button: mortars and the beam join in while
-  // you hold fire; the rune lightning and the Sunfall pick their own targets.
-  weapons(p, dt, tier, firing) {
+  // ---------------------------------------------------------------- the blade
+  // Quick strikes chain forehand → backhand → lunging thrust. Holding the button past `heavyHold` winds up a
+  // heavy blow that grows for `chargeTime` more; released early it is a heavy sweep, fully charged it is a
+  // CHARGED blow: a wide arc that throws everything it touches into the air and leaves it reeling.
+  SWINGS: {
+    q1:      { dur: 0.26, half: 1.05, reach: 48, dmg: 1.0,  kb: 4,  sweep: 1 },
+    q2:      { dur: 0.26, half: 1.05, reach: 48, dmg: 1.1,  kb: 4,  sweep: -1 },
+    q3:      { dur: 0.34, half: 0.5,  reach: 70, dmg: 1.55, kb: 8,  sweep: 1, thrust: 26 },
+    heavy:   { dur: 0.42, half: 1.5,  reach: 60, dmg: 2.4,  kb: 9,  sweep: 1, heavy: true },
+    charged: { dur: 0.5,  half: 1.75, reach: 76, dmg: 4.2,  kb: 15, sweep: 1, heavy: true, quake: true },
+  },
+  sword(p, dt) {
+    const C = CONFIG.player, A = Input.atk;
+    if (p.atkT > 0) {
+      p.atkT -= dt;
+      const S = this.SWINGS[p.atkKind], k = 1 - p.atkT / S.dur;
+      if (S.thrust && k < 0.5) World.move(p, Math.cos(p.swingA) * S.thrust * dt / (S.dur * 0.5), Math.sin(p.swingA) * S.thrust * dt / (S.dur * 0.5), p.pass);
+      if (!p.atkHit && k >= 0.38) { p.atkHit = true; this.swingHit(p, S); }
+    }
+    if (p.comboT > 0) { p.comboT -= dt; if (p.comboT <= 0) p.combo = 0; }
+    // the button: press starts the hold, release decides what it was
+    if (A.pressed) { A.pressed = false; p.holdT = 0; p.queued = false; }
+    if (p.holdT >= 0) {
+      // remember where the button is pointing while it is down: on touch the thumb has lifted by the time we swing
+      if (A.pos) { const w = Game.screenToWorld(A.x, A.y); p.holdAimX = w.x; p.holdAimY = w.y; } else { p.holdAimX = p.aimX; p.holdAimY = p.aimY; }
+      if (A.down) p.holdT += dt;
+      if (!p.charging && A.down && p.holdT >= C.heavyHold && p.atkT <= 0.1) {
+        p.charging = true; p.chargeT0 = p.holdT; p.chargeK = 0; p.chargeFull = false;
+        SFX.play("charge", 0.6);
+      }
+      if (p.charging) {
+        p.chargeK = clamp((p.holdT - p.chargeT0) / C.heavyCharge, 0, 1);
+        if (p.chargeK >= 1 && !p.chargeFull) { p.chargeFull = true; FX.ring(p.x, p.y, 8, 40 * Mech.reach(Game.mechTier()), "#9df0ff", 0.3, 3); SFX.play("chink", 0.7, 1.5); }
+        if (Math.random() < 0.25 + p.chargeK * 0.5) FX.mote(p.x + (Math.random() - 0.5) * 24, p.y - 30 - Math.random() * 16, 0, -30, p.chargeK >= 1 ? "#ffffff" : "#9df0ff", 0.3, 2);
+      }
+    }
+    if (A.released) {
+      A.released = false;
+      if (p.holdT >= 0) {
+        if (p.charging) this.swing(p, p.chargeK >= 1 ? "charged" : "heavy");
+        else if (p.holdT < C.heavyHold) { if (p.atkT > 0.1) p.queued = true; else this.quick(p); }
+        else if (p.atkT <= 0.1) this.quick(p);               // held through a swing, released before the wind-up began
+      }
+      p.holdT = -1; p.charging = false; p.chargeK = 0; p.chargeFull = false;
+    }
+    if (p.queued && p.atkT <= 0.1) { p.queued = false; this.quick(p); }
+  },
+  quick(p) {
+    const kind = ["q1", "q2", "q3"][p.combo % 3];
+    p.combo = (p.combo + 1) % 3; p.comboT = 1.0;
+    this.swing(p, kind);
+  },
+  swing(p, kind) {
+    const S = this.SWINGS[kind];
+    p.atkKind = kind; p.atkT = S.dur; p.atkHit = false; p.sweep = S.sweep;
+    p.swingA = Math.atan2(p.holdAimY - (p.y - 20), p.holdAimX - p.x);
+    if (Math.abs(Math.cos(p.swingA)) > 0.15) p.facing = Math.cos(p.swingA) > 0 ? 1 : -1;
+    if (S.heavy) { SFX.play("heavy", 0.8, S.quake ? 0.8 : 1); if (S.quake) FX.addShake(3); }
+    else SFX.play("swing", 0.7, kind === "q3" ? 1.25 : kind === "q2" ? 0.9 : 1);
+  },
+  // the blow lands part-way through the swing: a cone in front of the binder, wider and longer for heavy blows
+  swingHit(p, S) {
+    const tier = Game.mechTier(), g = Mech.reach(tier), reach = S.reach * g + p.r, a = p.swingA;
+    const riposte = p.riposte > 0, col = tier ? MECH_TIERS[tier].accent : "#9df0ff";
+    const dmg = this.swordDamage() * S.dmg * (riposte ? 3 : 1), kb = riposte ? Math.max(S.kb, 15) : S.kb;
+    if (riposte) { p.riposte = 0; FX.text(p.x, p.y - Mech.height(tier) - 24, "RIPOSTE!", "#9dffff", 1, 15); FX.ring(p.x, p.y, 6, 70 * g, "#9dffff", 0.35, 4); }
+    let n = 0;
+    forEnemies(p, p.x + Math.cos(a) * reach * 0.5, p.y + Math.sin(a) * reach * 0.5, reach * 0.5 + 20, (e) => {
+      if (!inCone(p.x, p.y, a, S.half, reach, e)) return;
+      n++;
+      dealDamage(p, e, dmg, "arcane", { text: true, kb });
+      if (S.quake && e.hp > 0 && !e.titan) { e.stunT = Math.max(e.stunT || 0, 0.6); applyStatus(e, "slow", p, 0); }
+      if (e.hp > 0) { p.mark = e; p.markT = 4; }
+    });
+    FX.slash(p.x, p.y - 10 * g, a, reach * 0.8, col, S.heavy ? 0.3 : 0.22);
+    if (S.quake) { FX.ring(p.x, p.y, 10, reach + 20, col, 0.4, 4); FX.burst(p.x + Math.cos(a) * reach * 0.5, p.y + Math.sin(a) * reach * 0.4, "#ffffff", 14, 180, 0.4, 3); FX.addShake(5); SFX.play("bigHit", 0.5, 1.1); }
+    else if (S.heavy) { FX.burst(p.x + Math.cos(a) * reach * 0.5, p.y + Math.sin(a) * reach * 0.4, col, 8, 120, 0.3, 3); FX.addShake(1.5); }
+    if (n && S.heavy) Game.slowT = Math.max(Game.slowT, S.quake ? 0.18 : 0.08);          // a heavy blow that connects bites for a moment
+  },
+
+  // The Bindframe's own weapon systems. They need no button: mortars and the beam fire while the cannon has a
+  // target; the rune lightning and the Sunfall pick their own.
+  weapons(p, dt, tier, tgt) {
     if (tier < 3) return;
     const dmg = this.boltDamage(), g = Mech.reach(tier), P = Mech.parts(tier), tx = CONFIG.texel, color = MECH_TIERS[tier].accent;
     const topY = p.y - (P.hipY + P.shoulderY + 12 * P.s) * tx * g;
-    // shoulder mortars: a pair of shells lobbed at the aim point
+    const gunA = p.gunAim !== undefined ? p.gunAim : p.aim;
+    // shoulder mortars: a pair of shells lobbed at the target
     p.mortarT -= dt;
-    if (firing && p.mortarT <= 0) {
+    if (tgt && p.mortarT <= 0) {
       p.mortarT = 2.3;
-      const d = Math.min(Math.hypot(p.aimX - p.x, p.aimY - p.y), 560), a = Math.atan2(p.aimY - p.y, p.aimX - p.x);
+      const d = Math.min(Math.hypot(tgt.x - p.x, tgt.y - p.y), 560), a = Math.atan2(tgt.y - p.y, tgt.x - p.x);
       for (const sx of [-1, 1]) {
         const ox = p.x + sx * 18 * P.s * tx * 0.5 * g, lx = p.x + Math.cos(a) * d + sx * 34 + (Math.random() - 0.5) * 30, ly = p.y + Math.sin(a) * d + (Math.random() - 0.5) * 40;
         Game.projectiles.push({ kind: "lob", warn: true, x: ox, y: topY, sx: ox, sy: p.y, tx: lx, ty: ly, t: 0, dur: 0.85, team: 0, dmg: dmg * 1.5, type: "arcane", src: p, color, aoe: 62 + tier * 6, size: 8 + tier, look: "fire", age: 0, kb: 13, shake: 1.5 });
@@ -217,18 +387,18 @@ const PlayerCtl = {
       }
       SFX.play("mortar", 0.6);
     }
-    // sweeping beam: a second of solid light along the aim
+    // sweeping beam: a second of solid light along the cannon
     if (tier >= 4) {
       if (p.beamT > 0) {
         p.beamT -= dt; p.beamTick -= dt;
-        const m = Mech.muzzle(p, tier), len = 620, ex = m.x + Math.cos(p.aim) * len, ey = m.y + Math.sin(p.aim) * len;
+        const m = Mech.muzzle(p, tier), len = 620, ex = m.x + Math.cos(gunA) * len, ey = m.y + Math.sin(gunA) * len;
         FX.beam(m.x, m.y, ex, ey, color, 0.09, 12 * g);
         if (Math.random() < 0.6) FX.mote(lerp(m.x, ex, Math.random()), lerp(m.y, ey, Math.random()), (Math.random() - 0.5) * 60, -40, color, 0.4, 4);
-        if (p.beamTick <= 0) { p.beamTick = 0.1; lineDamage(p, m.x, m.y, p.aim, len, 12 * g, dmg * 0.55, "arcane", { kb: 4 }); }
+        if (p.beamTick <= 0) { p.beamTick = 0.1; lineDamage(p, m.x, m.y, gunA, len, 12 * g, dmg * 0.55, "arcane", { kb: 4 }); }
         p.attackT = 0.2; FX.addShake(0.6);
       } else {
         p.beamCd -= dt;
-        if (firing && p.beamCd <= 0) { p.beamCd = 7.5; p.beamT = 0.9; p.beamTick = 0; SFX.play("beam", 0.9, 0.6); }
+        if (tgt && p.beamCd <= 0) { p.beamCd = 7.5; p.beamT = 0.9; p.beamTick = 0; SFX.play("beam", 0.9, 0.6); }
       }
     }
     // rune lightning: the orbiting runes strike whatever strays too close
@@ -267,7 +437,7 @@ const PlayerCtl = {
     if (p.netT > 0) return;
     p.netT = C.netCd; p.attackT = 0.25;
     let tx = p.aimX, ty = p.aimY;
-    if (Input.touch) { const t = this.autoTarget(p, true) || this.autoTarget(p, false); if (t) { tx = t.x; ty = t.y; } }
+    if (Input.touch && Input.aim.id === null) { const t = this.autoTarget(p, true) || this.autoTarget(p, false); if (t) { tx = t.x; ty = t.y; } }
     const dx = tx - p.x, dy = ty - p.y, d = Math.hypot(dx, dy) || 1, m = Math.min(d, C.netRange * (1 + tier * 0.15));
     const top = p.y - Mech.height(tier) * 0.6, n = 1 + Game.boon("nets"), a0 = Math.atan2(dy, dx);
     for (let i = 0; i < n; i++) {
@@ -348,7 +518,7 @@ const PlayerCtl = {
   },
 
   // PERFECT DODGE: a blow that lands while you are mid-dash. Time crawls for a heartbeat, the dash is
-  // ready again at once, and your next staff shot is a Riposte. Once per dash, so it cannot be chained
+  // ready again at once, and your next blade hit is a Riposte. Once per dash, so it cannot be chained
   // off one lingering hazard.
   perfectDodge(p) {
     if (p.dodged || !(p.dodgeT > 0) || Game.state !== "play") return;
@@ -363,6 +533,7 @@ const PlayerCtl = {
 
   draw(ctx, p, time) {
     const tier = Game.mechTier();
+    this.drawCharge(ctx, p, time, tier);
     if (tier) {
       Mech.draw(ctx, p, tier, time);
       if ((World.cellAt(p.x, p.y) & F_WATER) !== 0) {
@@ -376,25 +547,22 @@ const PlayerCtl = {
       this.chevron(ctx, p, Mech.height(tier), time); return;
     }
     const H = CONFIG.playerHeight;
-    const entry = Sprites.player();
-    const action = p.attackT > 0 ? "attack" : p.moving ? "walk" : "idle";
-    const tt = action === "attack" ? clamp(1 - p.attackT / 0.25, 0, 0.99) : p.animT * (action === "walk" ? 1.7 : 0.6);
-    const fr = Sprites.frame(entry, action, p.dir, tt);
     ctx.globalAlpha = 0.3; ctx.fillStyle = "#0a0e18";
     ctx.beginPath(); ctx.ellipse(p.x, p.y, 12, 5, 0, 0, TAU); ctx.fill();
     ctx.globalAlpha = p.invuln > 0 && p.dashT <= 0 && Math.floor(time * 20) % 2 ? 0.45 : 1;
-    if (fr) {
-      const img = p.flash > 0 ? Sprites.tinted(fr.img, "#ff6a6a", 0.6) : fr.img;
-      const w = (fr.img.naturalWidth * H) / fr.img.naturalHeight;
-      ctx.save();
-      ctx.translate(Math.round(p.x), Math.round(p.y));
-      // side + diagonal art faces right; front/back art is symmetric so it is never mirrored
-      if (p.dir !== "down" && p.dir !== "up" && p.facing < 0) ctx.scale(-1, 1);
-      ctx.drawImage(img, -w / 2, -H, w, H);
-      ctx.restore();
-    } else { ctx.fillStyle = "#3f9d3f"; ctx.fillRect(p.x - 8, p.y - 30, 16, 30); }
+    BinderArt.draw(ctx, p, time);
     ctx.globalAlpha = 1;
+    if (p.drone) BinderArt.drone(ctx, p.drone, time, !!p.drone.t);
     this.chevron(ctx, p, H, time);
+  },
+
+  // the heavy blow winding up: an arc at the feet fills as it charges and burns white when it is full
+  drawCharge(ctx, p, time, tier) {
+    if (!p.charging) return;
+    const k = p.chargeK, r = (16 + 10 * k) * Mech.reach(tier), full = k >= 1;
+    ctx.lineWidth = full ? 4 : 3; ctx.strokeStyle = full ? "#ffffff" : "#9df0ff"; ctx.globalAlpha = full ? 0.7 + 0.3 * Math.sin(time * 20) : 0.35 + 0.45 * k;
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, r, r * 0.6, 0, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0.04, k)); ctx.stroke();
+    ctx.globalAlpha = 1;
   },
 
   // a bobbing chevron so the binder is never lost inside their own horde

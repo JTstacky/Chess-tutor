@@ -181,7 +181,7 @@ const FORGE = [
   { id: "hide",      name: "Reinforced Hides", desc: "+10% horde health — permanent",     base: 1500, grow: 1.7, max: 10 },
   { id: "fang",      name: "Honed Fangs",      desc: "+10% horde damage — permanent",     base: 1500, grow: 1.7, max: 10 },
   { id: "plating",   name: "Frame Plating",    desc: "+10% Bindframe health — permanent", base: 1200, grow: 1.7, max: 10 },
-  { id: "capacitor", name: "Bolt Capacitors",  desc: "+10% bolt damage — permanent",      base: 1200, grow: 1.7, max: 10 },
+  { id: "capacitor", name: "Blade Capacitors", desc: "+10% blade and drone damage — permanent", base: 1200, grow: 1.7, max: 10 },
 ];
 const SHIP = [
   { id: "cargo",     name: "Cargo Pods",    desc: "+1 beast aboard the rocket",            base: 4000, grow: 2.2, max: 6 },
@@ -221,7 +221,7 @@ const Base = {
   },
 
   card(u) {
-    const types = u.sp.types.map((t) => '<i style="background:' + TYPES[t].color + '" title="' + TYPES[t].name + '"></i>').join("");
+    const types = Icons.types(u.sp.types);
     const cls = "card" + (u.titan ? " titan" : "") + (this.sel.indexOf(u) >= 0 ? " sel" : "") + (this.cargo[u.uid] ? " aboard" : "") + (u.sp.hybrid ? " hybrid" : "");
     return '<div class="' + cls + '" data-uid="' + u.uid + '"><div class="ty">' + types + '</div><div class="role">' + (this.cargo[u.uid] ? "aboard" : "") + "</div>" +
       Sprites.thumbHtml(u.sp, "", u.titan) + '<div class="st">' + "★".repeat(u.stars) + (u.gen ? '<span class="gen">⬡' + u.gen + "</span>" : "") + UI.affixTag(u) +
@@ -233,7 +233,7 @@ const Base = {
     const have = kind === "forge" ? Game.meta.materials : Game.meta.credits;
     let pips = ""; for (let i = 0; i < d.max; i++) pips += '<i class="' + (i < lvl ? "on" : "") + '"></i>';
     return '<div class="upg ' + kind + '"><div class="info"><div class="un">' + d.name + '</div><div class="ud">' + d.desc + '</div><div class="pips">' + pips + "</div></div>" +
-      '<button data-buy="' + kind + ":" + d.id + '"' + (maxed || cost > have ? " disabled" : "") + ">" + (maxed ? "MAX" : (kind === "forge" ? "⬢ " : "¢ ") + cost.toLocaleString()) + "</button></div>";
+      '<button data-buy="' + kind + ":" + d.id + '"' + (maxed || cost > have ? " disabled" : "") + ">" + (maxed ? "MAX" : Icons.html(kind === "forge" ? "materials" : "credits") + cost.toLocaleString()) + "</button></div>";
   },
 
   render() {
@@ -263,10 +263,10 @@ const Base = {
     const loose = this.roster.length - n;
     this.el.querySelector("#base-ui").innerHTML =
       '<div class="bhead"><div><h1>THE HANGAR</h1><div class="sub">' + planetInfo(g.meta.planet).name + " is poached clean. Next stop: <b>" + next.name + "</b> — wilder by " + Math.round(80 * (g.meta.planet + 1)) + "%. Only what rides the rocket comes with you.</div></div>" +
-      '<div class="res"><span class="cr" id="b-cr">¢ ' + Math.round(this.shown.credits).toLocaleString() + '</span><span class="mt" id="b-mt">⬢ ' + Math.round(this.shown.materials).toLocaleString() + "</span></div></div>" +
+      '<div class="res"><span class="cr" id="b-cr" title="Credits — ship upgrades">' + Icons.html("credits") + Math.round(this.shown.credits).toLocaleString() + '</span><span class="mt" id="b-mt" title="Materials — forge upgrades">' + Icons.html("materials") + Math.round(this.shown.materials).toLocaleString() + "</span></div></div>" +
       '<div class="bmain"><div class="bleft"><h3>Your catch (' + this.roster.length + ") — aboard " + n + "/" + cap + '</h3><div class="cards" id="b-cards">' + roster.map((u) => this.card(u)).join("") + "</div></div>" +
-      '<div class="bright"><div class="bbox">' + side + '</div><div class="bbox"><h3>Forge <small>materials ⬢</small></h3>' + FORGE.map((d) => this.upgRow(d, "forge")).join("") + "</div>" +
-      '<div class="bbox"><h3>Ship <small>credits ¢</small></h3>' + SHIP.map((d) => this.upgRow(d, "ship")).join("") + "</div></div></div>" +
+      '<div class="bright"><div class="bbox">' + side + '</div><div class="bbox"><h3>Forge <small>' + Icons.html("materials") + 'materials</small></h3>' + FORGE.map((d) => this.upgRow(d, "forge")).join("") + "</div>" +
+      '<div class="bbox"><h3>Ship <small>' + Icons.html("credits") + 'credits</small></h3>' + SHIP.map((d) => this.upgRow(d, "ship")).join("") + "</div></div></div>" +
       '<div class="bfoot"><button class="btn" data-act="auto">Load strongest ' + cap + '</button><button class="btn sell" data-act="sellall"' + (loose ? "" : " disabled") + ">Sell all not aboard (" + loose + ')</button><button class="btn harvest" data-act="harvestall"' + (loose ? "" : " disabled") + ">Harvest all not aboard (" + loose + ")</button>" +
       '<button class="btn launch" data-act="launch"' + (n ? "" : " disabled") + ">🚀 LAUNCH to " + next.name + "  (" + n + "/" + cap + " aboard)</button></div>";
     const ui = this.el.querySelector("#base-ui");
@@ -365,7 +365,7 @@ const Base = {
         const want = Game.meta[k], d = want - this.shown[k];
         if (Math.abs(d) > 1) { this.shown[k] += d * 0.18 + Math.sign(d); moving = true; } else this.shown[k] = want;
         const el = document.getElementById(k === "credits" ? "b-cr" : "b-mt");
-        if (el) { el.textContent = (k === "credits" ? "¢ " : "⬢ ") + Math.round(this.shown[k]).toLocaleString(); el.classList.toggle("tick", moving); }
+        if (el) { el.innerHTML = Icons.html(k === "credits" ? "credits" : "materials") + Math.round(this.shown[k]).toLocaleString(); el.classList.toggle("tick", moving); }
       }
       if (moving && Game.state === "base") requestAnimationFrame(step);
     };
@@ -405,26 +405,51 @@ const Base = {
     document.getElementById("hud").classList.remove("hidden");
   },
 
-  // backdrop: drifting stars, the planet you just stripped turning below, the dock's lights
+  // backdrop: the dock itself is a painted image behind #base (assets/ui/hangar.jpg, drawn cover-fit); the canvas
+  // adds only the planet you just stripped, turning slowly in the dock's big window (the window sits in the left
+  // ~38% of the picture). The planet is a tiny pixel sphere — 80 texels across, shaded per texel from a seamless
+  // noise "map", then scaled up unsmoothed so it matches the rest of the art — and it is hue-shifted per planet.
   startBg() {
-    const cv = document.getElementById("base-bg"), ctx = cv.getContext("2d"), hue = Game.planet().hue;
-    if (!this.stars) { this.stars = []; for (let i = 0; i < 140; i++) this.stars.push({ x: Math.random(), y: Math.random(), s: Math.random() < 0.15 ? 3 : 2, v: 0.004 + Math.random() * 0.012, p: Math.random() * 6 }); }
+    const cv = document.getElementById("base-bg"), ctx = cv.getContext("2d"), hue = Game.planet().hue, seed = (Game.meta.planet + 1) * 977;
+    const N = 80, sprite = this._planet || (this._planet = document.createElement("canvas")), sc = sprite.getContext("2d");
+    sprite.width = sprite.height = N;
+    const img = sc.createImageData(N, N), d = img.data, R = N / 2 - 3;
+    const SEA = [38, 92, 190], SHALLOW = [58, 140, 210], LAND = [70, 150, 62], HILL = [128, 150, 70], ROCK = [150, 130, 96], ICE = [222, 236, 248], ATM = [140, 200, 255];
+    const paint = (rot) => {
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+        const i = (y * N + x) * 4, dx = (x + 0.5 - N / 2) / R, dy = (y + 0.5 - N / 2) / R, r2 = dx * dx + dy * dy;
+        if (r2 > 1) {                                    // a thin atmosphere ring, brightest on the lit side
+          const rim = r2 < 1.32 ? (1.32 - r2) / 0.32 : 0, lit = 0.35 + 0.65 * Math.max(0, (-dx * 0.6 - dy * 0.5 + 0.3));
+          d[i] = ATM[0]; d[i + 1] = ATM[1]; d[i + 2] = ATM[2]; d[i + 3] = Math.round(rim * rim * 120 * lit);
+          continue;
+        }
+        const z = Math.sqrt(1 - r2), lon = Math.atan2(dx, z) + rot, lat = dy;
+        // seamless in longitude: sample the noise on the circle (cos, sin) rather than on the angle
+        const nx = Math.cos(lon) * 2.3, ny = Math.sin(lon) * 2.3;
+        const v = vnoise(nx + lat * 1.7 + 50, ny + lat * 0.9 + 50, seed) * 0.62 + vnoise(nx * 2.1 + 90, ny * 2.1 + lat * 3 + 20, seed + 3) * 0.38;
+        let c = v > 0.66 ? ROCK : v > 0.58 ? HILL : v > 0.5 ? LAND : v > 0.46 ? SHALLOW : SEA;
+        if (Math.abs(lat) > 0.78 && v > 0.36) c = ICE;
+        // light from the upper left, in three hard bands (it is pixel art, not a render)
+        const l = -dx * 0.6 - dy * 0.5 + z * 0.62, k = l > 0.55 ? 1.15 : l > 0.2 ? 0.85 : l > -0.05 ? 0.5 : 0.26;
+        d[i] = c[0] * k; d[i + 1] = c[1] * k; d[i + 2] = c[2] * k; d[i + 3] = 255;
+      }
+      sc.putImageData(img, 0, 0);
+    };
+    let painted = -1;
     const draw = (ts) => {
       if (Game.state !== "base") return;
       const W = cv.width = cv.clientWidth, H = cv.height = cv.clientHeight, t = ts / 1000;
-      ctx.fillStyle = "#05060e"; ctx.fillRect(0, 0, W, H);
-      for (const s of this.stars) { const x = ((s.x - t * s.v) % 1 + 1) % 1; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(t * 2 + s.p); ctx.fillStyle = "#dfe8ff"; ctx.fillRect(Math.round(x * W), Math.round(s.y * H), s.s, s.s); }
-      ctx.globalAlpha = 1;
-      // the planet: banded, slowly turning, lit from the upper left
-      const R = Math.max(W, H) * 0.42, cx = W * 0.16, cy = H + R * 0.42;
-      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.clip(); ctx.filter = "hue-rotate(" + hue + "deg)";
-      const cols = ["#3f8a3a", "#2a5ea8", "#5cae48", "#c89a54", "#3674c0", "#70c054", "#c4d8ec"];
-      for (let i = 0; i < 26; i++) { ctx.fillStyle = cols[(i * 5) % cols.length]; const y = cy - R + (i / 26) * R * 2; ctx.fillRect(cx - R, y, R * 2, R / 12); ctx.fillStyle = cols[(i * 3 + 2) % cols.length]; const ox = ((t * 9 + i * 97) % (R * 2)); ctx.fillRect(cx - R + ox, y, R * 0.5, R / 12); }
-      ctx.filter = "none";
-      const sh = ctx.createRadialGradient(cx - R * 0.4, cy - R * 0.6, R * 0.2, cx, cy, R * 1.05); sh.addColorStop(0, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(2,3,10,0.88)");
-      ctx.fillStyle = sh; ctx.fillRect(cx - R, cy - R, R * 2, R * 2); ctx.restore();
-      // dock gantry lights
-      for (let i = 0; i < 9; i++) { ctx.fillStyle = (Math.floor(t * 2) + i) % 3 === 0 ? "#ffd84a" : "#3a2c10"; ctx.fillRect(W - 26, 40 + i * 44, 8, 8); ctx.fillRect(18, H - 60 - i * 44, 8, 8); }
+      ctx.clearRect(0, 0, W, H);
+      // where the cover-fitted picture lies, so the planet lands in its window whatever the screen shape
+      const IW = 1600, IH = 907, s = Math.max(W / IW, H / IH), pw = IW * s, ph = IH * s, ox = (W - pw) / 2, oy = (H - ph) / 2;
+      const rot = t * 0.05, step = Math.floor(rot * 40);
+      if (step !== painted) { painted = step; paint(rot); }
+      const pr = Math.min(pw * 0.115, H * 0.3), px = ox + pw * 0.205, py = oy + ph * 0.44;
+      // the hue shift is a CSS filter on the canvas element: a context filter would resample the sprite smoothly
+      cv.style.filter = hue ? "hue-rotate(" + hue + "deg)" : "";
+      ctx.imageSmoothingEnabled = false;
+      const sz = pr * 2 * (N / (2 * R));
+      ctx.drawImage(sprite, Math.round(px - sz / 2), Math.round(py - sz / 2), Math.round(sz), Math.round(sz));
       this.raf = requestAnimationFrame(draw);
     };
     this.raf = requestAnimationFrame(draw);

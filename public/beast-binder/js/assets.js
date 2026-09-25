@@ -5,8 +5,7 @@
 
 const FRAME_COUNTS = { walk: 6, idle: 4, attack: 4 };
 const RANGER_SETS = { brute: ["idle", "walk"], grenadier: ["walk"], rifleman: ["idle", "walk"], striker: ["idle", "walk"] };
-const PLAYER_SETS = ["attack", "attack_down", "attack_up", "idle", "idle_down", "idle_downdiag", "idle_up", "idle_updiag",
-  "walk", "walk_down", "walk_downdiag", "walk_up", "walk_updiag"];
+// (the Binder is not a sprite: the suit, blade and drone are painted in js/binder.js)
 
 const Sprites = {
   entries: {},
@@ -31,7 +30,6 @@ const Sprites = {
   // hybrids (sp.art) wear one parent's frames; the second element shows as a tint
   beast(sp) { const id = sp.art || sp.id; return this.entries[id] || this.load(id, "assets/sprites/frames/beasts/" + id + "_", sp.sets); },
   ranger(kind) { return this.entries["r:" + kind] || this.load("r:" + kind, "assets/sprites/frames/rangers/" + kind + "_", RANGER_SETS[kind]); },
-  player() { return this.entries.player || this.load("player", "assets/sprites/frames/player/", PLAYER_SETS); },
 
   // Pick a loaded frame. dir: "side" | "down" | "up" | "downdiag" | "updiag".
   // Falls back action -> walk -> idle and facing -> side, so partial art always draws.

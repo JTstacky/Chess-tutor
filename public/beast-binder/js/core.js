@@ -46,7 +46,8 @@ const CONFIG = {
   player: {
     speed: 205, radius: 9, baseHp: 120, hpPerRank: 20, regen: 3, regenDelay: 4,
     dashSpeed: 640, dashTime: 0.17, dashCd: 1.1,
-    boltCd: 0.3, boltSpeed: 620, boltDmg: 9, boltDmgPerRank: 3.2, boltRange: 520,
+    boltCd: 0.4, boltSpeed: 620, boltDmg: 9, boltDmgPerRank: 3.2, boltRange: 520,   // the drone's shots (the blade is 1.5x a bolt)
+    heavyHold: 0.26, heavyCharge: 0.8,                                                // hold the attack this long to wind up; this much longer for a full charge
     netCd: 0.9, netRange: 300, netRadius: 52, netFlight: 0.32,
     hornCd: 32, hornTime: 9, chargeTime: 9,
   },
@@ -94,10 +95,10 @@ const CONFIG = {
 
   // Boons: every Binder level offers a pick of three. `w` = draw weight, rarity only colours the card.
   boons: [
-    { id: "twin",    name: "Forked Bolt",     desc: "+1 staff bolt per shot",                       max: 4, rarity: "epic",   w: 5 },
-    { id: "pierce",  name: "Piercing Bolts",  desc: "Bolts punch through +1 more foe",              max: 3, rarity: "rare",   w: 7 },
-    { id: "rapid",   name: "Quick Hands",     desc: "+12% staff fire rate",                         max: 6, rarity: "common", w: 10 },
-    { id: "blast",   name: "Runic Blast",     desc: "Bolts burst on impact (+28 radius)",           max: 3, rarity: "epic",   w: 5 },
+    { id: "twin",    name: "Forked Bolt",     desc: "+1 drone bolt per shot",                       max: 4, rarity: "epic",   w: 5 },
+    { id: "pierce",  name: "Piercing Bolts",  desc: "Drone bolts punch through +1 more foe",        max: 3, rarity: "rare",   w: 7 },
+    { id: "rapid",   name: "Overclock",       desc: "+12% drone fire rate",                         max: 6, rarity: "common", w: 10 },
+    { id: "blast",   name: "Runic Blast",     desc: "Drone bolts burst on impact (+28 radius)",     max: 3, rarity: "epic",   w: 5 },
     { id: "frenzy",  name: "Pack Tempo",      desc: "Horde attacks 8% faster",                      max: 8, rarity: "common", w: 10 },
     { id: "crit",    name: "Savage Instinct", desc: "+8% chance for the horde to strike for double", max: 6, rarity: "rare",  w: 8 },
     { id: "leech",   name: "Blood Bond",      desc: "Beasts heal 3% health on every kill",          max: 5, rarity: "rare",   w: 7 },
@@ -121,7 +122,7 @@ const CONFIG = {
     { id: "fury",    name: "Pack Fury",     desc: "+8% army damage",            base: 40,  grow: 1.38, max: 40 },
     { id: "vigor",   name: "Thick Hides",   desc: "+8% army health",            base: 40,  grow: 1.38, max: 40 },
     { id: "net",     name: "Wider Net",     desc: "+12% net radius & bind chance", base: 50, grow: 1.6, max: 10 },
-    { id: "bolt",    name: "Staff Focus",   desc: "+15% staff bolt damage",     base: 35,  grow: 1.36, max: 40 },
+    { id: "bolt",    name: "Blade Focus",   desc: "+15% blade and drone damage", base: 35,  grow: 1.36, max: 40 },
     { id: "command", name: "Commanding Voice", desc: "+2 army size",            base: 120, grow: 1.45, max: 25 },
     { id: "mend",    name: "Swift Mending", desc: "Fallen beasts return 10% sooner, army regenerates faster", base: 60, grow: 1.6, max: 8 },
   ],
@@ -149,7 +150,7 @@ const RESONANCE = [
   { id: "poison",   types: ["poison"],                 name: "Venom",    v: [0.2, 0.4],   desc: (v) => pct(v) + " of horde hits poison the foe" },
   { id: "psychic",  types: ["psychic"],                name: "Mindlink", v: [0.1, 0.2],   desc: (v) => "+" + pct(v) + " net radius and bind chance" },
   { id: "shadow",   types: ["shadow"],                 name: "Ambush",   v: [0.08, 0.16], desc: (v) => "+" + pct(v) + " horde critical chance" },
-  { id: "light",    types: ["light"],                  name: "Radiance", v: [0.15, 0.3],  desc: (v) => "+" + pct(v) + " staff bolt damage" },
+  { id: "light",    types: ["light"],                  name: "Radiance", v: [0.15, 0.3],  desc: (v) => "+" + pct(v) + " blade and drone damage" },
   { id: "dragon",   types: ["dragon"],                 name: "Dominion", v: [0.08, 0.16], desc: (v) => "+" + pct(v) + " horde damage" },
   { id: "normal",   types: ["normal"],                 name: "Kinship",  v: [0.1, 0.2],   desc: (v) => "+" + pct(v) + " essence and experience" },
 ];

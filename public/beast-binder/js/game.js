@@ -22,7 +22,7 @@ const Game = {
   time: 0, lastTs: 0, fps: 60,
   cam: { x: 0, y: 0 }, zoom: 1.4, userZoom: 1, view: { x0: 0, y0: 0, x1: 0, y1: 0 },
   player: null, army: [], reserve: [], hostiles: [], projectiles: [], netMarks: [],
-  renown: 0, essence: 0, rankIndex: 0, upgrades: {}, seen: {},
+  renown: 0, essence: 0, rankIndex: 0, upgrades: {}, seen: {}, sighted: {},
   titansDefeated: {}, titanRespawn: {}, victory: false,
   stats: { bound: 0, defeated: 0, fused: 0, deaths: 0 },
   settings: { muted: false, autoFuse: true, autoFill: true },
@@ -177,21 +177,24 @@ const Game = {
     this.canvas.addEventListener("contextrestored", () => this.dropCaches("the canvas was restored"));
     Input.init(this.canvas);
     UI.init();
+    Bestiary.init();
+    if (Input.isMobile()) Input.enableTouch();
     window.addEventListener("resize", () => this.resize());
     this.resize();
     this.loadSettings();
     this.newWorld();
     this.state = "title";
     UI.showTitle(this.hasSave());
-    Sprites.player();
     requestAnimationFrame((ts) => this.frame(ts));
   },
 
   resize() {
-    this.dpr = Math.min(2, window.devicePixelRatio || 1);
+    // a phone's canvas is repainted at 1.5x at most: pixel art stays crisp and the fill cost stays sane
+    this.dpr = Math.min(Input.touch ? 1.5 : 2, window.devicePixelRatio || 1);
     this.W = window.innerWidth; this.H = window.innerHeight;
     this.canvas.width = Math.round(this.W * this.dpr); this.canvas.height = Math.round(this.H * this.dpr);
     this.canvas.style.width = this.W + "px"; this.canvas.style.height = this.H + "px";
+    if (UI.el.hud) UI.layoutPad();
   },
 
   // a fresh planet. Everything earned on the last one is gone except Game.meta and whoever rode the rocket.
@@ -203,7 +206,7 @@ const Game = {
     this.zones = []; this.herdDx = 0; this.herdDy = 0; this.herdIdle = 0;
     this.player = createPlayer();
     this.army = []; this.reserve = []; this.hostiles = []; this.projectiles = []; this.netMarks = [];
-    this.renown = 0; this.essence = 0; this.rankIndex = 0; this.upgrades = {}; this.seen = {};
+    this.renown = 0; this.essence = 0; this.rankIndex = 0; this.upgrades = {}; this.seen = {}; this.sighted = {};
     this.titansDefeated = {}; this.titanRespawn = {}; this.victory = false;
     this.stats = { bound: 0, defeated: 0, fused: 0, deaths: 0 };
     this.binderLevel = 1; this.binderXp = 0; this.boons = {}; this.pendingBoons = 0; this.frenzy = 0; this.frenzyT = 0; this.frenzyBest = 0; this.gems = [];
@@ -520,7 +523,7 @@ const Game = {
     if (!this.army.length) { UI.toast("You have no beasts to command yet"); return; }
     if (p.chargeCd > 0) return;
     let tx = p.aimX, ty = p.aimY;
-    if (Input.touch) { tx = p.x + Math.cos(p.aim) * 320; ty = p.y + Math.sin(p.aim) * 320; }
+    if (Input.touch && Input.aim.id === null) { tx = p.x + Math.cos(p.aim) * 320; ty = p.y + Math.sin(p.aim) * 320; }
     const dx = tx - p.x, dy = ty - p.y, d = Math.hypot(dx, dy) || 1, m = Math.min(d, 620);
     this.rally.x = p.x + (dx / d) * m; this.rally.y = p.y + (dy / d) * m;
     this.chargeT = CONFIG.player.chargeTime;
@@ -610,7 +613,7 @@ const Game = {
     const p = this.player;
     const data = { v: 2, seed: this.seed, meta: this.meta, base: this.state === "base" ? 1 : 0, px: Math.round(p.x), py: Math.round(p.y), renown: this.renown, essence: this.essence, upgrades: this.upgrades,
       blv: this.binderLevel, bxp: Math.round(this.binderXp), boons: this.boons, pend: this.pendingBoons, fbest: this.frenzyBest,
-      seen: this.seen, titans: this.titansDefeated, victory: this.victory, stats: this.stats, time: Math.round(this.time),
+      seen: this.seen, sighted: this.sighted, titans: this.titansDefeated, victory: this.victory, stats: this.stats, time: Math.round(this.time),
       recall: Math.round(this.recallWait()), stance: this.stanceId,
       army: this.army.map((u) => this.packUnit(u)), reserve: this.reserve.map((u) => this.packUnit(u)) };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); localStorage.setItem(SAVE_KEY + ".settings", JSON.stringify(this.settings)); } catch (e) { /* storage full or blocked */ }
@@ -627,7 +630,7 @@ const Game = {
     this.meta = Object.assign({ planet: 0, credits: 0, materials: 0, forge: {}, ship: {}, hybrids: {}, crew: 0, cleared: 0 }, d.meta || {});
     for (const id in this.meta.hybrids) SPECIES_BY_ID[id] = this.meta.hybrids[id];
     this.newWorld();
-    this.renown = d.renown || 0; this.essence = d.essence || 0; this.upgrades = d.upgrades || {}; this.seen = d.seen || {};
+    this.renown = d.renown || 0; this.essence = d.essence || 0; this.upgrades = d.upgrades || {}; this.seen = d.seen || {}; this.sighted = d.sighted || {};
     this.titansDefeated = d.titans || {}; this.victory = !!d.victory; this.stats = Object.assign(this.stats, d.stats || {}); this.time = d.time || 0;
     this.binderLevel = d.blv || 1; this.binderXp = d.bxp || 0; this.boons = d.boons || {}; this.pendingBoons = d.pend || 0; this.frenzyBest = d.fbest || 0;
     this.recallAt = this.time + (d.recall || 0);
@@ -831,8 +834,14 @@ const Game = {
         }
         ctx.globalAlpha = 1;
       }
-      // net aim reticle (desktop)
-      if (!Input.touch && this.state === "play" && Input.mouse.has) {
+      // net aim reticle (desktop, or a thumb aiming on touch) — plus a crosshair under the thumb
+      const thumb = Input.aim.id !== null;
+      if (thumb && this.state === "play") {
+        ctx.globalAlpha = 0.75; ctx.strokeStyle = "#e8f6ff"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p.aimX, p.aimY, 14, 0, TAU); ctx.moveTo(p.aimX - 22, p.aimY); ctx.lineTo(p.aimX - 8, p.aimY); ctx.moveTo(p.aimX + 8, p.aimY); ctx.lineTo(p.aimX + 22, p.aimY);
+        ctx.moveTo(p.aimX, p.aimY - 22); ctx.lineTo(p.aimX, p.aimY - 8); ctx.moveTo(p.aimX, p.aimY + 8); ctx.lineTo(p.aimX, p.aimY + 22); ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      if (((!Input.touch && Input.mouse.has) || thumb) && this.state === "play") {
         const dx = p.aimX - p.x, dy = p.aimY - p.y, d = Math.hypot(dx, dy) || 1, m = Math.min(d, CONFIG.player.netRange);
         const rx = p.x + (dx / d) * m, ry = p.y + (dy / d) * m;
         const rad = this.netRadius();

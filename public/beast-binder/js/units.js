@@ -659,12 +659,12 @@ function drawUnit(ctx, u, time) {
     }
     return;
   }
-  // health bar (only when it tells you something)
+  // health bar (only when it tells you something): just the coloured fill on a hairline track — no backing box
   if (u.hp < u.maxHp || u.alpha || u.titan) {
-    const bw = clamp(u.r * 2.4, 20, 90), bx = Math.round(u.x - bw / 2), by = Math.round(top);
-    ctx.fillStyle = "rgba(8,10,18,0.85)"; ctx.fillRect(bx - 1, by - 1, bw + 2, 5);
+    const bw = clamp(u.r * 2.4, 20, 90), bx = Math.round(u.x - bw / 2), by = Math.round(top), w = Math.max(0, Math.round((bw * u.hp) / u.maxHp));
+    ctx.fillStyle = "rgba(8,10,18,0.45)"; ctx.fillRect(bx, by + 1, bw, 1); ctx.fillRect(bx, by + 3, w, 1);
     ctx.fillStyle = u.team === 0 ? "#5cf08a" : u.hunter ? "#ff5a7a" : "#ff8a4a";
-    ctx.fillRect(bx, by, Math.max(0, (bw * u.hp) / u.maxHp), 3);
+    ctx.fillRect(bx, by, w, 3);
   }
   if (u.affix) {                                                     // elite: a diamond in its affix colour
     const cx = Math.round(u.x + clamp(u.r * 1.2, 10, 45) + 6), cy = Math.round(top + 1);

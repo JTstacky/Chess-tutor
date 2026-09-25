@@ -33,13 +33,13 @@
 
     <button id="prompt" class="hidden"></button>
     <div id="abilities">
-      <button class="ab" data-act="bolt"><span class="key">LMB</span><span class="name">Bolt</span><i class="cd"></i></button>
+      <button class="ab" data-act="sword" title="Tap for quick strikes, hold for a heavy blow"><span class="key">LMB</span><span class="name">Blade</span><i class="cd"></i></button>
       <button class="ab" data-act="net"><span class="key">RMB</span><span class="name">Net</span><i class="cd"></i></button>
       <button class="ab" data-act="dash"><span class="key">Shift</span><span class="name">Dash</span><i class="cd"></i></button>
       <button class="ab" data-act="stomp"><span class="key">C</span><span class="name">Stomp</span><i class="cd"></i></button>
       <button class="ab" data-act="charge"><span class="key">G</span><span class="name">Charge</span><i class="cd"></i></button>
       <button class="ab" data-act="recall"><span class="key">R</span><span class="name">Recall</span><i class="cd"></i></button>
-      <button class="ab" data-act="horn"><span class="key">F</span><span class="name">War Horn</span><i class="cd"></i></button>
+      <button class="ab" data-act="horn"><span class="key">F</span><span class="name">Horn</span><i class="cd"></i></button>
       <button class="ab" data-act="stance"><span class="key">1·2·3</span><span class="name">Swarm</span><i class="cd"></i></button>
     </div>
     <div id="menu-buttons">
@@ -57,17 +57,23 @@
   <div id="base" class="hidden"><canvas id="base-bg"></canvas><div id="base-ui"></div><div id="base-fx"></div></div>
 
   <div id="title">
+    <div class="title-art"></div>
     <div class="title-card">
-      <h1>BEAST BINDER</h1>
+      <h1><span>BEAST</span> <span>BINDER</span></h1>
       <p class="tag">An intergalactic poacher. A rocket. A planet full of monsters worth a fortune.</p>
       <p class="tag2">Bind the little ones · command the colossal · take the Titans' cores · sell, harvest and breed your catch · on to the next world</p>
       <div class="title-buttons">
         <button id="btn-continue" class="big">Continue</button>
         <button id="btn-new" class="big">New Journey</button>
+        <button id="btn-full" class="big alt touch-only">⛶ Full screen</button>
       </div>
       <div class="howto">
-        <div><b>WASD</b> move</div><div><b>Q / E</b> strafe</div><div><b>Hold Click</b> staff bolts</div><div><b>Right-click / Space</b> throw net</div>
-        <div><b>Shift</b> dash</div><div><b>G</b> charge</div><div><b>1·2·3</b> stance</div><div><b>R</b> recall</div><div><b>F</b> war horn</div><div><b>Tab</b> horde</div>
+        <div><b>WASD</b> move</div><div><b>Q / E</b> strafe</div><div><b>Click</b> blade — tap for quick strikes, hold for a heavy blow</div><div><b>Your drone</b> fires on its own</div>
+        <div><b>Right-click / Space</b> throw net</div><div><b>Shift</b> dash</div><div><b>G</b> charge</div><div><b>1·2·3</b> stance</div><div><b>R</b> recall</div><div><b>F</b> war horn</div><div><b>Tab</b> horde</div>
+      </div>
+      <div class="howto howto-touch touch-only">
+        <div><b>Left thumb</b> move</div><div><b>Right thumb</b> tap to strike · hold, then release for a heavy blow</div><div><b>Your drone</b> fires on its own</div>
+        <div><b>NET</b> bind a weakened beast</div><div><b>DASH</b> through a blow — perfect dodge</div><div><b>Landscape</b> plays best</div>
       </div>
     </div>
   </div>
@@ -80,12 +86,14 @@
   <script src="js/fx.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/mech.js"></script>
+  <script src="js/binder.js"></script>
   <script src="js/units.js"></script>
   <script src="js/combat.js"></script>
   <script src="js/titananim.js"></script>
   <script src="js/spawn.js"></script>
   <script src="js/player.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/bestiary.js"></script>
   <script src="js/voyage.js"></script>
   <script src="js/game.js"></script>
 </body>

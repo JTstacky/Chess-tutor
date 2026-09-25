@@ -21,18 +21,47 @@ const UI = {
     for (const b of document.querySelectorAll("#menu-buttons button")) b.onclick = () => { SFX.unlock(); this.togglePanel(b.dataset.panel); };
     for (const b of document.querySelectorAll(".ab")) {
       const act = b.dataset.act;
+      // the blade button only shows the charge: the blade itself is the click / the right thumb
+      if (act === "sword") continue;
       const fire = (e) => {
         e.preventDefault(); SFX.unlock();
-        if (act === "bolt") { Input.held.bolt = true; return; }
         Game.onKey({ net: "Net", dash: "ShiftLeft", stomp: "KeyC", charge: "KeyG", recall: "KeyR", horn: "KeyF", stance: "Stance" }[act]);
       };
       b.addEventListener("touchstart", fire, { passive: false });
       b.addEventListener("mousedown", fire);
-      const up = () => { if (act === "bolt") Input.held.bolt = false; };
-      b.addEventListener("touchend", up); b.addEventListener("mouseup", up); b.addEventListener("mouseleave", up);
     }
     this.el.panel.addEventListener("mousedown", (e) => { if (e.target === this.el.panel) this.togglePanel(this.openPanel); });
+    const full = this.$("btn-full");
+    if (full) { if (!document.fullscreenEnabled) full.remove(); else full.onclick = () => { SFX.unlock(); this.toggleFullscreen(); }; }
     this.mapCtx = this.el.minimap.getContext("2d");
+  },
+
+  // Touch mode (phones, tablets): the status box loses its chrome, labels and numbers (bare bars, the level as
+  // a badge on the health bar), the frenzy meter stacks under it and the menu buttons go under the minimap, so
+  // the corners hold everything and the middle of the screen stays clear for the fight.
+  touchLayout() {
+    if (this.$("hud-left")) return;
+    const st = this.$("hud-status"), left = document.createElement("div");
+    left.id = "hud-left"; st.parentNode.insertBefore(left, st); left.appendChild(st); left.appendChild(this.el.frenzy);
+    const hpRow = this.el["hp-fill"].parentNode.parentNode;
+    hpRow.insertBefore(this.el["lv-lbl"], hpRow.firstChild);
+    this.$("hud-right").appendChild(this.$("menu-buttons"));
+    for (const b of document.querySelectorAll("#menu-buttons button")) b.lastChild.textContent = { horde: "Horde", upgrades: "Shop", pause: "Menu" }[b.dataset.panel];   // short enough for three across
+    this.dirtyHud = true;
+    this.layoutPad();
+    if (this.openPanel) this.renderPanel();
+  },
+  // the ability pad's height, for the prompt and messages to stack above it (touch only; a CSS variable)
+  layoutPad() {
+    if (!Input.touch) return;
+    const pad = this.$("abilities");
+    if (pad) this.el.hud.style.setProperty("--pad-h", pad.offsetHeight + "px");
+  },
+  toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen({ navigationUI: "hide" }).then(() => { if (screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(() => {}); }).catch(() => {});
+    } catch (e) { /* not allowed here */ }
   },
 
   showTitle(hasSave) {
@@ -59,7 +88,7 @@ const UI = {
     const d = document.createElement("div");
     d.className = "toast"; d.textContent = text;
     this.el.toasts.appendChild(d);
-    while (this.el.toasts.children.length > 3) this.el.toasts.firstChild.remove();
+    while (this.el.toasts.children.length > (Input.touch ? 2 : 3)) this.el.toasts.firstChild.remove();   // a phone shows two at most
     setTimeout(() => d.remove(), 2700);
   },
   regionToast(r) {
@@ -94,7 +123,7 @@ const UI = {
     e["rn-fill"].style.width = (next ? clamp(((Game.renown - r.renown) / (next.renown - r.renown)) * 100, 0, 100) : 100) + "%";
     const mt = Game.mechTier();
     e["rn-text"].textContent = (Game.rankIndex + 1) + " · " + r.name + (mt ? " · " + MECH_TIERS[mt].name : "") + (Game.rankLocked() ? " · 🔒 fell a Titan" : "");
-    e["lv-lbl"].textContent = "LV " + Game.binderLevel;
+    e["lv-lbl"].textContent = Input.touch ? String(Game.binderLevel) : "LV " + Game.binderLevel;
     const need = Game.binderXpNeed(Game.binderLevel);
     e["xp-fill"].style.width = clamp((Game.binderXp / need) * 100, 0, 100) + "%";
     e["xp-text"].textContent = Math.floor(Game.binderXp) + " / " + need + " xp";
@@ -113,7 +142,7 @@ const UI = {
     let up = 0; for (const u of Game.army) if (!u.down) up++;
     e["horde-count"].textContent = "HORDE " + up + "/" + Game.armyCap();
     e["den-count"].textContent = "DEN " + Game.reserve.length;
-    e.essence.textContent = "◆ " + Game.essence;
+    e.essence.innerHTML = Icons.html("essence", "Essence — spent on upgrades at your ship") + Game.essence;
     let pips = ""; for (let i = 0; i < REGIONS.length; i++) pips += '<i class="' + (Game.titansDefeated[i] ? "on" : "") + '" style="--c:' + RUNE_COL[REGIONS[i].id] + '"></i>';
     e.cores.innerHTML = "<span>" + Game.planet().name.toUpperCase() + "</span>" + pips;
     // upgrades affordable?
@@ -123,15 +152,20 @@ const UI = {
 
     // abilities
     const C = CONFIG.player;
-    const cds = { bolt: 0, net: p.netT / C.netCd, dash: p.dashCd / C.dashCd, stomp: p.stompCd / CONFIG.stompCd, charge: 0, recall: 0, horn: p.hornCd / (p.hornCdMax || C.hornCd) };
+    // the blade button fills with the heavy blow's charge instead of a cooldown
+    const cds = { sword: p.charging ? p.chargeK : 0, net: p.netT / C.netCd, dash: p.dashCd / C.dashCd, stomp: p.stompCd / CONFIG.stompCd, charge: 0, recall: 0, horn: p.hornCd / (p.hornCdMax || C.hornCd) };
+    let padChanged = false;
     for (const b of document.querySelectorAll(".ab")) {
       const act = b.dataset.act, f = clamp(cds[act] || 0, 0, 1);
       b.lastElementChild.style.height = f * 100 + "%";
-      b.classList.toggle("active", (act === "horn" && Game.hornT > 0) || (act === "charge" && Game.chargeT > 0));
+      b.classList.toggle("active", (act === "horn" && Game.hornT > 0) || (act === "charge" && Game.chargeT > 0) || (act === "sword" && (p.chargeK >= 1 || p.riposte > 0)));
       b.classList.toggle("off", ((act === "charge" || act === "recall" || act === "horn") && !Game.army.length) || (act === "stomp" && !Game.mechTier()));
+      // on a phone the pad only shows Stomp once there is a frame to stomp with
+      if (act === "stomp") { const gone = Input.touch && !Game.mechTier(); if (b.classList.contains("gone") !== gone) { b.classList.toggle("gone", gone); padChanged = true; } }
       if (act === "stance") { const S = Game.stance(); b.children[1].textContent = S.name; b.style.borderColor = S.color; }
       if (act === "dash") b.classList.toggle("active", p.riposte > 0);
     }
+    if (padChanged) this.layoutPad();
     // resonance chips: every element bond the marching horde has, and how deep it runs
     const rk = Object.keys(Game.resonance).map((id) => id + Game.resonance[id]).join(",");
     if (rk !== this.lastRes) {
@@ -154,7 +188,8 @@ const UI = {
   objectiveHtml() {
     const g = Game;
     if (g.fuelled()) return "<b>Fly home</b><small>All six Titan cores are aboard. Bind whatever else you want to sell — then walk up to your <b>rocket</b> at camp (green arrow) and press <b>Enter</b>. Only your catch comes with you.</small>";
-    if (g.stats.bound === 0) return "<b>Bind your first beast</b><small>Hold click to blast a wild beast with your staff. When it is weak — or dazed — throw your net with right-click or Space.</small>";
+    if (g.stats.bound === 0) return Input.touch ? "<b>Bind your first beast</b><small>Tap your right thumb at a wild beast to cut it with your blade; your drone joins in. When it is weak — or dazed — tap NET.</small>"
+      : "<b>Bind your first beast</b><small>Click at a wild beast to cut it with your blade; your drone joins in. When it is weak — or dazed — throw your net with right-click or Space.</small>";
     if (g.stats.bound < 3) return "<b>Grow your pack (" + g.stats.bound + "/3)</b><small>Your beasts fight on their own. Beasts they defeat are <b>dazed</b>: net them or simply walk over them to bind.</small>";
     const nt = g.nextTitanIndex();
 
@@ -228,11 +263,11 @@ const UI = {
 
   tabsHtml() {
     const t = (id, label) => '<button data-tab="' + id + '" class="' + (this.openPanel === id ? "on" : "") + '">' + label + "</button>";
-    return '<div class="tabs">' + t("horde", "Horde") + t("upgrades", "Upgrades") + t("journey", "Journey") + t("pause", "Menu") + '<button data-tab="" class="close">Resume ✕</button></div>';
+    return '<div class="tabs">' + t("horde", "Horde") + t("upgrades", "Upgrades") + t("bestiary", "Bestiary") + t("journey", "Journey") + t("pause", "Menu") + '<button data-tab="" class="close">Resume ✕</button></div>';
   },
 
   cardHtml(u, where) {
-    const types = u.sp.types.map((t) => '<i style="background:' + TYPES[t].color + '" title="' + TYPES[t].name + '"></i>').join("");
+    const types = Icons.types(u.sp.types);
     const role = u.sp.heal ? "heal" : u.style === "melee" ? "melee" : u.style === "lob" ? "splash" : "ranged";
     return '<div class="card' + (u.down ? " down" : "") + (u.titan ? " titan" : "") + '" data-uid="' + u.uid + '" data-where="' + where + '" title="' + u.sp.flavor.replace(/"/g, "&quot;") + '">' +
       '<div class="ty">' + types + '</div><div class="role">' + role + "</div>" +
@@ -256,7 +291,7 @@ const UI = {
       let c = 0; for (const u of g.army) if (u.sp.types.some((t) => R.types.indexOf(t) >= 0)) c++;
       const l = g.resonance[R.id] || 0, col = R.id === "stone" ? TYPES.rock.color : TYPES[R.id].color;
       const need1 = Math.max(2, Math.ceil(n * 0.25)), need2 = Math.max(4, Math.ceil(n * 0.5));
-      h += '<div class="rescard' + (l ? " on" : "") + '" style="--c:' + col + '"><b>' + R.name + (l ? " " + (l === 2 ? "II" : "I") : "") + "</b><small>" + R.types.map((t) => TYPES[t].name).join(" / ") + " · " + c + " marching — " +
+      h += '<div class="rescard' + (l ? " on" : "") + '" style="--c:' + col + '"><b>' + Icons.types(R.types.slice(0, 1)) + R.name + (l ? " " + (l === 2 ? "II" : "I") : "") + "</b><small>" + R.types.map((t) => TYPES[t].name).join(" / ") + " · " + c + " marching — " +
         (l === 2 ? "deep bond" : l === 1 ? need2 + " for II" : need1 + " for I") + "</small><small>" + R.desc(R.v[Math.max(0, l - 1)]) + (l ? "" : " (at I)") + "</small></div>";
     }
     return h + "</div>";
@@ -283,17 +318,17 @@ const UI = {
       h += res.length ? '<div class="cards">' + res.map((u) => this.cardHtml(u, "den")).join("") + "</div>" : '<div class="empty">Beasts bound while your horde is full wait here. Three of the same species and star rank fuse into one ★ beast: bigger, tougher, stronger.</div>';
     } else if (this.openPanel === "upgrades") {
       const here = g.atCamp();
-      h += "<h2>SHIP WORKSHOP</h2><div class='sub'>Spend essence <b style='color:#c8a0ff'>◆ " + g.essence + "</b> — earned from every beast and hunter your horde defeats. These last until you leave the planet.</div>" +
+      h += "<h2>SHIP WORKSHOP</h2><div class='sub'>Spend essence <b style='color:#c8a0ff'>" + Icons.html("essence") + g.essence + "</b> — earned from every beast and hunter your horde defeats. These last until you leave the planet.</div>" +
         (here ? "" : "<div class='notice'>⚠ Upgrades are fitted at your ship. Walk back to camp (white dot on the map) — or press <b>H</b> to be recalled" + (g.recallWait() ? " (beacon ready in " + g.recallWait() + "s)" : " (beacon ready)") + ".</div>") + "<div class='upgrades'>";
       for (const d of CONFIG.upgrades) {
         const lvl = g.upg(d.id), cost = g.upgradeCost(d.id), maxed = lvl >= d.max;
         let pips = ""; for (let i = 0; i < d.max; i++) pips += '<i class="' + (i < lvl ? "on" : "") + '"></i>';
         h += '<div class="upg"><div class="info"><div class="un">' + d.name + '</div><div class="ud">' + d.desc + '</div><div class="pips">' + pips + "</div></div>" +
-          '<button data-upg="' + d.id + '"' + (maxed || cost > g.essence || !here ? " disabled" : "") + ">" + (maxed ? "MAX" : "◆ " + cost) + "</button></div>";
+          '<button data-upg="' + d.id + '"' + (maxed || cost > g.essence || !here ? " disabled" : "") + ">" + (maxed ? "MAX" : Icons.html("essence") + cost) + "</button></div>";
       }
       h += "</div>";
       const m = g.meta, perm = FORGE.filter((d) => g.forge(d.id)).map((d) => d.name + " ×" + g.forge(d.id)).concat(SHIP.filter((d) => g.shipUpg(d.id)).map((d) => d.name + " ×" + g.shipUpg(d.id)));
-      h += "<h3>From the Hangar — permanent</h3><div class='sub'>¢ " + m.credits.toLocaleString() + " credits · ⬢ " + m.materials.toLocaleString() + " materials · " + (perm.length ? perm.join(" · ") : "nothing fitted yet. Fill the rocket's tanks with six Titan cores to fly to the Hangar: sell, harvest and breed your catch there.") + "</div>";
+      h += "<h3>From the Hangar — permanent</h3><div class='sub'>" + Icons.html("credits") + m.credits.toLocaleString() + " credits · " + Icons.html("materials") + m.materials.toLocaleString() + " materials · " + (perm.length ? perm.join(" · ") : "nothing fitted yet. Fill the rocket's tanks with six Titan cores to fly to the Hangar: sell, harvest and breed your catch there.") + "</div>";
     } else if (this.openPanel === "journey") {
       h += "<h2>PLANET " + (g.meta.planet + 1) + " — " + g.planet().name.toUpperCase() + "</h2><div class='sub'>Six regions, six Titans, six cores for the rocket (" + g.cores() + "/6). Fell a Titan, then bind it — a colossus for your horde, or a fortune at the Hangar." +
         (g.meta.planet ? " Beasts here are " + Math.round((g.planetMult() - 1) * 100) + "% tougher than on your first world." : "") + "</div><div class='journey'>";
@@ -314,15 +349,23 @@ const UI = {
       const mine = CONFIG.boons.filter((b) => g.boon(b.id));
       h += "</div><h3>Binder level " + g.binderLevel + " — boons</h3>" + (mine.length ? '<div class="boonlist">' + mine.map((b) => "<span>" + b.name + " <b>×" + g.boon(b.id) + "</b></span>").join("") + "</div>" : '<div class="empty">Level up to choose boons.</div>');
       h += "<h3>Record</h3><div class='sub'>Beasts bound " + g.stats.bound + " · foes defeated " + g.stats.defeated + " · fusions " + g.stats.fused + " · best frenzy " + g.frenzyBest + " · falls " + g.stats.deaths + "</div>";
+    } else if (this.openPanel === "bestiary") {
+      h += Bestiary.html();
     } else {
-      h += "<h2>PAUSED</h2><div style='margin:0 0 14px'><button class='btn' data-tab='' style='font-size:16px;padding:10px 26px'>▶ Resume (P / Esc)</button></div><div class='guide'><b>The job.</b> You are an intergalactic poacher. Strip this planet of its beasts, take the six Titans' cores to fuel your rocket, then fly to the Hangar to <b>sell</b>, <b>harvest</b> and <b>breed</b> your catch — and take the best six on to the next world.<br><b>Bind.</b> Blast wild beasts with your staff, then net them. The weaker they are, the surer the bind.<br>" +
+      h += "<h2>PAUSED</h2><div style='margin:0 0 14px'><button class='btn' data-tab='' style='font-size:16px;padding:10px 26px'>▶ Resume" + (Input.touch ? "" : " (P / Esc)") + "</button></div><div class='guide'><b>The job.</b> You are an intergalactic poacher. Strip this planet of its beasts, take the six Titans' cores to fuel your rocket, then fly to the Hangar to <b>sell</b>, <b>harvest</b> and <b>breed</b> your catch — and take the best six on to the next world.<br><b>Bind.</b> Cut wild beasts down with your blade while your drone covers you, then net them. The weaker they are, the surer the bind.<br>" +
         "<b>Command.</b> Bound beasts march with you and fight on their own. Anything they defeat is <b>dazed</b> — a guaranteed bind. Fell a pack's crowned <b>Alpha</b> and the whole pack submits.<br>" +
         "<b>Grow.</b> Renown raises your rank and the size of your horde. Three identical beasts fuse into a ★ beast. Fell the six Titans — and bind them.<br>" +
         "<b>Ascend.</b> Every level offers a boon (keys 1–3). Chain kills into a <b>Frenzy</b> for bonus XP and essence. Every <b>Titan core</b> is forged into your <b>Bindframe</b> — a bigger, stronger frame, and only a bigger frame can command a bigger horde (ranks lock until the next Titan falls). Frames <b>stomp</b> (C), trample small beasts underfoot, and the bigger ones simply <b>wade rivers, stride over rock ridges and cross the chasm</b> that wall off the deadlier regions. Essence upgrades are fitted at your <b>ship</b>, at camp.</div>" +
-        "<div class='guide' style='margin-top:8px'><b>Fight smart.</b> You always face the cursor: <b>Q / E</b> strafe around a foe while your staff stays on it. Dash <i>through</i> a blow at the last moment for a <b>Perfect Dodge</b> — time slows, the dash is ready again and your next shot is a <b>Riposte</b>. Pack <b>Alphas</b> wind up telegraphed charges, stomps, breaths and barrages — get out of the red. <b>Elites</b> (a ◆ and a coloured ring) carry a trait they keep once bound: a <b>Warded</b> one shrugs off damage until your net shatters its ward; a <b>Volatile</b> one explodes a moment after it is dazed. Set the horde's <b>stance</b> with 1 · 2 · 3, and march beasts that share an element for <b>Resonance</b> bonuses (Tab).</div>" +
-        "<h3>Controls</h3><div class='keys'><div><b>WASD / Arrows</b> move</div><div><b>Q / E</b> strafe left / right</div><div><b>Hold Left Click</b> staff bolts</div><div><b>Right Click / Space</b> throw net</div><div><b>Shift</b> dash (perfect dodge)</div>" +
-        "<div><b>G / Middle Click</b> charge to cursor</div><div><b>1 · 2 · 3</b> stance: swarm · guard · hunt</div><div><b>R</b> recall horde</div><div><b>F</b> war horn</div><div><b>Tab</b> horde · <b>U</b> workshop</div><div><b>C</b> stomp (Bindframe)</div><div><b>P</b> / <b>Esc</b> pause</div><div><b>H</b> recall to your ship</div><div><b>Enter</b> launch (at the rocket)</div><div><b>Mouse wheel</b> zoom</div></div>" +
+        "<div class='guide' style='margin-top:8px'><b>The blade.</b> Tap to strike: forehand, backhand, then a lunging thrust. <b>Hold</b> to wind up a heavy blow and release it; hold until the ring at your feet closes for a <b>charged</b> blow that throws everything in front of you into the air. <b>The drone</b> needs no button: it shoots whatever you are fighting, and every fifth bolt is a piercing Lance.</div>" +
+        "<div class='guide' style='margin-top:8px'><b>Fight smart.</b> " + (Input.touch ? "Move with your left thumb and strike with your right: you face where you tap, so you can circle a foe and cut it as you go." : "You always face the cursor: <b>Q / E</b> strafe around a foe while you keep cutting it.") + " Dash <i>through</i> a blow at the last moment for a <b>Perfect Dodge</b> — time slows, the dash is ready again and your next blade hit is a <b>Riposte</b>. Pack <b>Alphas</b> wind up telegraphed charges, stomps, breaths and barrages — get out of the red. <b>Elites</b> (a ◆ and a coloured ring) carry a trait they keep once bound: a <b>Warded</b> one shrugs off damage until your net shatters its ward; a <b>Volatile</b> one explodes a moment after it is dazed. Set the horde's <b>stance</b> with 1 · 2 · 3, and march beasts that share an element for <b>Resonance</b> bonuses (Tab).</div>" +
+        (Input.touch ? "<h3>Touch controls</h3><div class='keys'><div><b>Left thumb</b> move (the stick appears where you touch)</div><div><b>Right thumb</b> tap to strike there · hold, then release for a heavy blow</div>" +
+          "<div><b>Drone</b> fires on its own at whatever you fight</div><div><b>NET</b> throw at your thumb, or the nearest dazed beast</div><div><b>DASH</b> dash — through a blow for a perfect dodge</div>" +
+          "<div><b>STOMP</b> ground-slam (appears with your first Bindframe)</div><div><b>CHARGE</b> send the horde where you aim</div><div><b>RECALL</b> call the horde back</div><div><b>HORN</b> horde buff</div>" +
+          "<div><b>STANCE</b> cycle swarm · guard · hunt</div><div><b>Green button</b> beacon home / launch the rocket</div><div><b>Tap</b> skip the rocket cutscenes</div></div>" : "") +
+        (Input.touch ? "" : "<h3>Controls</h3><div class='keys'><div><b>WASD / Arrows</b> move</div><div><b>Q / E</b> strafe left / right</div><div><b>Left Click / J</b> blade: tap quick, hold heavy</div><div><b>Right Click / Space</b> throw net</div><div><b>Shift</b> dash (perfect dodge)</div>" +
+        "<div><b>G / Middle Click</b> charge to cursor</div><div><b>1 · 2 · 3</b> stance: swarm · guard · hunt</div><div><b>R</b> recall horde</div><div><b>F</b> war horn</div><div><b>Tab</b> horde · <b>U</b> workshop</div><div><b>C</b> stomp (Bindframe)</div><div><b>P</b> / <b>Esc</b> pause</div><div><b>H</b> recall to your ship</div><div><b>Enter</b> launch (at the rocket)</div><div><b>Mouse wheel</b> zoom</div></div>") +
         '<h3>Options</h3><div class="btn-row"><button class="btn ' + (g.settings.muted ? "" : "on") + '" data-do="mute">Sound: ' + (g.settings.muted ? "OFF" : "ON") + "</button>" +
+        (Input.touch && document.fullscreenEnabled ? '<button class="btn" data-do="full">' + (document.fullscreenElement ? "Leave full screen" : "⛶ Full screen") + "</button>" : "") +
         '<button class="btn" data-do="camp">Recall to ship (H)' + (g.recallWait() ? " — " + g.recallWait() + "s" : "") + '</button><button class="btn danger" data-do="newgame">' + (this.confirmWipe ? "Really erase everything?" : "New journey (erase save)") + "</button></div>";
     }
     el.innerHTML = h;
@@ -332,6 +375,7 @@ const UI = {
     for (const c of el.querySelectorAll(".card")) c.onclick = () => this.cardClick(+c.dataset.uid, c.dataset.where);
     for (const b of el.querySelectorAll("[data-do]")) b.onclick = () => this.panelAction(b.dataset.do);
     for (const b of el.querySelectorAll("[data-stance]")) b.onclick = () => { Game.setStance(b.dataset.stance); this.renderPanel(); };
+    Bestiary.bind(el);
   },
 
   cardClick(uid, where) {
@@ -358,6 +402,7 @@ const UI = {
     } else if (act === "autofill") { g.settings.autoFill = !g.settings.autoFill; g.afterRosterChange(); }
     else if (act === "autofuse") { g.settings.autoFuse = !g.settings.autoFuse; g.afterRosterChange(); }
     else if (act === "fuse") { if (!g.autoFuse()) this.toast("No three-of-a-kind to fuse"); g.afterRosterChange(); }
+    else if (act === "full") { this.toggleFullscreen(); setTimeout(() => this.renderPanel(), 300); return; }
     else if (act === "mute") { g.settings.muted = !g.settings.muted; SFX.setMuted(g.settings.muted); }
     else if (act === "camp") { this.togglePanel(this.openPanel); g.recallToShip(); return; }
     else if (act === "newgame") {

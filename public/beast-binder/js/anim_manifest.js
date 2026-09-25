@@ -249,7 +249,6 @@ const ANIM_MANIFEST = {
       "walk_up"
     ],
     "lumina": [
-      "attack",
       "idle",
       "idle_down",
       "idle_up",
@@ -515,7 +514,6 @@ const ANIM_MANIFEST = {
       "walk_up"
     ],
     "voltling": [
-      "attack",
       "idle",
       "idle_down",
       "idle_up",
@@ -524,7 +522,12 @@ const ANIM_MANIFEST = {
       "walk_up"
     ],
     "wispwraith": [
-      "idle_up"
+      "idle",
+      "idle_down",
+      "idle_up",
+      "walk",
+      "walk_down",
+      "walk_up"
     ],
     "zapshock": [
       "idle",

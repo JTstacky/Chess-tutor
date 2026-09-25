@@ -155,19 +155,13 @@ button { font-family: var(--font); color: var(--text); cursor: pointer; }
 .howto { margin: 30px auto 0; max-width: 720px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: center; font-size: 13px; color: var(--dim); text-shadow: 1px 1px 0 #000; }
 .howto b { color: var(--cyan); }
 
-/* ---------- touch ---------- */
-body.touch #abilities { left: auto; right: 12px; bottom: 14px; transform: none; display: grid; grid-template-columns: repeat(3, 72px); gap: 8px; }
-body.touch .ab { width: 72px; height: 64px; } body.touch .ab .key { display: none; } body.touch .ab .name { bottom: 24px; font-size: 12px; color: var(--text); }
-body.touch .howto, body.touch #menu-buttons .key { display: none; }
-body.touch #menu-buttons { left: 12px; bottom: auto; top: 128px; flex-direction: column; }
-body.touch #frenzy { left: 296px; top: 12px; }
+/* ---------- small desktop windows (the phone layout is the body.touch section below) ---------- */
 body.touch #stick.on { display: block; }
 @media (max-height: 520px) {
   #hud-status { width: 200px; padding: 5px 7px; left: 8px; top: 8px; } #hud-status .row { margin-bottom: 3px; } .bar { height: 13px; } .bar b { line-height: 9px; font-size: 9px; }
   #hud-right { width: 108px; right: 8px; top: 8px; } .mapbox { padding: 4px; } #minimap { width: 96px; height: 96px; } #region-name { font-size: 9px; margin-top: 3px; }
   #objective { display: none; }
-  body.touch #abilities { grid-template-columns: repeat(3, 62px); gap: 6px; right: 8px; bottom: 8px; } body.touch .ab { width: 62px; height: 46px; } body.touch .ab .name { bottom: 16px; font-size: 10.5px; }
-  body.touch #menu-buttons { top: 96px; left: 8px; gap: 4px; } body.touch #frenzy { left: 216px; top: 8px; } #frenzy { top: 100px; } #frenzy-count { font-size: 22px; }
+  #frenzy { top: 100px; } #frenzy-count { font-size: 22px; }
   #boons { gap: 8px; } #boon-title { font-size: 22px; } .boon { width: 180px; min-height: 0; padding: 10px; } .boon .bd { min-height: 0; font-size: 12px; } .boon .bn { font-size: 15px; margin: 4px 0; } #menu-buttons button { padding: 5px 8px; font-size: 11px; }
   #banner { top: 22%; padding: 8px 0; } #banner-title { font-size: 22px; letter-spacing: 2px; } #banner-sub { font-size: 12px; }
   #region-toast .rn { font-size: 18px; } #bossbar { width: 40vw; }
@@ -176,7 +170,7 @@ body.touch #stick.on { display: block; }
 @media (max-width: 760px) {
   #hud-status { width: 210px; } #hud-right { width: 118px; } #minimap { width: 98px; height: 98px; } #objective { display: none; }
   #banner-title { font-size: 22px; } #region-toast .rn { font-size: 20px; }
-  body:not(.touch) .ab { width: 52px; height: 50px; } #bossbar { top: 96px; width: 80vw; }
+  body:not(.touch) .ab { width: 52px; height: 50px; } body:not(.touch) #bossbar { top: 96px; width: 80vw; }
 }
 
 /* ---------- story HUD: Titan cores, rocket prompt, workshop notice ---------- */
@@ -272,3 +266,138 @@ body.touch #prompt { bottom: 170px; }
 .rescard.on { border-color: var(--c); opacity: 1; box-shadow: inset 0 0 12px -4px var(--c); }
 .rescard b { color: var(--c); font-size: 12px; } .rescard small { display: block; color: var(--dim); font-size: 10.5px; line-height: 1.3; }
 .affix { color: var(--c); margin-left: 3px; text-shadow: 0 0 6px var(--c); }
+
+/* ---------- touch / phone mode ----------
+   body.touch is set when the page loads on a phone or tablet (Input.isMobile), or on the first touch anywhere.
+   UI.touchLayout then strips the status box down to bare bars (no box, no labels, no numbers; the level is a
+   badge on the health bar), stacks the frenzy meter under it and the menu buttons under the minimap, so the
+   HUD lives in two small corners. Messages sit top-centre between them, the rocket prompt above the pad
+   (--pad-h is measured by UI.layoutPad). Every rule here is scoped to body.touch: desktop is untouched. */
+body:not(.touch) .touch-only { display: none !important; }
+body.touch { -webkit-touch-callout: none; }
+body.touch #hud { inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); --pad-h: 106px; }
+/* top-left: bars only */
+body.touch #hud-left { position: absolute; left: 8px; top: 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+body.touch #hud-status { position: static; width: 172px; padding: 0; background: none; border: none; box-shadow: none; }
+body.touch #hud-status .row { margin-bottom: 3px; gap: 4px; }
+body.touch .lbl { display: none; }
+body.touch #lv-lbl { display: flex; align-items: center; justify-content: center; width: 18px; height: 12px; font-size: 9px; color: #06140c; background: #9dffb0; border: 1px solid var(--ink); letter-spacing: 0; }
+body.touch .bar { height: 12px; border-width: 1px; outline: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5); }
+body.touch .bar.xp, body.touch .bar.renown { height: 5px; }
+body.touch .bar b { display: none; }
+body.touch .stats { font-size: 10.5px; text-shadow: 1px 1px 0 #000; justify-content: flex-start; gap: 12px; }
+body.touch #den-count { display: none; }
+body.touch #cores { gap: 3px; } body.touch #cores span { display: none; } body.touch #cores i { width: 9px; height: 9px; border-width: 1px; }
+body.touch #resonance { font-size: 8.5px; gap: 3px; } body.touch #resonance span { padding: 0 3px; } body.touch #resonance small { display: none; }
+body.touch #frenzy { position: static; } body.touch #frenzy-count { font-size: 20px; } body.touch #frenzy-count small { font-size: 9px; letter-spacing: 1px; margin-left: 4px; }
+body.touch #frenzy-mult { display: none; } body.touch #frenzy .fbar { width: 100px; height: 4px; margin-top: 3px; }
+/* top-right: the minimap and three small menu buttons */
+body.touch #hud-right { width: 108px; right: 8px; top: 8px; gap: 4px; }
+body.touch .mapbox { padding: 3px; box-shadow: none; } body.touch #minimap { width: 100px; height: 100px; } body.touch #region-name { display: none; }
+body.touch #objective { display: none; }
+body.touch #menu-buttons { position: static; display: flex; flex-direction: row; gap: 3px; }
+body.touch #menu-buttons button { flex: 1; min-width: 0; padding: 7px 0; font-size: 9px; letter-spacing: 0.2px; box-shadow: none; text-transform: uppercase; }
+body.touch #menu-buttons .key { display: none; }
+/* the ability pad: bottom right, three across (Stomp joins once there is a frame); the blade is the right thumb */
+body.touch #abilities { left: auto; right: 8px; bottom: 8px; transform: none; display: grid; grid-template-columns: repeat(3, 60px); gap: 6px; }
+body.touch .ab { width: 60px; height: 50px; box-shadow: none; border-radius: 6px; background: rgba(14, 18, 32, 0.72); }
+body.touch .ab.gone, body.touch .ab[data-act="sword"] { display: none; }
+body.touch .ab .key { display: none; }
+body.touch .ab .name { top: 50%; bottom: auto; transform: translateY(-50%); font-size: 10.5px; color: var(--text); letter-spacing: 0.3px; }
+/* messages: top centre, below the corners; the rocket prompt above the pad */
+body.touch #bossbar { top: 164px; width: min(74vw, 360px); } body.touch #boss-name { font-size: 11px; margin-bottom: 2px; } body.touch .bar.boss { height: 8px; }
+body.touch #toasts { top: 164px; bottom: auto; width: 92vw; gap: 3px; } body.touch #bossbar:not(.hidden) ~ #toasts { top: 202px; }
+body.touch .toast { font-size: 10.5px; text-align: center; padding: 3px 8px; box-shadow: none; }
+body.touch #prompt { bottom: calc(var(--pad-h) + 24px); font-size: 12px; padding: 8px 14px; max-width: 92vw; }
+body.touch #banner { top: 34%; padding: 8px 0; } body.touch #banner-title { font-size: 22px; letter-spacing: 2px; } body.touch #banner-sub { font-size: 12px; padding: 0 12px; }
+body.touch #region-toast { top: 56%; } body.touch #region-toast .rn { font-size: 20px; } body.touch #region-toast .rl { font-size: 11px; }
+/* the title: touch controls instead of keys, and a full-screen button */
+body.touch .howto { display: none; }
+body.touch .howto.howto-touch { display: flex; margin-top: 22px; }
+body.touch .title-card { padding: 16px max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left)); }
+body.touch .big { padding: 12px 24px; font-size: 18px; }
+body.touch .big.alt { border-color: var(--edge-hi); background: #182040; }
+/* boon cards and panels fill a phone */
+body.touch .boon:hover { transform: none; }
+body.touch #panel-inner { width: 100%; height: 100%; max-height: none; border: none; box-shadow: none; padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 16px max(12px, env(safe-area-inset-left)); }
+body.touch .tabs { position: sticky; top: -12px; z-index: 2; background: #101528; margin: -12px 0 10px; padding: 12px 0 8px; }
+body.touch .tabs button, body.touch .btn { padding: 9px 12px; }
+body.touch .cards { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+body.touch .keys { grid-template-columns: 1fr; } body.touch .keys b { min-width: 110px; }
+/* the Hangar scrolls as one page on a phone instead of squeezing three scroll boxes into it */
+body.touch #base-ui { overflow-y: auto; touch-action: pan-y; padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)); }
+@media (max-width: 900px), (max-height: 600px) {
+  body.touch .bmain { flex: none; flex-direction: column; }
+  body.touch .bleft, body.touch .bright { flex: none; overflow: visible; max-height: none; width: auto; }
+  body.touch .bhead { flex-wrap: wrap; gap: 8px; } body.touch .res span { min-width: 0; font-size: 15px; padding: 6px 10px; }
+  body.touch .bfoot { position: sticky; bottom: 0; z-index: 2; background: rgba(5, 6, 14, 0.94); padding: 8px 0 max(8px, env(safe-area-inset-bottom)); }
+  body.touch .bfoot .launch { margin-left: 0; font-size: 15px; padding: 11px 16px; }
+}
+@media (orientation: portrait) {
+  body.touch #boons { gap: 12px; justify-content: flex-start; padding-top: max(24px, env(safe-area-inset-top)); overflow-y: auto; }
+  body.touch #boon-title { font-size: 28px; }
+  body.touch .boon { width: 88vw; min-height: 0; padding: 12px 14px; } body.touch .boon .bd { min-height: 0; } body.touch .boon .bn { margin: 6px 0; font-size: 18px; }
+}
+@media (orientation: landscape) {
+  /* landscape: a four-wide pad, messages in the gap between the corners, the rocket prompt bottom-centre left of the pad */
+  body.touch #abilities { grid-template-columns: repeat(4, 58px); }
+  body.touch .ab { width: 58px; height: 46px; } body.touch .ab .name { font-size: 10px; }
+  body.touch #bossbar, body.touch #toasts { top: 8px; left: 190px; right: 126px; width: auto; transform: none; }
+  body.touch #bossbar:not(.hidden) ~ #toasts { top: 46px; }
+  body.touch #prompt { bottom: 10px; left: 16px; right: 272px; transform: none; max-width: none; text-align: center; }
+  body.touch #banner { top: 26%; } body.touch #region-toast { top: 60%; }
+}
+body.touch .bfoot { gap: 6px; } body.touch .bfoot .btn:not(.launch) { padding: 7px 9px; font-size: 11.5px; }
+@media (orientation: portrait) { body.touch .bfoot .launch { width: 100%; } body.touch #region-toast { top: 44%; } }
+@media (orientation: landscape) and (max-height: 600px) { body.touch .bfoot { flex-wrap: nowrap; } body.touch .bfoot .launch { margin-left: auto; font-size: 13px; padding: 8px 12px; white-space: nowrap; } }
+@media (orientation: landscape) and (max-height: 430px) { body.touch #banner { top: 38%; } body.touch #region-toast { top: 64%; } }
+
+/* ---------- key art, icons, the Bestiary (appended; the touch rules above are untouched) ---------- */
+.ico { width: 14px; height: 14px; image-rendering: pixelated; vertical-align: -3px; margin-right: 3px; }
+#essence .ico, .res .ico { width: 16px; height: 16px; vertical-align: -3px; }
+.res .ico { width: 22px; height: 22px; vertical-align: -4px; margin-right: 6px; }
+.card .ty .ico { width: 14px; height: 14px; margin: 0; filter: drop-shadow(1px 1px 0 #000); }
+.rescard b .ico { width: 13px; height: 13px; vertical-align: -2px; }
+/* title: the key art behind a darkened band, the logo stacked in two lines */
+#title { background: #0c101c; }
+.title-art { position: absolute; inset: 0; background: url("assets/ui/title.jpg") center 30% / cover no-repeat; image-rendering: auto; animation: artin 1.6s ease-out; }
+@keyframes artin { from { opacity: 0; transform: scale(1.04); } }
+.title-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6, 8, 18, 0.55) 0%, rgba(6, 8, 18, 0.15) 30%, rgba(6, 8, 18, 0.25) 60%, rgba(6, 8, 18, 0.85) 100%); }
+.title-card { position: relative; z-index: 1; padding: 20px 20px 24px; margin-top: min(14vh, 120px); }
+#title h1 { font-size: clamp(38px, 8vw, 84px); line-height: 0.95; letter-spacing: 6px; color: #ffe27a; text-shadow: 0 0 22px rgba(255, 180, 60, 0.35), 3px 3px 0 #a8501a, 6px 6px 0 #3a1408, 8px 8px 0 #000; }
+#title h1 span { display: inline-block; }
+#title .tag { margin-top: 14px; }
+.title-buttons .big { background: rgba(28, 36, 90, 0.92); }
+@media (max-height: 560px) { .title-card { margin-top: 0; } #title h1 { font-size: 34px; } .tag, .tag2 { display: none; } }
+/* the Hangar: a generated dock behind the panels; the canvas only draws the planet in its window */
+#base { background: #05060e url("assets/ui/hangar.jpg") center / cover no-repeat; }
+/* the pause menu's key table: keys never wrap onto a second line */
+.keys { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.keys b { min-width: 118px; white-space: nowrap; }
+/* Bestiary */
+.bfilters { gap: 4px; margin-bottom: 4px; } .bfilters .btn { padding: 4px 8px; font-size: 11.5px; } .bfilters .btn.on { border-color: var(--gold); color: var(--gold); }
+.bfilters .btn .ico { margin-right: 4px; }
+.bgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+.bent { position: relative; background: #161c36; border: 2px solid var(--edge); padding: 8px 8px 8px; text-align: center; font-size: 11px; border-top: 3px solid var(--tc); }
+.bent.titan { background: #2a2410; }
+.bent .thumb { width: 100%; height: 56px; }
+.bent.unknown .thumb img { filter: brightness(0) saturate(0); opacity: 0.35; }
+.bent.sighted .thumb img { filter: brightness(0.45) saturate(0.3); }
+.bent.unknown { opacity: 0.7; }
+.bent .btop { display: flex; justify-content: space-between; margin-bottom: 2px; }
+.bent .btier { color: var(--tc); font-size: 8px; letter-spacing: 1px; }
+.bent .bown { color: var(--green); font-weight: bold; font-size: 10px; }
+.bent .bnm { font-weight: bold; font-size: 12.5px; margin-top: 3px; }
+.bent .bty { margin: 3px 0; } .bent .bty .ico { width: 14px; height: 14px; margin: 0 1px; }
+.bent .bmv { color: var(--dim); } .bent .bmv b { color: var(--text); }
+.bent .bst { display: grid; grid-template-columns: 24px 1fr; gap: 2px 4px; align-items: center; margin: 5px 0 3px; }
+.bent .bst small { font-size: 8px; color: var(--dim); text-align: right; letter-spacing: 0.5px; }
+.bent .sb { display: block; height: 5px; background: #05070e; border: 1px solid var(--edge); } .bent .sb i { display: block; height: 100%; background: var(--cyan); }
+.bent .bfl { color: var(--dim); font-size: 10px; line-height: 1.3; margin-top: 4px; font-style: italic; }
+.bent .breg { margin-top: 5px; font-size: 9.5px; color: var(--gold); letter-spacing: 0.3px; } .bent .breg.titan { color: #ffb03a; font-weight: bold; }
+body.touch .bgrid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+/* title legibility over the key art; the Hangar's panels let the dock and the planet show through */
+.title-card { background: radial-gradient(ellipse at center, rgba(6, 8, 18, 0.62), rgba(6, 8, 18, 0.3) 55%, transparent 75%); }
+.howto div { background: rgba(6, 8, 18, 0.55); padding: 2px 7px; border-radius: 3px; }
+.tag, .tag2 { text-shadow: 2px 2px 0 #000, 0 0 10px rgba(0, 0, 0, 0.9); } .tag2 { color: #c8d0e8; }
+.bleft { background: rgba(8, 11, 22, 0.58); } .bbox { background: rgba(8, 11, 22, 0.8); }

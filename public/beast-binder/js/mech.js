@@ -387,7 +387,7 @@ const Mech = {
     const rear = p.dir === "up" || p.dir === "updiag";
     // the cannon eases between hanging at rest and the aim; it stays up for a moment after each shot
     if (p.attackT > 0 || p.beamT > 0) p.gunT = 0.7; else if (p.gunT > 0) p.gunT -= 1 / 60;
-    const rest = Math.PI / 2, want = p.gunT > 0 ? p.aim : rest;
+    const rest = Math.PI / 2, want = p.gunT > 0 ? (p.gunAim !== undefined ? p.gunAim : p.aim) : rest;   // the cannon tracks its own target, not the blade
     if (p.gunA === undefined) p.gunA = rest;
     let dA = want - p.gunA; while (dA > Math.PI) dA -= TAU; while (dA < -Math.PI) dA += TAU;
     p.gunA += dA * (p.gunT > 0 ? 0.45 : 0.12);
@@ -575,16 +575,12 @@ const Mech = {
     // far arm (behind the body)
     const swing = moving ? Math.sin(phase) * 2 * s : 0;
     img(P.armB || P.arm, P.acx, P.armAy, -face * P.shoulderX * tx, shY - Y + swing, face > 0);
-    // rider in the open cockpit (hidden from the waist down by the rim)
+    // the pilot in the open cockpit: helmet and shoulders above the rim (BinderArt draws the suit)
     if (P.open) {
-      const fr = Sprites.frame(Sprites.player(), "idle", p.dir === "up" || p.dir === "updiag" ? "up" : "down", p.animT * 0.6);
-      if (fr) {
-        const H = 44, w = (fr.img.naturalWidth * H) / fr.img.naturalHeight;
-        const ry = Y + by - P.rimY * tx + 16;
-        ctx.save(); ctx.beginPath(); ctx.rect(X - 40, ry - H - 4, 80, H - 8); ctx.clip();
-        ctx.drawImage(fr.img, Math.round(X - w / 2), Math.round(ry - H), w, H);
-        ctx.restore();
-      }
+      const H = 44, ry = Y + by - P.rimY * tx + 16;
+      ctx.save(); ctx.beginPath(); ctx.rect(X - 40, ry - H - 4, 80, H - 8); ctx.clip();
+      BinderArt.bust(ctx, X, ry, p, time);
+      ctx.restore();
     }
     img(rear ? this.back(tier) : P.body, P.bcx, P.bbase, 0, by, false);
     // reactor core: a pulsing diamond in the chest, and a burning visor
@@ -668,7 +664,7 @@ const Mech = {
 
   // muzzle position for bolts, in world space
   muzzle(p, tier) {
-    const P = this.parts(tier), g = this.grow, gp = this.gunPose(p, P, p.aim);
+    const P = this.parts(tier), g = this.grow, gp = this.gunPose(p, P, p.gunAim !== undefined ? p.gunAim : p.aim);
     return { x: p.x + (gp.px + gp.ux * gp.len) * g, y: p.y + (gp.py + gp.uy * gp.len) * g };
   },
 };

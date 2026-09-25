@@ -14,6 +14,10 @@ const SFX = {
   // def:   { gap, rnd: pitch spread, L: [layers] }  or  { gap, rnd, alt: [[layers], [layers]] }
   DEFS: {
     // ---- the binder
+    swing:   { gap: 0.04, rnd: 0.12, alt: [[{ w: "noise", f: [1400, 260], t: 0.13, v: 0.09, a: 0.15 }, { w: "sine", f: [900, 300], t: 0.1, v: 0.04 }],
+                                           [{ w: "noise", f: [800, 2400], t: 0.11, v: 0.08, a: 0.3 }, { w: "triangle", f: [400, 1100], t: 0.08, v: 0.04 }]] },
+    heavy:   { gap: 0.1, rnd: 0.08, L: [{ w: "noise", f: [300, 2600], t: 0.26, v: 0.16, a: 0.3 }, { w: "sawtooth", f: [140, 60], t: 0.3, v: 0.09, flt: ["lowpass", 900, 200, 2] }, { w: "sine", f: [1200, 400], t: 0.12, v: 0.05, d: 0.08 }] },
+    charge:  { gap: 0.25, rnd: 0.03, L: [{ w: "sine", f: [220, 900], t: 0.9, v: 0.06, a: 0.7 }, { w: "sawtooth", f: [110, 440], t: 0.9, v: 0.03, a: 0.6, flt: ["lowpass", 400, 2400, 3] }, { w: "noise", f: [500, 2400], t: 0.9, v: 0.025, a: 0.6 }] },
     bolt:    { gap: 0.05, rnd: 0.06, alt: [[{ w: "square", f: [900, 330], t: 0.09, v: 0.08 }, { w: "noise", f: [3000, 900], t: 0.04, v: 0.05 }],
                                            [{ w: "sawtooth", f: [1040, 380], t: 0.08, v: 0.06 }, { w: "sine", f: [520, 260], t: 0.1, v: 0.06 }]] },
     lance:   { gap: 0.1, rnd: 0.04, L: [{ w: "sawtooth", f: [420, 1500], t: 0.07, v: 0.1 }, { w: "square", f: [1500, 180], t: 0.3, v: 0.1, d: 0.06, flt: ["lowpass", 4000, 500, 2] }, { w: "noise", f: [900, 200], t: 0.25, v: 0.12, d: 0.06 }] },
