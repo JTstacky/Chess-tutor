@@ -33,12 +33,13 @@ import {
   TOY_SWORD,
   WHITE_FLAG,
 } from './props';
+import { TEAM_ATTACKS, TEAM_ENDINGS } from './teamattacks';
 
 /** What kind of hit the attack lands, so the ending fits. */
-type Hit = 'launch' | 'bonk' | 'squash' | 'zap' | 'wet' | 'scare' | 'daze';
-type React = (hit: Hit) => Promise<void>;
-type Attack = { id: string; title: string; run: (s: Stage, A: Fighter, V: Fighter, react: React) => Promise<void> };
-type Ending = { id: string; fits: Hit[]; run: (s: Stage, V: Fighter, A: Fighter) => Promise<void> };
+export type Hit = 'launch' | 'bonk' | 'squash' | 'zap' | 'wet' | 'scare' | 'daze';
+export type React = (hit: Hit) => Promise<void>;
+export type Attack = { id: string; title: string; run: (s: Stage, A: Fighter, V: Fighter, react: React) => Promise<void> };
+export type Ending = { id: string; fits: Hit[]; run: (s: Stage, V: Fighter, A: Fighter) => Promise<void> };
 
 const pick = <T>(list: T[]): T => list[Math.floor(Math.random() * list.length)];
 
@@ -241,8 +242,11 @@ export const ENDINGS: Ending[] = [
 ];
 
 async function endWith(s: Stage, V: Fighter, A: Fighter, hit: Hit) {
-  const e = s.ending ? ENDINGS.find((x) => x.id === s.ending) : null;
-  await (e ?? pick(ENDINGS.filter((x) => x.fits.includes(hit)))).run(s, V, A);
+  // Often the loser leaves the way its theme character would (robots short-circuit, dinos go back in the egg…).
+  const own = TEAM_ENDINGS[s.team(V)];
+  const forced = s.ending ? (s.ending === 'team' ? own : ENDINGS.find((x) => x.id === s.ending)) : null;
+  const e = forced ?? (own && Math.random() < 0.4 ? own : pick(ENDINGS.filter((x) => x.fits.includes(hit))));
+  await e.run(s, V, A);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -984,28 +988,38 @@ export const ATTACKS: Record<PieceSymbol, Attack[]> = {
 
 export interface BattleChoice extends Battle {
   id: string;
+  weight: number; // how likely a random pick is
+  team?: boolean; // one of the attacking team's character moves
 }
 
-/** Every battle a pair can have: its own special one, plus the attacker's attacks. */
-export function battleOptions(a: PieceSymbol, v: PieceSymbol): BattleChoice[] {
+/**
+ * Every battle a pair can have: its own special one, the attacker's piece attacks, and (in a themed
+ * game) the attacking team's character moves, which are picked more often so battles fit the characters.
+ */
+export function battleOptions(a: PieceSymbol, v: PieceSymbol, team?: string): BattleChoice[] {
   const special = BATTLES[a + v] ?? BATTLES[`${a}p`];
+  const wrap = (atk: Attack) => (s: Stage, A: Fighter, V: Fighter) => atk.run(s, A, V, (hit) => endWith(s, V, A, hit));
   return [
-    { id: 'special', title: special.title, run: special.run },
-    ...ATTACKS[a].map((atk) => ({ id: atk.id, title: atk.title, run: (s: Stage, A: Fighter, V: Fighter) => atk.run(s, A, V, (hit) => endWith(s, V, A, hit)) })),
+    { id: 'special', title: special.title, run: special.run, weight: 1.5 },
+    ...ATTACKS[a].map((atk) => ({ id: atk.id, title: atk.title, run: wrap(atk), weight: 1 })),
+    ...(TEAM_ATTACKS[team ?? ''] ?? []).map((atk) => ({ id: `team-${atk.id}`, title: atk.title, run: wrap(atk), weight: 2.5, team: true })),
   ];
 }
 
 const recent = new Map<string, string[]>();
 
 /** A random battle for the pair, avoiding the last couple it had. `id` picks a specific one. */
-export function pickBattle(a: PieceSymbol, v: PieceSymbol, id?: string): BattleChoice {
-  const all = battleOptions(a, v);
+export function pickBattle(a: PieceSymbol, v: PieceSymbol, id?: string, team?: string): BattleChoice {
+  const all = battleOptions(a, v, team);
   const wanted = id && all.find((b) => b.id === id);
   if (wanted) return wanted;
-  const seen = recent.get(a + v) ?? [];
+  const key = `${team}${a}${v}`;
+  const seen = recent.get(key) ?? [];
   const fresh = all.filter((b) => !seen.includes(b.id));
-  const choice = pick(fresh.length ? fresh : all);
-  recent.set(a + v, [...seen, choice.id].slice(-2));
+  const pool = fresh.length ? fresh : all;
+  let r = Math.random() * pool.reduce((t, b) => t + b.weight, 0);
+  const choice = pool.find((b) => (r -= b.weight) <= 0) ?? pool[0];
+  recent.set(key, [...seen, choice.id].slice(-2));
   return choice;
 }
 

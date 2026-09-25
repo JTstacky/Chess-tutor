@@ -158,6 +158,11 @@ export class Stage {
     });
   }
 
+  /** The theme team a fighter belongs to, e.g. 'space-w' (robots). */
+  team(f: Fighter): string {
+    return `${this.theme.id}-${f.color}`;
+  }
+
   origin(f: Fighter, o: string) {
     f.inner.style.transformOrigin = o;
   }
@@ -1267,7 +1272,7 @@ export async function playBattle(
 ): Promise<void> {
   const s = new Stage(tl, theme, host.clientWidth);
   if (floor) s.root.classList.add('on-board');
-  const battle = pickBattle(attacker.type, victim.type, battleId);
+  const battle = pickBattle(attacker.type, victim.type, battleId, `${theme.id}-${attacker.color}`);
   s.ending = ending;
   const A = s.fighter(attacker.type, attacker.color, AX, 1);
   const V = s.fighter(victim.type, victim.color, VX, -1);

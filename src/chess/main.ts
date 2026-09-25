@@ -253,10 +253,10 @@ function arenaView(): HTMLElement {
         .join('');
     v.querySelector('[data-role="a"]')!.innerHTML = pick('a', side, attacker);
     v.querySelector('[data-role="v"]')!.innerHTML = pick('v', other(side), victim);
-    const options = battleOptions(attacker, victim);
+    const options = battleOptions(attacker, victim, `${lastTheme}-${side}`);
     if (!options.some((o) => o.id === battleId)) battleId = 'random';
     v.querySelector('.attack-chips')!.innerHTML = [{ id: 'random', title: '🎲 Random' }, ...options]
-      .map((o) => `<button class="chip ${o.id === battleId ? 'on' : ''}" data-attack="${o.id}">${o.id === 'special' ? '⭐ ' : ''}${o.title}</button>`)
+      .map((o) => `<button class="chip ${o.id === battleId ? 'on' : ''}" data-attack="${o.id}">${o.id === 'special' ? '⭐ ' : 'team' in o && o.team ? `${theme[side].pet} ` : ''}${o.title}</button>`)
       .join('');
     if (!arenaTl || arenaTl.skipped) {
       const title = options.find((o) => o.id === battleId)?.title ?? 'Random battle!';

@@ -256,3 +256,110 @@ export const PILLOW_STRETCHER = svg(
   0.2,
   `<rect x="0" y="2" width="40" height="3" rx="1.5" fill="#8a5a2b"/><rect x="4" y="0" width="32" height="4" rx="2" fill="#fff" stroke="#e89ac2" stroke-width="0.6"/>`,
 );
+
+// ---- team props (each theme's characters have their own gadgets) ----
+
+export const UFO = svg(
+  '0 0 40 22',
+  1.82,
+  1,
+  `${grad('ufo', '#e6ecf5', '#8a96ab')}
+  <ellipse cx="20" cy="9" rx="9" ry="7.5" fill="#bdf5ff" stroke="#2b5b7a" stroke-width="0.8" opacity="0.9"/>
+  <ellipse cx="17" cy="6" rx="2.6" ry="1.6" fill="#fff" opacity="0.8"/>
+  <ellipse cx="20" cy="13" rx="19" ry="5.5" fill="url(#ufo)" stroke="#39465c" stroke-width="0.9"/>
+  <circle cx="8" cy="13.5" r="1.4" fill="#ff5a6e"/><circle cx="16" cy="15" r="1.4" fill="#ffd23f"/><circle cx="24" cy="15" r="1.4" fill="#7cff8a"/><circle cx="32" cy="13.5" r="1.4" fill="#3ec1ff"/>`,
+);
+
+export const MAGNET = svg(
+  '0 0 26 24',
+  1.08,
+  1,
+  `<path d="M22 3 H11 C4 3 1 7.5 1 12 C1 16.5 4 21 11 21 H22 V15 H11 C8.5 15 7 13.8 7 12 C7 10.2 8.5 9 11 9 H22 Z" fill="#e63946" stroke="#6b0f0f" stroke-width="1" stroke-linejoin="round"/>
+  <rect x="18" y="3" width="6" height="6" fill="#d9dee4" stroke="#4a5560" stroke-width="0.8"/><rect x="18" y="15" width="6" height="6" fill="#d9dee4" stroke="#4a5560" stroke-width="0.8"/>`,
+);
+
+export const WING = svg(
+  '0 0 30 24',
+  1.25,
+  1,
+  `<path d="M28 20 C24 8 14 1 2 2 C6 6 5 9 3 11 C8 11 9 13 7 16 C12 15 14 17 13 21 C18 18 22 19 28 20 Z" fill="#8a3fc2" stroke="#2c0b47" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M28 20 L4 4 M28 20 L6 12 M28 20 L12 18" stroke="#2c0b47" stroke-width="0.7" opacity="0.7"/>`,
+);
+
+export const JAW_TOP = svg(
+  '0 0 34 14',
+  1,
+  0.41,
+  `<path d="M1 13 C4 3 18 0 33 4 L33 13 Z" fill="#5a7da3" stroke="#08121e" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M6 13 l2 -4 2 4 2 -4 2 4 2 -4 2 4 2 -4 2 4 2 -4 2 4 2 -4 2 4" fill="#fff" stroke="#08121e" stroke-width="0.5"/>`,
+);
+
+export const JAW_BOTTOM = svg(
+  '0 0 34 12',
+  1,
+  0.35,
+  `<path d="M1 1 C5 9 18 11 33 8 L33 1 Z" fill="#eef6ff" stroke="#08121e" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M7 1 l2 3.5 2 -3.5 2 3.5 2 -3.5 2 3.5 2 -3.5 2 3.5 2 -3.5 2 3.5 2 -3.5 2 3.5 2 -3.5" fill="#fff" stroke="#08121e" stroke-width="0.5"/>`,
+);
+
+export const WAVE = svg(
+  '0 0 60 44',
+  1.36,
+  1,
+  `${grad('wv', '#7fe0f8', '#1f6fb8')}
+  <path d="M0 44 V26 C8 10 26 0 42 4 C54 7 58 18 50 24 C44 28 36 22 40 16 C34 16 30 24 34 30 C36 34 44 36 50 34 C54 38 58 40 60 44 Z" fill="url(#wv)" stroke="#0b4a7a" stroke-width="1"/>
+  <path d="M42 4 C50 5 56 12 54 18 M22 10 q4 -2 8 0 M10 22 q4 -2 8 0" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <circle cx="46" cy="8" r="1.2" fill="#fff"/><circle cx="52" cy="12" r="0.9" fill="#fff"/>`,
+);
+
+export const PIPING_BAG = svg(
+  '0 0 32 16',
+  1,
+  0.5,
+  `<path d="M1 2 L24 6.5 L24 9.5 L1 14 Z" fill="#fff" stroke="#a8286a" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M3 5 L22 7.6 M3 11 L22 8.4" stroke="#ffc2e0" stroke-width="1"/>
+  <path d="M24 6 L30 8 L24 10 Z" fill="#c0c7cf" stroke="#4a5560" stroke-width="0.6"/>
+  <path d="M1 2 L1 14" stroke="#ff8fc8" stroke-width="3"/>`,
+);
+
+export const CANDY_CANE = svg(
+  '0 0 22 44',
+  0.5,
+  1,
+  `<path d="M6 43 V12 C6 2 20 2 20 12 V15" fill="none" stroke="#b5172e" stroke-width="6.4" stroke-linecap="round"/>
+  <path d="M6 43 V12 C6 2 20 2 20 12 V15" fill="none" stroke="#fff" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M6 43 V12 C6 2 20 2 20 12 V15" fill="none" stroke="#e63946" stroke-width="4.6" stroke-dasharray="3 3" stroke-linecap="butt"/>`,
+);
+
+export const DINO_TAIL = svg(
+  '0 0 50 18',
+  1,
+  0.36,
+  `${grad('dt', '#e6ffb8', '#8cc44a')}
+  <path d="M0 4 C16 3 34 6 50 14 C34 16 16 16 0 14 Z" fill="url(#dt)" stroke="#34520c" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M8 4 l3 -4 3 4 M20 4.5 l3 -3.5 3 4 M32 7 l2.5 -3 2.5 4" fill="#ffd35a" stroke="#34520c" stroke-width="0.7" stroke-linejoin="round"/>`,
+);
+
+export const TINY_ARM = svg(
+  '0 0 14 8',
+  1,
+  0.57,
+  `<path d="M0 3 C4 1 8 2 10 3.5 L13 2 M10 3.5 L13.5 4.5 M10 3.5 L12.5 6.5" stroke="#260902" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M0 3 C4 1 8 2 10 3.5 L13 2 M10 3.5 L13.5 4.5 M10 3.5 L12.5 6.5" stroke="#c0522d" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+);
+
+export const EGG = svg(
+  '0 0 24 30',
+  0.8,
+  1,
+  `${grad('egg', '#fffdf2', '#e9dcb0')}
+  <path d="M12 1 C19 1 23 11 23 18 C23 25 18 29 12 29 C6 29 1 25 1 18 C1 11 5 1 12 1 Z" fill="url(#egg)" stroke="#8a7a4a" stroke-width="1"/>
+  <circle cx="8" cy="12" r="1.8" fill="#9fd65a" opacity="0.8"/><circle cx="15" cy="20" r="2.4" fill="#9fd65a" opacity="0.8"/><circle cx="16" cy="9" r="1.2" fill="#9fd65a" opacity="0.8"/>
+  <ellipse cx="8" cy="7" rx="2" ry="3" fill="#fff" opacity="0.7"/>`,
+);
+
+export const FIN = svg('0 0 22 16', 1.37, 1, `<path d="M2 16 C8 12 12 5 13 0 C16 5 19 11 21 16 Z" fill="#5a7da3" stroke="#08121e" stroke-width="1" stroke-linejoin="round"/><path d="M6 15 q3 -5 6 -11" stroke="#8fb0d2" stroke-width="1" fill="none"/>`);
+
+export const HORN = svg('0 0 22 10', 1, 0.45, `<path d="M0 1.5 C8 2 16 3.5 22 5 C16 6.5 8 8 0 8.5 Z" fill="#fffbe6" stroke="#34520c" stroke-width="0.9" stroke-linejoin="round"/><path d="M6 2.5 v5 M12 3.4 v3.2" stroke="#d8cfa0" stroke-width="0.8"/>`);
+
+export const MARSHMALLOW = svg('0 0 16 22', 0.73, 1, `<path d="M8 22 V10" stroke="#8a5a2b" stroke-width="1.4"/><rect x="2" y="1" width="12" height="10" rx="4" fill="#fff" stroke="#c9a26b" stroke-width="0.8"/><path d="M3 4 q5 -3 10 0" stroke="#e8b070" stroke-width="1.4" fill="none"/>`);

@@ -16,8 +16,11 @@ A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) f
   Tower Sumo, Dance-Off, Royal Trapdoor…), and each piece type has five more attacks (`src/chess/attacks.ts`:
   slingshot, pogo stick, catapult, drawbridge, rocket throne, bee swarm, fireworks…), each finished with one of
   twelve random endings (twinkle into the sky, white flag, turned to stone, confetti pop, portal, balloons…).
-  A capture picks one at random and never repeats the last two for that pair; random taunts and victory poses
-  add more variety. Props are hand-drawn SVG (`src/chess/props.ts`). Tap to skip. Clocks pause while a battle plays. Settings can move
+  In themed games each team also fights in character (`src/chess/teamattacks.ts`): dragons breathe fire,
+  robots fire laser eyes, aliens beam you up in a UFO, sharks chomp, cupcakes throw sprinkles, T-rexes roar…
+  and the loser often leaves in character too (robots short-circuit, dinos go back into their egg). These
+  character moves are picked more often. A capture never repeats the last two battles for that pair; random
+  taunts and victory poses add more variety. Props are hand-drawn SVG (`src/chess/props.ts`). Tap to skip. Clocks pause while a battle plays. Settings can move
   the battles into a cartoon arena scene instead. Pick any pair in the **Battle Arena** menu.
 - **Themes** (`src/chess/themes.ts`): Classic, Fantasy (Unicorn Kingdom vs Dragon Clan), Space (Robot Squad vs
   Alien Crew), Ocean (Dolphin Reef vs Shark Squad), Candy (Cupcake Crew vs Choco Gang) and Dino (Tricera-Team vs
