@@ -263,3 +263,27 @@
 @media (prefers-reduced-motion: reduce) {
   .bt-eye, .bt-pet { animation: none; }
 }
+
+/* ---- props for the extra attacks ---- */
+.pivot-left > .bt-pc { transform: translate(0, -50%); }
+.pivot-bottom > .bt-pc { transform: translate(-50%, -100%); }
+.bt-marker { position: absolute; left: 50%; top: 0; width: 0; height: 0; }
+.gum > .bt-pc { width: 1em; height: 1em; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 8%, #ffb3d6 20%, #ff5fa2 80%); box-shadow: inset 0 0 0 0.04em #d63384; }
+.gummy { filter: drop-shadow(0 0 calc(var(--u) * 0.8) #ff5fa2) saturate(1.3); }
+.stone { filter: grayscale(1) brightness(0.85) contrast(1.2); }
+.portal > .bt-pc {
+  width: 1em;
+  height: 0.32em;
+  border-radius: 50%;
+  background: radial-gradient(#12002a 30%, #5b2a86 55%, #b57bff 75%, rgba(181, 123, 255, 0) 80%);
+  box-shadow: 0 0 0.12em #b57bff;
+  animation: bt-portal 0.8s linear infinite;
+}
+@keyframes bt-portal { to { filter: hue-rotate(360deg); } }
+.shockwave > .bt-pc { width: 1em; height: 0.3em; border-radius: 50%; border: 0.06em solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 0.1em rgba(0, 0, 0, 0.2); }
+.soundwave > .bt-pc { width: 0.5em; height: 1em; border-radius: 0 50% 50% 0 / 0 50% 50% 0; border: 0.07em solid #ff9f43; border-left: 0; }
+.confetto > .bt-pc { width: 0.6em; height: 1em; border-radius: 0.1em; }
+.spark > .bt-pc { width: 1em; height: 1em; border-radius: 50%; box-shadow: 0 0 0.6em currentColor; }
+.beam-star { height: calc(var(--u) * 5); margin-top: calc(var(--u) * -2.5); }
+.beam-star > div { background: linear-gradient(#fffbe0, #ffd23f 40%, #ff9f1c); box-shadow: 0 0 calc(var(--u) * 3) #ffd23f, 0 0 calc(var(--u) * 6) #fff3b0; }
+.beam-red > div { background: linear-gradient(#ffd6d6, #ff4757); box-shadow: 0 0 calc(var(--u) * 2) #ff6b81; }

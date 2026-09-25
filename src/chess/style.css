@@ -247,6 +247,7 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 .board-fx { position: absolute; inset: 0; pointer-events: none; z-index: 12; }
 .fx-p { position: absolute; width: 0; height: 0; }
 .fx-p span { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); line-height: 1; }
+.fx-carpet { position: absolute; height: 6%; margin-top: -3%; transform-origin: left center; border-radius: 3px; background: repeating-linear-gradient(90deg, #d62839 0 8px, #c1121f 8px 16px); box-shadow: inset 0 3px 0 #ffd45a, inset 0 -3px 0 #ffd45a; opacity: 0.9; }
 .fx-dust span { display: block; width: 1em; height: 1em; border-radius: 50%; background: rgba(255, 255, 255, 0.85); }
 .promotion-overlay { position: absolute; inset: 0; background: rgba(30, 20, 60, 0.45); z-index: 20; }
 .promotion { position: absolute; width: 12.5%; display: flex; flex-direction: column; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); }
@@ -462,6 +463,7 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 .piece-pick.on { border-color: var(--brand); background: #efeaff; }
 .piece-pick img { width: 100%; height: 100%; display: block; }
 .side-chips { margin-top: 14px; }
+.attack-chips .chip { font-size: 14px; padding: 6px 12px; }
 .arena-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .arena-buttons .fight { font-size: 22px; padding: 12px 32px; }
 

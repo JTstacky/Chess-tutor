@@ -3,6 +3,7 @@
 // attack, and nobody gets hurt: victims get bubbled, frogged, bounced or blown away.
 import './battle.css';
 import type { Color, PieceSymbol } from 'chess.js';
+import { pickBattle, taunt, victory } from './attacks';
 import { characterEyes } from './characters';
 import { sfx, type Sfx } from './sound';
 import { glowFilter, pieceSrc, type Theme } from './themes';
@@ -18,7 +19,7 @@ export interface Fighter {
   facing: 1 | -1;
 }
 
-type Mood = 'shock' | 'happy' | 'dizzy' | 'sleep' | 'angry' | null;
+export type Mood = 'shock' | 'happy' | 'dizzy' | 'sleep' | 'angry' | null;
 
 interface Opts {
   size?: number;
@@ -29,15 +30,15 @@ interface Opts {
   dur?: number;
 }
 
-const NAMES: Record<PieceSymbol, string> = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
+export const NAMES: Record<PieceSymbol, string> = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
 
 // Stage layout (units are percent of the stage width; the stage is square).
-const GROUND = 82;
-const HEAD = 58;
-const MID = 68;
-const AX = 26;
-const VX = 74;
-const SIZE = 30;
+export const GROUND = 82;
+export const HEAD = 58;
+export const MID = 68;
+export const AX = 26;
+export const VX = 74;
+export const SIZE = 30;
 
 // Where the cartoon eyes go on each piece, as % of the piece picture.
 const EYES: Record<PieceSymbol, { at: [number, number][]; size: number }> = {
@@ -57,14 +58,15 @@ const px = (n: number) => `${(n * unit).toFixed(2)}px`;
 export function K(x = 0, y = 0, r = 0, sx = 1, sy = sx, o = 1): Keyframe {
   return { transform: `translate(${px(x)}, ${px(y)}) rotate(${r}deg) scale(${sx}, ${sy})`, opacity: o };
 }
-const at = (offset: number, k: Keyframe, easing?: string): Keyframe => ({ ...k, offset, ...(easing ? { easing } : {}) });
-const rand = (a: number, b: number) => a + Math.random() * (b - a);
+export const at = (offset: number, k: Keyframe, easing?: string): Keyframe => ({ ...k, offset, ...(easing ? { easing } : {}) });
+export const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
 export class Stage {
   readonly root: HTMLElement;
   readonly world: HTMLElement;
   A!: Fighter;
   V!: Fighter;
+  ending?: string; // force a particular ending (for testing)
 
   constructor(
     readonly tl: Timeline,
@@ -334,8 +336,8 @@ export class Stage {
 
 // ---- the battles: one for every attacker/victim pair ----
 
-type Script = (s: Stage, A: Fighter, V: Fighter) => Promise<void>;
-interface Battle {
+export type Script = (s: Stage, A: Fighter, V: Fighter) => Promise<void>;
+export interface Battle {
   title: string;
   run: Script;
 }
@@ -359,8 +361,8 @@ const TRUMPET = `<svg viewBox="0 0 34 16" width="1.6em" height="0.75em" style="d
   <path d="M22 7.2L32.5 1.5V14.5L22 8.8Z" fill="url(#tr)" stroke="#7a5500" stroke-width="0.8" stroke-linejoin="round"/>
 </svg>`;
 
-const wiggle = (a: number) => [K(0, 0, -a), K(0, 0, a), K(0, 0, -a), K(0, 0, a), K(0, 0, 0)];
-const spin = (n: number) => Array.from({ length: n * 2 + 1 }, (_, i) => K(0, 0, 0, i % 2 ? -1 : 1, 1));
+export const wiggle = (a: number) => [K(0, 0, -a), K(0, 0, a), K(0, 0, -a), K(0, 0, a), K(0, 0, 0)];
+export const spin = (n: number) => Array.from({ length: n * 2 + 1 }, (_, i) => K(0, 0, 0, i % 2 ? -1 : 1, 1));
 
 export const BATTLES: Record<string, Battle> = {
   // ---------- Pawn: small but brave ----------
@@ -1114,10 +1116,6 @@ export const BATTLES: Record<string, Battle> = {
   },
 };
 
-export function battleFor(attacker: PieceSymbol, victim: PieceSymbol): Battle {
-  return BATTLES[attacker + victim] ?? BATTLES[`${attacker}p`];
-}
-
 /** The chessboard the fighters stand on (Battle Chess style), in board display coordinates. */
 export interface BattleFloor {
   squares: HTMLElement; // an 8x8 grid of squares to stand on (a copy of the board's)
@@ -1131,6 +1129,8 @@ export interface BattleOptions {
   tl: Timeline;
   origin?: { x: number; y: number }; // where the arena opens from, % of the host
   floor?: BattleFloor; // fight on the board instead of in a cartoon arena
+  battle?: string; // a particular battle ('special' or an attack id); random otherwise
+  ending?: string; // a particular ending (for testing)
   beforeReveal?: () => void; // called just before the battle goes away
 }
 
@@ -1263,11 +1263,12 @@ export async function playBattle(
   host: HTMLElement,
   attacker: { type: PieceSymbol; color: Color },
   victim: { type: PieceSymbol; color: Color },
-  { theme, tl, origin = { x: 50, y: 50 }, floor, beforeReveal }: BattleOptions,
+  { theme, tl, origin = { x: 50, y: 50 }, floor, battle: battleId, ending, beforeReveal }: BattleOptions,
 ): Promise<void> {
   const s = new Stage(tl, theme, host.clientWidth);
   if (floor) s.root.classList.add('on-board');
-  const battle = battleFor(attacker.type, victim.type);
+  const battle = pickBattle(attacker.type, victim.type, battleId);
+  s.ending = ending;
   const A = s.fighter(attacker.type, attacker.color, AX, 1);
   const V = s.fighter(victim.type, victim.color, VX, -1);
   s.A = A;
@@ -1302,17 +1303,9 @@ export async function playBattle(
       void s.go(A, [K(-30, 0), K(0, 0)], 450, 'ease-out');
       await s.go(V, [K(30, 0), K(0, 0)], 450, 'ease-out');
     }
-    s.mood(V, 'shock');
-    await s.fx(V, [K(0, 0, 0, 1, 1), K(0, 0, 0, 1.05, 0.93), K(0, 0, 0, 1, 1)], 200);
-    s.mood(V, null);
-
+    await taunt(s, A, V);
     await battle.run(s, A, V);
-
-    // Victory hop.
-    s.mood(A, 'happy');
-    s.sfx('tada');
-    s.burst(A.cx, HEAD - 6, [theme.spark, '⭐'], { n: 6, dist: 12 });
-    await s.go(A, [K(0, 0), K(0, -8), K(0, 0), K(0, -5), K(0, 0)], 600);
+    await victory(s, A, theme.spark);
   } finally {
     beforeReveal?.();
     if (camera) await camera.swoopOut(A, V);
