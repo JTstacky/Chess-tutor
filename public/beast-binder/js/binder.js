@@ -107,11 +107,12 @@ const BinderArt = {
       const k = 1 - p.atkT / S.dur, e = k * k * (3 - 2 * k), heavy = S.heavy ? 1 : 0;
       const la = toLocal(p.swingA);
       if (S.thrust) { const r = 3 + 7 * Math.sin(k * Math.PI); return { hx: sx + Math.cos(la) * r, hy: sy + Math.sin(la) * r, a: la, len: 12, k: 0.6 }; }
-      const span = S.half + 0.3, a0 = la - p.sweep * span, a = la + p.sweep * (-span + 2 * span * e);
-      return { hx: sx + Math.cos(a) * 4, hy: sy + Math.sin(a) * 4, a, a0, len: 11 + 3 * heavy, k: 0.5 + 0.5 * heavy, trail: 0.28 * (1 - k) };
+      // a spin goes exactly once round (span = pi, so the blade ends where it started); the other swings overshoot a little
+      const span = S.spin ? Math.PI : S.half + 0.3, a0 = la - p.sweep * span, a = la + p.sweep * (-span + 2 * span * e);
+      return { hx: sx + Math.cos(a) * (S.spin ? 6 : 4), hy: sy + Math.sin(a) * (S.spin ? 6 : 4), a, a0, len: 11 + 3 * heavy + (S.spin ? 3 : 0), k: 0.5 + 0.5 * heavy, trail: S.spin ? 0.45 * (1 - k) + 0.2 : 0.28 * (1 - k) };
     }
     if (p.charging) {
-      const la = toLocal(p.aim), a = la - 2.3 + Math.sin(time * 40) * 0.06 * p.chargeK;
+      const la = toLocal(p.faceA), a = la - 2.3 + Math.sin(time * 40) * 0.06 * p.chargeK;
       return { hx: sx + Math.cos(a) * 3, hy: sy + Math.sin(a) * 3, a, len: 12 + 2 * p.chargeK, k: 0.4 + 0.6 * p.chargeK };
     }
     const walkSw = p.moving && p.dashT <= 0 ? Math.round(Math.sin(p.animT * 10)) : 0;

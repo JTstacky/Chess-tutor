@@ -106,7 +106,7 @@ function createPlayer() {
     kind: "player", team: 0, types: ["normal"], name: "Binder",
     x: CAMP.tx * T, y: CAMP.ty * T + 60, r: CONFIG.player.radius,
     hp: CONFIG.player.baseHp, maxHp: CONFIG.player.baseHp, invuln: 0, hurtT: 99, flash: 0,
-    moveX: 0, moveY: 0, facing: 1, dir: "down", animT: 0, moving: false, attackT: 0,
+    moveX: 0, moveY: 0, facing: 1, dir: "down", faceA: Math.PI / 2, animT: 0, moving: false, attackT: 0,
     aim: 0, aimX: 0, aimY: 0,
     // the blade: the swing playing out, the combo it belongs to, and the button held for a heavy blow
     atkT: 0, atkKind: "q1", atkHit: false, swingA: 0, sweep: 1, combo: 0, comboT: 0, queued: false,
@@ -187,14 +187,16 @@ const PlayerCtl = {
     if (wet && (mv.x || mv.y || p.dashT > 0) && Math.random() < 0.3) { FX.ring(p.x, p.y, p.r * 0.6, p.r * 1.6 + 10, "#e8f6ff", 0.5, 2); if (Math.random() < 0.3) SFX.play("splash", 0.25, 0.8 + Math.random() * 0.4); }
     p.moving = !!(mv.x || mv.y);
 
-    // facing: mid-swing (or winding up) you face the blow; with a mouse the binder otherwise faces the cursor
-    // (move and strafe independently of it); on touch they face a held thumb, else the way they walk
+    // facing: mid-swing you face the blow (a spin turns you right round with the blade); with a mouse the binder
+    // otherwise faces the cursor (move and strafe independently of it); on touch they face the way they walk —
+    // never the right thumb, so a tap strikes the way you are already facing. p.faceA is that direction as an angle.
     let fx = mv.x, fy = mv.y;
-    if (p.atkT > 0) { fx = Math.cos(p.swingA); fy = Math.sin(p.swingA); }
-    else if ((!Input.touch && Input.mouse.has) || Input.aim.id !== null || p.charging) { fx = Math.cos(p.aim); fy = Math.sin(p.aim); }
+    if (p.atkT > 0) { const a = this.swingAngle(p); fx = Math.cos(a); fy = Math.sin(a); }
+    else if (!Input.touch && Input.mouse.has) { fx = Math.cos(p.aim); fy = Math.sin(p.aim); }
     else if (!p.moving) { fx = 0; fy = 0; }
     if (fx || fy) {
       const a = Math.atan2(fy, fx), deg = (a * 180) / Math.PI;
+      p.faceA = a;
       if (Math.abs(fx) > 0.05) p.facing = fx > 0 ? 1 : -1;
       const ad = Math.abs(deg);
       if (deg > 0) p.dir = ad < 25 || ad > 155 ? "side" : ad < 65 || ad > 115 ? "downdiag" : "down";
@@ -291,13 +293,21 @@ const PlayerCtl = {
   // ---------------------------------------------------------------- the blade
   // Quick strikes chain forehand → backhand → lunging thrust. Holding the button past `heavyHold` winds up a
   // heavy blow that grows for `chargeTime` more; released early it is a heavy sweep, fully charged it is a
-  // CHARGED blow: a wide arc that throws everything it touches into the air and leaves it reeling.
+  // SPIN: the Binder turns a full circle with the blade out, throwing everything around them into the air and
+  // leaving it reeling. Every swing goes the way the Binder is facing (p.faceA), never toward the thumb.
   SWINGS: {
     q1:      { dur: 0.26, half: 1.05, reach: 48, dmg: 1.0,  kb: 4,  sweep: 1 },
     q2:      { dur: 0.26, half: 1.05, reach: 48, dmg: 1.1,  kb: 4,  sweep: -1 },
     q3:      { dur: 0.34, half: 0.5,  reach: 70, dmg: 1.55, kb: 8,  sweep: 1, thrust: 26 },
     heavy:   { dur: 0.42, half: 1.5,  reach: 60, dmg: 2.4,  kb: 9,  sweep: 1, heavy: true },
-    charged: { dur: 0.5,  half: 1.75, reach: 76, dmg: 4.2,  kb: 15, sweep: 1, heavy: true, quake: true },
+    charged: { dur: 0.62, half: Math.PI, reach: 80, dmg: 4.2, kb: 15, sweep: 1, heavy: true, quake: true, spin: true },
+  },
+  // the blade's angle right now: a spin sweeps a full turn from the facing over the swing (eased, like the art)
+  swingAngle(p) {
+    const S = this.SWINGS[p.atkKind];
+    if (!S || !S.spin) return p.swingA;
+    const k = clamp(1 - p.atkT / S.dur, 0, 1), e = k * k * (3 - 2 * k);
+    return p.swingA + p.sweep * (-Math.PI + TAU * e);
   },
   sword(p, dt) {
     const C = CONFIG.player, A = Input.atk;
@@ -343,7 +353,7 @@ const PlayerCtl = {
   swing(p, kind) {
     const S = this.SWINGS[kind];
     p.atkKind = kind; p.atkT = S.dur; p.atkHit = false; p.sweep = S.sweep;
-    p.swingA = Math.atan2(p.holdAimY - (p.y - 20), p.holdAimX - p.x);
+    p.swingA = p.faceA;                                   // the way the Binder faces, not where the thumb or cursor is
     if (Math.abs(Math.cos(p.swingA)) > 0.15) p.facing = Math.cos(p.swingA) > 0 ? 1 : -1;
     if (S.heavy) { SFX.play("heavy", 0.8, S.quake ? 0.8 : 1); if (S.quake) FX.addShake(3); }
     else SFX.play("swing", 0.7, kind === "q3" ? 1.25 : kind === "q2" ? 0.9 : 1);
@@ -355,15 +365,18 @@ const PlayerCtl = {
     const dmg = this.swordDamage() * S.dmg * (riposte ? 3 : 1), kb = riposte ? Math.max(S.kb, 15) : S.kb;
     if (riposte) { p.riposte = 0; FX.text(p.x, p.y - Mech.height(tier) - 24, "RIPOSTE!", "#9dffff", 1, 15); FX.ring(p.x, p.y, 6, 70 * g, "#9dffff", 0.35, 4); }
     let n = 0;
-    forEnemies(p, p.x + Math.cos(a) * reach * 0.5, p.y + Math.sin(a) * reach * 0.5, reach * 0.5 + 20, (e) => {
-      if (!inCone(p.x, p.y, a, S.half, reach, e)) return;
+    // a spin hits everything within reach all round; every other swing is a cone in front
+    const cx = S.spin ? p.x : p.x + Math.cos(a) * reach * 0.5, cy = S.spin ? p.y : p.y + Math.sin(a) * reach * 0.5;
+    forEnemies(p, cx, cy, (S.spin ? reach : reach * 0.5) + 20, (e) => {
+      if (S.spin ? dist2(p.x, p.y, e.x, e.y) > (reach + e.r) * (reach + e.r) : !inCone(p.x, p.y, a, S.half, reach, e)) return;
       n++;
       dealDamage(p, e, dmg, "arcane", { text: true, kb });
       if (S.quake && e.hp > 0 && !e.titan) { e.stunT = Math.max(e.stunT || 0, 0.6); applyStatus(e, "slow", p, 0); }
       if (e.hp > 0) { p.mark = e; p.markT = 4; }
     });
-    FX.slash(p.x, p.y - 10 * g, a, reach * 0.8, col, S.heavy ? 0.3 : 0.22);
-    if (S.quake) { FX.ring(p.x, p.y, 10, reach + 20, col, 0.4, 4); FX.burst(p.x + Math.cos(a) * reach * 0.5, p.y + Math.sin(a) * reach * 0.4, "#ffffff", 14, 180, 0.4, 3); FX.addShake(5); SFX.play("bigHit", 0.5, 1.1); }
+    if (S.spin) { for (let i = 0; i < 4; i++) FX.slash(p.x, p.y - 10 * g, a + (i / 4) * TAU, reach * 0.8, col, 0.32); }
+    else FX.slash(p.x, p.y - 10 * g, a, reach * 0.8, col, S.heavy ? 0.3 : 0.22);
+    if (S.quake) { FX.ring(p.x, p.y, 10, reach + 20, col, 0.4, 4); FX.burst(p.x, p.y - 10 * g, "#ffffff", 18, 200, 0.4, 3); FX.addShake(5); SFX.play("bigHit", 0.5, 1.1); }
     else if (S.heavy) { FX.burst(p.x + Math.cos(a) * reach * 0.5, p.y + Math.sin(a) * reach * 0.4, col, 8, 120, 0.3, 3); FX.addShake(1.5); }
     if (n && S.heavy) Game.slowT = Math.max(Game.slowT, S.quake ? 0.18 : 0.08);          // a heavy blow that connects bites for a moment
   },
