@@ -33,6 +33,7 @@ import {
   TOY_SWORD,
   WHITE_FLAG,
 } from './props';
+import { PAIR_BATTLES } from './pairbattles';
 import { TEAM_ATTACKS, TEAM_ENDINGS } from './teamattacks';
 
 /** What kind of hit the attack lands, so the ending fits. */
@@ -989,6 +990,7 @@ export const ATTACKS: Record<PieceSymbol, Attack[]> = {
 export interface BattleChoice extends Battle {
   id: string;
   weight: number; // how likely a random pick is
+  pair?: boolean; // written for exactly this attacker and victim
   team?: boolean; // one of the attacking team's character moves
 }
 
@@ -1000,7 +1002,9 @@ export function battleOptions(a: PieceSymbol, v: PieceSymbol, team?: string): Ba
   const special = BATTLES[a + v] ?? BATTLES[`${a}p`];
   const wrap = (atk: Attack) => (s: Stage, A: Fighter, V: Fighter) => atk.run(s, A, V, (hit) => endWith(s, V, A, hit));
   return [
-    { id: 'special', title: special.title, run: special.run, weight: 1.5 },
+    // Pair specials (written for exactly this attacker and victim) are the most likely.
+    { id: 'special', title: special.title, run: special.run, weight: 3, pair: true },
+    ...(PAIR_BATTLES[a + v] ?? []).map((b) => ({ id: `pair-${b.id}`, title: b.title, run: b.run, weight: 3, pair: true })),
     ...ATTACKS[a].map((atk) => ({ id: atk.id, title: atk.title, run: wrap(atk), weight: 1 })),
     ...(TEAM_ATTACKS[team ?? ''] ?? []).map((atk) => ({ id: `team-${atk.id}`, title: atk.title, run: wrap(atk), weight: 2.5, team: true })),
   ];

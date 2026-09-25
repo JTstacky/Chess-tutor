@@ -12,8 +12,10 @@ A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) f
   stomp; queens teleport, swoop or dash; kings waddle, bounce or walk a red carpet.
 - **Capture battles** (`src/chess/battle.ts`), Battle Chess style: on every capture the camera swoops down,
   the board tilts into a floor, the other pieces stand up on their squares, and the two pieces fight on the
-  victim's square. Each of the 30 attacker/victim pairs has its own special battle (Pillow Fight, Frog Spell,
-  Tower Sumo, Dance-Off, Royal Trapdoor…), and each piece type has five more attacks (`src/chess/attacks.ts`:
+  victim's square. Each of the 30 attacker/victim pairs has three clever battles of its own, where the attacker
+  uses what the victim is like against it (the pawn fetches a carrot for the knight, the queen bowls down a
+  pin-shaped bishop, the rook plays Jenga with another rook, the king hands a pawn a medal too heavy to hold…;
+  `src/chess/pairbattles.ts` plus the originals in `battle.ts`). These are picked most often. Each piece type has five more attacks (`src/chess/attacks.ts`:
   slingshot, pogo stick, catapult, drawbridge, rocket throne, bee swarm, fireworks…), each finished with one of
   twelve random endings (twinkle into the sky, white flag, turned to stone, confetti pop, portal, balloons…).
   In themed games each team also fights in character (`src/chess/teamattacks.ts`): dragons breathe fire,

@@ -67,6 +67,7 @@ export class Stage {
   A!: Fighter;
   V!: Fighter;
   ending?: string; // force a particular ending (for testing)
+  private bubbles: { x: number; y: number; w: number; h: number }[] = [];
 
   constructor(
     readonly tl: Timeline,
@@ -236,8 +237,29 @@ export class Stage {
   }
 
   bubble(text: string, x: number, y: number, dur = 1000) {
-    const el = this.prop('', Math.max(16, Math.min(84, x)), y, 4.6, 'bt-say');
-    el.firstElementChild!.textContent = text;
+    const el = this.prop('', x, y, 4.6, 'bt-say');
+    const pc = el.firstElementChild as HTMLElement;
+    pc.textContent = text;
+    // Keep the whole bubble on stage, and stack it above any bubble still showing.
+    {
+      const w = pc.offsetWidth / unit;
+      const h = pc.offsetHeight / unit;
+      x = Math.max(w / 2 + 1, Math.min(99 - w / 2, x));
+      for (let tries = 0; tries < 4; tries++) {
+        const hit = this.bubbles.find((b) => Math.abs(b.x - x) < (b.w + w) / 2 && Math.abs(b.y - y) < (b.h + h) / 2);
+        if (!hit) break;
+        y = hit.y - (hit.h + h) / 2 - 1;
+      }
+      y = Math.max(h / 2 + 1, y);
+      el.style.left = px(x);
+      el.style.top = px(y);
+      const box = { x, y, w, h };
+      this.bubbles.push(box);
+      setTimeout(() => {
+        const i = this.bubbles.indexOf(box);
+        if (i >= 0) this.bubbles.splice(i, 1);
+      }, dur * 0.85);
+    }
     void this.anim(el, [K(0, 2, 0, 0), at(0.12, K(0, 0, 0, 1.1)), at(0.2, K()), at(0.85, K()), K(0, -2, 0, 1, 1, 0)], dur).then(() => el.remove());
   }
 

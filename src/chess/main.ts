@@ -217,7 +217,7 @@ function arenaView(): HTMLElement {
   const v = el(`
     <section class="view setup arena" data-view="arena">
       <h2>⚔️ Battle Arena</h2>
-      <p>Every pair of pieces has its own special battle, and every piece has five more attacks, each with a surprise ending. In a game, a random one happens whenever one piece captures another.</p>
+      <p>Every pair of pieces has three ⭐ special battles made just for them, every piece has five more attacks with surprise endings, and themed teams have their own character moves. In a game, a random one happens whenever one piece captures another.</p>
       <div class="arena-wrap">
         <div class="arena-stage"></div>
         <div class="arena-controls">
@@ -256,7 +256,7 @@ function arenaView(): HTMLElement {
     const options = battleOptions(attacker, victim, `${lastTheme}-${side}`);
     if (!options.some((o) => o.id === battleId)) battleId = 'random';
     v.querySelector('.attack-chips')!.innerHTML = [{ id: 'random', title: '🎲 Random' }, ...options]
-      .map((o) => `<button class="chip ${o.id === battleId ? 'on' : ''}" data-attack="${o.id}">${o.id === 'special' ? '⭐ ' : 'team' in o && o.team ? `${theme[side].pet} ` : ''}${o.title}</button>`)
+      .map((o) => `<button class="chip ${o.id === battleId ? 'on' : ''}" data-attack="${o.id}">${'pair' in o && o.pair ? '⭐ ' : 'team' in o && o.team ? `${theme[side].pet} ` : ''}${o.title}</button>`)
       .join('');
     if (!arenaTl || arenaTl.skipped) {
       const title = options.find((o) => o.id === battleId)?.title ?? 'Random battle!';
