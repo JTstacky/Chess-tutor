@@ -36,6 +36,7 @@ A web chess tutor for a 9-year-old, hosted at **tenggames.com.au**.
 - Danger alerts ("Watch out! Your knight on f3 is under attack by a pawn") ✅
 - Opening name display ("This is the Italian Game!"), from the lichess opening list ✅
 - Post-game review ✅: accuracy %, each move graded Brilliant / Best / Good / Book / Inaccuracy / Mistake / Blunder, explanations, green arrow for the better move (or how to punish the bot's mistake), jumps to your first big mistake
+- **🧠 Think-ahead coach** ✅ (bot games; on/off when choosing an opponent or with the 🧠 button): on your turn it explains (1) what the opponent's last move did, (2) what they're threatening (found by letting them move twice, with a "Show me" arrow), (3) your three best candidate moves with a reason each (and whether they stop the threat), graded 👍/🙂/⚠️; tapping one plays out a 3-move look-ahead as arrows (green you, red them). After your move you **predict the bot's reply** (🔮 score kept), and learn what it played and why
 - **Consequence explanations** ("If you play this, you lose your knight in 3 moves"): engine-generated during games and review, hand-written in lessons
 
 ### Learn (Phase 3) ✅

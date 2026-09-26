@@ -12,6 +12,7 @@ import {
 } from './coach';
 import { getEngine, type EngineLine } from './engine';
 import { reviewGame, type GameReview } from './review';
+import { describeMove, thinkAhead, type ThinkResult } from './thinkahead';
 import { sounds } from './sound';
 import { coachingOn, profile, recordBotResult } from './storage';
 import { themeById, THEMES, type Theme } from './themes';
@@ -40,6 +41,7 @@ export interface GameConfig {
   time: TimeControl;
   theme?: string;
   startMoves?: string[]; // SAN moves already played (e.g. continuing a lesson)
+  thinkAhead?: boolean; // the think-ahead coach: threats, candidate moves, look-ahead and guessing the reply
   from?: string; // where those moves came from, e.g. "Italian Game"
 }
 
@@ -74,6 +76,12 @@ export class PlayScreen {
   private openingName = '';
   private review: GameReview | null = null;
   private reviewing = false;
+  private thinkOn = false;
+  private think: ThinkResult | null = null;
+  private guessing = false; // think-ahead: you're predicting the bot's reply
+  private guessSan: string | null = null;
+  private guessNote = '';
+  private guessStats = { right: 0, total: 0 };
 
   constructor(private onExit: () => void) {
     this.el = document.createElement('section');
@@ -93,9 +101,11 @@ export class PlayScreen {
       <div class="side-col">
         <div class="coach"><div class="mascot">🦉</div><div class="bubble"></div></div>
         <div class="opening" hidden></div>
+        <div class="think" hidden></div>
         <div class="controls">
           <button data-act="undo" title="Take back"><span>↶</span>Take back</button>
           <button data-act="hint" title="Hint"><span>💡</span>Hint</button>
+          <button data-act="think" title="Think-ahead coach" hidden><span>🧠</span>Coach</button>
           <button data-act="flip" title="Flip board"><span>🔄</span>Flip</button>
           <button data-act="draw" title="Offer draw"><span>🤝</span>Draw</button>
           <button data-act="resign" title="Resign"><span>🏳️</span>Resign</button>
@@ -115,6 +125,13 @@ export class PlayScreen {
     this.el.querySelector('.controls')!.addEventListener('click', (e) => {
       const act = (e.target as HTMLElement).closest('button')?.dataset.act;
       if (act) void this.action(act);
+    });
+    this.el.querySelector('.think')!.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('button');
+      if (!b) return;
+      if (b.dataset.cand !== undefined) this.showCandidate(Number(b.dataset.cand));
+      if (b.dataset.threat !== undefined) this.showThreat();
+      if (b.dataset.skip !== undefined) this.skipGuess();
     });
     this.el.querySelector('.nav')!.addEventListener('click', (e) => {
       const nav = (e.target as HTMLElement).closest('button')?.dataset.nav;
@@ -152,6 +169,14 @@ export class PlayScreen {
     this.openingName = '';
     this.review = null;
     this.reviewing = false;
+    this.thinkOn = cfg.mode === 'bot' && !!cfg.thinkAhead;
+    this.think = null;
+    this.guessing = false;
+    this.guessSan = null;
+    this.guessNote = '';
+    this.guessStats = { right: 0, total: 0 };
+    this.el.querySelector<HTMLElement>('[data-act="think"]')!.hidden = cfg.mode !== 'bot';
+    this.el.querySelector<HTMLElement>('.think')!.hidden = true;
     const ms = cfg.time.minutes * 60_000;
     this.clocks = { w: ms, b: ms };
     this.clockHistory = Array.from({ length: this.chess.history().length + 1 }, () => ({ ...this.clocks }));
@@ -167,11 +192,13 @@ export class PlayScreen {
       const botTurn = cfg.mode === 'bot' && this.chess.turn() !== cfg.playerColor;
       this.say(`Let's keep playing your ${cfg.from ?? 'opening'}! ${botTurn ? `${cfg.bot!.name} is thinking…` : 'Your move.'}`);
       if (botTurn) void this.playBot();
+      else if (this.thinkOn) void this.runThink();
     } else if (cfg.mode === 'bot' && cfg.playerColor === 'b') {
       this.say(`${cfg.bot!.name} plays first. You're Black!`);
       void this.playBot();
     } else if (cfg.mode === 'bot') {
       this.say(`You're White, so you move first. Good luck against ${cfg.bot!.name}!`);
+      if (this.thinkOn) void this.runThink();
     } else {
       this.say('Pass and play! White moves first. Hand the device over after each move.');
     }
@@ -202,6 +229,7 @@ export class PlayScreen {
   }
 
   private async userMove(from: Square, to: Square, promotion?: 'q' | 'r' | 'b' | 'n') {
+    if (this.guessing) return this.makeGuess(from, to, promotion);
     if (!this.isUsersTurn()) return;
     let shown = false;
     if (this.cfg.mode === 'bot' && coachingOn('blunderWarnings')) {
@@ -210,7 +238,10 @@ export class PlayScreen {
       shown = check === 'shown';
     }
     const move = this.makeMove({ from, to, promotion }, shown);
-    if (move && !this.result && this.cfg.mode === 'bot') void this.playBot();
+    if (move && !this.result && this.cfg.mode === 'bot') {
+      if (this.thinkOn) this.startGuess();
+      else void this.playBot();
+    }
   }
 
   /**
@@ -296,7 +327,130 @@ export class PlayScreen {
     // Ignore stale answers after a takeback, new game or leaving the screen.
     if (id !== this.gameId || ply !== this.chess.history().length || this.result) return;
     this.botThinking = false;
-    this.makeMove({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] });
+    const fenBefore = this.chess.fen();
+    const played = this.makeMove({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] });
+    if (played && this.guessSan) {
+      this.guessStats.total++;
+      const bot = this.cfg.bot!.name;
+      if (played.san === this.guessSan) {
+        this.guessStats.right++;
+        this.guessNote = `🔮 You predicted it! ${bot} played ${played.san}. You're thinking like your opponent!`;
+      } else {
+        this.guessNote = `🔮 You guessed ${this.guessSan}, but ${bot} played ${played.san}: it ${describeMove(fenBefore, uci, 'them')}.`;
+      }
+      this.guessSan = null;
+    }
+    if (played && this.thinkOn && this.isUsersTurn()) void this.runThink();
+  }
+
+  // ---- think-ahead coach ----
+
+  private async runThink() {
+    const id = this.gameId;
+    const ply = this.chess.history().length;
+    const panel = this.el.querySelector<HTMLElement>('.think')!;
+    panel.hidden = false;
+    panel.innerHTML = `${this.guessNote ? `<p class="guess-note">${this.guessNote}</p>` : ''}<p class="think-loading">🧠 Let's think ahead…</p>`;
+    const last = this.chess.history({ verbose: true }).at(-1);
+    const res = await thinkAhead(this.chess.fen(), last ? last.from + last.to + (last.promotion ?? '') : null, last?.before ?? null, this.cfg.bot!.name);
+    if (id !== this.gameId || ply !== this.chess.history().length || !this.thinkOn || this.result) return;
+    this.think = res;
+    this.renderThink();
+  }
+
+  private renderThink() {
+    const t = this.think;
+    const panel = this.el.querySelector<HTMLElement>('.think')!;
+    if (!t) return;
+    const bot = this.cfg.bot!.name;
+    const icon = { best: '👍', good: '🙂', risky: '⚠️' } as const;
+    const cands = t.candidates
+      .map((c, i) => `<button class="cand ${c.grade}" data-cand="${i}"><span>${icon[c.grade]}</span><b>${c.san}</b><small>${c.mateIn ? `Checkmate in ${c.mateIn}!` : c.why}</small></button>`)
+      .join('');
+    const stats = this.guessStats.total ? `<span class="guess-score">🔮 ${this.guessStats.right}/${this.guessStats.total} guessed</span>` : '';
+    panel.innerHTML = `
+      ${this.guessNote ? `<p class="guess-note">${this.guessNote}</p>` : ''}
+      ${t.last ? `<div class="think-step"><b>1️⃣ What did ${bot} just do?</b><p>${bot} ${t.last}.</p></div>` : ''}
+      <div class="think-step ${t.threat ? 'danger' : ''}"><b>${t.last ? '2️⃣' : '1️⃣'} What is ${bot} planning?</b>
+        <p>${t.threat ? t.threat.text : 'No big threats right now. You\'re free to follow your own plan!'}</p>
+        ${t.threat ? '<button class="mini" data-threat>👀 Show me</button>' : ''}</div>
+      <div class="think-step"><b>${t.last ? '3️⃣' : '2️⃣'} Your best ideas</b> <small>Tap one to look ahead</small>
+        <div class="cands">${cands}</div></div>
+      <ol class="think-line" hidden></ol>
+      <p class="think-tip">Checks, captures, threats: look at all three before you move! ${stats}</p>`;
+    this.guessNote = '';
+  }
+
+  private showCandidate(i: number) {
+    const c = this.think?.candidates[i];
+    if (!c) return;
+    const bot = this.cfg.bot!.name;
+    const colors = ['rgba(40,180,90,0.9)', 'rgba(220,50,50,0.8)', 'rgba(40,180,90,0.45)'];
+    this.board.setArrows(c.line.map((s, k) => ({ from: s.uci.slice(0, 2) as Square, to: s.uci.slice(2, 4) as Square, color: colors[k] })));
+    const verdict = c.grade === 'best' ? '👍 Great idea!' : c.grade === 'good' ? '🙂 A good move.' : '⚠️ Careful: this one is weaker than the others.';
+    const list = this.el.querySelector<HTMLElement>('.think-line')!;
+    list.hidden = false;
+    list.innerHTML = c.line
+      .map((s) => `<li class="${s.mine ? 'mine' : 'theirs'}"><b>${s.mine ? 'You' : bot}: ${s.san}</b> ${s.text}</li>`)
+      .join('') + `<li class="verdict">${verdict}${c.mateIn ? ` It leads to checkmate in ${c.mateIn}!` : ''}</li>`;
+    this.el.querySelectorAll('.cand').forEach((b, k) => b.classList.toggle('on', k === i));
+    const [a, b2, c3] = c.line;
+    this.say(`🔭 If you play ${a.san}, ${bot} will probably answer ${b2?.san ?? '…'}${c3 ? `, then you can play ${c3.san}` : ''}. Green arrows are you, red is ${bot}. ${verdict}`);
+    this.revealBoard();
+  }
+
+  /** Bring the board into view after tapping a coach button below it (only if it's off-screen). */
+  private revealBoard() {
+    const r = this.board.el.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > window.innerHeight) window.scrollBy({ top: r.top - 8, behavior: 'smooth' });
+  }
+
+  private showThreat() {
+    const t = this.think?.threat;
+    if (!t) return;
+    this.board.setArrows([{ from: t.uci.slice(0, 2) as Square, to: t.uci.slice(2, 4) as Square, color: 'rgba(220,50,50,0.85)' }]);
+    this.say(`${t.text} How can you stop it? Move the piece, protect it, or block the attack.`);
+    this.revealBoard();
+  }
+
+  /** After your move: before the bot replies, guess what it will play. */
+  private startGuess() {
+    const id = this.gameId;
+    void this.board.idle().then(() => {
+      if (id !== this.gameId || this.result || this.chess.turn() === this.cfg.playerColor) return;
+      this.guessing = true;
+      this.guessSan = null;
+      const bot = this.cfg.bot!.name;
+      const panel = this.el.querySelector<HTMLElement>('.think')!;
+      panel.hidden = false;
+      panel.innerHTML = `<div class="think-step guess"><b>🔮 Predict ${bot}'s reply!</b>
+        <p>Pretend you are ${bot}. What would you play? Move one of ${bot}'s pieces to make your guess.</p>
+        <button class="mini" data-skip>Skip</button></div>`;
+      this.say(`🔮 What do you think ${bot} will play? Move one of its pieces to guess!`);
+      this.board.setArrows([]);
+      this.refresh(false);
+    });
+  }
+
+  private makeGuess(from: Square, to: Square, promotion?: string) {
+    const test = new Chess(this.chess.fen());
+    try {
+      this.guessSan = test.move({ from, to, promotion }).san;
+    } catch {
+      return;
+    }
+    this.guessing = false;
+    this.refresh(false);
+    this.el.querySelector<HTMLElement>('.think')!.innerHTML = `<p class="guess-note">🔮 You guessed <b>${this.guessSan}</b>. Let's see…</p>`;
+    void this.playBot();
+  }
+
+  private skipGuess() {
+    if (!this.guessing) return;
+    this.guessing = false;
+    this.guessSan = null;
+    this.refresh(false);
+    void this.playBot();
   }
 
   private commentOnMove(move: Move) {
@@ -363,6 +517,8 @@ export class PlayScreen {
     this.result = result;
     this.stopClock();
     this.botThinking = false;
+    this.guessing = false;
+    this.el.querySelector<HTMLElement>('.think')!.hidden = true;
     getEngine().cancelAll();
     this.refresh(false);
 
@@ -478,6 +634,18 @@ export class PlayScreen {
         return this.refresh(false);
       case 'draw':
         return this.offerDraw();
+      case 'think':
+        this.thinkOn = !this.thinkOn;
+        localStorage.setItem('tg-chess-think', this.thinkOn ? '1' : '0');
+        this.renderButtons();
+        if (!this.thinkOn) {
+          this.el.querySelector<HTMLElement>('.think')!.hidden = true;
+          this.board.setArrows([]);
+          if (this.guessing) this.skipGuess();
+          this.say('Think-ahead coach is off. Tap 🧠 to turn it back on.');
+        } else if (this.isUsersTurn()) void this.runThink();
+        else this.say('Think-ahead coach is on! It will help on your next move.');
+        return;
       case 'review':
         return this.startReview();
       case 'resign':
@@ -500,8 +668,8 @@ export class PlayScreen {
     const history = this.chess.history().length;
     let plies = 1;
     if (this.cfg.mode === 'bot') {
-      if (this.botThinking) {
-        plies = 1; // take back your own move while the bot is still thinking
+      if (this.botThinking || this.guessing) {
+        plies = 1; // take back your own move while the bot is still thinking (or you're guessing its reply)
       } else {
         plies = 2;
       }
@@ -509,6 +677,8 @@ export class PlayScreen {
       if (history - plies < this.basePly) return;
     } else if (history <= this.basePly) return;
     this.gameId++; // invalidates any bot search in progress
+    this.guessing = false;
+    this.guessSan = null;
     this.board.skipAnimation();
     getEngine().cancelAll();
     this.botThinking = false;
@@ -530,6 +700,7 @@ export class PlayScreen {
     this.board.setArrows([]);
     this.refresh(false);
     this.say('Move taken back. Have another think!');
+    if (this.thinkOn && this.isUsersTurn()) void this.runThink();
   }
 
   private async hint() {
@@ -655,7 +826,8 @@ export class PlayScreen {
       lastMove = moves[moves.length - 1];
     }
     const dests = new Map<Square, Square[]>();
-    if (this.isUsersTurn()) {
+    const canMove = this.isUsersTurn() || (this.guessing && !viewing);
+    if (canMove) {
       for (const m of pos.moves({ verbose: true })) {
         const list = dests.get(m.from) ?? [];
         if (!list.includes(m.to)) list.push(m.to);
@@ -667,7 +839,7 @@ export class PlayScreen {
       lastMove: lastMove ? { from: lastMove.from, to: lastMove.to } : null,
       check: pos.inCheck() ? findKing(pos, pos.turn()) : null,
       dests,
-      movable: this.isUsersTurn() ? pos.turn() : null,
+      movable: canMove ? pos.turn() : null,
     };
     this.board.setState(state, animate && !viewing && lastMove ? lastMove : null);
     this.el.classList.toggle('viewing-history', viewing && !this.review);
@@ -745,13 +917,15 @@ export class PlayScreen {
     const total = this.chess.history().length;
     const btn = (a: string) => this.el.querySelector<HTMLButtonElement>(`[data-act="${a}"]`)!;
     const minPly = this.basePly;
-    btn('undo').disabled = !!this.result || total <= minPly || (this.cfg.mode === 'bot' && !this.botThinking && total - 2 < minPly);
+    btn('undo').disabled = !!this.result || total <= minPly || (this.cfg.mode === 'bot' && !this.botThinking && !this.guessing && total - 2 < minPly);
     btn('hint').disabled = !this.isUsersTurn();
     btn('draw').disabled = !!this.result || total < 2 || this.botThinking;
     btn('resign').disabled = !!this.result;
     btn('review').hidden = !this.result;
     btn('draw').hidden = btn('resign').hidden = !!this.result;
     btn('review').disabled = this.reviewing;
+    btn('think').classList.toggle('on', this.thinkOn);
+    btn('think').hidden = this.cfg.mode !== 'bot' || !!this.result;
     const nav = (n: string) => this.el.querySelector<HTMLButtonElement>(`[data-nav="${n}"]`)!;
     const cur = this.viewPly ?? total;
     nav('start').disabled = nav('prev').disabled = cur === 0;
