@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Sent by the Arcane-Arena and Hammerguy-s-Party repos when they change.
+  repository_dispatch:
+    types: [game-updated]
 
 permissions:
   contents: read
@@ -25,6 +28,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Build games from their own repos (Arcane Arena, Hammerguy's Party)
+        run: scripts/build-external-games.sh
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
