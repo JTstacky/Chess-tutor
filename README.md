@@ -22,7 +22,10 @@ A chess tutor for kids, hosted at **tenggames.com.au**. See [SPEC.md](SPEC.md) f
   robots fire laser eyes, aliens beam you up in a UFO, sharks chomp, cupcakes throw sprinkles, T-rexes roar…
   and the loser often leaves in character too (robots short-circuit, dinos go back into their egg). These
   character moves are picked more often. A capture never repeats the last two battles for that pair; random
-  taunts and victory poses add more variety. Props are hand-drawn SVG (`src/chess/props.ts`). Tap to skip. Clocks pause while a battle plays. Settings can move
+  taunts and victory poses add more variety. Props, particles and scenery are hand-drawn SVG in the same
+  flat, outlined style as the characters (`src/chess/props.ts`, `src/chess/glyphs.ts`) rather than emoji. Motion paths
+  through several keyframes are resampled along a smooth spline (`src/chess/timeline.ts`), so pieces flow through
+  arcs and wiggles instead of the stop-start look of linear tweens; fighters breathe while idle and cast floor shadows. Tap to skip. Clocks pause while a battle plays. Settings can move
   the battles into a cartoon arena scene instead. Pick any pair in the **Battle Arena** menu.
 - **Themes** (`src/chess/themes.ts`): Classic, Fantasy (Unicorn Kingdom vs Dragon Clan), Space (Robot Squad vs
   Alien Crew), Ocean (Dolphin Reef vs Shark Squad), Candy (Cupcake Crew vs Choco Gang) and Dino (Tricera-Team vs

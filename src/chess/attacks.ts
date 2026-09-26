@@ -1085,7 +1085,10 @@ export async function victory(s: Stage, A: Fighter, spark: string) {
       break;
     default:
       cheer();
-      s.pow('⭐', A.cx, HEAD - 14, { size: 12, color: '#ffd23f', rot: 0 });
+      {
+        const star = s.prop('⭐', A.cx, HEAD - 14, 10, 'bt-fx');
+        void s.anim(star, [K(0, 4, -40, 0), at(0.25, K(0, -2, 10, 1.15)), at(0.4, K(0, -2, 0, 1)), at(0.8, K(0, -4, 0, 1)), K(0, -8, 0, 0.9, 0.9, 0)], 900).then(() => star.remove());
+      }
       await s.go(A, [K(0, 0), K(0, -14, 0, 1.1, 1.1), K(0, 0)], 600);
       break;
   }
