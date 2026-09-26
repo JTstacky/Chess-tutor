@@ -5,9 +5,10 @@ import './battle.css';
 import type { Color, PieceSymbol } from 'chess.js';
 import { pickBattle, taunt, victory } from './attacks';
 import { characterEyes } from './characters';
+import { glyph } from './glyphs';
 import { sfx, type Sfx } from './sound';
 import { glowFilter, pieceSrc, type Theme } from './themes';
-import type { Timeline } from './timeline';
+import { tagged, type Timeline } from './timeline';
 
 export interface Fighter {
   el: HTMLElement; // position layer
@@ -55,8 +56,12 @@ let unit = 4;
 const px = (n: number) => `${(n * unit).toFixed(2)}px`;
 
 /** A transform keyframe: offset from home (x, y), rotation, scale and opacity. */
+const buildK = ([x, y, r, sx, sy, o]: number[]): Keyframe => ({
+  transform: `translate(${px(x)}, ${px(y)}) rotate(${r}deg) scale(${sx}, ${sy})`,
+  opacity: Math.max(0, Math.min(1, o)),
+});
 export function K(x = 0, y = 0, r = 0, sx = 1, sy = sx, o = 1): Keyframe {
-  return { transform: `translate(${px(x)}, ${px(y)}) rotate(${r}deg) scale(${sx}, ${sy})`, opacity: o };
+  return tagged([x, y, r, sx, sy, o], buildK);
 }
 export const at = (offset: number, k: Keyframe, easing?: string): Keyframe => ({ ...k, offset, ...(easing ? { easing } : {}) });
 export const rand = (a: number, b: number) => a + Math.random() * (b - a);
@@ -106,29 +111,52 @@ export class Stage {
     img.alt = '';
     img.draggable = false;
     img.style.filter = glowFilter(this.theme[color]);
-    flip.append(img);
+    // The body breathes gently while idle, so nobody stands frozen like a cut-out.
+    const body = document.createElement('div');
+    body.className = 'bt-body';
+    body.style.animationDelay = `${-rand(0, 2)}s`;
+    body.append(img);
+    flip.append(body);
     const eyes = classic ? EYES[type] : characterEyes(type);
     for (const [x, y] of eyes.at) {
       const eye = document.createElement('i');
       eye.className = 'bt-eye';
       eye.style.cssText = `left:${x}%;top:${y}%;--es:${eyes.size}%`;
       eye.innerHTML = '<b></b>';
-      flip.append(eye);
+      body.append(eye);
     }
     // Pupils look the way the picture faces; mirroring the picture turns them round too.
     flip.style.setProperty('--look', String(native));
     inner.append(flip);
     el.append(inner);
-    const pet = this.theme[color].pet;
-    if (pet) {
-      const p = document.createElement('span');
-      p.className = 'bt-pet';
-      p.textContent = pet;
-      p.style[facing === 1 ? 'left' : 'right'] = '-14%';
-      el.append(p);
-    }
     this.world.append(el);
-    return { el, inner, flip, type, color, cx, facing };
+    const f: Fighter = { el, inner, flip, type, color, cx, facing };
+    this.groundShadow(f);
+    return f;
+  }
+
+  /** A shadow that stays on the floor under a fighter: smaller and fainter the higher they go. */
+  private groundShadow(f: Fighter) {
+    const sh = document.createElement('div');
+    sh.className = 'bt-shadow';
+    sh.style.left = px(f.cx);
+    sh.style.top = px(GROUND - SIZE * 0.1);
+    this.world.append(sh);
+    const tick = () => {
+      if (!sh.isConnected) return;
+      const cs = getComputedStyle(f.el);
+      const m = cs.transform === 'none' ? null : new DOMMatrixReadOnly(cs.transform);
+      const dx = (m?.m41 ?? 0) / unit;
+      const dy = (m?.m42 ?? 0) / unit;
+      const scale = m ? Math.hypot(m.m11, m.m12) : 1;
+      // Up in the air: shrink and fade. Sinking into the floor: fade out quickly.
+      const k = dy < 0 ? Math.max(0, 1 - -dy / 40) : Math.max(0, 1 - dy / 6);
+      const hidden = f.el.style.visibility === 'hidden';
+      sh.style.transform = `translate(${px(dx)}, 0) scale(${(0.55 + 0.45 * k) * scale})`;
+      sh.style.opacity = hidden ? '0' : String(k * Number(cs.opacity));
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   // ---- motion ----
@@ -153,9 +181,10 @@ export class Stage {
   turn(f: Fighter, dur = 200) {
     f.facing = f.facing === 1 ? -1 : 1;
     const to = f.type === 'n' ? -f.facing : f.facing;
-    return this.tl.anim(f.flip, [{ transform: `scaleX(${-to})` }, { transform: `scaleX(${to * 0.1})` }, { transform: `scaleX(${to})` }], {
-      duration: dur,
-      easing: 'ease-in-out',
+    // A quick snap round (a slow paper-thin flip reads as a cardboard cut-out).
+    return this.tl.anim(f.flip, [{ transform: `scaleX(${-to})` }, { transform: `scale(${to * 0.92}, 1.04)`, offset: 0.7 }, { transform: `scaleX(${to})` }], {
+      duration: Math.min(dur, 140),
+      easing: 'ease-out',
     });
   }
 
@@ -196,7 +225,7 @@ export class Stage {
     const el = document.createElement('div');
     el.className = `bt-prop ${cls}`;
     el.style.cssText = `left:${px(x)};top:${px(y)};font-size:${px(size)}`;
-    el.innerHTML = `<div class="bt-pc">${content}</div>`;
+    el.innerHTML = `<div class="bt-pc">${glyph(content)}</div>`;
     parent.append(el);
     return el;
   }
@@ -224,11 +253,12 @@ export class Stage {
 
   /** Comic-book word that pops up and fades. */
   pow(text: string, x: number, y: number, o: Opts = {}) {
-    const el = this.prop('', x, y, o.size ?? 9, 'bt-pow');
+    const el = this.prop('', x, y, Math.min((o.size ?? 8) * 0.8, 9.6), 'bt-pow');
     el.firstElementChild!.textContent = text;
     el.style.color = o.color ?? '#ff4757';
-    const r = o.rot ?? rand(-12, 12);
-    void this.anim(el, [K(0, 0, r, 0), at(0.2, K(0, -2, r, 1.25)), at(0.35, K(0, -2, r, 1)), at(0.8, K(0, -4, r, 1)), K(0, -6, r, 1, 1, 0)], o.dur ?? 900).then(() => el.remove());
+    const r = o.rot ?? rand(-6, 6);
+    // Snap in with a little overshoot, hold still, then lift away.
+    void this.anim(el, [K(0, 1, r, 0.4, 0.4, 0), at(0.12, K(0, 0, r, 1.12, 1.12, 1)), at(0.22, K(0, 0, r, 1)), at(0.78, K(0, -1, r, 1)), K(0, -4, r, 1.04, 1.04, 0)], { duration: o.dur ?? 800, easing: 'linear' }).then(() => el.remove());
   }
 
   /** Speech bubble above a fighter. */
@@ -309,9 +339,10 @@ export class Stage {
   flash(color = '#fff', dur = 300) {
     const el = document.createElement('div');
     el.className = 'bt-flash';
-    el.style.background = color;
+    el.style.background = `radial-gradient(circle at 50% 62%, ${color} 0%, ${color} 18%, transparent 72%)`;
     this.root.append(el);
-    void this.anim(el, [{ opacity: 0.9 }, { opacity: 0 }], dur, 'ease-out').then(() => el.remove());
+    // A soft glow from the middle rather than a full-screen strobe.
+    void this.anim(el, [{ opacity: 0.55 }, { opacity: 0 }], dur, 'ease-out').then(() => el.remove());
   }
 
   /** A rope between two moving points (e.g. a prop held by a fighter and a lasso loop). Returns a remover. */
@@ -1247,16 +1278,15 @@ class BoardCamera {
     const s = this.s;
     this.standUp();
     const sky = s.world.querySelector<HTMLElement>('.bt-sky')!;
-    const show = (el: HTMLElement, delay: number) => s.anim(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay, easing: 'ease-out' });
     [A.el, V.el, ...this.stands].forEach((el) => (el.style.opacity = '0'));
-    void s.anim(sky, [{ opacity: 0 }, { opacity: 1 }], 700);
-    void s.anim(this.flat, [{ opacity: 1 }, { opacity: 0 }], { duration: 350, delay: 250 });
-    this.stands.forEach((el) => void show(el, 450));
-    void s.anim(this.floor, [{ transform: this.start }, { transform: this.end }], 750, 'ease-in-out');
-    void show(A.el, 500);
-    await show(V.el, 500);
-    A.el.style.opacity = V.el.style.opacity = '';
-    this.stands.forEach((el) => (el.style.opacity = ''));
+    void s.anim(sky, [{ opacity: 0 }, { opacity: 1 }], 650);
+    // The flat pieces go while the board is still nearly flat (no ghostly double pieces)…
+    void s.anim(this.flat, [{ opacity: 1 }, { opacity: 0 }], { duration: 180, delay: 200, easing: 'ease-in' });
+    void s.anim(this.floor, [{ transform: this.start }, { transform: this.end }], 650, 'ease-in-out');
+    // …and as the camera settles, everyone stands up off the floor, back rows first.
+    this.stands.forEach((el, i) => void rise(s, el, el, 330 + i * 25));
+    void rise(s, A.el, body(A), 380);
+    await rise(s, V.el, body(V), 420);
   }
 
   async swoopOut(A: Fighter, V: Fighter) {
@@ -1264,13 +1294,41 @@ class BoardCamera {
     // The board as it is after the capture.
     this.flatV?.remove();
     if (this.flatA) this.flatA.style.transform = `translate(${this.f.attackerTo[0] * 100}%, ${this.f.attackerTo[1] * 100}%)`;
-    const gone = [A.el, V.el, ...this.stands, ...s.world.querySelectorAll<HTMLElement>('.bt-prop:not(.bt-deco), .bt-beam')];
-    gone.forEach((el) => void s.anim(el, [{ opacity: 0 }], 200));
-    void s.anim(s.root.querySelector<HTMLElement>('.bt-banner')!, [{ opacity: 0 }], 250);
-    void s.anim(s.world.querySelector<HTMLElement>('.bt-sky')!, [{ opacity: 1 }, { opacity: 0 }], 650);
-    void s.anim(this.flat, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: 150 });
-    await s.anim(this.floor, [{ transform: this.end }, { transform: this.start }], 650, 'ease-in-out');
+    // Everyone lies back down, then the camera lifts off and the flat pieces fade in as the board levels.
+    void sink(s, A.el, body(A));
+    void sink(s, V.el, body(V));
+    this.stands.forEach((el, i) => void sink(s, el, el, i * 15));
+    s.world.querySelectorAll<HTMLElement>('.bt-prop:not(.bt-deco), .bt-beam').forEach((el) => void s.anim(el, [{ opacity: 0 }], 160));
+    void s.anim(s.root.querySelector<HTMLElement>('.bt-banner')!, [{ opacity: 0 }], 220);
+    await s.wait(120);
+    void s.anim(s.world.querySelector<HTMLElement>('.bt-sky')!, [{ opacity: 1 }, { opacity: 0 }], 600);
+    void s.anim(this.flat, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 150, easing: 'ease-out' });
+    await s.anim(this.floor, [{ transform: this.end }, { transform: this.start }], 620, 'ease-in-out');
   }
+}
+
+const body = (f: Fighter) => f.flip.querySelector<HTMLElement>('.bt-body') ?? f.inner;
+
+/** Stand up off the floor: `el` fades in while `shape` springs up from its feet. */
+function rise(s: Stage, el: HTMLElement, shape: HTMLElement, delay: number) {
+  shape.style.transformOrigin = '50% 90%';
+  void s.anim(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 90, delay, easing: 'linear' });
+  return s.anim(shape, [{ transform: 'scale(0.9, 0.15)' }, { transform: 'scale(0.96, 1.08)', offset: 0.55 }, { transform: 'scale(1.02, 0.97)', offset: 0.8 }, { transform: 'none' }], {
+    duration: 300,
+    delay,
+    easing: 'ease-out',
+  }).then(() => {
+    el.style.opacity = '';
+    // Hand the body back to its idle breathing.
+    shape.getAnimations().forEach((a) => a instanceof CSSAnimation || a.cancel());
+  });
+}
+
+/** Lie back down into the floor. */
+function sink(s: Stage, el: HTMLElement, shape: HTMLElement, delay = 0) {
+  shape.style.transformOrigin = '50% 90%';
+  void s.anim(shape, [{ transform: 'none' }, { transform: 'scale(1.04, 0.9)', offset: 0.3 }, { transform: 'scale(0.9, 0.12)' }], { duration: 200, delay, easing: 'ease-in' });
+  return s.anim(el, [{ opacity: 0 }], { duration: 90, delay: delay + 130, easing: 'linear' });
 }
 
 /** A plain 8x8 board of the theme's squares (for the Battle Arena screen). */
@@ -1324,9 +1382,9 @@ export async function playBattle(
       // Swoop down onto the board: it tilts into a floor and the pieces stand up.
       await camera.swoopIn(A, V);
     } else {
-      // Open the arena from the square where the capture happens.
-      const o = `${origin.x}% ${origin.y}%`;
-      void s.anim(s.root, [{ clipPath: `circle(0% at ${o})` }, { clipPath: `circle(150% at ${o})` }], 450, 'ease-in');
+      // Zoom into the arena from the square where the capture happens.
+      s.root.style.transformOrigin = `${origin.x}% ${origin.y}%`;
+      void s.anim(s.root, [{ opacity: 0, transform: 'scale(0.6)' }, { opacity: 1, transform: 'scale(1)' }], 380, 'ease-out');
       void s.go(A, [K(-30, 0), K(0, 0)], 450, 'ease-out');
       await s.go(V, [K(30, 0), K(0, 0)], 450, 'ease-out');
     }

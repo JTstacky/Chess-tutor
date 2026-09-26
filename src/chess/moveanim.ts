@@ -5,7 +5,8 @@ import type { BoardPiece } from './board';
 import { playBattle, type BattleFloor } from './battle';
 import { sfx, sounds, type Sfx } from './sound';
 import { pieceSrc, type Theme } from './themes';
-import type { Timeline } from './timeline';
+import { glyph } from './glyphs';
+import { tagged, type Timeline } from './timeline';
 
 export interface MoveInfo {
   from: Square;
@@ -53,10 +54,11 @@ const snd = (ctx: MoveContext, name: Sfx) => {
 };
 
 /** A board piece transform: position in squares, plus rotation and scale. */
-const P = (x: number, y: number, r = 0, sx = 1, sy = sx, o = 1): Keyframe => ({
+const buildP = ([x, y, r, sx, sy, o]: number[]): Keyframe => ({
   transform: `translate(${x * 100}%, ${y * 100}%) rotate(${r}deg) scale(${sx}, ${sy})`,
-  opacity: o,
+  opacity: Math.max(0, Math.min(1, o)),
 });
+const P = (x: number, y: number, r = 0, sx = 1, sy = sx, o = 1): Keyframe => tagged([x, y, r, sx, sy, o], buildP);
 const xyOf = ([x, y]: Pt) => ({ x, y });
 const lerp = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 const dist = (a: Pt, b: Pt) => Math.hypot(b[0] - a[0], b[1] - a[1]);
@@ -68,15 +70,16 @@ function particle(ctx: MoveContext, content: string, at: Pt, frames: Keyframe[],
   el.style.left = `${(at[0] + 0.5) * 12.5}%`;
   el.style.top = `${(at[1] + 0.5) * 12.5}%`;
   el.style.fontSize = `${(ctx.board.clientWidth / 8) * size}px`;
-  el.innerHTML = `<span>${content}</span>`;
+  el.innerHTML = `<span>${glyph(content)}</span>`;
   ctx.fxLayer.append(el);
   void ctx.tl.anim(el, frames, { duration: dur, easing: 'ease-out' }).then(() => el.remove());
 }
 
-const off = (dx: number, dy: number, r = 0, s = 1, o = 1): Keyframe => ({
+const buildOff = ([dx, dy, r, s, o]: number[]): Keyframe => ({
   transform: `translate(${dx}em, ${dy}em) rotate(${r}deg) scale(${s})`,
-  opacity: o,
+  opacity: Math.max(0, Math.min(1, o)),
 });
+const off = (dx: number, dy: number, r = 0, s = 1, o = 1): Keyframe => tagged([dx, dy, r, s, o], buildOff);
 
 function sparkles(ctx: MoveContext, at: Pt, n = 6, char = ctx.theme.spark) {
   for (let i = 0; i < n; i++) {
@@ -122,7 +125,7 @@ const knightLeap: Mover = async (ctx, el, a, b) => {
   await ctx.tl.anim(el, [
     { ...P(a[0], a[1]), offset: 0 },
     { ...P(a[0], a[1] + 0.05, 0, 1.12, 0.84), offset: 0.14 },
-    { ...P(mx, my - 1.3, -18 * lean, 1.3), offset: 0.55 },
+    { ...P(mx, my - 0.5, -14 * lean, 1.45), offset: 0.55 },
     { ...P(b[0], b[1], 8 * lean, 1.12, 0.86), offset: 0.88 },
     { ...P(b[0], b[1]), offset: 1 },
   ], { duration: 620, easing: 'ease-in-out' });
@@ -202,7 +205,7 @@ const pawnMarch: Mover = (ctx, el, a, b) => {
 const pawnSkip: Mover = async (ctx, el, a, b) => {
   const [mx, my] = lerp(a, b, 0.5);
   snd(ctx, 'hop');
-  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 0.8, 0, 1.05), offset: 0.5 }, { ...P(b[0], b[1], 0, 1.1, 0.9), offset: 0.8 }, P(b[0], b[1])], { duration: 460, easing: 'ease-in-out' });
+  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 0.35, 0, 1.22), offset: 0.5 }, { ...P(b[0], b[1], 0, 1.1, 0.9), offset: 0.8 }, P(b[0], b[1])], { duration: 460, easing: 'ease-in-out' });
   snd(ctx, 'pop');
   sparkles(ctx, b, 5);
   await ctx.tl.anim(el, [P(b[0], b[1], 0), P(b[0], b[1], 360)], { duration: 300, easing: 'ease-out' });
@@ -229,7 +232,7 @@ const knightFlip: Mover = async (ctx, el, a, b) => {
   const [mx, my] = lerp(a, b, 0.5);
   const dir = b[0] >= a[0] ? -1 : 1;
   snd(ctx, 'whoosh');
-  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 1.4, dir * 180, 1.2), offset: 0.5 }, { ...P(b[0], b[1], dir * 360, 1.1, 0.88), offset: 0.88 }, P(b[0], b[1], dir * 360)], { duration: 640, easing: 'ease-in-out' });
+  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 0.55, dir * 180, 1.4), offset: 0.5 }, { ...P(b[0], b[1], dir * 360, 1.1, 0.88), offset: 0.88 }, P(b[0], b[1], dir * 360)], { duration: 640, easing: 'ease-in-out' });
   snd(ctx, 'thud');
   dust(ctx, b);
   sparkles(ctx, b, 4, '⭐');
@@ -259,9 +262,9 @@ const bishopSkate: Mover = async (ctx, el, a, b) => {
 /** Bishop: floats up by magic and drifts down onto the square. */
 const bishopFloat: Mover = async (ctx, el, a, b) => {
   snd(ctx, 'sparkle');
-  await ctx.tl.anim(el, [P(a[0], a[1]), P(a[0], a[1] - 0.5, 0, 1.15)], { duration: 250, easing: 'ease-out' });
-  await ctx.tl.anim(el, [P(a[0], a[1] - 0.5, 0, 1.15), P(b[0], b[1] - 0.5, 0, 1.15)], { duration: 200 + dist(a, b) * 90, easing: 'ease-in-out' });
-  await ctx.tl.anim(el, [P(b[0], b[1] - 0.5, 0, 1.15), P(b[0], b[1])], { duration: 220, easing: 'ease-in' });
+  await ctx.tl.anim(el, [P(a[0], a[1]), P(a[0], a[1] - 0.25, 0, 1.2)], { duration: 250, easing: 'ease-out' });
+  await ctx.tl.anim(el, [P(a[0], a[1] - 0.25, 0, 1.2), P(b[0], b[1] - 0.25, 0, 1.2)], { duration: 200 + dist(a, b) * 90, easing: 'ease-in-out' });
+  await ctx.tl.anim(el, [P(b[0], b[1] - 0.25, 0, 1.2), P(b[0], b[1])], { duration: 220, easing: 'ease-in' });
   sparkles(ctx, b, 8);
 };
 
@@ -307,7 +310,7 @@ const queenSwoop: Mover = async (ctx, el, a, b) => {
       particle(ctx, '💖', [x, y - Math.sin(t * Math.PI) * (0.6 + d * 0.15)], [off(0, 0, 0, 0.6), off(0, 0.3, 0, 0.9, 0)], 600, 0.25);
     });
   }
-  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 0.6 - d * 0.15, lean, 1.2), offset: 0.5 }, P(b[0], b[1])], { duration: dur, easing: 'ease-in-out' });
+  await ctx.tl.anim(el, [P(a[0], a[1]), { ...P(mx, my - 0.3 - d * 0.06, lean, 1.3), offset: 0.5 }, P(b[0], b[1])], { duration: dur, easing: 'ease-in-out' });
   snd(ctx, 'appear');
 };
 

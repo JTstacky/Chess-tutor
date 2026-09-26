@@ -21,17 +21,6 @@
 .bt-flat { position: absolute; inset: 0; pointer-events: none; }
 .bt-flat img { position: absolute; left: 0; top: 0; width: 12.5%; height: 12.5%; }
 .bt-stand { position: absolute; pointer-events: none; filter: drop-shadow(0 calc(var(--u) * 0.5) calc(var(--u) * 0.4) rgba(0, 0, 0, 0.35)); }
-.on-board .bt-fighter::after {
-  content: '';
-  position: absolute;
-  left: 22%;
-  right: 22%;
-  bottom: 7%;
-  height: 9%;
-  z-index: -1;
-  border-radius: 50%;
-  background: radial-gradient(rgba(0, 0, 0, 0.4), transparent 70%);
-}
 .bt-world { position: absolute; inset: 0; }
 .bt-sky { position: absolute; inset: 0; }
 .bt-ground { position: absolute; left: 0; right: 0; top: calc(var(--u) * 77.5); bottom: 0; border-top: calc(var(--u) * 1) solid rgba(255, 255, 255, 0.35); }
@@ -39,14 +28,19 @@
 .bt-fighter { position: absolute; width: calc(var(--u) * 30); height: calc(var(--u) * 30); z-index: 2; transform-origin: 50% 88%; }
 .bt-inner, .bt-flip { position: absolute; inset: 0; transform-origin: 50% 88%; }
 .bt-flip img { width: 100%; height: 100%; display: block; }
-.bt-pet {
+.bt-body { position: absolute; inset: 0; transform-origin: 50% 88%; animation: bt-breathe 2.4s ease-in-out infinite; }
+@keyframes bt-breathe { 50% { transform: scale(1.012, 0.985); } }
+/* contact shadow on the floor (it stays down there when its fighter jumps) */
+.bt-shadow {
   position: absolute;
-  bottom: 6%;
-  font-size: calc(var(--u) * 8);
-  line-height: 1;
-  animation: bt-bob 0.5s ease-in-out infinite alternate;
+  width: calc(var(--u) * 17);
+  height: calc(var(--u) * 3.4);
+  margin: calc(var(--u) * -1.7) 0 0 calc(var(--u) * -8.5);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(20, 10, 40, 0.38), rgba(20, 10, 40, 0.18) 60%, transparent);
+  z-index: 1;
+  pointer-events: none;
 }
-@keyframes bt-bob { to { transform: translateY(calc(var(--u) * -1.5)); } }
 
 /* cartoon eyes */
 .bt-eye {
@@ -104,16 +98,16 @@
 .sooty { filter: brightness(0.4) sepia(0.4); }
 .frozen { filter: sepia(1) hue-rotate(160deg) saturate(2.2) brightness(1.1); }
 .glow { filter: drop-shadow(0 0 calc(var(--u) * 2) #b388ff) drop-shadow(0 0 calc(var(--u) * 1) #fff); }
-.zapped { animation: bt-zap 0.12s steps(2) infinite; }
+.zapped { animation: bt-zap 0.16s ease-in-out infinite alternate; }
 @keyframes bt-zap {
-  0% { filter: brightness(2.2) drop-shadow(0 0 calc(var(--u) * 2) #ffe600); }
-  100% { filter: invert(1) drop-shadow(0 0 calc(var(--u) * 2) #00e5ff); }
+  from { filter: brightness(1.15) drop-shadow(0 0 calc(var(--u) * 1) #fff3a0); }
+  to { filter: brightness(1.6) saturate(0.6) drop-shadow(0 0 calc(var(--u) * 2.4) #7fe7ff); }
 }
 
 /* props: a zero-size anchor at the point, with the content centred on it */
 .bt-prop { position: absolute; width: 0; height: 0; z-index: 3; pointer-events: none; }
 .bt-pc { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); line-height: 1; white-space: nowrap; }
-.bt-deco { z-index: 0; opacity: 0.9; }
+.bt-deco { z-index: 0; opacity: 0.85; filter: saturate(0.8); }
 .bt-fx { z-index: 4; }
 .flipx > .bt-pc { transform: translate(-50%, -50%) scaleX(-1); }
 .blue > .bt-pc { filter: hue-rotate(200deg) saturate(1.4); }
@@ -121,9 +115,10 @@
 .bt-pow { z-index: 6; }
 .bt-pow .bt-pc {
   font-weight: 700;
-  -webkit-text-stroke: 0.09em #2b2250;
+  letter-spacing: 0.02em;
+  -webkit-text-stroke: 0.07em #2b2250;
   paint-order: stroke fill;
-  text-shadow: 0 0.08em 0 #2b2250;
+  text-shadow: 0 0.06em 0 #2b2250, 0 0.14em 0.22em rgba(20, 10, 40, 0.3);
 }
 .bt-say { z-index: 6; }
 .bt-say .bt-pc {
@@ -227,14 +222,16 @@
 
 .bt-banner { position: absolute; top: calc(var(--u) * 3); left: 0; right: 0; z-index: 7; text-align: center; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 0.8); }
 .bt-banner b {
-  font-size: calc(var(--u) * 8);
+  font-size: calc(var(--u) * 6.4);
+  font-weight: 700;
   line-height: 1;
+  letter-spacing: 0.01em;
   color: #fff;
-  -webkit-text-stroke: calc(var(--u) * 1.4) #5236c4;
+  -webkit-text-stroke: calc(var(--u) * 0.9) #3b2a8f;
   paint-order: stroke fill;
-  text-shadow: 0 calc(var(--u) * 0.8) 0 #5236c4;
+  text-shadow: 0 calc(var(--u) * 0.5) 0 #3b2a8f, 0 calc(var(--u) * 1.2) calc(var(--u) * 1.6) rgba(20, 10, 40, 0.28);
 }
-.bt-banner small { font-size: calc(var(--u) * 3.2); color: #fff; background: rgba(30, 20, 60, 0.45); padding: calc(var(--u) * 0.4) calc(var(--u) * 2); border-radius: 99px; }
+.bt-banner small { font-size: calc(var(--u) * 2.7); font-weight: 500; letter-spacing: 0.03em; color: #fff; background: rgba(20, 12, 45, 0.5); padding: calc(var(--u) * 0.5) calc(var(--u) * 2.2); border-radius: 99px; }
 .bt-skip { position: absolute; right: calc(var(--u) * 2.5); bottom: calc(var(--u) * 2.5); z-index: 7; font-size: calc(var(--u) * 3); color: #fff; background: rgba(30, 20, 60, 0.4); padding: calc(var(--u) * 0.6) calc(var(--u) * 2); border-radius: 99px; }
 
 /* ---- theme backdrops ---- */
@@ -266,7 +263,7 @@
 .bt-dino .bt-ground { background: linear-gradient(#94c65c, #5c8f2f); }
 
 @media (prefers-reduced-motion: reduce) {
-  .bt-eye, .bt-pet { animation: none; }
+  .bt-eye, .bt-body { animation: none; }
 }
 
 /* ---- props for the extra attacks ---- */

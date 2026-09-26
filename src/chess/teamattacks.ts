@@ -67,7 +67,8 @@ export const TEAM_ATTACKS: Record<string, Attack[]> = {
         const beam = s.beam(AX + 4, EYE - 12, VX - 2, EYE, 'beam-rainbow', 200);
         s.addClass(V, 'glow');
         s.mood(V, 'shock');
-        s.pow('✨RAINBOW✨', VX, 36, { color: '#ff5fa2', size: 7 });
+        s.pow('RAINBOW!', VX, 36, { color: '#ff5fa2', size: 8 });
+        s.twinkle(VX - 16, 34);
         s.burst(VX, EYE, ['🌈', '✨', '⭐'], { n: 8, dist: 16 });
         await s.fx(V, [K(-1, 0), K(1, 0)], { duration: 80, iterations: 8 });
         beam.remove();
