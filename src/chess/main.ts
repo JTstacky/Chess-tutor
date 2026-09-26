@@ -130,6 +130,15 @@ function wireThemes(v: HTMLElement) {
   });
 }
 
+/** Think-ahead coach on by default; remembered between games. */
+function thinkOn(): boolean {
+  try {
+    return localStorage.getItem('tg-chess-think') !== '0';
+  } catch {
+    return true;
+  }
+}
+
 function botSetupView(): HTMLElement {
   const unlocked = (id: string) => settings.unlockAllBots || profile.unlockedBots.includes(id);
   if (!unlocked(lastBotId)) lastBotId = 'sprout';
@@ -154,6 +163,12 @@ function botSetupView(): HTMLElement {
         <button class="chip ${lastColor === 'random' ? 'on' : ''}" data-color="random">🎲 Random</button>
         <button class="chip ${lastColor === 'b' ? 'on' : ''}" data-color="b">⚫ Black</button>
       </div>
+      <h3>Coach</h3>
+      <div class="chips">
+        <button class="chip ${thinkOn() ? 'on' : ''}" data-think="1">🧠 Think-ahead coach</button>
+        <button class="chip ${thinkOn() ? '' : 'on'}" data-think="0">Play on my own</button>
+      </div>
+      <p class="setup-note">The think-ahead coach shows what your opponent is planning, your best ideas, and what happens a few moves later. Then you guess their reply!</p>
       <h3>Clock</h3>
       <div class="chips">${timeChips(lastTime)}</div>
       <h3>Theme</h3>
@@ -172,11 +187,12 @@ function botSetupView(): HTMLElement {
     setBlurb();
   });
   wireChips(v, 'color', (c) => (lastColor = c as Color | 'random'));
+  wireChips(v, 'think', (on) => localStorage.setItem('tg-chess-think', on));
   wireChips(v, 'time', (i) => (lastTime = Number(i)));
   wireThemes(v);
   v.querySelector('.start')!.addEventListener('click', () => {
     const color: Color = lastColor === 'random' ? (Math.random() < 0.5 ? 'w' : 'b') : lastColor;
-    startGame({ mode: 'bot', bot: botById(lastBotId), playerColor: color, time: TIME_CONTROLS[lastTime], theme: lastTheme });
+    startGame({ mode: 'bot', bot: botById(lastBotId), playerColor: color, time: TIME_CONTROLS[lastTime], theme: lastTheme, thinkAhead: thinkOn() });
   });
   return v;
 }

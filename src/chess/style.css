@@ -502,3 +502,30 @@ h3 { margin: 20px 0 8px; font-size: 18px; color: var(--muted); font-weight: 600;
 .player-bar .who { overflow: hidden; }
 .captured { overflow: hidden; text-overflow: clip; }
 .moves { position: relative; }
+
+/* ---- think-ahead coach ---- */
+.think { background: var(--card); border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+.think[hidden] { display: none; }
+.think p { margin: 2px 0 0; line-height: 1.35; }
+.think-step b { font-size: 15px; }
+.think-step small { color: var(--muted); }
+.think-step.danger { background: #fff1f0; border-radius: 12px; padding: 6px 8px; }
+.think-step.guess { background: #f1ecff; border-radius: 12px; padding: 8px 10px; }
+.think-loading { color: var(--muted); }
+.cands { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.cand { display: grid; grid-template-columns: 26px auto 1fr; gap: 6px; align-items: center; text-align: left; border: 2px solid #e6e0fb; background: #faf8ff; border-radius: 12px; padding: 6px 8px; font-size: 15px; }
+.cand small { color: var(--muted); font-size: 13px; line-height: 1.25; }
+.cand.best { border-color: #b8e8cc; }
+.cand.risky { border-color: #ffd7a8; }
+.cand.on { border-color: var(--brand); background: #efeaff; }
+.think-line { margin: 0; padding: 8px 10px 8px 28px; background: #f7f5ff; border-radius: 12px; display: flex; flex-direction: column; gap: 4px; }
+.think-line[hidden] { display: none; }
+.think-line li.mine b { color: #2c8a4f; }
+.think-line li.theirs b { color: #c43b3b; }
+.think-line li.verdict { list-style: none; margin-left: -18px; font-weight: 600; }
+.think-tip { color: var(--muted); font-size: 13px; }
+.guess-note { background: #f1ecff; border-radius: 10px; padding: 6px 10px; }
+.guess-score { font-weight: 600; color: var(--brand); white-space: nowrap; }
+button.mini { border: 0; background: var(--brand); color: #fff; border-radius: 999px; padding: 4px 14px; font-size: 14px; margin-top: 4px; }
+.controls button.on { background: #efeaff; outline: 2px solid var(--brand); }
+.setup-note { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
