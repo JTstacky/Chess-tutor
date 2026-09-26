@@ -55,6 +55,12 @@ All state is saved in the browser's localStorage.
 
 Every push to `main` builds and deploys via `.github/workflows/deploy.yml`.
 
+**Arcane Arena** (`/arcane-arena/`) and **Hammerguy's Party** (`/hammerguys-party/`) live in their own repos
+([JTstacky/Arcane-Arena](https://github.com/JTstacky/Arcane-Arena), [JTstacky/Hammerguy-s-Party](https://github.com/JTstacky/Hammerguy-s-Party)).
+The deploy clones and builds them into the site with `scripts/build-external-games.sh`. It re-runs when either game
+repo sends a `game-updated` dispatch, or run it by hand from the Actions tab. To include them in a local build:
+`npm run build && scripts/build-external-games.sh`.
+
 One-time setup:
 1. GitHub → repo **Settings → Pages** → Source: **GitHub Actions**. Custom domain: `tenggames.com.au` (the `public/CNAME` file sets this too), then tick **Enforce HTTPS** once the certificate is issued.
 2. GoDaddy → **My Products → tenggames.com.au → DNS**:
