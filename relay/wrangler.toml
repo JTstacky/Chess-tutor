@@ -1,0 +1,17 @@
+# Teng Games multiplayer relay (Cloudflare Worker + Durable Objects, free plan).
+# Deployed by .github/workflows/relay.yml. See relay/README.md.
+name = "tenggames-relay"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+# Pages allowed to use the relay (comma separated; "*" allows any).
+ALLOWED_ORIGINS = "https://tenggames.com.au,https://www.tenggames.com.au,https://jtstacky.github.io,http://localhost,http://127.0.0.1"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

@@ -1,0 +1,80 @@
+name: Deploy multiplayer relay
+
+# Deploys relay/ (the WebSocket relay the games fall back to when players
+# can't connect directly) to Cloudflare Workers, then points the site at it
+# by writing public/relay.json and redeploying the site.
+#
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   an API token made from the "Edit Cloudflare Workers" template
+#   CLOUDFLARE_ACCOUNT_ID  shown on the Workers & Pages overview page
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['relay/**']
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: relay
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check for Cloudflare secrets
+        id: secrets
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are not set, so the relay was not deployed. See relay/README.md."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.ok == 'true'
+        with:
+          node-version: 22
+      - name: Deploy the Worker
+        if: steps.secrets.outputs.ok == 'true'
+        working-directory: relay
+        run: |
+          npm ci
+          npx wrangler deploy 2>&1 | tee deploy.log
+          url=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          if [ -z "$url" ]; then echo "::error::Couldn't find the relay's workers.dev address in the deploy output."; exit 1; fi
+          echo "RELAY_URL=wss://${url#https://}" >> "$GITHUB_ENV"
+      - name: Check the relay answers
+        if: steps.secrets.outputs.ok == 'true'
+        run: |
+          for i in 1 2 3 4 5 6; do
+            curl -fsS "https://${RELAY_URL#wss://}/health" && exit 0
+            sleep 5
+          done
+          echo "::error::The relay did not answer /health"; exit 1
+      - name: Point the site at the relay
+        if: steps.secrets.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          printf '{"url":"%s"}\n' "$RELAY_URL" > public/relay.json
+          if git diff --quiet -- public/relay.json && git ls-files --error-unmatch public/relay.json >/dev/null 2>&1; then
+            echo "public/relay.json already points at $RELAY_URL"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/relay.json
+          git commit -m "Point the games at the multiplayer relay ($RELAY_URL)"
+          git push
+          # Pushes made with the workflow token don't start other workflows,
+          # so start the site deploy explicitly.
+          gh workflow run deploy.yml --ref main
