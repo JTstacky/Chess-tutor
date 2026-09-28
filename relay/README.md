@@ -6,6 +6,8 @@ The relay is a small Cloudflare Worker with one Durable Object per game code. It
 
 Cloudflare's free plan is enough. This site is static GitHub Pages, so it can't run the relay itself.
 
+The full multiplayer design lives in each game repo, in [docs/multiplayer.md](https://github.com/JTstacky/Arcane-Arena/blob/main/docs/multiplayer.md). It covers direct connections, this relay, snapshot compression, prediction and every setting, plus how to add a new game.
+
 ## How the games find it
 
 The games read `/relay.json` from the site, which looks like `{"url":"wss://…"}`. Without that file, they use direct connections only, as before.
