@@ -164,8 +164,8 @@ export class TitleScene {
       ctx.drawImage(this.logo, W / 2 - (this.logo.width * s) / 2, 40, this.logo.width * s, this.logo.height * s);
       ctx.restore();
     } else {
-      text('BELIARDS', W / 2, 90, { size: 64, align: 'center', color: '#e8423a', weight: 700 });
-      text('A ZELIARD REMAKE', W / 2, 170, { size: 20, align: 'center', color: COLORS.gold });
+      text('ZELIARD', W / 2, 90, { size: 64, align: 'center', color: '#e8423a', weight: 700 });
+      text('REMASTERED', W / 2, 170, { size: 20, align: 'center', color: COLORS.gold });
     }
     if (this.credits != null) return this.drawCredits();
     if (this.controls) return this.drawControls();
@@ -198,10 +198,10 @@ export class TitleScene {
   drawCredits() {
     panel(140, 220, W - 280, 280);
     const lines = [
-      'Beliards — a fan remake of Zeliard',
+      'Zeliard — Remastered (a fan remake)',
       'Original game: Game Arts (1987) · English release: Sierra On-Line (1990)',
       'Remastered art: OpenAI Codex image model, directed for this remake',
-      'Code: Claude (Anthropic) · Music & sound: synthesised for Beliards',
+      'Code: Claude (Anthropic) · Music & sound: synthesised for this remake',
       'Level data and rules extracted from the Sierra DOS release',
       'Japanese text translated from the original 1987 versions',
       'Reverse-engineering references: nolanvenhola/zeliard, thedragonheir/Zeliard',

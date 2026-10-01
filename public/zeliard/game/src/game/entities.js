@@ -3,7 +3,23 @@
 // kinds of platform, and the Tear marker. The "accomplished" table is applied first,
 // so items already taken and doors already opened stay that way.
 import { TILE, F } from '../world/tilemap.js';
-import { preloadSheets, sheetNow } from '../core/assets.js';
+import { preloadSheets, sheetNow, image, imageNow } from '../core/assets.js';
+
+// Remastered prop art cut from art/props/cavern_props.raw.png (tools/art/cut_props.py).
+// Each is drawn scaled to the object's width, bottom-aligned; missing art falls back to
+// the shapes drawn below.
+const PROP_ART = ['door_locked', 'door_open', 'door_lion', 'lift', 'ledge', 'crumbler'];
+for (const k of PROP_ART) image(`art/props/${k}.png`);
+function drawProp(key, x, bottom, w, alpha = 1) {
+  const img = imageNow(`art/props/${key}.png`);
+  if (!img) return false;
+  const h = (img.height * w) / img.width;
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.drawImage(img, Math.round(x), Math.round(bottom - h), Math.round(w), Math.round(h));
+  ctx.restore();
+  return true;
+}
 import { ctx, text, COLORS } from '../render/screen.js';
 import { audio } from '../core/audio.js';
 import { Enemy, enemyDef, FRAME } from './enemies.js';
@@ -263,6 +279,8 @@ export class Door {
   }
   draw(cx, cy, t) {
     const x = this.x - cx, y = this.y - cy, w = this.w, h = this.h;
+    const art = this.locked ? (this.d.lock === 'lion' ? 'door_lion' : 'door_locked') : 'door_open';
+    if (drawProp(art, x - w * 0.05, y + h + 2, w * 1.1)) return;
     ctx.save();
     // stone arch
     ctx.fillStyle = '#2a2230';
@@ -309,9 +327,17 @@ class Platform {
     const m = world.map, top = this.ty * TILE;
     return world.heroes.filter((h) => h.alive && h.state !== 'climb' && Math.abs(m.nearY(h.feet, top) - top) < 3 && overlapsX(m, h, { x: this.tx * TILE, w: 3 * TILE }));
   }
-  drawAt(cx, cy, color) {
+  drawAt(cx, cy, color, art) {
     const a = Math.min(1, this.acc / FRAME);
     const x = (this.ptx + (this.tx - this.ptx) * a) * TILE - cx, y = (this.pty + (this.ty - this.pty) * a) * TILE - cy;
+    // Art: the walkable top sits on the tile row; the plank hangs a little below it.
+    if (art && imageNow(`art/props/${art}.png`)) {
+      const img = imageNow(`art/props/${art}.png`);
+      const w = 3 * TILE + 8, h = (img.height * w) / img.width;
+      const below = art === 'lift' ? 16 : Math.min(h, 34); // lift art has ropes above the plank
+      drawProp(art, x - 4, y + below, w);
+      return { x, y, art: true };
+    }
     ctx.fillStyle = '#1a1208'; ctx.fillRect(x, y, 3 * TILE, 12);
     ctx.fillStyle = color; ctx.fillRect(x + 1, y + 1, 3 * TILE - 2, 8);
     ctx.fillStyle = 'rgba(255,240,200,0.35)'; ctx.fillRect(x + 1, y + 1, 3 * TILE - 2, 2);
@@ -342,7 +368,7 @@ class Lift extends Platform {
     }
   }
   draw(cx, cy) {
-    const { x, y } = this.drawAt(cx, cy, '#8a6a3a');
+    const { x, y } = this.drawAt(cx, cy, '#8a6a3a', 'lift');
     ctx.strokeStyle = 'rgba(200,180,140,0.5)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(x + 6, y); ctx.lineTo(x + 6, y - 500); ctx.moveTo(x + 3 * TILE - 6, y); ctx.lineTo(x + 3 * TILE - 6, y - 500); ctx.stroke();
   }
@@ -365,7 +391,7 @@ class Mover extends Platform {
       for (const h of riders) if (!world.map.rectSolid(h.x + this.dir * TILE, h.y, h.w, h.h)) h.x += this.dir * TILE;
     }
   }
-  draw(cx, cy) { this.drawAt(cx, cy, '#a07a44'); }
+  draw(cx, cy) { this.drawAt(cx, cy, '#a07a44', 'ledge'); }
 }
 
 // Crumbling ledge: gives way a moment after it is stepped on, then re-forms.
@@ -382,6 +408,6 @@ class Crumbler extends Platform {
   draw(cx, cy) {
     if (this.gone) return;
     const ox = this.shaking ? Math.sin(this.shaking * 90) * 2 : 0;
-    this.drawAt(cx - ox, cy, '#7a5a4a');
+    this.drawAt(cx - ox, cy, '#7a5a4a', 'crumbler');
   }
 }

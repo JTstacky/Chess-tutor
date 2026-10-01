@@ -20,11 +20,11 @@ export function listSlots() { return Array.from({ length: SLOTS }, (_, i) => loa
 
 // Back up every save slot to a .json file (for another browser or device).
 export function exportSaves() {
-  const data = { game: 'beliards', version: 1, exportedAt: new Date().toISOString(), slots: listSlots() };
+  const data = { game: 'zeliard', version: 1, exportedAt: new Date().toISOString(), slots: listSlots() };
   const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `beliards-saves-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `zeliard-saves-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -43,7 +43,7 @@ export function importSaves() {
         const f = inp.files?.[0];
         if (!f) { resolve(0); return; }
         const data = JSON.parse(await f.text());
-        if (data.game !== 'beliards' || !Array.isArray(data.slots)) throw new Error('That is not a Beliards save file.');
+        if (!['zeliard', 'beliards'].includes(data.game) || !Array.isArray(data.slots)) throw new Error('That is not a Zeliard save file.');
         let n = 0;
         data.slots.slice(0, SLOTS).forEach((s, i) => { if (s && typeof s === 'object' && s.name) { write(`save.${i}`, s); n++; } });
         resolve(n);

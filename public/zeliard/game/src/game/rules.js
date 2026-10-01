@@ -104,12 +104,24 @@ function setupText(data, jp) {
     if (NAME_CATS.has(e.category)) for (const alt of e.dos_en.split(/\s*\/\s*/)) names.push([alt, e.en]);
     else if (LINE_CATS.has(e.category)) {
       // Sierra lines are quoted with "..." where they were cut; match on the first part.
-      const head = norm(e.dos_en.split(/\.\.\.|…/)[0]);
-      if (head.length >= 12) lines.push([head, e.en]);
+      const parts = e.dos_en.split(/\.\.\.|…/);
+      while (parts.length > 1 && !parts[0].trim()) parts.shift(); // "...and seal him" continues a line
+      const head = norm(parts[0]);
+      // "First line... rest" means the Japanese line stands for several Sierra lines.
+      const spans = parts.slice(1).some((s) => /[a-z]/i.test(s));
+      if (head.length >= 12) lines.push([head, e.en, spans]);
     }
   }
   names.sort((a, b) => b[0].length - a[0].length);
   const byName = new Map(names.map(([a, b]) => [a.toLowerCase(), b]));
+  // Story text: { text, head, spans } for the Japanese line whose Sierra source starts
+  // `t` (callers pass the rest of a page joined, since Sierra splits sentences over lines).
+  RULES.localizeLine = !jp ? () => null : (t) => {
+    const n = norm(t || '');
+    for (const [head, en, spans] of lines) if (n.startsWith(head)) return { text: en, head, spans };
+    return null;
+  };
+  RULES.normText = norm;
   RULES.localize = !jp ? (t) => t : (t) => {
     if (typeof t !== 'string' || !t) return t;
     const n = norm(t);

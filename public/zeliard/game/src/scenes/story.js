@@ -5,6 +5,7 @@ import { ctx, W, H, text, panel, COLORS, drawCover, fade, wrap } from '../render
 import { image } from '../core/assets.js';
 import { audio } from '../core/audio.js';
 import { sheetNow } from '../core/assets.js';
+import { RULES } from '../game/character.js';
 
 // Original picture -> remastered panel file (art/story/<file>.png).
 const PANELS = {
@@ -23,6 +24,35 @@ function pictureFor(graphic) {
   return main ? PANELS[main] : null;
 }
 
+// Japanese balance: swap Sierra lines for the 1987 wording. A Japanese line that stands
+// for several Sierra lines also drops the Sierra lines it covers (until the next match).
+function localizeLines(lines) {
+  if (!RULES.localizeLine) return lines;
+  const out = [];
+  let covering = false;
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    // Match against this line and the ones after it by the same speaker.
+    let j = i;
+    while (j + 1 < lines.length && lines[j + 1].speaker === l.speaker && lines[j + 1].text) j++;
+    const jp = l.text && RULES.localizeLine(lines.slice(i, j + 1).map((x) => x.text).join(' '));
+    if (jp) {
+      out.push({ ...l, text: jp.text });
+      // Skip the Sierra lines this match consumed.
+      let used = RULES.normText(l.text).length;
+      while (i + 1 <= j && used < jp.head.length) { i++; used += 1 + RULES.normText(lines[i].text).length; }
+      // ...and the rest of that Sierra sentence (continuation lines start in lower case).
+      while (i + 1 <= j && /^[a-z]/.test(lines[i + 1].text.trim())) i++;
+      covering = jp.spans;
+      continue;
+    }
+    if (covering && l.text) continue;
+    covering = false;
+    out.push(l);
+  }
+  return out;
+}
+
 function pagesFrom(scenes, skipPhases = []) {
   const out = [];
   let last = null;
@@ -33,7 +63,7 @@ function pagesFrom(scenes, skipPhases = []) {
     if (/Jashiin apparition|blended with the Jashiin/.test(sc.graphic || '')) pic = 'jashiin_curse';
     last = pic;
     for (const p of sc.pages || []) {
-      const lines = p.lines.filter((l) => l.text !== undefined);
+      const lines = localizeLines(p.lines.filter((l) => l.text !== undefined));
       if (!lines.length) continue;
       // A page is one or more speakers; group consecutive lines by speaker.
       const chunks = [];
@@ -93,8 +123,6 @@ export class StoryScene {
       this.pages = [{ pic: 'tear', chunks: [{ speaker: '', text: `Duke Garland recovered a Tear of Esmesanti. (${n} of 9)` }], tear: n }];
       if (n >= 9) this.pages.push({ pic: 'tear', chunks: [{ speaker: '', text: 'All nine Tears shine together. The way to Jashiin lies open.' }], tear: n });
     }
-    // Japanese difficulty: show the 1987 Japanese wording where the translation has it.
-    if (game.data.text && game.rulesDifficulty === 'japanese') for (const p of this.pages) for (const ch of p.chunks) ch.text = game.localize?.(ch.text) || ch.text;
     this.pages = this.pages.flatMap((p) => fitPage(p));
     for (const p of this.pages) if (p.pic && !(p.pic in this.imgs)) { this.imgs[p.pic] = null; image(`art/story/${p.pic}.png`).then((im) => { this.imgs[p.pic] = im; }); }
     image('art/ui/title_keyart.png').then((i) => { this.fallback = i; });
