@@ -1,0 +1,16 @@
+{
+  "name": "Zeliard — Remastered",
+  "short_name": "Zeliard",
+  "description": "A browser remake of Game Arts' 1987 action RPG Zeliard.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#07060b",
+  "theme_color": "#07060b",
+  "icons": [
+    { "src": "art/ui/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "art/ui/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

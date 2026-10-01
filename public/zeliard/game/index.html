@@ -6,6 +6,13 @@
 <title>Zeliard — Remastered</title>
 <meta name="description" content="A browser remake of Game Arts' 1987 action RPG Zeliard, with remastered art and online co-op.">
 <link rel="icon" href="art/ui/icon.png">
+<!-- Added to the home screen it runs fullscreen and landscape, like an app. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="art/ui/icon-192.png">
+<meta name="theme-color" content="#07060b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   @font-face { font-family: 'Beliards'; src: url('fonts/PixelifySans.ttf') format('truetype'); font-display: block; }
   html, body { margin: 0; height: 100%; background: #07060b; overflow: hidden; touch-action: none; }
@@ -41,6 +48,9 @@
   .tc-btn.magic { right: 0; top: 0; background: radial-gradient(circle at 40% 30%, #c6a0ff, #7044c0 60%, #301a5c); }
   .tc-pill { height: 30px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: var(--ink); font-size: 14px;
     background: var(--glass); box-shadow: 0 0 0 1.5px var(--rim2), 0 0 0 3px rgba(201, 165, 90, .6), 0 4px 10px rgba(0, 0, 0, .5); }
+  .tc-pill.fs { display: none; font-size: 12px; }
+  #touch.show-fs .tc-pill.fs { display: flex; }
+  .tc-corners { width: 10px; height: 10px; margin-right: 7px; border: 2px solid var(--rim); clip-path: polygon(0 0, 40% 0, 40% 15%, 60% 15%, 60% 0, 100% 0, 100% 40%, 85% 40%, 85% 60%, 100% 60%, 100% 100%, 60% 100%, 60% 85%, 40% 85%, 40% 100%, 0 100%, 0 60%, 15% 60%, 15% 40%, 0 40%); }
   .tc-bars { width: 4px; height: 12px; margin-right: 8px; border-left: 4px solid var(--rim); border-right: 4px solid var(--rim); }
   .tc-btn.held, .tc-pill.held { transform: scale(.92); filter: brightness(1.35); }
   .tc-pill.held { background: rgba(201, 165, 90, .45); }

@@ -26,6 +26,7 @@ const TEMPLATE = `
   </div>
   <div class="tc-pill pause" data-a="pause"><i class="tc-bars"></i><span>Pause</span></div>
   <div class="tc-pill menu" data-a="menu"><span>Items</span></div>
+  <div class="tc-pill fs" data-role="fs"><i class="tc-corners"></i><span>Full screen</span></div>
   <input class="tc-text" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" aria-label="Type here">
 `;
 
@@ -60,11 +61,39 @@ export function setupTouch() {
     const pills = host.querySelectorAll('.tc-pill');
     Object.assign(pills[0].style, { left: `${m + (D - pw) / 2}px`, top: `${top}px`, width: `${pw}px` });
     Object.assign(pills[1].style, { right: `${m + (D - pw) / 2}px`, top: `${top}px`, width: `${pw}px` });
+    Object.assign(pills[2].style, { left: `${m + (D - pw) / 2}px`, top: `${top + 40}px`, width: `${pw}px` });
   }
   window.addEventListener('resize', layout);
   window.visualViewport?.addEventListener('resize', layout);
   layout();
   setTimeout(layout, 300); // after the canvas has been sized
+
+  // ---------------------------------------------------------------- fullscreen
+  // A page can't hide the browser bars itself, but a tap may ask for fullscreen. The first tap
+  // anywhere does; after the player leaves it (e.g. Android's back gesture) a pill offers it
+  // again. Installed to the home screen, the manifest already opens it fullscreen.
+  const root = document.documentElement;
+  const canFs = !!(root.requestFullscreen || root.webkitRequestFullscreen);
+  const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const installed = matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true;
+  let left = false;
+  const enterFs = () => {
+    if (!canFs || isFs() || installed) return;
+    try {
+      const req = root.requestFullscreen ? root.requestFullscreen({ navigationUI: 'hide' }) : root.webkitRequestFullscreen();
+      Promise.resolve(req).then(() => screen.orientation?.lock?.('landscape')).catch(() => {});
+    } catch { /* not allowed here */ }
+  };
+  const fsChanged = () => {
+    if (!isFs()) left = true;
+    host.classList.toggle('show-fs', canFs && !installed && !isFs() && left);
+    layout();
+  };
+  document.addEventListener('fullscreenchange', fsChanged);
+  document.addEventListener('webkitfullscreenchange', fsChanged);
+  // For touch, a gesture counts as the user's (and may open fullscreen) when the finger lifts,
+  // not when it lands, so ask on pointerup.
+  window.addEventListener('pointerup', () => { if (!left) enterFs(); }, { capture: true });
 
   // ---------------------------------------------------------------- fingers
   const fingers = new Map(); // pointerId -> { kind: 'dpad' | 'btn' | 'none', acts: [] }
@@ -103,6 +132,7 @@ export function setupTouch() {
     const t = e.target.closest('[data-a], [data-role]');
     if (!t) return;
     e.preventDefault();
+    if (t.dataset.role === 'fs') { left = false; return; } // the pointerup that follows asks for it
     const a = t.dataset.a;
     // While a text prompt is open the buttons answer it instead of playing.
     if (input.textCapture && a) {
