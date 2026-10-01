@@ -8,6 +8,7 @@ import { Dialogue, Menu } from '../ui/widgets.js';
 import { RULES, maxHp, levelUp, refillSpells, sageTier, xpNeeded, shieldTier } from '../game/character.js';
 import { SPELLS, SPELL_ORDER } from '../game/spells.js';
 import { splitPages } from './town.js';
+const GOLD_MAX = 16777215; // 24-bit purse, as in the original
 
 const PORTRAIT = {
   weapons_and_armour_shop: 'smith', magic_shop: 'witch', bank: 'banker', inn: 'innkeeper', church: 'priest', sage: 'sage', king: 'king', princess_chamber: 'felicia',
@@ -149,7 +150,7 @@ export class BuildingScene {
         const old = isSword ? c.sword : c.shield;
         if (old) {
           const back = Math.floor(this.price(old) / 2);
-          c.gold += back;
+          c.gold = Math.min(GOLD_MAX, c.gold + back);
           this.addStock(isSword ? 'weapons' : 'shields', old);
           await this.say(fill(isSword ? T.trade_in_weapon : T.trade_in_shield, { N: back }));
         }
@@ -191,7 +192,7 @@ export class BuildingScene {
         const id = c.items[i];
         const offer = Math.floor(this.price(id) / 2);
         if ((await this.ask(fill(T.sell_offer, { N: offer }))) !== 0) { await this.say(T.sell_declined); continue; }
-        c.items.splice(i, 1); c.gold += offer; audio.sfx('coin_pickup');
+        c.items.splice(i, 1); c.gold = Math.min(GOLD_MAX, c.gold + offer); audio.sfx('coin_pickup');
         await this.say(T.thanks);
       } else if (v === 'desc') {
         const id = await this.choose([...this.stock('magic').map((x) => ({ label: RULES.items[x]?.name || x, value: x })), { label: 'Back', value: null }], { title: T.describe_prompt });
@@ -219,7 +220,7 @@ export class BuildingScene {
         if ((await this.ask(fill(T.rate, { IN: inA, OUT: outG }))) !== 0) continue;
         if (c.almas < inA) { await this.say(T.not_enough_almas); continue; }
         const n = Math.floor(c.almas / inA);
-        c.almas -= n * inA; c.gold = Math.min(16777215, c.gold + n * outG);
+        c.almas -= n * inA; c.gold = Math.min(GOLD_MAX, c.gold + n * outG);
         audio.sfx('coin_pickup');
         this.game.toast(`+${n * outG} gold`, COLORS.gold);
       } else if (v === 'dep') {
@@ -232,7 +233,8 @@ export class BuildingScene {
       } else if (v === 'wd') {
         if (!c.bank) { await this.say(T.empty_account); continue; }
         await this.say(T.withdraw_prompt);
-        const n = await this.amount(c.bank, 'Withdraw');
+        // The purse holds at most 16,777,215 G (24 bits, as the original): withdraw up to that.
+        const n = await this.amount(Math.min(c.bank, GOLD_MAX - c.gold), 'Withdraw');
         if (!n) continue;
         c.bank -= n; c.gold += n; audio.sfx('coin_pickup');
         await this.say(n === 1 ? T.withdraw_one : fill(T.withdraw_done, { N: n }));
@@ -338,7 +340,7 @@ export class BuildingScene {
     const lines = sc ? sc.lines : ['Brave Duke Garland...'];
     if (id === 'first_visit') {
       await this.say(lines.slice(0, 3).join(' '), { speaker: 'King Felishika' });
-      for (let i = 0; i < 10; i++) { for (const l of g.locals) l.character.gold += 100; audio.sfx('coin_pickup', { vol: 0.5, rate: 1 + i * 0.03 }); await wait(130); }
+      for (let i = 0; i < 10; i++) { for (const l of g.locals) l.character.gold = Math.min(GOLD_MAX, l.character.gold + 100); audio.sfx('coin_pickup', { vol: 0.5, rate: 1 + i * 0.03 }); await wait(130); }
       g.setBit('0x05', 0xff);
       await this.say(lines.slice(3), { speaker: 'King Felishika' });
     } else await this.say(lines.join(' '), { speaker: 'King Felishika' });

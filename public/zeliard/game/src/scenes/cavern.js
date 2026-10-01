@@ -31,6 +31,8 @@ export class CavernScene {
       const h = l.hero;
       h.state = 'idle';
       h.attack = null;
+      // A fallen knight the party carried along wakes like a rekindled one (never at 0 HP).
+      if (l.character.hp <= 0 && !h.fairy) l.character.hp = Math.ceil(maxHp(l.character) * 0.3);
       if (o.left != null) h.placeTiles(o.left, o.headRow);
       else if (o.x != null) h.place(o.x * TILE, (o.y ?? 10) * TILE);
       else if (w.data.spawn) h.place(w.data.spawn.x, w.data.spawn.y);
@@ -83,9 +85,14 @@ export class CavernScene {
       w.collectPickups(h);
       if (l.input.pressed('up') && h.alive && h.onGround && h.state !== 'climb') this.tryDoor(l);
       // Keep the knight inside the wrapped map, shifting its camera by the same amount.
+      // Couch co-op shares one camera (h.cam === this.cam) that follows the leader, so only
+      // the leader's wrap moves it, once; solo moves the knight's own camera.
       const [sx, sy] = w.map.normalize(h);
-      if ((sx || sy) && h.cam) { h.cam.x += sx; h.cam.y += sy; }
-      if ((sx || sy) && g.locals[0] === l) { this.cam.x += sx; this.cam.y += sy; }
+      if (sx || sy) {
+        h.fallStartY += sy;
+        if (g.locals.length === 1) { if (h.cam) { h.cam.x += sx; h.cam.y += sy; } }
+        else if (g.locals[0] === l) { this.cam.x += sx; this.cam.y += sy; }
+      }
     }
     g.upkeep(w, dt);
     // World
@@ -108,6 +115,7 @@ export class CavernScene {
       if (lion) c.lionKeys--; else c.keys--;
       door.locked = false;
       if (door.d.saveFlag) g.setBit(door.d.saveFlag.byte, door.d.saveFlag.mask);
+      else for (const k of g.locals) { const od = (k.character.openedDoors ||= []); const key = `${w.id}:${door.d.index}`; if (!od.includes(key)) od.push(key); }
       g.coop?.onDoorUnlock(w, door);
       audio.sfx('door_unlock', { vol: 0.8 });
       g.toast('The door opened.');

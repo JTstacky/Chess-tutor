@@ -91,7 +91,8 @@ export class InventoryScene {
     return c.accessories.map((id) => ({ id, label: RULES.items[id]?.name || id, have: true, sel: c.worn === id, hint: RULES.items[id]?.effect }));
   }
   update() {
-    const m = this.local.input.pressed('menu') ? null : this.game.menu;
+    // The Items key closes the screen, except Enter, which is both P2's Items key and "use".
+    const m = this.local.input.pressed('menu') && !this.game.menu.pressed('confirm') ? null : this.game.menu;
     if (!m || m.pressed('cancel') || m.pressed('pause')) { this.game.pop(); return; }
     const rows = this.rows();
     if (m.pressed('left')) { this.tab = (this.tab + 2) % 3; this.i = 0; audio.sfx('menu_move', { vol: 0.4 }); }

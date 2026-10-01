@@ -48,11 +48,19 @@ class BroadcastTransport extends Emitter {
         this.on('ready', () => { clearTimeout(t); resolve(); });
       });
     }
-    window.addEventListener('beforeunload', () => this.ch.postMessage({ kind: 'close', from: this.id }));
+    this.onUnload = () => this.close();
+    window.addEventListener('beforeunload', this.onUnload);
     return this.id;
   }
-  send(to, data) { this.ch.postMessage({ kind: 'msg', from: this.id, to, data }); }
-  close() { this.ch.postMessage({ kind: 'close', from: this.id }); this.ch.close(); }
+  send(to, data) { if (!this.closed) this.ch.postMessage({ kind: 'msg', from: this.id, to, data }); }
+  // Idempotent, and removes the unload hook (it used to pile up and post to a closed channel).
+  close() {
+    if (this.closed) return;
+    this.closed = true;
+    if (this.onUnload) window.removeEventListener('beforeunload', this.onUnload);
+    this.ch.postMessage({ kind: 'close', from: this.id });
+    this.ch.close();
+  }
 }
 
 let peerLib = null;

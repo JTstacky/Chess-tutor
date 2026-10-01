@@ -50,7 +50,9 @@ class Input {
     window.addEventListener('keydown', (e) => {
       if (this.textCapture) {
         this.textCapture(e);
-        if (e.key.length === 1 || e.code === 'Backspace') { e.preventDefault(); return; }
+        // Keys the prompt used are not game keys too: an Enter that submits a name must not
+        // also confirm the menu that opens next frame.
+        if (e.key.length === 1 || ['Backspace', 'Enter', 'NumpadEnter', 'Escape'].includes(e.code)) { e.preventDefault(); return; }
       }
       if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'AltLeft', 'Backspace'].includes(e.code)) e.preventDefault();
       if (!e.repeat) for (const l of this.anyKeyListeners) l(e);
@@ -104,6 +106,8 @@ class Input {
   menuFrame() {
     // Navigation for menus: arrows/WASD plus confirm/cancel from every device.
     const f = this.keyboardFrame([LAYOUT_A, LAYOUT_B]);
+    // In menus Enter is "confirm", not P2's "items" key (that closed screens and maxed amounts).
+    if (this.keys.has('Enter') || this.taps.has('Enter')) f.menu = false;
     for (const code of new Set([...this.keys, ...this.taps])) { const a = MENU_KEYS[code]; if (a) f[a] = true; }
     for (const pad of this.gamepads()) {
       const p = this.padFrame(pad);

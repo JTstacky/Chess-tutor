@@ -15,7 +15,9 @@ export const SPELLS = {
   saeta: { name: 'Saeta', dmg: 4, sprite: 'fx.saeta', color: '#ffe08a', pierce: true,
     cast: (w, h) => [{ x: h.cx + h.dir * 30, y: h.y + 24, vx: h.dir * V2, vy: 0, life: 10 * FRAME, w: 32, h: 14, breaks: true }] },
   fuego: { name: 'Fuego', dmg: 8, sprite: 'fx.fuego', color: '#ff9a3a', pierce: true, rehit: 0.25,
-    cast: (w, h) => [{ x: h.cx + h.dir * 30, y: h.y + 30, vx: h.dir * V2, vy: 0, life: 12 * FRAME, w: 3 * TILE, h: 3 * TILE,
+    // Centred so the 3-tile box sits on the floor: higher, it grazed the ceiling of the
+    // 3-tile corridors and stalled on its first frame.
+    cast: (w, h) => [{ x: h.cx + h.dir * 30, y: h.feet - 1.5 * TILE - 1, vx: h.dir * V2, vy: 0, life: 12 * FRAME, w: 3 * TILE, h: 3 * TILE,
       // Flies 3 frames, then drops to the floor and burns in place.
       update(p, dt, world) { if (p.t > 3 * FRAME) { p.vx = 0; p.vy = world.map.rectSolid(p.x + 8, p.y + p.h, p.w - 16, 4) ? 0 : V2 / 2; } },
       onWall(p) { p.vx = 0; } }] },
@@ -48,7 +50,7 @@ export function castSpell(world, hero, character, game, cam) {
     return { instant: true, dmg: sp.dmg, kind: id };
   }
   for (const p of sp.cast(world, hero, cam)) {
-    world.spawnProjectile({ ...p, friendly: true, spell: true, owner: hero.id, dmg: sp.dmg, kind: id, sprite: sp.sprite, color: sp.color, pierce: sp.pierce, ghost: sp.ghost });
+    world.spawnProjectile({ ...p, friendly: true, spell: true, owner: hero.id, dmg: sp.dmg, kind: id, sprite: sp.sprite, color: sp.color, pierce: sp.pierce, ghost: sp.ghost, rehit: sp.rehit });
   }
   return 'cast';
 }

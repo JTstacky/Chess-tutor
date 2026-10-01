@@ -173,16 +173,20 @@ export class CavernWorld {
 
   projectileHits(p) {
     const box = p;
+    // A projectile hits each target once, or every `rehit` seconds (Fuego burning in place).
+    const done = (id) => p.hit && p.hit.has(id) && !(p.rehit && p.t - p.hitAt.get(id) >= p.rehit);
+    const mark = (id) => { (p.hit ||= new Set()).add(id); (p.hitAt ||= new Map()).set(id, p.t || 0); };
     for (const e of this.enemies) {
-      if (e.dead || e.hidden || (p.hit && p.hit.has(e.id))) continue;
+      if (e.dead || e.hidden || done(e.id)) continue;
       if (overlap(this.map.rel(box, e), e.hurtBox())) {
-        (p.hit ||= new Set()).add(e.id);
+        mark(e.id);
         this.damageEnemy(e, p.dmg, p.owner, p.vx >= 0 ? 1 : -1, p.kind);
         if (!p.pierce) { p.dead = true; return; }
       }
     }
-    if (this.boss && !this.boss.dead && !(p.hit && p.hit.has('boss')) && this.boss.hitTest(this.map.rel(box, this.boss))) {
-      (p.hit ||= new Set()).add('boss');
+    // While the boss flinches (hurtT) hits don't land, so don't spend this projectile's hit.
+    if (this.boss && !this.boss.dead && !(this.boss.hurtT > 0) && !done('boss') && this.boss.hitTest(this.map.rel(box, this.boss))) {
+      mark('boss');
       this.game.spellHitsBoss(this, p);
       if (!p.pierce) p.dead = true;
     }
@@ -201,7 +205,7 @@ export class CavernWorld {
         this.game.heroHitsEnemy(this, hero, e);
       }
     }
-    if (this.boss && !this.boss.dead && !hero.attack.hits.has('boss') && this.boss.hitTest(this.map.rel(box, this.boss))) {
+    if (this.boss && !this.boss.dead && !(this.boss.hurtT > 0) && !hero.attack.hits.has('boss') && this.boss.hitTest(this.map.rel(box, this.boss))) {
       hero.attack.hits.add('boss');
       if (hero.attack.kind === 'thrust') hero.bounce();
       this.game.heroHitsBoss(this, hero);

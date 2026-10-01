@@ -165,10 +165,14 @@ export class Game {
   // Go to a town or cavern. dest: { kind, map, x (left col / town x), headRow, face }.
   travel(dest) {
     if (!dest || !dest.map) return;
+    // Mid-fade a new scene can't start. Don't announce a move that won't happen (the host
+    // would send the party one way and go another); a guest following the host waits for
+    // the fade to end and then goes.
+    if (this.fading) { if (this.coop?.following) this.queuedTravel = dest; return; }
     // Co-op guests ask the host to lead the party instead of leaving on their own.
     if (this.coop && this.coop.onTravel(dest) === false) return;
     if (dest.kind === 'town' || TOWNS[dest.map]) {
-      this.transition(() => new TownScene(this, { mapId: dest.map, x: dest.x, face: dest.face }));
+      this.transition(() => new TownScene(this, { mapId: dest.map, x: dest.x, face: dest.face, feather: dest.feather }));
     } else {
       this.transition(() => new CavernScene(this, { mapId: dest.map, left: dest.x, headRow: dest.headRow, face: dest.face }));
     }
@@ -238,14 +242,16 @@ export class Game {
       audio.sfx('coin_pickup', { vol: 0.6 });
       world?.effect('text', k.x + 8, k.y, { text: `+${k.value} G`, color: '#f2c85b', life: 0.7 });
     } else if (k.kind === 'potion') {
-      this.heal(local, k.potion === 'blue' ? 'full' : 80);
+      this.heal(local, k.potion === 'blue' ? 'full' : 80, world ?? true); // picked up in a cavern: pulse
       world?.effect('text', k.x + 8, k.y, { text: k.potion === 'blue' ? 'Full health!' : '+80', color: '#ff8a8a', life: 0.9 });
     }
   }
 
   // Potions heal as a pulse: +8 HP per original frame (red: 10 frames = 80 HP).
-  heal(local, amount) {
-    local.healPulse += amount === 'full' ? 9999 : amount;
+  // Outside a cavern (no world ticking the pulse) the healing is applied at once.
+  heal(local, amount, world) {
+    if (!world) { const c = local.character; c.hp = amount === 'full' ? maxHp(c) : Math.min(maxHp(c), c.hp + amount); }
+    else local.healPulse += amount === 'full' ? 9999 : amount;
     audio.sfx('potion', { vol: 0.6 });
   }
 
@@ -256,6 +262,9 @@ export class Game {
     if (hero) this.coop?.onPropTaken(world, prop);
     if (!contents) return;
     const at = { x: prop.x + prop.w / 2 - 10, y: prop.y, w: 20, h: 20, vx: 0, vy: -200, t: 0, life: 14 };
+    // Loot ids: 's' = the host's (or solo) chest, sent in snapshots; 'g' = a guest's own chest,
+    // which only that guest sees and collects without asking the host.
+    const lid = `${this.coop && !this.coop.isHost ? 'g' : 's'}${prop.id}`;
     if (contents.trap != null) {
       import('./enemies.js').then(({ Enemy, enemyDef }) => {
         const def = enemyDef(this, world.level, contents.trap);
@@ -265,8 +274,8 @@ export class Game {
       return;
     }
     if (contents.gold) { if (local) this.applyPickup(world, local, { kind: 'gold', value: contents.gold, x: at.x, y: at.y }); return; }
-    if (contents.almas) { world.pickups.push({ ...at, id: `s${prop.id}`, kind: 'almas', value: contents.almas }); return; }
-    if (contents.potion) { world.pickups.push({ ...at, id: `s${prop.id}`, kind: 'potion', potion: contents.potion }); return; }
+    if (contents.almas) { world.pickups.push({ ...at, id: lid, kind: 'almas', value: contents.almas }); return; }
+    if (contents.potion) { world.pickups.push({ ...at, id: lid, kind: 'potion', potion: contents.potion }); return; }
     if (contents.item && local) this.giveItem(local, contents.item, world, prop);
     else if (contents.item === undefined && !contents.gold) this.toast('It was empty.', '#bbb');
   }
@@ -325,7 +334,7 @@ export class Game {
     }
     c.hp = Math.max(0, c.hp - taken);
     local.regenT = 0;
-    hero.knock(fromX, source === 'hazard' ? 0.5 : 1);
+    hero.knock(fromX, source === 'hazard' ? 0.5 : 1, world.map);
     world.heroHurtThisFrameNext = true;
     audio.sfx('player_hurt', { vol: 0.8 });
     world.effect('hit', hero.cx, hero.y + 20, { dmg: taken, color: '#ff9a8a' });
@@ -414,7 +423,8 @@ export class Game {
   onDefeat() {
     for (const l of this.locals) {
       const c = l.character;
-      if (l.hero.state !== 'dead' && this.locals.length > 1) continue;
+      // In couch co-op a knight still standing escapes the penalty; a spirit has fallen too.
+      if (l.hero.state !== 'dead' && l.hero.state !== 'spirit' && this.locals.length > 1) continue;
       c.deaths++;
       c.gold = 0;
       if (RULES.jp) { c.almas = 0; c.xp = Math.floor(c.xp / 2); }
@@ -422,6 +432,13 @@ export class Game {
       c.hp = maxHp(c);
       c.sabreOil = 0;
       l.hero.state = 'idle';
+    }
+    // A guest who falls alone pays the penalty but goes back to the party rather than to a
+    // Sage on their own (where their next door would drag the host out of the cavern).
+    if (this.coop && !this.coop.isHost) {
+      this.toast('The Spirits carry you back to your party.', '#8fe3ff');
+      this.coop.toHost({ t: 'rejoin' });
+      return;
     }
     const c = this.leader.character;
     const town = RULES.jp?.respawnAtLastSage ? c.lastSage || 'mrmp' : 'mrmp';
@@ -465,8 +482,8 @@ export class Game {
     if (!id) return false;
     const consume = () => c.items.splice(i, 1);
     switch (id) {
-      case 'kenko_potion': consume(); this.heal(local, 80); break;
-      case 'juuen_fruit': consume(); this.heal(local, 'full'); break;
+      case 'kenko_potion': consume(); this.heal(local, 80, world); break;
+      case 'juuen_fruit': consume(); this.heal(local, 'full', world); break;
       case 'elixir_of_kashi': if (!c.spell) return false; consume(); c.charges[c.spell] = c.maxCharges[c.spell]; audio.sfx('potion'); break;
       case 'chikara_powder': consume(); refillSpells(c); audio.sfx('potion'); break;
       case 'holy_water_of_acero': {
@@ -479,7 +496,14 @@ export class Game {
       }
       case 'sabre_oil': consume(); c.sabreOil = (c.sabreOil || 0) + 1; this.toast(`Your sword gleams (×${c.sabreOil + 1}).`); audio.sfx('potion'); break;
       case 'magia_stone': if (!world) return false; consume(); world.addMagia?.(local.hero, RULES.jp?.magiaFixed || Math.min(255, (c.level + 1) * 4)); break;
-      case 'kioku_feather': if (!world) return false; consume(); this.transition(() => new TownScene(this, { mapId: RULES.jp ? c.lastSage || 'mrmp' : 'mrmp', x: null, wake: true })); break;
+      case 'kioku_feather': {
+        if (!world) return false;
+        // In co-op only the host can fly home, and the whole party goes (via travel()).
+        if (this.coop && !this.coop.isHost) { this.toast('Only the party leader can use the Kioku Feather.', '#bbb'); return false; }
+        consume();
+        this.travel({ kind: 'town', map: RULES.jp ? c.lastSage || 'mrmp' : 'mrmp', x: null, feather: true }); // not 'wake': that plays the death lines
+        break;
+      }
       default: return false;
     }
     return true;
@@ -510,7 +534,11 @@ export class Game {
         if (s) this.replace(s);
         f.phase = 'in';
         f.t = 0;
-      } else if (f.phase === 'in' && f.t >= f.dur) this.fading = null;
+      } else if (f.phase === 'in' && f.t >= f.dur) {
+        this.fading = null;
+        const q = this.queuedTravel;
+        if (q) { this.queuedTravel = null; this.coop?.follow(q); }
+      }
     }
     if (!this.fading || this.fading.phase === 'in') this.scene?.update(dt);
     this.coop?.update(dt);

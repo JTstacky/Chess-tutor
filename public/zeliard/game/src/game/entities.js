@@ -82,7 +82,9 @@ export async function spawnEntities(game, world, data) {
       if (p) { p.place?.(world.map); world.props.push(p); }
     }
   }
-  for (const d of doors || []) world.doors.push(new Door(d, openDoors.has(d.index) || (d.saveFlag && game.hasBit(d.saveFlag.byte, d.saveFlag.mask))));
+  // Doors without a save flag (mp84's Lion seal) are remembered on the knight instead.
+  const opened = new Set(game.leader?.character?.openedDoors || []);
+  for (const d of doors || []) world.doors.push(new Door(d, openDoors.has(d.index) || (d.saveFlag && game.hasBit(d.saveFlag.byte, d.saveFlag.mask)) || opened.has(`${data.id}:${d.index}`)));
   for (const d of world.doors) d.stamp(world.map);
   for (const p of data.platforms?.vertical || []) world.platforms.push(new Lift(p));
   for (const p of data.platforms?.horizontal || []) world.platforms.push(new Mover(p));
@@ -188,7 +190,22 @@ class FallingBlock extends Prop {
         this.acc -= FRAME;
         const m = world.map;
         const blocked = [0, 1].some((i) => m.flags(this.tx + i, this.ty + 2) & (F.SOLID | F.ONEWAY));
-        if (blocked || this.falls++ > 64) { this.state = 'landed'; this.x = this.tx * TILE; this.y = this.ty * TILE; this.stampSolid(m, true); world.effect('rubble', this.cx, this.y + this.h, { life: 0.5 }); return; }
+        if (blocked || this.falls++ > 64) {
+          this.state = 'landed'; this.x = this.tx * TILE; this.y = this.ty * TILE;
+          // The knight falls faster than the block, so it can land on him: lift him onto it,
+          // or, with no room above, let the block shatter rather than entomb him.
+          let crush = false;
+          for (const h of world.heroes) {
+            if (!overlapsX(m, h, this)) continue;
+            const hy = m.nearY(h.y, this.y);
+            if (hy >= this.y + this.h || hy + h.h <= this.y) continue;
+            const lift = this.y - h.h - hy;
+            if (!m.rectSolid(h.x, h.y + lift, h.w, h.h)) { h.y += lift; h.vy = 0; h.onGround = true; h.fallStartY = h.y; }
+            else crush = true;
+          }
+          if (crush) { this.state = 'broken'; world.effect('rubble', this.cx, this.y + this.h / 2, { life: 0.6 }); return; }
+          this.stampSolid(m, true); world.effect('rubble', this.cx, this.y + this.h, { life: 0.5 }); return;
+        }
         this.ty = (this.ty + 1) % m.h;
       }
       this.y = (this.ty + this.acc / FRAME) * TILE;
@@ -196,6 +213,7 @@ class FallingBlock extends Prop {
     this.falls ||= 0;
   }
   draw(cx, cy) {
+    if (this.state === 'broken') return;
     const x = this.x - cx + (this.state === 'shake' ? Math.sin(this.t * 80) * 2 : 0), y = this.y - cy;
     drawBlock(x, y, this.w, this.h, '#7a6a58', '#4a3e32');
   }
@@ -261,6 +279,8 @@ function overlapsX(map, hero, box) {
 // (or the Lion's Head Key), which is consumed and remembered in the save.
 export class Door {
   constructor(d, opened) {
+    // The cavern data spells the Lion's Head lock 'lions_head_key'; the game checks 'lion'.
+    if (d.lock === 'lions_head_key') d = { ...d, lock: 'lion' };
     this.d = d;
     this.id = `d${d.index}`;
     this.x = d.frame.x * TILE; this.y = d.frame.y * TILE; this.w = d.frame.w * TILE; this.h = d.frame.h * TILE;
@@ -384,10 +404,17 @@ class Mover extends Platform {
       this.acc -= FRAME;
       this.ptx = this.tx; this.pty = this.ty;
       if (++this.n % this.every) continue;
+      // Positions are measured along the range from minX, wrapping, because seven ranges
+      // run through the map seam (e.g. mp51: 231 -> 11). A plain min/max test flipped those
+      // every step.
+      const W = world.map.w, wrap = (v) => ((v % W) + W) % W;
+      const span = wrap(this.p.maxX - this.p.minX);
       let nx = this.tx + this.dir;
-      if (nx < this.p.minX || nx + 2 > this.p.maxX + 2) { this.dir = -this.dir; nx = this.tx + this.dir; }
+      if (wrap(nx - this.p.minX) > span) { this.dir = -this.dir; nx = this.tx + this.dir; }
       const riders = this.riders(world);
-      this.moveTo(world.map, nx, this.ty);
+      const wx = wrap(nx);
+      if (wx !== nx) this.ptx = wx - this.dir; // crossing the seam: keep the drawn slide one tile long
+      this.moveTo(world.map, wx, this.ty);
       for (const h of riders) if (!world.map.rectSolid(h.x + this.dir * TILE, h.y, h.w, h.h)) h.x += this.dir * TILE;
     }
   }

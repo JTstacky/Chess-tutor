@@ -53,7 +53,7 @@ export class TitleScene {
     if (v === 'new') {
       this.setMenu(new Menu(this.slotItems(true), {
         title: 'Choose a save slot', w: 420, x: W / 2 - 210, y: 280,
-        onSelect: (it) => this.nameEntry(it.value), onCancel: () => this.showMain(),
+        onSelect: (it) => this.confirmOverwrite(it.value), onCancel: () => this.showMain(),
       }));
     } else if (v === 'continue') {
       this.setMenu(new Menu(this.slotItems(false), {
@@ -69,6 +69,17 @@ export class TitleScene {
       ], { title: 'Co-op', w: 380, x: W / 2 - 190, y: 290, onSelect: (it) => g.openCoop(this, it.value), onCancel: () => this.showMain() }));
     } else if (v === 'options') this.options();
     else if (v === 'credits') this.credits = 0;
+  }
+
+  // A new game in a used slot replaces that knight, so ask first (the default is No).
+  confirmOverwrite(slot) {
+    const s = loadSlot(slot);
+    if (!s) return this.nameEntry(slot);
+    const m = new Menu([
+      { label: `No, keep ${s.name}`, value: 'no' },
+      { label: `Yes, replace ${s.name} (Lv ${s.level})`, value: 'yes' },
+    ], { title: `Slot ${slot + 1} holds ${s.name}`, w: 420, x: W / 2 - 210, y: 300, onSelect: (it) => (it.value === 'yes' ? this.nameEntry(slot) : this.pick('new')), onCancel: () => this.pick('new') });
+    this.setMenu(m);
   }
 
   nameEntry(slot) {

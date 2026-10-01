@@ -44,17 +44,18 @@ async function boot() {
   const STEP = 1 / 60;
   let acc = 0;
   let last = performance.now();
-  function advance(now) {
-    const dt = Math.min(0.1, (now - last) / 1000);
+  // maxDt/maxSteps cap a long frame; a hidden tab ticks ~1/s, so it may catch up further.
+  function advance(now, maxDt = 0.1, maxSteps = 8) {
+    const dt = Math.min(maxDt, (now - last) / 1000);
     last = now;
     acc += dt * (game.speed || 1);
     let steps = 0;
-    while (acc >= STEP && steps < 8) {
+    while (acc >= STEP && steps < maxSteps) {
       game.update(STEP);
       acc -= STEP;
       steps++;
     }
-    if (steps === 8) acc = 0;
+    if (steps === maxSteps) acc = 0;
   }
   function frame(now) {
     advance(now);
@@ -64,7 +65,7 @@ async function boot() {
   requestAnimationFrame(frame);
   // A hidden tab gets no animation frames. In co-op the others depend on this window
   // (the host runs the monsters), so keep simulating on a timer while hidden.
-  setInterval(() => { if (document.hidden && game.coop) advance(performance.now()); }, 1000 / 30);
+  setInterval(() => { if (document.hidden && game.coop) advance(performance.now(), 1.2, 72); }, 1000 / 30);
   // Headless tests can step the simulation deterministically.
   window.__step = (seconds) => { const n = Math.round(seconds * 60); for (let i = 0; i < n; i++) game.update(STEP); game.draw(performance.now() / 1000); };
 }

@@ -34,13 +34,13 @@ export function applyRules(data, difficulty = 'english') {
   // Equipment.
   RULES.swords = {}; RULES.shields = {}; RULES.items = {};
   for (const s of r.items?.swords?.list || []) {
-    RULES.swords[s.key] = { id: s.key, num: s.id, name: s.name, damage: s.base_damage, prices: s.prices, soldIn: s.sold_in || [], block: s.id >= 4 ? 1 : 0, reach: s.id >= 4 ? 1 : 0 };
+    RULES.swords[s.key] = { id: s.key, num: s.id, name: s.name, damage: s.base_damage, prices: { ...s.prices }, soldIn: s.sold_in || [], block: s.id >= 4 ? 1 : 0, reach: s.id >= 4 ? 1 : 0 };
   }
   for (const s of r.items?.shields?.list || []) {
-    RULES.shields[s.key] = { id: s.key, num: s.id, tier: s.id, name: s.name, power: s.capacity, prices: s.prices, soldIn: s.sold_in || [] };
+    RULES.shields[s.key] = { id: s.key, num: s.id, tier: s.id, name: s.name, power: s.capacity, prices: { ...s.prices }, soldIn: s.sold_in || [] };
   }
   const holy = [80, 90, 100, 110, 115, 120];
-  for (const s of r.items?.consumables?.list || []) RULES.items[s.key] = { id: s.key, num: s.id, type: 'consumable', name: s.name, effect: s.effect, prices: s.prices, soldIn: s.sold_in || [] };
+  for (const s of r.items?.consumables?.list || []) RULES.items[s.key] = { id: s.key, num: s.id, type: 'consumable', name: s.name, effect: s.effect, prices: { ...s.prices }, soldIn: s.sold_in || [] };
   for (const s of r.items?.accessories?.list || []) RULES.items[s.key] = { id: s.key, num: s.id, type: 'accessory', name: s.name, effect: s.effect };
   for (const s of r.items?.crests_and_keys || []) RULES.items[s.key] = { id: s.key, type: s.key.includes('key') ? 'key' : s.key.includes('tear') ? 'tear' : 'crest', name: s.name };
   for (const [id, s] of Object.entries(RULES.swords)) RULES.items[id] = { type: 'sword', ...s };
@@ -68,7 +68,8 @@ export function applyRules(data, difficulty = 'english') {
   RULES.heat = jp ? RULES.jp.heat : { dmg: 15, every: 64, global: false };
   RULES.hazardByLevel = data.physics?.hero?.hazardDamageByLevel?.value || [1, 1, 4, 8, 20, 20, 20, 20, 20];
 
-  // Japanese price overrides (Kioku Feather and a few shop rows).
+  // Japanese price overrides (Kioku Feather and a few shop rows). Every prices table above
+  // is a fresh copy, so these never leak into a later English game in the same session.
   if (jp) {
     const o = econ.shop_prices_other?.overrides_to_apply || {};
     const kio = RULES.items.kioku_feather;
@@ -83,7 +84,7 @@ export function applyRules(data, difficulty = 'english') {
   // Boss tweaks for the Japanese balance.
   RULES.bossMul = {};
   for (const m of J.bosses?.multipliers || []) RULES.bossMul[m.boss] = jp ? m.japanese : m.dos;
-  RULES.bossAlmas = J.bosses?.almas?.dos || {};
+  RULES.bossAlmas = { ...(J.bosses?.almas?.dos || {}) }; // a copy: the JP balance zeroes it
   if (jp) for (const k of Object.keys(RULES.bossAlmas)) RULES.bossAlmas[k] = 0;
   setupText(data, jp);
   return RULES;

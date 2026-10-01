@@ -111,7 +111,7 @@ export class Hero {
       this.stun -= dt;
       map.move(this, this.vx * dt, 0);
       this.fall(dt, map);
-      if (this.stun <= 0) { this.vx = 0; if (this.state === 'hurt') this.state = this.onGround ? 'idle' : 'fall'; }
+      if (this.stun <= 0) { this.vx = 0; if (this.state === 'hurt') this.state = this.h < PHYS.h ? 'crouch' : this.onGround ? 'idle' : 'fall'; }
       return;
     }
 
@@ -281,6 +281,9 @@ export class Hero {
     if (input.pressed('jump')) {
       this.state = 'jump';
       this.vy = -jumpV(1.2);
+      // Spend the buffered press and the grab-time coyote window, or the ground jump fires
+      // on the next frame as well and the rope hop becomes a full (or Feruza) jump.
+      this.jumpBuffer = 0; this.coyote = 0; this.onGround = false;
       this.vx = ((R ? 1 : 0) - (L ? 1 : 0)) * PHYS.walk;
       if (this.vx) this.dir = Math.sign(this.vx);
       this.fallStartY = this.y;
@@ -331,7 +334,7 @@ export class Hero {
   hurtBox() { return { x: this.x + 5, y: this.y + 5, w: this.w - 10, h: this.h - 6 }; }
 
   // Knockback: 2 tiles straight away from the source.
-  knock(fromX, strength = 1) {
+  knock(fromX, strength = 1, map) {
     const d = this.cx < fromX ? -1 : 1;
     this.stun = PHYS.stun * strength;
     this.vx = (d * PHYS.knockTiles * TILE * strength) / this.stun;
@@ -340,7 +343,10 @@ export class Hero {
     this.flash = 0.2;
     this.attack = null;
     if (this.state === 'climb') this.fallStartY = this.y;
-    if (this.state === 'climb' || this.state === 'crouch') this.h = PHYS.h;
+    // Stand up from a crouch keeping the feet on the floor (growing the box downward sank
+    // the knight a tile into the ground). Under a low ceiling he stays crouched.
+    if (this.state === 'crouch' && map) this.setCrouch(false, map);
+    else if (this.state === 'crouch') { this.y -= PHYS.h - this.h; this.h = PHYS.h; }
     this.state = 'hurt';
   }
 

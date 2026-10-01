@@ -10,7 +10,7 @@ import { Dialogue } from '../ui/widgets.js';
 import { TOWNS, townByPlace } from '../game/game.js';
 import { drawKnightHud } from './cavern.js';
 import { evalCondition } from '../game/conditions.js';
-import { RULES } from '../game/character.js';
+import { RULES, maxHp } from '../game/character.js';
 
 const STREET = H - 64; // feet line
 const MUSIC = { cmap: 'royal_hall', mrmp: 'lantern_overture', esmp: 'lantern_overture' };
@@ -67,6 +67,8 @@ export class TownScene {
     g.locals.forEach((l, i) => {
       const h = l.hero;
       h.state = 'idle'; h.attack = null; h.h = 70; h.castT = 0;
+      // A fallen knight the party carried along wakes like a rekindled one (never at 0 HP).
+      if (l.character.hp <= 0 && !h.fairy) l.character.hp = Math.ceil(maxHp(l.character) * 0.3);
       h.place((x + 1.5) * TILE + i * 34, STREET);
       h.dir = this.opts.face === 'left' ? -1 : 1;
       if (this.opts.x === 'destWidth-6' || (this.opts.face == null && x > this.map.width / 2 && this.opts.fromEdge)) h.dir = -1;
@@ -86,7 +88,7 @@ export class TownScene {
     if (this.opts.wake) {
       const sage = this.rules.sage?.name || 'the Sage';
       this.say([{ speaker: sage, text: 'Brave knight, the Spirits have carried you back to me. Rest now, and take heart.' }]);
-    }
+    } else if (this.opts.feather) g.toast('The Kioku Feather carried you home.', '#bfe8ff');
   }
 
   clampCam(x) { return Math.max(0, Math.min(x, this.width - W)); }
@@ -196,8 +198,13 @@ export class TownScene {
       this.say([{ text: 'The floor gives way beneath you...' }], () => g.travel({ kind: 'town', map: 'drmp', x: null }));
       return;
     }
-    const { BuildingScene } = await import('./buildings.js');
-    g.push(new BuildingScene(g, this, b, local));
+    // The import is async and the town keeps running: a second Up (or P2) mustn't open it twice.
+    if (this.entering) return;
+    this.entering = true;
+    try {
+      const { BuildingScene } = await import('./buildings.js');
+      g.push(new BuildingScene(g, this, b, local));
+    } finally { this.entering = false; }
   }
 
   leave(edge) {

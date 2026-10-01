@@ -101,6 +101,7 @@ export class Coop {
 
   onMessage(from, m) {
     const g = this.game;
+    if (!this.isHost) this.hostQuiet = 0; // anything from the host proves it's still there
     switch (m.t) {
       case 'hello': {
         if (!this.isHost) return;
@@ -166,6 +167,17 @@ export class Coop {
         break;
       }
       case 'travel': if (!this.isHost) this.follow(m.dest); break;
+      // A guest fell (game.onDefeat): bring them back beside the party.
+      case 'rejoin': if (this.isHost) this.send(from, { t: 'travel', dest: this.partyDest() }); break;
+      // The host's party has set out (see announceStart): guests who joined in the lobby got a
+      // placeholder welcome, so take the real place, rules and story flags now.
+      case 'start': {
+        if (this.isHost) break;
+        applyRules(g.data, m.diff || 'english');
+        if (m.bits && this.fairy) g.leader.character.bits = { ...m.bits };
+        if (this.mapId !== m.dest.map) this.follow(m.dest);
+        break;
+      }
       case 'go': if (this.isHost) { g.toast(`${this.names.get(from) || 'A knight'} leads the way.`, '#8fd0ff'); this.lead(m.dest); } break;
       case 'boss': {
         const w = this.world;
@@ -191,18 +203,29 @@ export class Coop {
         }
         break;
       }
-      case 'bye': this.onLeave(from); break;
+      // 'bye' with via = a guest the host saw leave; without = the sender itself is leaving.
+      case 'bye': if (m.via && !this.isHost) this.dropRemotes((r) => r.peer === m.via || r.via === m.via); else this.onLeave(from); break;
     }
   }
 
   onLeave(id) {
+    if (this.closed) return; // 'bye' then the transport's own close both land here
     const name = this.names.get(id);
     this.dropRemotes((r) => r.peer === id || r.via === id);
+    if (this.isHost) this.all({ t: 'bye', via: id }); // so other guests drop that knight too
     if (!this.isHost && id === 'host') {
-      this.game.toast('The host has left. You are on your own now.', '#e0584f');
+      this.closed = true;
+      const g = this.game;
       if (this.world) this.world.puppet = false;
       this.s.close();
-      this.game.coop = null;
+      g.coop = null;
+      if (this.fairy) {
+        // The Spirit has no body of her own: without the party, go back to the title.
+        g.toast('The host has left. The Spirit returns to the light.', '#e0584f');
+        import('../scenes/title.js').then(({ TitleScene }) => g.transition(() => new TitleScene(g)));
+        return;
+      }
+      g.toast('The host has left. You are on your own now.', '#e0584f');
       return;
     }
     if (name) this.game.toast(`${name} left the party.`, '#c0b0a0');
@@ -270,7 +293,18 @@ export class Coop {
   }
 
   // ------------------------------------------------------------ scene hooks
+  // First arrival of the host's party anywhere: tell guests where it is. continueGame and
+  // beginNewGame load that first scene directly, so no 'travel' went out for it.
+  announceStart(dest) {
+    if (!this.isHost || this.started) return;
+    this.started = true;
+    const g = this.game;
+    this.all({ t: 'start', diff: g.rulesDifficulty, dest, bits: g.leader?.character.bits });
+  }
+
   enterWorld(w) {
+    const lead = this.game.leader?.hero;
+    if (lead) this.announceStart({ kind: 'cavern', map: w.id, x: Math.floor(lead.x / TILE), headRow: Math.floor(lead.y / TILE), face: lead.dir < 0 ? 'left' : 'right' });
     this.snap = null;
     this.asked.clear();
     this.consumed.clear();
@@ -281,11 +315,19 @@ export class Coop {
       w.puppet = true;
     }
   }
-  enterTown() { this.snap = null; }
+  enterTown(t) {
+    const lead = this.game.leader?.hero;
+    if (t && lead) this.announceStart({ kind: 'town', map: t.mapId, x: Math.max(1, Math.round(lead.cx / TILE - 1.5)) });
+    this.snap = null;
+  }
 
   onTravel(dest) {
     if (this.following) return true;
     if (this.isHost) { this.all({ t: 'travel', dest }); return true; }
+    // Ask once: a guest standing at a town edge would otherwise ask 60 times a second.
+    const now = performance.now();
+    if (this.lastGo && this.lastGo.map === dest.map && now - this.lastGo.t < 1500) return false;
+    this.lastGo = { map: dest.map, t: now };
     this.toHost({ t: 'go', dest });
     return false;
   }
@@ -337,8 +379,9 @@ export class Coop {
     world.effect('hit', world.boss ? world.boss.cx : hero.cx, hero.y + 30, {});
   }
   requestPickup(world, id) {
-    if (id.startsWith('s')) {
-      // Loot from a chest this guest opened is theirs straight away.
+    if (id.startsWith('g')) {
+      // Loot from a chest this guest opened is theirs straight away. (Host chest loot, 's...',
+      // must be asked for: treating it as ours let the guest collect it every snapshot.)
       const k = world.pickups.find((x) => x.id === id);
       if (k) { k.dead = true; this.game.applyPickup(world, this.game.leader, k); }
       return;
@@ -405,7 +448,7 @@ export class Coop {
     const mine = w.projectiles.filter((p) => p.friendly);
     w.projectiles = mine.concat(m.pr.filter((p) => !this.consumed.has(p.id)));
     // Loot: the host's list, plus anything our own chests dropped.
-    const ours = w.pickups.filter((k) => k.id.startsWith('s') && !k.dead && !m.pk.some((x) => x.id === k.id));
+    const ours = w.pickups.filter((k) => k.id.startsWith('g') && !k.dead);
     w.pickups = m.pk.map((k) => ({ ...k, claimed: this.asked.has(k.id) })).concat(ours);
     // Guardian
     if (m.boss && w.boss) {
@@ -522,10 +565,14 @@ export class Coop {
     this.heroT += dt;
     this.snapT += dt;
     this.snapAge += dt;
+    // Liveness: a crashed tab or dropped connection may never send 'bye'. 20 s is generous
+    // because a host in a background tab only ticks about once a second.
+    if (!this.isHost) { this.hostQuiet = (this.hostQuiet || 0) + dt; if (this.hostQuiet > 20) { this.onLeave('host'); return; } }
     if (this.heroT >= HERO_DT) { this.heroT = 0; this.sendHeroes(); }
     const w = this.world;
     if (this.isHost && w && this.s.peers.size && this.snapT >= SNAP_DT) { this.snapT = 0; this.all(this.makeSnap(w)); }
     // Remote knights glide toward their reported spots (wrapping the short way).
+    if (this.isHost) for (const [k, r] of this.remotes) if ((r.seen || 0) > 20 && r.peer !== 'host') { const nm = this.names.get(r.peer); this.dropRemotes((x) => x === r); this.all({ t: 'bye', via: r.peer }); if (nm) this.game.toast(`${nm} lost connection.`, '#c0b0a0'); }
     for (const r of this.remotes.values()) {
       r.seen = (r.seen || 0) + dt;
       const h = r.hero;
