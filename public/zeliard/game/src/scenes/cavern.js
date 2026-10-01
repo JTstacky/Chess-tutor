@@ -118,7 +118,10 @@ export class CavernScene {
     if (!d) return;
     audio.sfx('door_open', { vol: 0.7 });
     h.state = 'door';
-    const dest = d.kind === 'town' ? { kind: 'town', map: d.map, x: d.x } : { kind: 'cavern', map: d.map, x: d.x, headRow: d.headRow, face: door.d.runLeftOnArrival ? 'left' : 'right' };
+    let dest = d.kind === 'town' ? { kind: 'town', map: d.map, x: d.x } : { kind: 'cavern', map: d.map, x: d.x, headRow: d.headRow, face: door.d.runLeftOnArrival ? 'left' : 'right' };
+    // After Jashiin the exit door (which the data points back into his arena) takes the
+    // knights home to the King, who is waiting with the nine Tears' news.
+    if (w.id === 'mpa0' && g.hasBit('0x49', 0xff)) dest = { kind: 'town', map: 'cmap', x: 46 };
     // Leaving a guardian's lair through its exit door collects that cavern's Tear of Esmesanti.
     if (this.world.tearDoor && !this.world.tearClaimed) {
       this.world.tearDoor = false;

@@ -131,6 +131,9 @@ class Boss {
       (l.character.bossesBeaten ||= []).includes(world.id) || l.character.bossesBeaten.push(world.id);
     }
     g.setBit(d.flag[0], d.flag[1]);
+    // Jashiin's fall is the victory: save byte 0x49 is what the King's "post victory" speech
+    // and the Princess's chamber (the ending) check for.
+    if (d.final) g.setBit('0x49', 0xff);
     g.toast(`${d.name} is defeated! +${d.xp} XP${almas ? `, +${almas} almas` : ''}`, COLORS.gold);
     g.coop?.onBossDefeated?.(world.id);
     // Reload the arena's objects with the post-boss tables; the exit door appears where you stand.
