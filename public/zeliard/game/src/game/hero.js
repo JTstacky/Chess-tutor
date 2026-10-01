@@ -101,6 +101,7 @@ export class Hero {
     this.stateT += dt;
     if (this.iframes > 0) this.iframes -= dt;
     if (this.flash > 0) this.flash -= dt;
+    if (this.blockT > 0) this.blockT -= dt;
     if (this.castT > 0) this.castT -= dt;
     if (this.state === 'dead') { this.vx = approach(this.vx, 0, 600 * dt); this.fall(dt, map); return; }
     if (this.state === 'spirit') { this.updateSpirit(dt, input, world); return; }
@@ -337,13 +338,16 @@ export class Hero {
   hurtBox() { return { x: this.x + 5, y: this.y + 5, w: this.w - 10, h: this.h - 6 }; }
 
   // Knockback: 2 tiles straight away from the source.
-  knock(fromX, strength = 1, map) {
+  // guarded: the hit landed on the shield. He is still pushed back (the original shoves him 2
+  // tiles either way) but keeps his guard instead of the hurt pose.
+  knock(fromX, strength = 1, map, guarded = false) {
     const d = this.cx < fromX ? -1 : 1;
+    this.guarded = guarded;
     this.stun = PHYS.stun * strength;
     this.vx = (d * PHYS.knockTiles * TILE * strength) / this.stun;
     this.vy = Math.min(this.vy, -120);
     this.iframes = PHYS.iframes;
-    this.flash = 0.2;
+    this.flash = guarded ? 0 : 0.2;
     this.attack = null;
     if (this.state === 'climb') this.fallStartY = this.y;
     // Stand up from a crouch keeping the feet on the floor (growing the box downward sank
@@ -362,7 +366,7 @@ export class Hero {
       return [k === 'overhead' ? 'overhead' : k === 'thrust' ? 'thrust' : k === 'low' ? 'low' : 'attack', true];
     }
     if (this.castT > 0) return ['cast', true];
-    if (this.state === 'hurt') return ['hurt', true];
+    if (this.state === 'hurt') return this.guarded ? ['idle', false] : ['hurt', true];
     if (this.state === 'climb') return ['climb', false];
     if (this.state === 'crouch') return ['crouch', true];
     if (this.state === 'jump') return ['jump', true];
@@ -414,6 +418,7 @@ export class Hero {
       sh.draw(ctx, f, x, y, this.dir, 1, POSE_SCALE[name] || 1);
       ctx.restore();
     }
+    if (this.blockT > 0) drawBlock(x, y, this.dir, this.blockT, this.state === 'crouch');
     if (this.label) {
       ctx.save();
       ctx.font = "700 13px 'Beliards', monospace";
@@ -427,7 +432,24 @@ export class Hero {
   }
 }
 
-// The Spirit of Esmesanti (co-op support role): a small winged light with a trail.
+// A hit taken on the shield: the shield flashes gold and throws sparks for 0.3 s, so a block reads
+// as a block (the original's cue was its shield clang).
+function drawBlock(x, y, dir, t, crouch) {
+  const k = t / 0.3, sx = x + dir * 26, sy = y - (crouch ? 26 : 46);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const g = ctx.createRadialGradient(sx, sy, 2, sx, sy, 30);
+  g.addColorStop(0, `rgba(255,250,220,${0.9 * k})`); g.addColorStop(0.5, `rgba(255,200,90,${0.5 * k})`); g.addColorStop(1, 'rgba(255,200,90,0)');
+  ctx.fillStyle = g; ctx.fillRect(sx - 30, sy - 30, 60, 60);
+  // The rim of the raised shield, and sparks flying off the front.
+  ctx.strokeStyle = `rgba(255,236,170,${k})`; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.ellipse(sx, sy, 9, 20, 0, dir > 0 ? -Math.PI / 2 : Math.PI / 2, dir > 0 ? Math.PI / 2 : Math.PI * 1.5); ctx.stroke();
+  const spread = (1 - k) * 26;
+  ctx.fillStyle = `rgba(255,230,150,${k})`;
+  for (let i = -2; i <= 2; i++) ctx.fillRect(sx + dir * (8 + spread * (1 - Math.abs(i) * 0.15)), sy + i * (6 + spread * 0.4), 3, 3);
+  ctx.restore();
+}
+
 // Walk frame from the distance the knight has covered, so his feet keep pace with the ground at any
 // speed (cavern, town, co-op puppet). One stride of the 8-frame cycle covers about 120 px.
 // Jumps of more than 40 px between draws (a wrap seam, a door) don't count as walking.
@@ -439,6 +461,7 @@ export function walkFrame(h, sh) {
   return sh.frameByDist('walk', h.odo || 0, STRIDE);
 }
 
+// The Spirit of Esmesanti (co-op support role): a small winged light with a trail.
 export function drawFairy(x, y, t, dir = 1, label) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';

@@ -308,20 +308,26 @@ export class Game {
     if (!local || hero.iframes > 0 || !hero.alive) return;
     const c = local.character;
     const facing = (fromX > hero.cx ? 1 : -1) === hero.dir;
-    let taken = dmg;
+    let taken = dmg, shielded = false;
     const tier = shieldTier(c);
     if (source === 'projectile' && proj) {
       const vertical = Math.abs(proj.vy) > Math.abs(proj.vx) * 2;
       const swinging = hero.attack && hero.attack.kind !== 'thrust';
       const py = proj.y + proj.h / 2;
       const crouch = hero.state === 'crouch';
-      const covered = tier >= 4 || (crouch ? py > hero.y : py < hero.feet - 20);
+      // Below the Honor Shield a shield covers one row (sub_846F): the chest row standing, the
+      // lowest row crouching. Shots at the head or legs get past it.
+      const row = Math.floor((hero.feet - py) / TILE); // 0 = feet row, 1 = chest, 2 = head
+      const covered = tier >= 4 || (crouch ? row === 0 : row === 1);
       if (tier && facing && !vertical && !swinging && hero.state !== 'climb' && covered) {
         audio.sfx('shield_block', { vol: 0.7 });
         world.effect('clink', proj.x + proj.w / 2, proj.y + proj.h / 2);
+        hero.blockT = 0.3;
         return 'blocked';
       }
     } else if (source === 'contact' && tier && facing) {
+      shielded = true;
+      hero.blockT = 0.3;
       taken = RULES.jp?.flatShieldHalf ? dmg >> 1 : (dmg >> 1) >> ((tier + 1) >> 1);
       c.shieldHp -= taken;
       audio.sfx('shield_block', { vol: 0.6 });
@@ -334,10 +340,11 @@ export class Game {
     }
     c.hp = Math.max(0, c.hp - taken);
     local.regenT = 0;
-    hero.knock(fromX, source === 'hazard' ? 0.5 : 1, world.map);
+    hero.knock(fromX, source === 'hazard' ? 0.5 : 1, world.map, shielded);
     world.heroHurtThisFrameNext = true;
-    audio.sfx('player_hurt', { vol: 0.8 });
-    world.effect('hit', hero.cx, hero.y + 20, { dmg: taken, color: '#ff9a8a' });
+    // The original plays only the shield clang for a hit taken on the shield (sound 8, not 9).
+    if (!shielded) audio.sfx('player_hurt', { vol: 0.8 });
+    world.effect('hit', hero.cx, hero.y + 20, { dmg: taken, color: shielded ? '#a8c8ff' : '#ff9a8a' });
     if (c.hp <= 0) this.heroDown(world, local);
     return 'hurt';
   }

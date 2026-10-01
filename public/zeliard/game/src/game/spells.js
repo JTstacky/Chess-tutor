@@ -10,7 +10,8 @@ export const SPELL_ORDER = ['espada', 'saeta', 'fuego', 'lanzar', 'rascar', 'agu
 const V2 = (2 * TILE) / FRAME; // 2 tiles per frame
 
 export const SPELLS = {
-  espada: { name: 'Espada', dmg: 2, sprite: 'fx.espada', color: '#dfe8ff',
+  // The blade art points down (it was drawn as a falling sword); it is turned to fly point-first.
+  espada: { name: 'Espada', dmg: 2, sprite: 'fx.espada', color: '#dfe8ff', pointsDown: true,
     cast: (w, h) => [{ x: h.cx + h.dir * 30, y: h.y + 24, vx: h.dir * V2, vy: 0, life: 5 * FRAME, w: 30, h: 18 }] },
   saeta: { name: 'Saeta', dmg: 4, sprite: 'fx.saeta', color: '#ffe08a', pierce: true,
     cast: (w, h) => [{ x: h.cx + h.dir * 30, y: h.y + 24, vx: h.dir * V2, vy: 0, life: 10 * FRAME, w: 32, h: 14, breaks: true }] },
@@ -50,7 +51,7 @@ export function castSpell(world, hero, character, game, cam) {
     return { instant: true, dmg: sp.dmg, kind: id };
   }
   for (const p of sp.cast(world, hero, cam)) {
-    world.spawnProjectile({ ...p, friendly: true, spell: true, owner: hero.id, dmg: sp.dmg, kind: id, sprite: sp.sprite, color: sp.color, pierce: sp.pierce, ghost: sp.ghost, rehit: sp.rehit });
+    world.spawnProjectile({ ...p, friendly: true, spell: true, owner: hero.id, dmg: sp.dmg, kind: id, sprite: sp.sprite, color: sp.color, pierce: sp.pierce, ghost: sp.ghost, rehit: sp.rehit, pointsDown: sp.pointsDown });
   }
   return 'cast';
 }

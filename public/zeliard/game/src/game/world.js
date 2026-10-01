@@ -423,7 +423,9 @@ function drawProjectile(p, cx, cy, t) {
     const dir = p.vx < 0 ? -1 : 1;
     ctx.save();
     if (p.spin) { ctx.translate(x, y); ctx.rotate(p.t * 14 * dir); ctx.translate(-x, -y); }
-    sh.draw(ctx, sh.frameAt('default', p.t), x, y + sh.fh * (p.spriteScale || 1) * 0.5, dir, 1, p.spriteScale || 1);
+    // Art drawn pointing down (Espada's blade) is turned to point the way it flies.
+    if (p.pointsDown) { ctx.translate(x, y); ctx.rotate(-dir * Math.PI / 2); ctx.translate(-x, -y); }
+    sh.draw(ctx, sh.frameAt('default', p.t), x, y + sh.fh * (p.spriteScale || 1) * 0.5, p.pointsDown ? 1 : dir, 1, p.spriteScale || 1);
     ctx.restore();
     return;
   }
