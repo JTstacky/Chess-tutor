@@ -1,0 +1,4 @@
+{
+ "_note": "Shield-less hero art in use; shields.js draws the equipped shield. tools/art/shield_boxes.py",
+ "separate": true
+}

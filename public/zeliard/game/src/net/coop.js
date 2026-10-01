@@ -248,6 +248,7 @@ export class Coop {
         id: h.id, name: c.name, x: Math.round(h.x), y: Math.round(h.y), h: h.h, dir: h.dir, state: h.state,
         ground: h.onGround, atk: h.attack ? [h.attack.kind, +h.attack.t.toFixed(3)] : null, cast: +h.castT.toFixed(2),
         ifr: h.iframes > 0 ? 1 : 0, fl: +h.flash.toFixed(2), fairy: !!h.fairy, hp: c.hp, mhp: maxHp(c), lv: c.level, slot: h.slot,
+        sh: c.shield || null, sw: c.sword || null, bl: h.blockT > 0 ? +h.blockT.toFixed(2) : 0, gd: !!h.guarded,
       };
     });
     const m = { t: 'h', map: this.mapId, list };
@@ -271,6 +272,7 @@ export class Coop {
       r.tx = d.x; r.ty = d.y;
       if (r.fresh !== false) { h.x = d.x; h.y = d.y; r.fresh = false; }
       h.h = d.h; h.dir = d.dir; h.state = d.state; h.onGround = d.ground; h.fairy = d.fairy;
+      h.remoteShield = d.sh ?? null; h.remoteSword = d.sw ?? null; if (d.bl) h.blockT = d.bl; h.guarded = !!d.gd;
       h.castT = d.cast; h.flash = d.fl; h.iframes = d.ifr ? 0.1 : 0;
       h.attack = d.atk ? { kind: d.atk[0], t: d.atk[1], hits: new Set() } : null;
       h.slot = this.isHost ? this.slots.get(peer) ?? 1 : d.slot ?? 1;

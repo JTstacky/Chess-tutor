@@ -11,6 +11,7 @@ import { clamp, approach, overlap } from '../core/util.js';
 import { sheetNow } from '../core/assets.js';
 import { audio } from '../core/audio.js';
 import { ctx } from '../render/screen.js';
+import { drawShield, shieldOf } from './shields.js';
 
 const ORIG = 24 * 11.83; // 1 tile per original frame, in px/s (≈284)
 
@@ -26,14 +27,22 @@ export const PHYS = {
 const POSE_SCALE = { climb: 1.14 };
 export const jumpV = (rows) => Math.sqrt(2 * PHYS.gravity * rows * TILE);
 
-// Sword boxes relative to the feet-centre, facing right: [x, y, w, h]. Active from t0 to
-// t1 seconds. The original forward swing lasts 3 frames and reaches 4 tiles past the
-// knight's body (5 with the Knight's and Illumination swords); `reach` adds that tile.
+// Sword boxes relative to the feet-centre, facing right: [x, y, w, h], one per swing phase,
+// spread evenly over t0..t1 seconds. They are the original's sword_reachability_tables
+// (sword.grp, 3 frames per swing; tiles relative to the 3x3 knight, whose columns are -36..36 px
+// and rows -72..0). The forward swing arcs over the head: wound up behind and 2 rows above the
+// head, then sweeping across the front, then straight out 2 tiles past the body. The overhead
+// swing goes from behind the head, over the top and down in front to the feet. Crouching
+// lowers every box a row. Knight's and Illumination swords reach a tile further (`reach`).
 export const ATTACKS = {
-  slash: { dur: 0.26, t0: 0.03, t1: 0.17, box: [6, -62, 66, 46] },
-  overhead: { dur: 0.3, t0: 0.03, t1: 0.2, box: [-34, -112, 104, 70] },
-  low: { dur: 0.24, t0: 0.03, t1: 0.15, box: [6, -36, 66, 34] },
-  thrust: { dur: 99, t0: 0, t1: 99, box: [-18, -6, 36, 40] },
+  slash: { dur: 0.3, t0: 0, t1: 3 / 11.83, phases: [[-84, -120, 96, 96], [-60, -72, 144, 48], [-12, -72, 96, 48]] },
+  overhead: { dur: 0.32, t0: 0, t1: 3 / 11.83, phases: [[-84, -120, 120, 72], [-12, -120, 96, 144], [-36, -72, 72, 96]] },
+  low: { dur: 0.3, t0: 0, t1: 3 / 11.83, phases: [[-84, -120, 96, 96], [-60, -72, 144, 48], [-12, -72, 96, 48]] },
+  thrust: { dur: 99, t0: 0, t1: 99, phases: [[-18, -6, 36, 40]] },
+};
+export const swingPhase = (atk) => {
+  const a = ATTACKS[atk.kind];
+  return Math.min(a.phases.length - 1, Math.max(0, Math.floor(((atk.t - a.t0) / (a.t1 - a.t0)) * a.phases.length)));
 };
 
 let heroSeq = 0;
@@ -108,7 +117,11 @@ export class Hero {
     if (this.state === 'door' || this.frozen) return;
 
     const L = input.down('left'), R = input.down('right'), U = input.down('up'), D = input.down('down');
-    if (input.pressed('jump')) this.jumpBuffer = PHYS.buffer; else this.jumpBuffer -= dt;
+    const onRope = this.ropeCol(map) != null;
+    // Up is the original's jump key too (fight.asm up_pressed): a door, then a lift, then a
+    // rope, and otherwise a jump. The jump button stays for gamepads and couch layouts.
+    const upJump = input.pressed('up') && !onRope && this.state !== 'climb' && !world.doorAt?.(this) && !world.onLift?.(this);
+    if (input.pressed('jump') || upJump) { this.jumpBuffer = PHYS.buffer; this.jumpKey = upJump && !input.pressed('jump') ? 'up' : 'jump'; } else this.jumpBuffer -= dt;
 
     // Knockback: 2 tiles away from the hit, no control until it ends.
     if (this.stun > 0) {
@@ -122,7 +135,6 @@ export class Hero {
     // Rope climbing (the original's main vertical traversal). Ropes are grabbed with
     // Up, or with Down while airborne ("grab while falling").
     if (this.state === 'climb') { this.updateClimb(dt, input, map, U, D, L, R); return; }
-    const onRope = this.ropeCol(map) != null;
     if (onRope && (U || (D && !this.onGround)) && !this.attack && !world.doorAt?.(this)) { this.startClimb(map); return; }
 
     // Attacks
@@ -132,11 +144,14 @@ export class Hero {
       if (this.attack.kind === 'thrust') { if (this.onGround || !D) this.attack = null; }
       else if (this.attack.t >= a.dur) this.attack = null;
     }
+    // Sword (fight.asm input_handling): Down while airborne stabs downward; Up, or a monster
+    // just above in a non-boss cavern, swings overhead; otherwise a forward swing (low when
+    // crouching).
     if (input.pressed('attack') && !this.attack && this.castT <= 0) {
       let kind = 'slash';
       if (!this.onGround && D) kind = 'thrust';
-      else if (U) kind = 'overhead';
       else if (this.state === 'crouch') kind = 'low';
+      else if (U || world.monsterAbove?.(this)) kind = 'overhead';
       this.attack = { kind, t: 0, hits: new Set() };
       audio.sfx('sword_swing', { rate: kind === 'overhead' ? 0.9 : 1 });
     }
@@ -191,7 +206,7 @@ export class Hero {
       this.fallStartY = this.y;
       audio.sfx('jump', { vol: 0.5 });
     }
-    if (this.jumpHeld && !input.down('jump') && this.vy < 0) { this.vy *= PHYS.jumpCut; this.jumpHeld = false; }
+    if (this.jumpHeld && !input.down(this.jumpKey || 'jump') && this.vy < 0) { this.vy *= PHYS.jumpCut; this.jumpHeld = false; }
     if (this.onGround) this.jumpHeld = false;
 
     map.move(this, (this.vx + pushX) * dt, 0, { stepUp: this.onGround ? 6 : 0 });
@@ -329,10 +344,11 @@ export class Hero {
     const a = ATTACKS[this.attack.kind];
     if (this.attack.t < a.t0 || this.attack.t > a.t1) return null;
     const reach = this.attack.kind === 'thrust' ? 0 : (this.stats.reach || 0) * TILE;
-    const [bx, by, bw, bh] = a.box;
+    const [bx, by, bw, bh] = a.phases[swingPhase(this.attack)];
     const w = bw + reach;
     const x = this.dir > 0 ? this.cx + bx : this.cx - bx - w;
-    return { x, y: this.feet + by - (this.h < PHYS.h && this.attack.kind === 'slash' ? -24 : 0), w, h: bh };
+    const low = this.h < PHYS.h && this.attack.kind !== 'thrust' ? TILE : 0; // squatting: a row lower
+    return { x, y: this.feet + by + low, w, h: bh };
   }
 
   hurtBox() { return { x: this.x + 5, y: this.y + 5, w: this.w - 10, h: this.h - 6 }; }
@@ -377,7 +393,8 @@ export class Hero {
 
   draw(camX, camY, t) {
     const [name, once] = this.anim();
-    const sh = sheetNow(`hero.${name}`) || sheetNow('hero.idle');
+    const sid = sheetNow(`hero.${name}`) ? `hero.${name}` : 'hero.idle';
+    const sh = sheetNow(sid);
     const x = this.cx - camX, y = this.feet - camY;
     if (this.fairy) { drawFairy(x, y - 40, t, this.dir, this.label); return; }
     if (this.iframes > 0 && this.state !== 'dead' && this.stun <= 0 && Math.floor(t * 20) % 2 === 0) return;
@@ -403,14 +420,18 @@ export class Hero {
     if (this.attack) {
       const a = ATTACKS[this.attack.kind];
       const seq = sh.anims[name] || sh.anims.default;
-      f = this.attack.kind === 'thrust' ? seq[Math.min(seq.length - 1, Math.floor(at * sh.fps))] : seq[Math.min(seq.length - 1, Math.floor((at / a.dur) * seq.length))];
+      f = this.attack.kind === 'thrust' ? seq[Math.min(seq.length - 1, Math.floor(at * sh.fps))]
+        : seq[Math.min(seq.length - 1, Math.floor(Math.max(0, (at - a.t0) / (a.t1 - a.t0)) * seq.length))]; // all cells while the blade is live, then hold the last
     } else if (name === 'walk') f = walkFrame(this, sh);
     else f = once ? sh.frameOnce(name, at) : sh.frameAt(name, at);
     // Co-op knights get a tinted cloak so players can tell each other apart.
     const tint = this.slot > 0 && this.state !== 'spirit' ? ['', 'hue-rotate(200deg)', 'hue-rotate(60deg) saturate(1.3)', 'hue-rotate(110deg)'][this.slot % 4] : '';
     if (tint) { ctx.save(); ctx.filter = tint; }
     sh.draw(ctx, f, x, y, this.dir, alpha, POSE_SCALE[name] || 1);
+    const shieldPose = name === 'climb' || name === 'dead' || name === 'hurt' || this.state === 'spirit' ? 'hidden' : this.h < PHYS.h ? 'crouch' : 'stand';
+    drawShield(ctx, x, y, this.dir, alpha, shieldOf(this), shieldPose, 1, sh.torsoX(f) * sh.scale * (POSE_SCALE[name] || 1));
     if (tint) ctx.restore();
+    if (this.attack && this.attack.kind !== 'thrust') drawSwoosh(x, y, this.dir, this.attack, this.h < PHYS.h, this.character?.sword || this.remoteSword, (this.stats.reach || 0) * TILE);
     if (this.flash > 0) {
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
@@ -432,6 +453,50 @@ export class Hero {
   }
 }
 
+// The sword's sweep, like the original's swing graphics (a curved blade trail per frame, white,
+// cyan or gold by sword): an arc around the shoulder that follows the swing phase. Angles are
+// for facing right (canvas: -90° is straight up, 180° behind).
+// Where the painted blade points in each art cell (hero_combat: forward swing cells 0-3, overhead
+// 4-7); the trail's leading edge follows the blade. (The crouching swing has its own painted sweep.)
+const SWOOSH = {
+  slash: [-160, -90, -10, 5],
+  overhead: [-185, -90, -45, 50],
+};
+const SWORD_TINT = {
+  training_sword: '235,240,255', knights_sword: '235,240,255', wise_mans_sword: '110,240,255',
+  illumination_sword: '110,240,255', spirit_sword: '255,230,90', enchantment_sword: '255,210,60',
+};
+function drawSwoosh(x, y, dir, atk, crouch, sword, reach) {
+  const path = SWOOSH[atk.kind];
+  if (!path) return;
+  const a = ATTACKS[atk.kind];
+  // Cell k is on screen for u in [k, k+1); the blade matches path[k] mid-cell.
+  const u = Math.min(path.length - 0.5, Math.max(0.5, Math.max(0, (atk.t - a.t0) / (a.t1 - a.t0)) * path.length)) - 0.5;
+  const i = Math.min(path.length - 2, Math.floor(u));
+  const fade = atk.t > a.t1 ? Math.max(0, 1 - (atk.t - a.t1) / 0.07) : 1;
+  if (fade <= 0) return;
+  const deg = path[i] + (path[i + 1] - path[i]) * Math.min(1, u - i);
+  const end = deg * Math.PI / 180, start = Math.max(path[0] - 30, deg - 120) * Math.PI / 180;
+  const r = 50 + reach * 0.8;
+  const rgb = SWORD_TINT[sword] || SWORD_TINT.training_sword;
+  ctx.save();
+  ctx.translate(x, y - (crouch ? 34 : 58));
+  if (dir < 0) ctx.scale(-1, 1);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'butt';
+  // A crescent: thick and bright at the blade, thinning and fading along the trail.
+  const N = 24;
+  for (let j = 0; j < N; j++) {
+    const t0 = j / N, t1 = (j + 1) / N;
+    ctx.strokeStyle = `rgba(${rgb},${(0.08 + 0.85 * t1 * t1) * fade})`;
+    ctx.lineWidth = 1.5 + 7 * t1;
+    ctx.beginPath();
+    ctx.arc(0, 0, r - 4 * (1 - t1), start + (end - start) * t0, start + (end - start) * t1);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 // A hit taken on the shield: the shield flashes gold and throws sparks for 0.3 s, so a block reads
 // as a block (the original's cue was its shield clang).
 function drawBlock(x, y, dir, t, crouch) {
@@ -451,13 +516,24 @@ function drawBlock(x, y, dir, t, crouch) {
 }
 
 // Walk frame from the distance the knight has covered, so his feet keep pace with the ground at any
-// speed (cavern, town, co-op puppet). One stride of the 8-frame cycle covers about 120 px.
-// Jumps of more than 40 px between draws (a wrap seam, a door) don't count as walking.
-const STRIDE = 15;
+// speed (cavern, town, co-op puppet). Each frame of the two-step cycle is held for the distance its
+// weight-bearing foot travels (measured by tools/art/footslide.py), so the planted foot stays put;
+// every frame gets at least 8 px so none is skipped. Jumps of more than 40 px between draws (a wrap
+// seam, a door) don't count as walking.
+const WALK_DIST = [19, 15, 19, 8, 13, 19, 20, 8];
+const WALK_EDGE = WALK_DIST.reduce((a, d) => [...a, a[a.length - 1] + d], [0]);
+const STRIDE = 15; // other sheets: px per frame
 export function walkFrame(h, sh) {
   const d = Math.abs(h.x - (h.lastWalkX ?? h.x));
   h.lastWalkX = h.x;
   if (d < 40) h.odo = (h.odo || 0) + d;
+  const seq = sh.anims.walk;
+  if (seq && seq.length === WALK_DIST.length) {
+    const o = (h.odo || 0) % WALK_EDGE[WALK_DIST.length];
+    let k = 0;
+    while (o >= WALK_EDGE[k + 1]) k++;
+    return seq[k];
+  }
   return sh.frameByDist('walk', h.odo || 0, STRIDE);
 }
 

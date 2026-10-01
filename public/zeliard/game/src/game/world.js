@@ -277,6 +277,15 @@ export class CavernWorld {
   }
 
   doorAt(hero) { return this.doors.find((d) => d.inDoorway(this.map, hero)); }
+  // Standing on a lift (Up rides it instead of jumping).
+  onLift(hero) { return this.platforms.some((p) => p.lift && p.riders(this).includes(hero)); }
+  // fight.asm: outside boss caverns, Space swings overhead when a monster is in the
+  // 4-row x 8-column area above the knight.
+  monsterAbove(hero) {
+    if (this.boss) return false;
+    const area = { x: hero.cx - 4 * TILE, y: hero.y - 4 * TILE, w: 8 * TILE, h: 4 * TILE };
+    return this.enemies.some((e) => !e.dead && !e.hidden && overlap(this.map.rel(area, e), e.hurtBox()));
+  }
 
   // ------------------------------------------------------------ drawing
   camera(hero) {

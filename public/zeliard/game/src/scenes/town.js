@@ -12,6 +12,7 @@ import { drawKnightHud } from './cavern.js';
 import { evalCondition } from '../game/conditions.js';
 import { RULES, maxHp } from '../game/character.js';
 import { walkFrame } from '../game/hero.js';
+import { drawShield, shieldOf } from '../game/shields.js';
 
 const STREET = H - 64; // feet line
 const MUSIC = { cmap: 'royal_hall', mrmp: 'lantern_overture', esmp: 'lantern_overture' };
@@ -287,7 +288,7 @@ export class TownScene {
     for (const h of this.game.coop?.townKnights() || []) {
       if (h.fairy) { h.draw(cx, 0, t); continue; }
       const sh = sheetNow(h.state === 'walk' ? 'hero.walk' : 'hero.idle');
-      if (sh) sh.draw(ctx, (h.state === 'walk' ? walkFrame(h, sh) : sh.frameAt('idle', h.animT)), h.cx - cx, STREET + 2, h.dir, 0.9);
+      if (sh) { const f = h.state === 'walk' ? walkFrame(h, sh) : sh.frameAt('idle', h.animT); sh.draw(ctx, f, h.cx - cx, STREET + 2, h.dir, 0.9); drawShield(ctx, h.cx - cx, STREET + 2, h.dir, 0.9, shieldOf(h), 'stand', 1, sh.torsoX(f) * sh.scale); }
       if (h.label) text(h.label, h.cx - cx, STREET - 104, { size: 13, align: 'center', color: '#8fd0ff' });
     }
     for (const l of this.game.locals) {
@@ -295,7 +296,7 @@ export class TownScene {
       if (h.fairy) { h.y = STREET - h.h - 30; h.draw(cx, 0, t); continue; }
       const sh = sheetNow(h.state === 'walk' ? 'hero.walk' : 'hero.idle');
       const hx = h.cx - cx;
-      if (sh) sh.draw(ctx, (h.state === 'walk' ? walkFrame(h, sh) : sh.frameAt('idle', h.animT)), hx, STREET + 2, h.dir, 1);
+      if (sh) { const f = h.state === 'walk' ? walkFrame(h, sh) : sh.frameAt('idle', h.animT); sh.draw(ctx, f, hx, STREET + 2, h.dir, 1); drawShield(ctx, hx, STREET + 2, h.dir, 1, shieldOf(h), 'stand', 1, sh.torsoX(f) * sh.scale); }
       if (h.label) text(h.label, hx, STREET - 104, { size: 13, align: 'center', color: '#ffd27a' });
       const b = this.doorNear(h), n = this.npcNear(h);
       if (!this.dialogue && (b || n)) text(n ? '◆ Talk' : '▲ Enter', hx, STREET - 118, { size: 14, align: 'center', color: '#fff4c8', shadow: true });

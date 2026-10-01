@@ -5,17 +5,19 @@
 export const ACTIONS = ['left', 'right', 'up', 'down', 'jump', 'attack', 'magic', 'menu', 'pause', 'confirm', 'cancel'];
 
 // Solo play accepts both layouts on player 1. In couch co-op layout A is player 1
-// and layout B is player 2.
+// and layout B is player 2. The original's keys: arrows move, Up jumps (and climbs,
+// opens doors, rides lifts), Down crouches, Space swings the sword, Alt casts; Up/Down +
+// Space give the overhead swing and the downward stab. W/S work the same as Up/Down.
 const LAYOUT_A = {
   KeyA: 'left', KeyD: 'right', KeyW: 'up', KeyS: 'down',
-  Space: 'jump', KeyJ: 'attack', KeyK: 'magic', KeyL: 'jump', KeyI: 'menu', Tab: 'menu',
+  Space: 'attack', KeyJ: 'attack', KeyK: 'magic', KeyL: 'jump', KeyI: 'menu', Tab: 'menu',
   Escape: 'pause', KeyP: 'pause',
 };
 const LAYOUT_B = {
   ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
+  AltLeft: 'magic', AltRight: 'magic', ControlRight: 'attack',
   KeyZ: 'jump', KeyX: 'attack', KeyC: 'magic', Enter: 'menu', ShiftRight: 'jump',
   Comma: 'jump', Period: 'attack', Slash: 'magic', Backspace: 'pause',
-  AltLeft: 'magic', ControlRight: 'attack',
 };
 // Menu navigation keys (any layout) — confirm/cancel are separate from game actions.
 const MENU_KEYS = { Enter: 'confirm', Space: 'confirm', KeyZ: 'confirm', KeyJ: 'confirm', Escape: 'cancel', KeyX: 'cancel', KeyK: 'cancel', Backspace: 'cancel' };
@@ -54,13 +56,16 @@ class Input {
         // also confirm the menu that opens next frame.
         if (e.key.length === 1 || ['Backspace', 'Enter', 'NumpadEnter', 'Escape'].includes(e.code)) { e.preventDefault(); return; }
       }
-      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'AltLeft', 'Backspace'].includes(e.code)) e.preventDefault();
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'AltLeft', 'AltRight', 'Backspace'].includes(e.code)) e.preventDefault();
       if (!e.repeat) for (const l of this.anyKeyListeners) l(e);
       this.keys.add(e.code);
       this.taps.add(e.code); // latched until the next frame so quick taps are never lost
       this.lastDevice = 'keyboard';
     });
-    window.addEventListener('keyup', (e) => { this.keys.delete(e.code); });
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'AltLeft' || e.code === 'AltRight') e.preventDefault(); // don't focus the browser menu
+      this.keys.delete(e.code);
+    });
     window.addEventListener('blur', () => this.keys.clear());
   }
 

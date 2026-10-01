@@ -81,6 +81,32 @@ export class Sheet {
     } catch { this.dx = null; }
     return this;
   }
+  // Where frame `i`'s head and torso sit, in frame px from the anchor (facing as painted), plus
+  // its steadying shift: what a held shield lines up with. Measured once per frame.
+  torsoX(i) {
+    if (!this.img) return 0;
+    const f = ((i % this.count) + this.count) % this.count;
+    this.torso ||= [];
+    if (this.torso[f] == null) {
+      try {
+        const c = document.createElement('canvas'); c.width = this.fw; c.height = this.fh;
+        const g = c.getContext('2d', { willReadFrequently: true });
+        g.drawImage(this.img, (f % this.cols) * this.fw, Math.floor(f / this.cols) * this.fh, this.fw, this.fh, 0, 0, this.fw, this.fh);
+        const a = g.getImageData(0, 0, this.fw, this.fh).data;
+        let top = -1;
+        for (let y = 0; y < this.fh && top < 0; y++) for (let x = 0; x < this.fw; x++) if (a[(y * this.fw + x) * 4 + 3] > 40) { top = y; break; }
+        let s = 0, n = 0;
+        const y0 = top + Math.round((this.ay - top) * 0.25), y1 = top + Math.round((this.ay - top) * 0.55);
+        // The crimson tunic: the cape trailing behind and the sword out front don't count.
+        for (let y = Math.max(0, y0); y < Math.min(this.fh, y1); y++) for (let x = 0; x < this.fw; x++) {
+          const p = (y * this.fw + x) * 4;
+          if (a[p + 3] > 40 && a[p] > 140 && a[p + 1] < 90 && a[p + 2] < 90) { s += x; n++; }
+        }
+        this.torso[f] = top < 0 || n < 20 ? 0 : s / n - this.ax;
+      } catch { this.torso[f] = 0; }
+    }
+    return this.torso[f] + (this.dx ? this.dx[f] || 0 : 0);
+  }
   // Draw frame `i` with its anchor at (x, y). dir: 1 right, -1 left.
   draw(ctx, i, x, y, dir = 1, alpha = 1, scale = 1) {
     if (!this.img) return;

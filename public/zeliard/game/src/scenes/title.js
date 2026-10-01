@@ -64,7 +64,7 @@ export class TitleScene {
       this.setMenu(new Menu([
         { label: 'Host an online game', value: 'host', hint: 'Friends join with a 4-letter room code. Your world, their knights.' },
         { label: 'Join an online game', value: 'join', hint: 'Enter a friend\'s room code. Bring one of your own knights, or join as the Spirit of Esmesanti.' },
-        { label: 'Couch co-op (2 players)', value: 'couch', hint: 'P1: WASD + Space/J/K.   P2: Arrows + , . /   (gamepads work too)' },
+        { label: 'Couch co-op (2 players)', value: 'couch', hint: 'P1: WASD + Space/K.   P2: Arrows + . / or Alt/Ctrl   (gamepads work too)' },
         { label: 'Two windows on this PC', value: 'local', hint: 'Open the game in a second window and choose "Join" there with the same code.' },
       ], { title: 'Co-op', w: 380, x: W / 2 - 190, y: 290, onSelect: (it) => g.openCoop(this, it.value), onCancel: () => this.showMain() }));
     } else if (v === 'options') this.options();
@@ -200,8 +200,8 @@ export class TitleScene {
   drawControls() {
     panel(140, 220, W - 280, 280);
     const rows = [
-      ['Move / climb', 'Arrows or WASD'], ['Jump', 'Z, Space or L'], ['Sword', 'X or J   (Up+Sword = overhead, Down = crouch slash,'],
-      ['', '         Down+Sword in the air = downward thrust)'], ['Magic', 'C or K'], ['Enter doors / talk', 'Up'],
+      ['Move / crouch', 'Arrows or WASD'], ['Jump / climb / doors', 'Up (or Z, L)'], ['Sword', 'Space (or X, J)   Up+Space = overhead swing,'],
+      ['', 'Down+Space while falling = downward stab'], ['Magic', 'Alt (or C, K)'], ['Talk', 'Up or Space'],
       ['Inventory', 'Enter, I or Tab'], ['Pause', 'Esc or P'], ['Gamepad', 'A jump · X sword · B magic · Y items · Start pause'],
     ];
     rows.forEach(([a, b], i) => { text(a, 170, 240 + i * 27, { size: 16, color: COLORS.gold }); text(b, 360, 240 + i * 27, { size: 16 }); });

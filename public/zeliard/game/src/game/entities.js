@@ -377,6 +377,7 @@ class Platform {
 
 // Lift: stand on it and hold Up or Down to ride it one row per frame.
 class Lift extends Platform {
+  get lift() { return true; }
   update(dt, world) {
     this.acc += dt;
     while (this.acc >= FRAME) {

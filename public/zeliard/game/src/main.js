@@ -4,6 +4,7 @@ import { input } from './core/input.js';
 import { setupTouch } from './ui/touch.js';
 import { audio } from './core/audio.js';
 import { loadSpriteDefs, preloadSheets, spriteIds, loadJSON, setRemap } from './core/assets.js';
+import { loadShieldArt } from './game/shields.js';
 import { settings } from './core/save.js';
 import { params } from './core/util.js';
 import { Game } from './game/game.js';
@@ -29,6 +30,7 @@ async function boot() {
   audio.setManifest(am);
   audio.setVolumes(settings.get('music'), settings.get('sfx'));
   await preloadSheets([...spriteIds('hero.'), ...spriteIds('item.'), ...spriteIds('fx.'), ...spriteIds('prop.')]);
+  await loadShieldArt();
 
   const game = new Game();
   window.game = game; // handy for debugging and the headless test scripts
