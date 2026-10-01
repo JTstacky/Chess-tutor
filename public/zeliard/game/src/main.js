@@ -21,7 +21,7 @@ async function boot() {
   const ALIAS = {
     boss_theme: 'guardian_battle', boss_defeat: 'boss_roar', boss_hit: 'sword_hit', boss_hurt: 'sword_hit',
     door_unlock: 'door_open', heal: 'potion_use', potion: 'potion_use', inn_rest: 'rest_at_the_inn', menu_open: 'menu_accept',
-    anvil: 'shield_block', wing_flap: 'jump',
+    anvil: 'shield_block', wing_flap: 'jump', slime: 'spell_water', stomp: 'land', fire_cast: 'spell_fire', spell_recharge: 'potion_use',
     bramble_gallery: 'fungal_woodland', frost_vault: 'glacial_vault', bone_ossuary: 'ash_catacomb', gilded_deep: 'golden_tomb',
     ember_works: 'molten_foundry', abyss_throne: 'star_abyss', royal_hall: 'dawn_returns', tear_fanfare: 'save_bell',
   };

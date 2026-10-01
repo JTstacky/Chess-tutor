@@ -3482,11 +3482,11 @@
  },
  "art.boss.agar": {
   "id": "art.boss.agar",
-  "fw": 316,
-  "fh": 186,
+  "fw": 432,
+  "fh": 244,
   "frames": 4,
-  "ax": 158,
-  "ay": 178,
+  "ax": 216,
+  "ay": 236,
   "fps": 6,
   "anims": {
    "agar": [
@@ -3527,11 +3527,11 @@
  },
  "art.boss.alguien": {
   "id": "art.boss.alguien",
-  "fw": 686,
-  "fh": 404,
+  "fw": 936,
+  "fh": 530,
   "frames": 4,
-  "ax": 343,
-  "ay": 396,
+  "ax": 468,
+  "ay": 522,
   "fps": 6,
   "anims": {
    "alguien": [
@@ -3572,11 +3572,11 @@
  },
  "art.boss.cangrejo": {
   "id": "art.boss.cangrejo",
-  "fw": 316,
-  "fh": 186,
+  "fw": 432,
+  "fh": 244,
   "frames": 4,
-  "ax": 158,
-  "ay": 178,
+  "ax": 216,
+  "ay": 236,
   "fps": 6,
   "anims": {
    "cangrejo": [
@@ -3617,11 +3617,11 @@
  },
  "art.boss.dragon": {
   "id": "art.boss.dragon",
-  "fw": 1176,
-  "fh": 312,
+  "fw": 996,
+  "fh": 302,
   "frames": 4,
-  "ax": 588,
-  "ay": 304,
+  "ax": 498,
+  "ay": 294,
   "fps": 6,
   "anims": {
    "dragon": [
@@ -3662,11 +3662,11 @@
  },
  "art.boss.jashiin": {
   "id": "art.boss.jashiin",
-  "fw": 474,
-  "fh": 280,
+  "fw": 648,
+  "fh": 366,
   "frames": 4,
-  "ax": 237,
-  "ay": 272,
+  "ax": 324,
+  "ay": 358,
   "fps": 6,
   "anims": {
    "jashiin": [
@@ -3707,11 +3707,11 @@
  },
  "art.boss.paguro": {
   "id": "art.boss.paguro",
-  "fw": 316,
-  "fh": 186,
+  "fw": 432,
+  "fh": 244,
   "frames": 4,
-  "ax": 158,
-  "ay": 178,
+  "ax": 216,
+  "ay": 236,
   "fps": 6,
   "anims": {
    "paguro": [
@@ -3752,11 +3752,11 @@
  },
  "art.boss.pollo": {
   "id": "art.boss.pollo",
-  "fw": 422,
-  "fh": 248,
+  "fw": 576,
+  "fh": 326,
   "frames": 4,
-  "ax": 211,
-  "ay": 240,
+  "ax": 288,
+  "ay": 318,
   "fps": 6,
   "anims": {
    "pollo": [
@@ -3797,11 +3797,11 @@
  },
  "art.boss.pulpo": {
   "id": "art.boss.pulpo",
-  "fw": 422,
-  "fh": 248,
+  "fw": 576,
+  "fh": 326,
   "frames": 4,
-  "ax": 211,
-  "ay": 240,
+  "ax": 288,
+  "ay": 318,
   "fps": 6,
   "anims": {
    "pulpo": [
@@ -3842,11 +3842,11 @@
  },
  "art.boss.tarso": {
   "id": "art.boss.tarso",
-  "fw": 528,
-  "fh": 312,
+  "fw": 720,
+  "fh": 408,
   "frames": 4,
-  "ax": 264,
-  "ay": 304,
+  "ax": 360,
+  "ay": 400,
   "fps": 6,
   "anims": {
    "tarso": [
@@ -3887,11 +3887,11 @@
  },
  "art.boss.vista": {
   "id": "art.boss.vista",
-  "fw": 632,
-  "fh": 374,
+  "fw": 864,
+  "fh": 488,
   "frames": 4,
-  "ax": 316,
-  "ay": 366,
+  "ax": 432,
+  "ay": 480,
   "fps": 6,
   "anims": {
    "vista": [
