@@ -1,0 +1,1707 @@
+{
+ "sources": [
+  "3_Assembly/masm/working/zelres1/code/100OPDMO.asm + 3_Assembly/tasm/bin/zelres1/100OPDMO.bin (story text decoded from the release bytes; runtime address = file offset + 5FFCh)",
+  "3_Assembly/masm/working/zelres2/code/210KINGP.asm",
+  "3_Assembly/masm/working/zelres2/code/211OMOYP.asm",
+  "3_Assembly/masm/working/zelres2/code/250ENDMO.asm + 3_Assembly/tasm/bin/zelres2/250ENDMO.bin",
+  "3_Assembly/tasm/bin/zelres2/236CMAP.mdt",
+  "3_Assembly/tasm/bin/zelres2/200FIGHT.bin (string scan)",
+  "3_Assembly/masm/working/zelres3/code/300ROKAD.asm",
+  "3_Assembly/ida/fight.asm, 3_Assembly/ida/town.asm (flag semantics)",
+  "6_WebPort/OPENING_DEMO_FLOW_MASM.md; 6_WebPort/opening_demo_flow.md (older, partly wrong call numbering); 6_WebPort/ending_princess_hut_trace.md",
+  "research/zeliard-expanded/pages/manual-transcript.html; research/zeliard-expanded/manuals/text/Sierra-News-Fall-1990.txt"
+ ],
+ "text_encoding": {
+  "cinematics": "100OPDMO/250ENDMO: ASCII with 27h apostrophe. Control bytes: FFh end-of-script (return), FDh section break (return), FEh scroll (clear text area, row 0), F7/F3/F2/F1 set text row 0/1/2/3 (shown here as a space), F5h pause F0h ticks, F6h pause 3 x F0h, FBh bold (colours 0701h), FAh normal (0700h), F9h colour 6 (0602h, Jashiin), F0h reset style, EFh speaker attr Duke (=), EEh King (>), EDh narrator/Jashiin (?), ECh Guardian Spirit (@), EBh Princess (A), A0h/A2h attribute restore; 80h-8Fh King/Princess portrait-mouth frames and 90h-9Fh Duke portrait frames (these skip the per-character wait). Ending credits add F8h nn nn (pause), FCh (clear), 09h (tab). Plain text here strips all non-printing bytes.",
+  "town_and_building_text": "MDT NPC strings and 210KINGP etc.: backslash renders as an apostrophe; & is a non-breaking space; / forces a line break; FFh ends a string. Plain text here substitutes an apostrophe for the backslash and a space for &.",
+  "pages": "Each page = text shown between two clear/scroll codes; pause_after_waits = number of F0h-tick pauses before the next clear. Speakers are assigned from the speaker attribute codes and the quote context."
+ },
+ "opening": {
+  "order_summary": [
+   "copyright/title card (ttl3.grp)",
+   "ancient-history scroll over the necklace (nec.grp + hou.grp)",
+   "Jashiin attract animation (dmaou.grp)",
+   "title logo + colour rotation (ttl1/ttl2/ttl3.grp, zopn.msd)",
+   "staff credits scroll (zend.msd)",
+   "story slideshow (waku/ame/hime/dmaou/isi/oui/sei/yuu1/yuup/oup/maop/yuu2)",
+   "closing scroll over yuu3/yuu4 composite",
+   "hand-off to game.bin (new game in Muralla)"
+  ],
+  "skip_rule": "SPACE or ENTER during the title/prologue/credits waits jumps to the next phase (opening_next_scene / trans_exit); during the story slideshow story_scene_input_handler polls input on every wait. Manual: \"To bypass the opening cartoon, press the Spacebar.\"",
+  "scenes": [
+   {
+    "order": 1,
+    "phase": "title card",
+    "graphic": "ttl3.grp (Zeliard logo)",
+    "music": null,
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "caption",
+        "text": "Copyright (C)1987,1990 GAME ARTS"
+       },
+       {
+        "speaker": "caption",
+        "text": "Copyright (C)1990 Sierra On-Line"
+       }
+      ]
+     }
+    ],
+    "timing": "text appears first on black, logo fades in, short hold, cleared without an exit fade",
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm scene_data_a (line ~805); 6_WebPort/OPENING_DEMO_FLOW_MASM.md section 2"
+   },
+   {
+    "order": 2,
+    "phase": "ancient-history prologue",
+    "graphic": "nec.grp (necklace/amulet) with hou.grp overlay",
+    "music": null,
+    "raw_codes": "CR (0Dh) ends each centred line; FFh ends the block. 31 entries, each drawn with 10 anim_draw frames and a 1Ch-tick wait per frame, then 120 fade frames.",
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "caption",
+        "text": "Two thousand years,"
+       },
+       {
+        "speaker": "caption",
+        "text": "from the dark reaches of another galaxy,"
+       },
+       {
+        "speaker": "caption",
+        "text": "a demon with not a shred"
+       },
+       {
+        "speaker": "caption",
+        "text": "of compassion for humankind,"
+       },
+       {
+        "speaker": "caption",
+        "text": "descended upon earth."
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "He defiled the land,"
+       },
+       {
+        "speaker": "caption",
+        "text": "sending vile creatures to live in it,"
+       },
+       {
+        "speaker": "caption",
+        "text": "and thus became ruler of the world."
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "The King of Felishika,"
+       },
+       {
+        "speaker": "caption",
+        "text": "appalled by what had happened,"
+       },
+       {
+        "speaker": "caption",
+        "text": "prayed to the Spirit"
+       },
+       {
+        "speaker": "caption",
+        "text": "of the Holy Land of Zeliard"
+       },
+       {
+        "speaker": "caption",
+        "text": "for help in defeating this monster."
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "With the help of the holy crystals"
+       },
+       {
+        "speaker": "caption",
+        "text": "called Tears of Esmesanti,"
+       },
+       {
+        "speaker": "caption",
+        "text": "the King managed to wrest power"
+       },
+       {
+        "speaker": "caption",
+        "text": "from the fiend and seal him deep"
+       },
+       {
+        "speaker": "caption",
+        "text": "within the bowels of the earth."
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "And once again,"
+       },
+       {
+        "speaker": "caption",
+        "text": "the light of peace came to shine upon"
+       },
+       {
+        "speaker": "caption",
+        "text": "the earth."
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "However, it is written in"
+       },
+       {
+        "speaker": "caption",
+        "text": "the Sixth Book of Esmesanti:"
+       },
+       {
+        "speaker": "caption",
+        "text": "The Age of Darkness."
+       }
+      ]
+     }
+    ],
+    "timing": "scanline scroll-up; per line 10 draws x 1Ch (28) PIT ticks = ~1.18 s at 236.70 Hz",
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~1955-1969 (stream consumed by animate_scanline, SI=6FF0h)",
+    "notes": "The prophecy ends abruptly with \"The Age of Darkness.\" in the DOS data; no further lines exist."
+   },
+   {
+    "order": 3,
+    "phase": "Jashiin attract animation",
+    "graphic": "dmaou.grp (Jashiin), staged sprite build-up (scene_sprite_c, 14h ticks per step), then scene_sprite_b animation",
+    "music": null,
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "Beware, for I shall wake from my sleep of 2,000 years and once again reign over the world."
+       }
+      ]
+     }
+    ],
+    "timing": "waits F0h, F0h, frame AL=2 (wait 0Fh), frame AL=3 (wait F0h)",
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~2690-2720: text interleaved with ANIM_01..08 bytes and split by FFh into three strips (\"Beware, for I shall wake\" / \"from my sleep of 2,000 years\" / \"and once again reign over the world.\")",
+    "confidence": "medium",
+    "notes": "The strips sit inside sprite-animation data; that they render as visible speech is inferred from the ANIM-coded layout, not frame-verified."
+   },
+   {
+    "order": 4,
+    "phase": "title",
+    "graphic": "ttl1.grp + ttl2.grp + ttl3.grp logo, 100-step colour rotation",
+    "music": "zopn.msd (opening theme) loaded here",
+    "pages": [],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm run_opening_demo_main block 5"
+   },
+   {
+    "order": 5,
+    "phase": "staff credits",
+    "graphic": "black screen, scanline text",
+    "music": "zend.msd",
+    "raw_codes": "52 CR/FF-terminated entries at anim_fade_tbl_credits (leading spaces used for centring are trimmed here)",
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "caption",
+        "text": "Fantasy Action Game"
+       },
+       {
+        "speaker": "caption",
+        "text": "ZELIARD"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "-- STAFF --"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Producer -- Japanese Version"
+       },
+       {
+        "speaker": "caption",
+        "text": "Mitsuhiro Mazda"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Producer -- English Version"
+       },
+       {
+        "speaker": "caption",
+        "text": "Josh Mandel"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Lead Programmer      Tomoyuki Shimada"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Graphic Designers     Akihiko Yoshida"
+       },
+       {
+        "speaker": "caption",
+        "text": "Masatoshi Azumi"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "English Text Translation by"
+       },
+       {
+        "speaker": "caption",
+        "text": "Marti McKenna"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Music Composers  -- MECANO ASSOCIATES --"
+       },
+       {
+        "speaker": "caption",
+        "text": "Fumihito Kasatani"
+       },
+       {
+        "speaker": "caption",
+        "text": "Nobuyuki Aoshima"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Story Maker           Masaru Takeuchi"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Sound Effects by     Tomoyuki Shimada"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Advisers               Osamu Harada"
+       },
+       {
+        "speaker": "caption",
+        "text": "Hiromi Ohba"
+       },
+       {
+        "speaker": "caption",
+        "text": "Greg Miyaji"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "System Designer      Rocky Cave Maker"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Special Thanks to"
+       },
+       {
+        "speaker": "caption",
+        "text": "Toshiyuki Uchida"
+       },
+       {
+        "speaker": "caption",
+        "text": "Yuzo Sunaga"
+       },
+       {
+        "speaker": "caption",
+        "text": "Takeshi Miyaji"
+       },
+       {
+        "speaker": "caption",
+        "text": "Naozumi Honma"
+       },
+       {
+        "speaker": "caption",
+        "text": "Toshi Masubuchi"
+       },
+       {
+        "speaker": "caption",
+        "text": "Ray E. Nakazato"
+       },
+       {
+        "speaker": "caption",
+        "text": "Hiroyuki Koyama"
+       },
+       {
+        "speaker": "caption",
+        "text": "Satoshi Uesaka"
+       },
+       {
+        "speaker": "caption",
+        "text": "Sierra On-Line Japan, Inc."
+       },
+       {
+        "speaker": "caption",
+        "text": "Eiji (Ed) Nagano"
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": ""
+       },
+       {
+        "speaker": "caption",
+        "text": "Copyright (C)1987,1990 GAME ARTS"
+       },
+       {
+        "speaker": "caption",
+        "text": "Copyright (C)1990 Sierra On-Line"
+       },
+       {
+        "speaker": "caption",
+        "text": "This edition first published 1987 by"
+       },
+       {
+        "speaker": "caption",
+        "text": "GAME ARTS Co.,Ltd./ Tomoyuki Shimada"
+       }
+      ]
+     }
+    ],
+    "timing": "same scanline protocol (10 draws x 1Ch ticks per entry), then 120 fade frames; SPACE/ENTER starts a 64-step music fade (~4.26 s) and then the story",
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm anim_fade_tbl_credits (lines ~1976-2001); credits_scroll_display"
+   },
+   {
+    "order": 6,
+    "graphic": "waku.grp frame + ame.grp (rain over the land / princess on balcony)",
+    "script_calls": [
+     1
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Once, long ago, a terrible storm came to the land of Zeliard."
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Dark clouds filled the sky; lightning flashed and thunder crashed. Day after day, rain poured from the heavens as if in lament."
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "On the seventh day of rain, a beautiful young girl stood on her balcony watching this dark, sad rain."
+       }
+      ],
+      "pause_after_waits": 5
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The girl was Princess Felicia la Felishika.  She was the only daughter of King Felishika, and the light of his life."
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Her smiles were like sunshine, her voice as beautiful as that of an angel.  She was adored by the people of the kingdom."
+       }
+      ],
+      "pause_after_waits": 5
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"What a dreadful storm!  Will it never end?\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Just as the princess spoke these words, the raindrops turned to grains of sand which covered the ground below her."
+       }
+      ],
+      "pause_after_waits": 6
+     }
+    ],
+    "palette": 5,
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm post_title_story_scenes lines ~815-840; runtime script_pc 79C6h..7CACh",
+    "notes": "The byte at 79C6h is the page-ID byte P that follows the credits SCR_END_SCRIPT; it is cleared by the first scroll and is omitted here.",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 7,
+    "graphic": "same ame.grp picture redrawn with palette 9 (sand); hime.grp decompressed off-screen",
+    "script_calls": [
+     2
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "As she watched, a startling transformation began to take place."
+       }
+      ],
+      "pause_after_waits": 5
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "In an instant, the green hills and plains turned a dusty brown."
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Trees and flowers crumpled and were buried. Rivers and lakes disappeared beneath the sand. This ever-green land was turning to desert before her very eyes."
+       }
+      ],
+      "pause_after_waits": 6
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~841-847",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 8,
+    "graphic": "hime.grp (Princess Felicia on the balcony), palette 6; dmaou.grp (Jashiin) decompressed off-screen",
+    "script_calls": [
+     3
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"How can this be?\""
+       },
+       {
+        "speaker": "narrator",
+        "text": "she cried,"
+       },
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"What evil power could cause such a terrible thing to happen?\""
+       }
+      ],
+      "pause_after_waits": 7
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Princess Felicia shivered as she felt a dark presence near her,"
+       }
+      ],
+      "pause_after_waits": 0
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~848-856",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 9,
+    "graphic": "hime.grp blended with the Jashiin image (busy_wait 4, apply_palette_blend)",
+    "script_calls": [
+     4,
+     5
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "and suddenly, a terrifying voice bellowed as loud as thunder..."
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "\"I am Jashiin, the Emperor of Chaos.  The descendants of those who imprisoned me under the earth shall know that my wrath has smoldered for two thousand years!\""
+       }
+      ],
+      "pause_after_waits": 2
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~857-866; call 5 is an empty SCR_BREAK",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 10,
+    "graphic": "Jashiin apparition overlay drawn over the princess at BX=1728h CX=2230h (AL=7)",
+    "script_calls": [
+     6,
+     7
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "\"Beautiful Princess Felicia, you will make a lovely and terrifying symbol of my awakening.  Your father will not make the mistakes of his ancestors!\""
+       }
+      ],
+      "pause_after_waits": 2
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "As the words of the demon resounded over the land, Princess Felicia was turned to stone."
+       }
+      ],
+      "pause_after_waits": 0
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~867-876",
+    "notes": "After call 7 the overlay is redrawn twice with waits of 2, 0Fh and 3 (the petrification moment).",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 11,
+    "graphic": "isi.grp (Princess Felicia turned to stone), palette 7",
+    "script_calls": [
+     8,
+     9
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The rain of sand continued for 108 days and transformed the once-fertile land into desert."
+       }
+      ],
+      "pause_after_waits": 2
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The people of the kingdom wept at the terrible fate of their country, and of their princess."
+       }
+      ],
+      "pause_after_waits": 4
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~877-905; call 8 is an empty wait+scroll page played while the stone picture is prepared",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 12,
+    "graphic": "oui.grp (King Felishika weeping), OR-blitted over the scene",
+    "script_calls": [
+     10,
+     11
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The King wept most of all."
+       },
+       {
+        "speaker": "King Felishika",
+        "text": "\"Oh, my beloved Felicia!  I fear the Age of Darkness is upon us.  I am powerless to stop it ... and powerless to help you.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "But the tears of the King and his people soon awakened another power."
+       }
+      ],
+      "pause_after_waits": 2
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~906-917",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 13,
+    "graphic": "sei.grp (the Guardian Spirit) drawn at BX=1610h CX=2468h",
+    "script_calls": [
+     12
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "As the King grieved, an apparition appeared before him."
+       }
+      ],
+      "pause_after_waits": 2
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"I am the Guardian Spirit of the Holy Land of Zeliard.  The demon Jashiin has been resurrected, and indeed his evil magic will plunge this world into the Age of Darkness once again.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"Heed my words, King Felishika: There is but one way to stop this demon.  A brave warrior must venture into the labyrinths and recover the nine Holy Crystals, the Tears of Esmesanti.\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"Many terrible creatures dwell within the labyrinths, all of them Jashiin's minions.  No mortal man could defeat these deadly beasts and wrest the crystals from them.\""
+       }
+      ],
+      "pause_after_waits": 2
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"However, there is one with the power to oppose Jashiin. The man who is destined to fight him will soon arrive in your kingdom.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"This man is the only being strong enough to banish Jashiin forever.\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"You must await the arrival of this brave and noble knight, and tell him everything.  Only with his help can you hope to restore this land to its former beauty, and free your daughter from her terrible curse.\""
+       }
+      ],
+      "pause_after_waits": 4
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~918-926",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 14,
+    "graphic": "sei.grp; font layer cleared",
+    "script_calls": [
+     13
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Having spoken these words, the Spirit disappeared."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "King Felishika could not believe what he had seen."
+       },
+       {
+        "speaker": "King Felishika",
+        "text": "\"Surely my mind is playing tricks on me!  I'm afraid I have gone mad with grief.\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "But the next day, a stranger appeared in the kingdom..."
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~927-930",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 15,
+    "graphic": "yuu1.grp (Duke Garland arriving in the desert)",
+    "script_calls": [
+     14,
+     15
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"What a desolate place!  Why has the Spirit led me here?\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Guided by the light of the Spirit, brave Duke Garland had journeyed many days to the land of Zeliard."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Entering the castle, he was quickly escorted to the throne of the grieving King Felishika."
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~931-941",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 16,
+    "graphic": "split screen: yuup.grp (Duke portrait, left) and oup.grp (King portrait, right), palette 6",
+    "script_calls": [
+     16,
+     17
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "King Felishika",
+        "text": "\"Duke Garland!  You must be the man of destiny of whom the Spirit spoke.  I beg of you to destroy the demon Jashiin who has cursed my kingdom and turned my beloved daughter to stone.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Duke Garland knelt before the King."
+       },
+       {
+        "speaker": "Duke Garland",
+        "text": "\"Your Majesty, I have followed the light of the Spirit to this place.\""
+       }
+      ],
+      "pause_after_waits": 6
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"I know not of this demon, nor what powers he may possess, but if there is none else who can defeat him, then I will dedicate my life to this task.\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "King Felishika",
+        "text": "\"For the first time since the sandstorm began, you have brought hope into my heart, Duke Garland.  May God go with you on your quest.\""
+       }
+      ],
+      "pause_after_waits": 2
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~942-965; portrait mouths animate via ANIM bytes (80h-8Fh King set, 90h-9Fh Duke set)",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 17,
+    "graphic": "maop.grp (Jashiin portrait), palette 8",
+    "script_calls": [
+     18,
+     19
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Suddenly, the room grew cold.  A black mist swirled around them, then took on a hideous shape."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "\"Are you the fool who dares to challenge me?  Don't be absurd!\""
+       }
+      ],
+      "pause_after_waits": 2
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~966-982",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 18,
+    "graphic": "Jashiin portrait scrolls away (24 steps x 0Fh ticks); split Duke/King portraits redrawn",
+    "script_calls": [
+     20,
+     21
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"And you must be the evil Jashiin!\""
+       }
+      ],
+      "pause_after_waits": 2
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "\"You shall address me as the Emperor of Chaos... THE EMPEROR OF CHAOS!\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "\"Young fool, I could destroy you now, but I need a little amusement.  I will give you some time to perform your little quest, but you must promise not to bore me.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "\"Of course, you have no hope of defeating me.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"Mark my words, evil one: I will not stop until I have reclaimed the nine holy crystals, and sealed you under the earth once and for all!\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The demon laughed, and the sound was like breaking glass."
+       },
+       {
+        "speaker": "Jashiin",
+        "text": "\"My labyrinths are immense, and run deep into the earth.  You'll soon lose your way, and then my underlings will finish you off.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Jashiin",
+        "text": "\"It's been many years since a stray mortal has wandered into their realm. They are hungry for human flesh.\""
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "With that, Jashiin disappeared leaving echoes of earsplitting laughter."
+       }
+      ],
+      "pause_after_waits": 2
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~983-1015",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 19,
+    "graphic": "yuu2.grp (Duke Garland sets out), palette 7",
+    "script_calls": [
+     22
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"You haven't seen the last of me, Jashiin! Your reign of evil is near its end!\""
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~1036-1048; this page ends with SCR_END_SCRIPT",
+    "phase": "story slideshow",
+    "music": "none newly loaded (zend.msd is faded out before the slideshow)"
+   },
+   {
+    "order": 20,
+    "phase": "closing scroll",
+    "graphic": "yuu3.grp + yuu4.grp merged composite (XOR-masked), palette 1",
+    "music": null,
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "caption",
+        "text": "At last,"
+       },
+       {
+        "speaker": "caption",
+        "text": "the door of destiny was opened."
+       },
+       {
+        "speaker": "caption",
+        "text": "The labyrinths are deep,"
+       },
+       {
+        "speaker": "caption",
+        "text": "and the way is long."
+       },
+       {
+        "speaker": "caption",
+        "text": "Will Duke Garland be successful"
+       },
+       {
+        "speaker": "caption",
+        "text": "in dethroning the Emperor of Chaos?"
+       }
+      ]
+     }
+    ],
+    "timing": "wait F0h, draw, animate_scanline_alt over anim_fade_tbl_scene, then 10 x C8h-tick waits (~8.4 s at 236.70 Hz), then game.bin is loaded and a new game starts.",
+    "evidence": "3_Assembly/masm/working/zelres1/code/100OPDMO.asm lines ~1049-1093 and ~1971-1974"
+   }
+  ],
+  "timing_units": "Waits are raw PIT ticks of the reprogrammed timer (divisor 13B1h = 236.70 Hz). Story text: 10h ticks per character (~68 ms); SCR_WAIT (F5h) = F0h ticks (~1.01 s); SCR_WAIT3 (F6h) = 3 x F0h (~3.04 s). pause_after_waits = number of F0h-tick pauses before the next clear. CONFLICT: the web port slows the scanline 1Ch wait to a 55 ms unit to match DOSBox-X video; the code value is 236.70 Hz ticks."
+ },
+ "king": {
+  "module": "210KINGP (KINGPRO.BIN) with KING.GRP portrait; banner title \"King of Felishika\"",
+  "branch_logic": "select_script_branch: if save[05h]==0 and save[06h]==0 -> first_visit; else if save[06h]==0 -> reminder_before_caverns; else if save[49h]==0 -> after_entering_caverns; else -> post_victory. save[05h] = spoke_to_king (set to FFh when the gold award finishes); save[06h] = entered_cavern_first_time; save[49h] = post-victory flag (Jashiin defeated).",
+  "note_on_gold": "Entering the caverns before ever talking to the King sets save[06h], which skips first_visit, so the 1000 gold can be missed.",
+  "scripts": [
+   {
+    "id": "first_visit",
+    "condition": "save[05h]==0 && save[06h]==0",
+    "lines": [
+     "Brave Duke Garland,",
+     "you'll need money for your journey.",
+     "I hereby bestow upon you 1000 Golds.",
+     "Go to town and outfit yourself, then make haste to the labyrinth to defeat the forces of Jashiin. My kingdom and the life of my daughter are at stake."
+    ],
+    "effect": "script cmd 1: +100 gold x 10 iterations (0Fh ticks apart, coin sound) = 1000 gold, then save[05h]=FFh",
+    "raw_codes": "you\\ll (backslash = apostrophe); journey./I&hereby (/ = line break, & = non-breaking space); 1000&Golds"
+   },
+   {
+    "id": "reminder_before_caverns",
+    "condition": "save[05h]!=0 && save[06h]==0",
+    "lines": [
+     "Brave Duke, did you forget something?",
+     "The entrance to the labyrinth is at the edge of town.",
+     "Please hurry, before it's too late!"
+    ]
+   },
+   {
+    "id": "after_entering_caverns",
+    "condition": "save[06h]!=0 && save[49h]==0",
+    "lines": [
+     "Duke Garland,",
+     "I am in debt to you for your efforts.",
+     "Have you not yet succeeded in vanquishing Jashiin?",
+     "I pray that the spirits will guide you. Please don't give up, the people of Zeliard are depending on you!"
+    ]
+   },
+   {
+    "id": "post_victory",
+    "condition": "save[49h]!=0",
+    "lines": [
+     "Duke Garland,",
+     "you are a brave man. You have conquered Jashiin and returned the nine Tears of Esmesanti.",
+     "Now go quickly to the chamber of Princess Felicia. The crystals will bring her back to life."
+    ]
+   }
+  ],
+  "script_opcodes": "FFh nn = command (00 start, 01 award gold, 02 long wait of 150 ticks, 03 enable face animation, 04/05 mouth animation); 0Ch clear/scroll; 0Dh CR; 11h end marker; FFh FFh end of script.",
+  "evidence": "3_Assembly/masm/working/zelres2/code/210KINGP.asm select_script_branch (scripts at 0A42Fh / 0A53Ch / 0A5D2h / 0A6C1h, lines ~515-620); gold_award_entry lines ~183-210",
+  "confidence": "high for text and branch order; meaning of save[49h] inferred (see castle.flag_49h)"
+ },
+ "princess_felicia": {
+  "hut_module": "211OMOYP (OMOYPRO.BIN): header \"In the Hut\", draws OMOYA.GRP (Princess Felicia turned to stone, 16x17 tile banner). This module contains no dialogue text.",
+  "normal_visit": "Shows the petrified princess with the \"In the Hut\" header, then returns to the castle.",
+  "ending_trigger": "After the frame is complete it tests save[49h]; if set, end_demo_transition loads enddemo.bin (250ENDMO) at 6000h plus the mode-specific GD driver, waits exactly 300 (12Ch) PIT ticks (~1.27 s) with the stone picture still shown, runs the GD wipe (BX=0, CX=50C8h), sets FF77h=FFh and jumps into the ending.",
+  "evidence": "3_Assembly/masm/working/zelres2/code/211OMOYP.asm; 6_WebPort/ending_princess_hut_trace.md",
+  "confidence": "high"
+ },
+ "castle": {
+  "map": "236CMAP.mdt \"Felishika's Castle\" (town MDT, place_map_id 80h). Key = 0-based index into the MDT NPC-text pointer array (NPC record byte +7 selects the default text).",
+  "regular_npc_texts": [
+   {
+    "text_id": 0,
+    "npc_x": 48,
+    "text": "If you are the brave warrior we have awaited, we have something to tell you: throughout the ages, many young men have entered the caverns, but few have returned."
+   },
+   {
+    "text_id": 1,
+    "npc_x": 56,
+    "text": "According to legend, there may still be underground places that have not been destroyed by Jashiin. People may still be living there, and will surely lend you a hand."
+   },
+   {
+    "text_id": 2,
+    "npc_x": 84,
+    "text": "I have been in the underground town. After I fled, they put a lock on the door. If the town is still there.... "
+   },
+   {
+    "text_id": 3,
+    "npc_x": 92,
+    "text": "This is the chamber of poor Princess Felicia, who has been turned to stone. You may enter, Duke Garland.",
+    "notes": "guard beside the door (x=95, door type 1) to Princess Felicia's chamber (the hut, 211OMOYP)"
+   }
+  ],
+  "post_victory_texts": [
+   {
+    "text_id": 4,
+    "text": "Brave knight, you have awakened. When you fell at the hand of Jashiin, the Spirits brought you here. Now make haste to the aid of the Princess Felicia.",
+    "classification": "ending path (post-Jashiin awakening), not ordinary death",
+    "reason": "With save[49h] set, process_hero_death skips the XP/gold/almas penalties and forces last_sage_visited=80h (the castle), and the fight module jumps straight to the collapse sequence on entry. So after the final battle Duke Garland falls and wakes in the castle, where this line greets him. Ordinary deaths resurrect at the last Sage and never show this text."
+   },
+   {
+    "text_id": 5,
+    "text": "Quickly, go to the Princess!",
+    "classification": "ending path"
+   },
+   {
+    "text_id": 6,
+    "text": "Ah, the Nine Tears of Esmesanti. Jashiin exists no more and the light of peace shines once again on our land... ",
+    "classification": "ending path"
+   },
+   {
+    "text_id": 7,
+    "text": "This will benefit the people living underground, as well. Hurry to the Princess Felicia.",
+    "classification": "ending path"
+   },
+   {
+    "text_id": 8,
+    "text": "The peace we dared not hope for has come. I'll get my things together and be on my way. I've a family to attend to.",
+    "classification": "ending path",
+    "raw_codes": "I\\ll ... I\\ve"
+   },
+   {
+    "text_id": 9,
+    "text": "Quickly, enter this chamber. The holy crystals will break the evil spell which has turned Princess Felicia to stone.",
+    "classification": "ending path (door guard's replacement for text 3)"
+   }
+  ],
+  "text_swap_mechanism": "Texts 4-9 are referenced by no NPC record; they are swapped in by the town event table (106TOWN init_c015_obj_if_exists / process_town_event_table) once the post-victory flag is set. Exact NPC-to-text pairing for 4-8 not decoded; 9 replaces the chamber guard (text 3) by content.",
+  "flag_49h": "save byte 49h (IDA: is_death_already_processed; MASM 200FIGHT: captured_flag; 106TOWN/210KINGP: area_load_flag). Readers: 200FIGHT (on entry -> game_over_sequence; on death -> resurrect at 80h with no penalties), 106TOWN, 210KINGP (post-victory branch), 211OMOYP (ending trigger). The writer (presumably the Jashiin victory path) was not located in this pass.",
+  "evidence": "3_Assembly/tasm/bin/zelres2/236CMAP.mdt text pointer array (4_Resources/MdtViewer layout); 3_Assembly/ida/fight.asm process_hero_death; 3_Assembly/ida/town.asm lines 40-120",
+  "confidence": "high for text; medium for the ending-path classification"
+ },
+ "tears": {
+  "in_game_text": null,
+  "finding": "No story text is shown when a Tear of Esmesanti is collected. 200FIGHT holds only item notifications (e.g. \"You get the Hero's Crest.\", \"Get the lion's head Key.\", \"It's too hot !!\"). The crystal moment is the wordless ROKADEMO.BIN cutscene (300ROKAD): DMAN.GRP sprites, 9 staged poses keyed by save byte A0h (Tears_of_Esmesanti_count), then the MFAN.MSD fanfare.",
+  "related_story_text": [
+   "Opening, Guardian Spirit: the nine Holy Crystals, the Tears of Esmesanti, must be recovered from the labyrinths.",
+   "Castle text 6 and the King post_victory script: the nine Tears returned.",
+   "Ending page 1: the nine Tears of Esmesanti were returned to their rightful place."
+  ],
+  "jashiins_lair": "No entry text for Jashiin's lair (MP90/MPA0) exists among the 200FIGHT strings.",
+  "evidence": "3_Assembly/tasm/bin/zelres2/200FIGHT.bin string scan; 3_Assembly/masm/working/zelres3/code/300ROKAD.asm header",
+  "confidence": "medium (ROKADEMO purpose inferred from its read of save A0h and the fanfare)"
+ },
+ "ending": {
+  "entry": "211OMOYP end_demo_transition -> 250ENDMO; narration script_pc starts at 6AA8h",
+  "scenes": [
+   {
+    "order": 1,
+    "graphic": "yuup.grp (Duke, left panel at 0B18h) + new1.grp (Felicia restored, right panel); split held FFh ticks, then an 89-step upward pan (0Ah ticks each) from Felicia's legs to her face",
+    "pages": [],
+    "music": null,
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~255-320"
+   },
+   {
+    "order": 2,
+    "graphic": "waku.grp frame over the Duke/Felicia composition",
+    "script_calls": [
+     1
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "At long last, Jashiin was destroyed and the nine Tears of Esmesanti were returned to their rightful place."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Princess Felicia was restored to her true form."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"You are as beautiful as a rose in bloom!\""
+       },
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"Thank you, Duke Garland.\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"You have done a great deed in defeating Jashiin.  Although my body was here, my soul was with the Holy Spirit, watching you.\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"I don't know how to thank you for rescuing me and saving my country.\""
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~324-330"
+   },
+   {
+    "order": 3,
+    "graphic": "new2.grp (King and Felicia reunited), palette 7, drawn at 1D12h",
+    "script_calls": [
+     2
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"Father!\""
+       },
+       {
+        "speaker": "King Felishika",
+        "text": "\"My darling Felicia!  How I've longed to hold you in my arms and hear your sweet voice!\""
+       }
+      ],
+      "pause_after_waits": 6
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Outside, the land cursed by the evil magic of Jashiin began to resume its original lushness."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The dreadful power of Jashiin was washed from the earth, and the land of Zeliard was peaceful once more."
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~333-345"
+   },
+   {
+    "order": 4,
+    "graphic": "sei.grp (Guardian Spirit) at 1610h",
+    "script_calls": [
+     3
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The Guardian Spirit of the Holy Land of Zeliard appeared before Duke Garland once again."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"You have suffered many hardships to defeat Jashiin, Duke Garland.\""
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~348-355"
+   },
+   {
+    "order": 5,
+    "graphic": "split: yuup.grp (Duke) + seip.grp (Spirit portrait), palette 6",
+    "script_calls": [
+     4
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"You fought bravely to accomplish this quest.  But this was only the beginning.  Your next mission awaits you in a new land.\""
+       }
+      ],
+      "pause_after_waits": 5
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"My next mission?\""
+       },
+       {
+        "speaker": "Guardian Spirit",
+        "text": "\"There are many who have need of your special talents.  Follow me and I will show you the way. We must depart quickly.\""
+       }
+      ],
+      "pause_after_waits": 6
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "There was no time to rest, and no time to stay in this peaceful land."
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~358-386"
+   },
+   {
+    "order": 6,
+    "graphic": "himp.grp (Princess portrait) replaces the right panel",
+    "script_calls": [
+     5
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"Must you leave so soon, Duke Garland?  I was hoping...\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Duke Garland",
+        "text": "\"Princess Felicia, I must bid you farewell.  Morning is coming soon, and I will miss the light of Spirit unless I start before the dawn.\""
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "The Duke answered quickly, as if to head off the next words of Princess Felicia."
+       }
+      ],
+      "pause_after_waits": 3
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~387-396"
+   },
+   {
+    "order": 7,
+    "graphic": "ne80.grp + ne81.grp (Duke walking away / Felicia), palette 7",
+    "script_calls": [
+     6
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "For if he heard those words, he might not be able to leave, as he knew he must.  He turned and walked away..."
+       }
+      ],
+      "pause_after_waits": 4
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"Don't go, Duke Garland!\""
+       },
+       {
+        "speaker": "narrator",
+        "text": "... and did not look back."
+       }
+      ],
+      "pause_after_waits": 2
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~398-420"
+   },
+   {
+    "order": 8,
+    "graphic": "ne80 picture with a dithered gradient fill (the Duke leaves the castle)",
+    "script_calls": [
+     7
+    ],
+    "pages": [
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "Duke Garland left the castle, and he felt as if his heart might break."
+       }
+      ],
+      "pause_after_waits": 3
+     },
+     {
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "As she watched him go, Princess Felicia said to herself,"
+       },
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"He will return.  The road to his destiny, began here, and it shall end here.\""
+       }
+      ],
+      "pause_after_waits": 5
+     },
+     {
+      "lines": [
+       {
+        "speaker": "Princess Felicia",
+        "text": "\"When his work in the world is done, he'll come back to me.  Until then, I can only believe it, and wait for him.\""
+       }
+      ],
+      "pause_after_waits": 6
+     }
+    ],
+    "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm lines ~421-440; an empty page follows, then a full-screen update and credits_scene_start"
+   }
+  ],
+  "narration_timing": "10h ticks per character; SCR_WAIT = F0h ticks; SCR_WAIT3 = 3 x F0h (same units as the opening, 236.70 Hz).",
+  "credits": {
+   "graphics": "end5.grp, end4.grp, end6.grp, end7.grp, en72.grp, fin.grp (loaded at 0/3400h/5E00h/8A00h/B800h/E200h); the credits dispatcher steps scene index 0..7",
+   "music": "zend.msd (chunk 27h), the same score as the opening credits",
+   "raw_codes": "F7 wait for a fresh action latch / new screen, F8 nn nn set pause ticks, FC clear, FB/FA/F9 colour styles, FD line break, 09 tab (column indent), FE scroll, FF end. After FF the program idles in credits_tick_loop forever (no return to title; the player must quit/reset).",
+   "sections": [
+    {
+     "header": "STAFF",
+     "entries": [
+      [
+       "PRODUCER - JAPANESE VERSION",
+       "Mitsuhiro Mazda"
+      ],
+      [
+       "PRODUCER - ENGLISH VERSION",
+       "Josh Mandel"
+      ],
+      [
+       "LEAD PROGRAMMER",
+       "Tomoyuki Shimada"
+      ],
+      [
+       "GRAPHIC DESIGNERS",
+       "Akihiko Yoshida",
+       "Masatoshi Azumi"
+      ],
+      [
+       "ENGLISH TEXT TRANSLATION",
+       "Marti McKenna"
+      ],
+      [
+       "MUSIC COMPOSERS",
+       "-- MECANO ASSOCIATES --",
+       "Fumihito Kasatani",
+       "Nobuyuki Aoshima"
+      ],
+      [
+       "STORY MAKER",
+       "Masaru Takeuchi"
+      ],
+      [
+       "SOUND EFFECTS",
+       "Tomoyuki Shimada"
+      ]
+     ]
+    },
+    {
+     "header": "SPECIAL THANKS",
+     "entries": [
+      [
+       "Toshiyuki Uchida",
+       "Yuzo Sunaga"
+      ],
+      [
+       "Takeshi Miyaji",
+       "Naozumi Honma"
+      ],
+      [
+       "Ray E. Nakazato",
+       "Toshi Masubuchi"
+      ],
+      [
+       "Hiroyuki Koyama",
+       "Satoshi Uesaka"
+      ],
+      [
+       "-- Sierra On-Line Japan, Inc. --",
+       "Eiji (Ed) Nagano"
+      ],
+      [
+       "ADVISERS",
+       "Osamu Harada",
+       "Hiromi Ohba",
+       "Greg Miyaji"
+      ],
+      [
+       "SYSTEM DESIGNER",
+       "Rocky Cave Maker"
+      ]
+     ]
+    },
+    {
+     "header": "SERVING MONSTERS",
+     "entries": [
+      [
+       "Cavern of Maricia",
+       "CANGREJO"
+      ],
+      [
+       "Peligro",
+       "PULPO"
+      ],
+      [
+       "Riza",
+       "POLLO"
+      ],
+      [
+       "Cavern of Glacial",
+       "AGER"
+      ],
+      [
+       "Cementar",
+       "VISTA"
+      ],
+      [
+       "Tesoro",
+       "TARSO"
+      ],
+      [
+       "Llama Town",
+       "PAGURO"
+      ],
+      [
+       "Cavern of Caliente",
+       "DRAGON"
+      ],
+      [
+       "Absor",
+       "ALGUIEN"
+      ]
+     ],
+     "notes": "Verbatim DOS spellings: \"Maricia\" (Malicia elsewhere) and \"AGER\" (Agar elsewhere). Jashiin is not listed."
+    },
+    {
+     "header": null,
+     "entries": [
+      [
+       "Copyright (C)1987,1990 GAME ARTS"
+      ],
+      [
+       "Copyright (C)1990 Sierra On-Line"
+      ],
+      [
+       "This edition first published 1987 by"
+      ],
+      [
+       "GAME ARTS Co.,Ltd./ Tomoyuki Shimada"
+      ]
+     ]
+    }
+   ],
+   "evidence": "3_Assembly/masm/working/zelres2/code/250ENDMO.asm credits_scene_start (lines ~903-930); credits data at runtime 787Eh (250ENDMO.bin file offset 1882h)"
+  }
+ },
+ "manual_backstory": {
+  "label": "MANUAL / MARKETING BACKSTORY - NOT IN-GAME TEXT",
+  "manual": "The DOS manual as available (manual-transcript.html is a retyped cracked-release copy; Zeliard-Manual.pdf has no extractable text) has no story section. It says only: \"To learn mnore about your mission in Zeliard , watch the opening cartoon at least once. To bypass the opening cartoon, press the Spacebar.\" and \"Talk to each person you see in town, each one will have information for you. Beware! Some are under the spell of the Dark One and may mislead you.\" (typos as in the transcript)",
+  "sierra_news_fall_1990": "Promotional blurb (OCR, fragmentary): players \"battle with might and magic through seven levels of underground cavern and dangerous monsters\" to \"collect 9 magical jewels\", defeat the demon and rescue \"a princess who has been turned to stone\"; \"The Zeliard world also offers towns where characters can equip themselves and receive valuable information and advice between levels of their adventure.\" Marketing says seven cavern levels; the game has eight cavern worlds plus Jashiin's lair.",
+  "names": {
+   "hero": "Duke Garland",
+   "king": "King Felishika",
+   "princess": "Princess Felicia la Felishika",
+   "villain": "Jashiin, the Emperor of Chaos",
+   "crystals": "the nine Tears of Esmesanti (Holy Crystals)",
+   "guardian": "the Guardian Spirit of the Holy Land of Zeliard"
+  },
+  "evidence": "research/zeliard-expanded/pages/manual-transcript.html; research/zeliard-expanded/manuals/text/Sierra-News-Fall-1990.txt lines ~1508-1540"
+ },
+ "conflicts": [
+  "The older 6_WebPort/opening_demo_flow.md says story call 1 is an empty break and lists 18 paraphrased calls; the MASM code makes 22 run_script_interpreter calls starting at 79C6h with the rain/princess prologue. Code order used.",
+  "Older notes call ame.grp a desert and isi.grp a castle. By content and code order: hime = princess on the balcony, isi = princess turned to stone (ishi), oui = king (ou), sei = spirit, yuu = hero (yuusha), mao/dmaou = demon king (maou). Code/story order used.",
+  "Timing: the code waits in 236.70 Hz PIT ticks; the web port uses a slower 55 ms unit for the scanline scroll to match DOSBox-X footage.",
+  "The ending credits spell the first cavern \"Maricia\" and the ice boss \"AGER\"; kept verbatim."
+ ],
+ "gaps": [
+  "The writer of save byte 49h (post-victory flag) was not located; the ending-path classification of castle texts 4-9 is inferred from the readers.",
+  "The castle event-table pairing of texts 4-8 to specific NPCs was not decoded.",
+  "Whether the \"Beware...\" Jashiin strips in the attract sequence render as visible text is inferred, not frame-verified.",
+  "The credits scene-index to graphic (end4..fin) pairing was not decoded.",
+  "Per-page pixel layout (row positions from F7/F3/F2/F1) is flattened to spaces."
+ ]
+}

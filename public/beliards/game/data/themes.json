@@ -1,0 +1,697 @@
+{
+ "default": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    0,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    0,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    20,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/moss_crypt.png",
+    "parallax": 0.2,
+    "alpha": 0.45
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ },
+ "sandbox": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    160,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    160,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    180,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/golden_tomb.png",
+    "parallax": 0.2,
+    "alpha": 0.45
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.3)"
+ },
+ "mpp1": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    0,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    0,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    20,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    0,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/moss_crypt.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ },
+ "mpp2": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    64,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    64,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    84,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    64,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/fungal_woodland.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ },
+ "mpp3": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    32,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    32,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    52,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    32,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/flooded_mine.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ },
+ "mpp4": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    96,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    96,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    116,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    96,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/glacial_vault.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)",
+  "hazardColor": "#d8f4ff"
+ },
+ "mpp5": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    128,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    128,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    148,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    128,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/ash_catacomb.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ },
+ "mpp6": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    160,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    160,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    180,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    160,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/golden_tomb.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ },
+ "mpp7": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    192,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    192,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    212,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    192,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/molten_foundry.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)",
+  "hazardColor": "#ff8a3a"
+ },
+ "mpp8": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    224,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    224,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    244,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    224,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/star_abyss.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ },
+ "mpp9": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    224,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    224,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    244,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    224,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/star_abyss.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(20,0,10,0.5)"
+ },
+ "mppa": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    128,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    128,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    148,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    128,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/star_abyss.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(30,0,10,0.45)"
+ },
+ "mppb": {
+  "fill": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    128,
+    64,
+    32,
+    32
+   ],
+   "size": 48
+  },
+  "top": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    32,
+    64,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 6
+  },
+  "bottom": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    192,
+    84,
+    32,
+    12
+   ],
+   "w": 48,
+   "h": 18,
+   "overhang": 8
+  },
+  "rope": {
+   "src": "../assets/tiles/terrain.png",
+   "rect": [
+    224,
+    64,
+    32,
+    32
+   ],
+   "w": 24,
+   "h": 24
+  },
+  "bg": [
+   {
+    "src": "../assets/backgrounds/underground_vista.png",
+    "parallax": 0.2,
+    "alpha": 0.5
+   }
+  ],
+  "bgShade": "rgba(6,4,14,0.35)"
+ }
+}

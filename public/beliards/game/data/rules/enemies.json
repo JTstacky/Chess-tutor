@@ -1,0 +1,3249 @@
+{
+ "_meta": {
+  "file": "enemies.json",
+  "game": "Zeliard, MS-DOS English (Sierra 1990). Japanese-version differences: japanese_balance.json.",
+  "scope": "Every regular enemy type, worlds 1-8 (EAI1..EAI8). World 9 (Jashiin's caverns MP90/MPA0) has no regular enemies - only the MAO1/MAO2 boss chunks (bosses.json). Bosses are in bosses.json.",
+  "join_key": "For a cavern MDT, byte 3 of its descriptor (eai_bin_idx) selects the AI chunk: 0=EAI1, 2=EAI2, 4=EAI3, 6=EAI4, 8=EAI5, 10=EAI6, 12=EAI7, 14=EAI8 (odd indices and 16-18 are boss chunks). Within that chunk, each MDT monster record's byte +4 low nibble (== byte +14) is the type_id used below. Records whose byte +4 has bit 4 set (0x10..0x1F after masking with 0x1F, e.g. 0x73 chest, 0x76 key, 0x7C sign, 0xD0 hidden wall item, 0xF1 falling object) are map objects, not enemies - see items.json cavern_objects.",
+  "evidence_note": "Values were read from the release binaries 3_Assembly/tasm/bin/zelres3/30xEAIx.bin (loaded at DS:A000 after the 4-byte SAR size header), disassembled with capstone; engine semantics from 3_Assembly/ida/fight.asm. Header tables: DS:A008 XP per type, DS:A010 contact damage per type, word DS:A006 -> drop descriptor pointers. HP is written by each type's AI handler when monster.hp is 0.",
+  "part_1_notes": {
+   "scope": "Regular enemies of worlds 1-4 (EAI1..EAI4). Boss chunks are separate.",
+   "units": {
+    "frame": "One main-loop iteration = one monsters_updates call. Length = speed_const*4 PIT ticks at 236.70 Hz; default speed_const 5 (F9 digit 5) = 20 ticks = 84.5 ms (11.83 frames/s). F9 digit d gives speed_const = 10-d.",
+    "tile": "Map cell. Normal enemies occupy a 2x2 tile block (Move_Monster_NWE_Depending_On_Whats_Below checks 2 tiles; move_monster_* move 1 tile). 'Big' enemies (state_flags bit 0x10 in the MDT record) are two stacked 2x2 records, even type = upper/controlling record, odd type = lower half.",
+    "m_x_rel": "Monster column inside the 36-column proximity window centred on the hero. The hero is at column 17 (0x11); code treats m_x_rel 16/17 (10h/11h) as 'directly above/below the hero'. m_x_rel < 17 means the monster is left of the hero.",
+    "rows": "Vertical tests compare hero_y_absolute (DS:FF35) with monster.currY (0..63, wraps)."
+   },
+   "record_key": "type_id = MDT monster record byte +4 (flags) low nibble; byte +14 (type_) holds the same value and is copied into +4 when the record (re)activates. The EAI chunk is chosen by the MDT descriptor byte 3 (eai_bin_idx): 0=EAI1, 2=EAI2, 4=EAI3, 6=EAI4 (odd indices are boss chunks). MDT byte +7 (state_flags): bit 0x10 = big two-record monster, bit 0x20 = persist death to the save flag at bytes +11/+12 (address) and +13 (mask), low nibble = preset drop code (overrides the random drop).",
+   "shared_rules": {
+    "hp_init": "monster.hp starts at 0 on (re)activation; the AI handler writes the listed hp the first frame it runs.",
+    "being_hit": "When ai_flags bit 0x20 is set the handler jumps to Hero_Hits_monster (fight.asm 8908): damage = Get_Stats(source = ai_flags & 1Fh). Source 1 = sword: (sword_base[1,2,4,8,32,127][sword-1] + level/2) * (byte_E4+1), capped 255, doubled (cap 255) for the ground downward thrust (sword_hit_type 2). Sources 2..8 = spells Espada..Guerra: 2,4,8,16,32,64,255 flat. Source 9 = Magia Stone spirit: (level+1)*4 capped 255. Source 0 = crushing platform: level/2+1. hp -= damage; if hp <= 0 the monster dies.",
+    "immunity_flag": "If monster.flags bit 0x20 is set, place_monster_in_proximity_and_run_ai never converts a hit (ai_flags 0x40) into ai_flags 0x20, so the monster cannot be damaged; flags bit 0x40 also removes it from contact-damage checks (get_monster_in_row_or_above skips al&40h).",
+    "xp": "On death monster_split_or_die adds XP = byte at DS:A008[type] (per-world table) to hero_xp (saturates at 65535).",
+    "drops": "On death, if state_flags low nibble is 0 the engine picks code = descriptor[type][RNG & 3] (descriptor list pointer = word DS:A006); with the ground downward thrust (sword_hit_type 2) it always takes descriptor[0]. Drop codes: 0 = nothing, 1 = nothing (record removed), 4 = 1 alma coin, 5 = 10 almas, 8 = red potion (+10 healing units), 9 = blue potion (full heal: +maxHP/8+1 healing units), 11 = 100 almas. The drop falls (move S) and is collected by touching it.",
+    "contact_damage": "check_hero_contact_damage probes four cells beside the hero (outer-left, inner-left, inner-right, outer-right; standing: the row at hero head+1 and the row below, squatting: lower rows only). Each occupied cell adds DS:A010[type] to an accumulator and applies the running accumulator as a hit (so a monster filling two probe cells deals d then 2d). Hit from the side the hero faces with a shield: dmg = (d>>1) >> ((shield_type+1)>>1) i.e. Clay/Wise d/4, Stone/Honor d/8, Light/Titanium d/16; that reduced value is subtracted from BOTH shield HP (shield breaks at <=0) and hero HP. Hit from behind or no shield: full d to hero HP.",
+    "projectiles": "13-byte records added via Add_Projectile (max 32). p_trajectory_dir low 3 bits = direction (0 E,1 NE,2 N,3 NW,4 W,5 SW,6 S,7 SE), bit 0x40 = follow curve table (p_curved_path_data_ptr indexed by step count, first index used is 1, FF ends the shot), bit 0x08 = passes through walls (otherwise destroyed on a non-passable tile). Straight shots end when step count reaches p_max_step_count. One tile per frame. Shield block (fight.asm sub_846F): never blocked if direction is 2 or 6 (vertical), if no shield, while swinging the sword, or on a rope; blocked only when the hero faces the incoming shot; with Clay/Wise/Stone shields (type < Honor) the block also requires the shot to be at the shield's row (projectile_y_vs_hero_row_dispatch). Unblocked shots do p_damage to hero HP directly (no shield reduction).",
+    "hazard_death": "Handlers that call Check_Monster_Ids_Two_Rows_Below (slot 6030h) kill the monster silently (no XP, no drop) when the tile two rows below is one of the tileset's four 'aggressive ground' tile ids (DS:8020).",
+    "respawn": "Dead monsters keep their spawn coordinates (bytes +11..+13); monster_activation re-creates them from the spawn point when it lies inside the 36-column proximity window but off the visible screen (window column <3 or >=32, or >=24 rows away vertically) and the 3x3 cells are free. Records with the save-persist bit stay dead once the flag is set."
+   }
+  },
+  "part_2_notes": {
+   "about": "Regular enemies, worlds 5-8. Verified from release bytes of EAI5..EAI8.BIN (3_Assembly/tasm/bin/zelres3/305EAI5.bin..308EAI8.bin, loaded at DS:A000 after the 4-byte SAR size header) disassembled with capstone (helper scratchpad/w58/zdis.py; listings e5..e8.txt). Addresses below are runtime DS addresses. Engine semantics from ida/fight.asm. The MASM Sourcer comments in 305-308*.asm (which call these 'MEDA/ZELA/...' handlers) are wrong about enemy identity and were not used.",
+   "conventions": {
+    "frame": "one main-loop iteration (monsters_updates is called once per frame). Default speed (F9 = 5, speed_const 5) = 20 PIT ticks at 236.70 Hz = 84.5 ms, 11.83 frames/s.",
+    "tiles": "all positions in tiles. m_x_rel = column of the monster inside the 36-column proximity window centred on the hero; the hero occupies columns 16-17 (0x10/0x11). 'hero right of monster' in code = m_x_rel <= 0x10 or < 0x11 as stated per enemy.",
+    "facing": "monster.ai_flags bit7 = 1 facing right (east), 0 facing left.",
+    "range_check": "Most enemies use a helper returning 'hero within N rows vertically (|hero_y - y| < N) AND monster already faces the hero'. Called 'aware(N)' below. If in vertical range but facing away, the helper returns the direction toward the hero, which the AI then usually adopts.",
+    "size": "normal enemy = one 16-byte MDT record, 2 tiles wide x 2 tall. 'big' enemy = two consecutive records, type N (top/head) + type N+1 (bottom/body, handler is a bare RET); together 2 wide x 4 tall. Horizontal moves of big enemies test 4 rows of the column ahead.",
+    "gravity": "MOVE_S each frame when not supported: falls 1 tile per frame (big enemies test 2 columns under the 4-row body).",
+    "hit_sources": "monster.ai_flags low 5 bits set by the attacker; Get_Stats damage: 1 = sword (sword base + level/2, x(oil+1), x2 on downward thrust), 2..8 = spells Espada 2, Saeta 4, Fuego 8, Lanzar 16, Rascar 32, Agua 64, Guerra 255, 9 = Magia Stone (level+1)*4 cap 255, 0 = crushing platform (level/2+1). HP <= damage kills.",
+    "drops": "On death monster.state_flags low nibble = drop_codes[RNG & 3] (drop_codes[0] if the killing blow was a downward thrust, sword_hit_type 2). Codes: 0 = nothing, 1 = nothing/removed, 4 = Almas 1, 5 = Almas 10, 8 = red potion, 9 = blue potion, 11 = Almas 100 (fight.asm almas_picked_up: 4->1, 5->10, else 100). XP is awarded on every kill.",
+    "projectiles": "13-byte projectile records copied from templates inside the chunk (ida/dungeon.inc struct: x,y,base_tile,step,max_step,dir,damage,...). dir 0 = east, 4 = west; moves 1 tile per step, removed after max_step steps or on a solid tile. Projectile damage is applied to hero HP directly (not shield HP). Block rule (fight.asm sub_846F): no block if no shield, while swinging, on a rope, or for vertical shots; horizontal shot is blocked (no damage) if the hero faces it and shield >= Honor Shield; with Clay/Wise/Stone shields it is blocked only when it arrives at the shield row (projectile_y_vs_hero_row_dispatch), else full damage.",
+    "contact": "contact_damage (EAI byte table at A010) summed over the hero's 4 probe cells per frame; if the hero faces the enemy with a shield: dmg >>= 1 then >>= (shield_type+1)>>1 and that reduced value is taken from BOTH shield HP and hero HP; from behind / no shield: full damage to hero. Flags bit 0x40 on the monster type byte = no contact damage; bit 0x20 = cannot be hit (hits not registered in place_monster_in_proximity_and_run_ai).",
+    "community_damage_scale": "Fan-site 'points' are life-bar pixels = damage / 8 (e.g. zombie spit 40 -> '5 points', slime red spit 80 -> '10', kiss 20 -> '3'). Code values are real HP.",
+    "respawn": "Killed enemies are marked dead in the in-memory MDT copy; they return when the cavern MDT is reloaded (re-entering the map). Enemies deactivate when more than 35 columns away (HorizDistToHero_35) and re-activate at their spawn point."
+   }
+  },
+  "confidence": "high for hp/xp/contact damage/drops (direct bytes); medium-high for behaviour specs; names are community names mapped by behaviour+XP (confidence given per entry)."
+ },
+ "mechanics": {
+  "damage_to_enemy": "Hero_Hits_monster: hp -= Get_Stats(source). source 1 sword = min(255,(sword_base + floor(level/2))*(sabre_oil+1)), doubled (cap 255) on the downward thrust; sources 2..8 spells Espada..Guerra = 2,4,8,16,32,64,255; 9 Magia Stone = min(255,(level+1)*4); 0 crushing platform = floor(level/2)+1. hp <= 0 -> dies (or splits for splitting types).",
+  "contact_damage_to_hero": "Each frame the 4 cells beside the hero's body (2 each side; row choice depends on crouching) are probed; each monster cell found adds that type's A010 damage to an accumulator and applies the accumulated amount. If the hero faces the side the hit comes from and has a shield: dmg = (dmg >> 1) >> ((shield_tier+1) >> 1), i.e. /4 Clay & Wise Man's, /8 Stone & Honor, /16 Light & Titanium; the reduced amount is subtracted from BOTH shield HP and hero HP; shield HP <= 0 destroys the shield ('Shield broken.'). Hit from behind or no shield: full damage to hero HP only. No invincibility frames.",
+  "projectile_damage_to_hero": "projectile.p_damage applied directly to hero HP unless blocked: projectiles travelling straight up/down (dirs 2/6) are never blocked; others are blocked (no damage, sound 0Ah) when a shield is equipped, the hero is not swinging and not on a rope, and faces the projectile; shields below Honor additionally only block projectiles at head/body height matching the crouch state (Honor, Light, Titanium block regardless of height). Blocking does not cost shield HP.",
+  "community_damage_units": "Fan-site 'points' of damage are LIFE-bar pixels = real HP damage / 8 (e.g. spit 40 = '5 points').",
+  "drops": "On death the drop code is the record's preset code (MDT byte +7 low nibble) if non-zero, else descriptor[rng & 3] (descriptor[0] when killed by the downward thrust). Codes: 0 = nothing (record respawns later), 1 = nothing and removed, 4 = 1 alma, 5 = 10 almas, 8 = red potion (+80 HP over 10 frames), 9 = blue potion (full heal), 11 = 100 almas. Drops fall and are collected by touching.",
+  "xp": "Awarded on kill from the A008 table (16-bit XP, saturating at 65535).",
+  "respawn": "Records are re-activated from their spawn coordinates (bytes +11..+13) when they come back into the 36-column proximity window after having been off-screen; killed ordinary enemies therefore come back. Records with state_flags bit 0x20 write a save flag on death and never return (e.g. the Magical Bat).",
+  "activation": "Only records within 35 columns of the proximity window's left edge are processed; each frame every active monster runs its type's AI handler once."
+ },
+ "worlds": [
+  {
+   "world": 1,
+   "eai_chunk": "301EAI1 (EAI1.BIN)",
+   "eai_bin_idx": 0,
+   "cavern_level": 1,
+   "maps": [
+    "MP10"
+   ],
+   "tables": {
+    "xp_A008": [
+     3,
+     2,
+     5,
+     3,
+     0,
+     0,
+     0,
+     0
+    ],
+    "contact_A010": [
+     5,
+     5,
+     15,
+     8,
+     0,
+     0,
+     0,
+     0
+    ],
+    "drop_descriptors": [
+     [
+      5,
+      4,
+      4,
+      0
+     ],
+     [
+      4,
+      0,
+      4,
+      0
+     ],
+     [
+      4,
+      0,
+      4,
+      0
+     ],
+     [
+      5,
+      0,
+      0,
+      0
+     ]
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "name": "Bat",
+     "aka": [],
+     "name_source": "Fan site Enemies page (The Caverns): 'Flies towards you from the roof, attacks with claws and goes back up'. IDA eai1.asm labels the type-0 frame pointer 'slug' but the type-0 AI branch is unambiguously the ceiling-diver; frame-label naming is wrong.",
+     "hp": 2,
+     "contact_damage": 5,
+     "xp": 3,
+     "drops": {
+      "codes": [
+       5,
+       4,
+       4,
+       0
+      ],
+      "table": {
+       "10 almas": 0.25,
+       "1 alma": 0.5,
+       "nothing": 0.25
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "No invulnerability. Dies silently on hazard tiles two rows below."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Hangs on the ceiling; when the hero passes near it dives at him, flies back up to the ceiling as soon as it has hurt the hero (or hits the floor), rests, repeats.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "hang (ai_state 00h)",
+        "does": "Each frame tries move N (stays pressed to ceiling). anim counts down 10h per frame from its rest value (70h after a dive = 7 frames).",
+        "transition": "When anim reaches 0 and the bat is between 6 columns left and 9 columns right of the hero (m_x_rel-17 in 0..9 or 17-m_x_rel in 1..6) -> windup. No vertical test."
+       },
+       {
+        "id": "windup (40h)",
+        "does": "anim++ (mod 8).",
+        "transition": "After 3 frames -> dive."
+       },
+       {
+        "id": "dive (80h)",
+        "does": "One tile per frame. v = (hero_y - currY + 21) & 63. v<18 (hero more than ~3 rows above): move NE/NW toward hero; 18<=v<24 (about level): move E/W toward hero; v>=24 (hero below): move SE/SW toward hero. If blocked diagonally, fall back to horizontal; if horizontal blocked or the bat is at hero column (m_x_rel 16/17), move S. Facing bit (ai_flags 80h) follows the direction moved.",
+        "transition": "As soon as hero_damage_this_frame is set (the hero was hurt by anything this frame) or move S is blocked -> return."
+       },
+       {
+        "id": "return (C0h)",
+        "does": "One tile per frame diagonally up (NE if facing right else NW); when the diagonal is blocked it flips facing and moves N; when N is blocked it sets bit 20h and anim=2.",
+        "transition": "Then counts anim 2->0 (2 frames), sets anim=70h and ai_state=0 (hang)."
+       }
+      ],
+      "speed": "1 tile/frame while diving and returning (11.8 tiles/s at default speed).",
+      "notes": "bat_step_throttle only cycles the animation counter; it does not gate movement."
+     },
+     "evidence": [
+      "ida/eai1.asm Monster_AI flags00 + ai_state_00..c0 (A268..A3D3), hp=2 at A276",
+      "301EAI1.bin header A008 xp=3, A010 dmg=5, descriptor[0]=5,4,4,0 (pointer A240)",
+      "ida/fight.asm Hero_Hits_monster 8908, monster_split_or_die 8733, drop handler flag_14_15_1b 7357"
+     ],
+     "confidence": "high",
+     "conflicts": "Fan site gives damage '1 point' (HUD bar units); code contact damage is 5 HP."
+    },
+    {
+     "type_id": 1,
+     "name": "Snail/Slug",
+     "aka": [
+      "Snail",
+      "Slug"
+     ],
+     "name_source": "Fan site Enemies page; MdtViewer constants label type 0x01 'Snail/Slug'.",
+     "hp": 2,
+     "contact_damage": 5,
+     "xp": 2,
+     "drops": {
+      "codes": [
+       4,
+       0,
+       4,
+       0
+      ],
+      "table": {
+       "1 alma": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "1 alma"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "No invulnerability. Dies silently on hazard tiles."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Crawls slowly along the floor toward the hero's column.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "fall",
+        "does": "Every frame move S first; while it can fall it does nothing else.",
+        "transition": "Landed -> crawl."
+       },
+       {
+        "id": "crawl",
+        "does": "anim = (anim + 41h) & C3h; only when the high bits are 0 (every 4th frame) it moves one tile: E if m_x_rel < 17 (hero to the right) else W. Facing bit set to the direction moved.",
+        "transition": "None; no vertical check, it always homes on the hero column."
+       }
+      ],
+      "speed": "1 tile per 4 frames (~3 tiles/s).",
+      "notes": ""
+     },
+     "evidence": [
+      "ida/eai1.asm flags01 A3E8..A43E, hp=2 at A3F3",
+      "301EAI1 A008[1]=2, A010[1]=5, descriptor[1]=4,0,4,0"
+     ],
+     "confidence": "high",
+     "conflicts": "IDA frame labels call this frame group 'bat'; AI code is the crawler."
+    },
+    {
+     "type_id": 2,
+     "name": "Frog",
+     "aka": [],
+     "name_source": "Fan site Enemies page; MdtViewer labels type 0x02 'Frog'.",
+     "hp": 1,
+     "contact_damage": 15,
+     "xp": 5,
+     "drops": {
+      "codes": [
+       4,
+       0,
+       4,
+       0
+      ],
+      "table": {
+       "1 alma": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "1 alma"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "Dies silently on hazard tiles."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Hops in short arcs; hops every frame toward the hero when the hero is within 8 rows and in front of it, otherwise once every 8 frames.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "ground",
+        "does": "anim = (anim+21h)&E1h each frame; move S (gravity). Test: hero within 8 rows vertically AND frog already facing the hero -> hop now. Otherwise only when anim's top 3 bits are 0 (every 8 frames): if hero within 8 rows turn to face him, then hop.",
+        "transition": "-> hop (ai_state bit 08h, anim=2)."
+       },
+       {
+        "id": "hop",
+        "does": "4 steps, one per frame, directions NE,E,E,SE when facing right (NW,W,W,SW facing left) (tables jump_angles_right/left).",
+        "transition": "If a step is blocked: reverse facing unless the hero is in front within 8 rows; hop ends. After 4 steps or a block: clear hop, anim=0, move S (falls under gravity afterwards)."
+       }
+      ],
+      "speed": "Hop covers 3 tiles horizontally in 4 frames.",
+      "notes": ""
+     },
+     "evidence": [
+      "ida/eai1.asm flags10 A440..A4E5 and frog_hero_proximity_and_direction A4E9 (8-row test), jump_angles_right/left",
+      "301EAI1 A008[2]=5, A010[2]=15"
+     ],
+     "confidence": "high",
+     "conflicts": ""
+    },
+    {
+     "type_id": 3,
+     "name": "Rat",
+     "aka": [],
+     "name_source": "Fan site Enemies page ('advances rapidly and can jump over small obstacles').",
+     "hp": 1,
+     "contact_damage": 8,
+     "xp": 3,
+     "drops": {
+      "codes": [
+       5,
+       0,
+       0,
+       0
+      ],
+      "table": {
+       "10 almas": 0.25,
+       "nothing": 0.75
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "Dies silently on hazard tiles."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Runs along the floor at 1 tile/frame, turns toward the hero when he is within 6 rows, hops small gaps, makes a tall jump over walls, and pauses occasionally before choosing a random direction.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "run",
+        "does": "Move S first (gravity). Each frame: if the tile 2 rows below, one column ahead (proximity offset 48h/49h) is passable (gap ahead) -> gap hop. Else anim cycles 0..3; if not already chasing (ai_state bit 02h) ai_timer += 10h and on overflow (16 frames) -> pause. If hero within 6 rows vertically: face him, mark chasing, reset timer. Move 1 tile E/W in facing direction.",
+        "transition": "Blocked horizontally -> wall jump (ai_state 10h)."
+       },
+       {
+        "id": "gap hop (ai_state bit 08h)",
+        "does": "3 steps: NE,E,E (facing right) / NW,W,W using jump_angles table indices 1..3, checking collision first.",
+        "transition": "Blocked -> pause state; afterwards anim=3, move S."
+       },
+       {
+        "id": "wall jump (ai_state bit 10h)",
+        "does": "Up to 8 steps N,NE,NE,E,E,SE,SE,S (right) / N,NW,NW,W,W,SW,SW,S (left) (rat_jump_angles), index advanced by ai_state += 20h, one step per frame.",
+        "transition": "Blocked -> pause; ends with anim=3, move S."
+       },
+       {
+        "id": "pause (ai_state bit 04h)",
+        "does": "Stands; anim alternates 4/5 every 4 frames (anim += 40h). If the hero comes within 6 rows it faces him and resumes running (chasing).",
+        "transition": "After 4 such steps (ai_state += 40h overflow, ~16 frames) picks a random facing (RNG bit 7) and immediately flips it if that side is blocked, then runs."
+       }
+      ],
+      "speed": "1 tile/frame running (fastest World 1 enemy).",
+      "notes": ""
+     },
+     "evidence": [
+      "ida/eai1.asm flags11 A518..A6EB, rat_hero_proximity_and_direction A6ED (6-row test), rat_jump_angles tables",
+      "301EAI1 A008[3]=3, A010[3]=8, descriptor[3]=5,0,0,0"
+     ],
+     "confidence": "high",
+     "conflicts": "Fan site says 'Value 1 or 10'; code: 10 almas 25% (always with downward thrust) or nothing."
+    }
+   ]
+  },
+  {
+   "world": 2,
+   "eai_chunk": "302EAI2 (EAI2.BIN)",
+   "eai_bin_idx": 2,
+   "cavern_level": 2,
+   "maps": [
+    "MP20",
+    "MP21"
+   ],
+   "tables": {
+    "xp_A008": [
+     10,
+     10,
+     4,
+     10,
+     4,
+     255,
+     0,
+     0
+    ],
+    "contact_A010": [
+     10,
+     10,
+     8,
+     10,
+     8,
+     40,
+     0,
+     0
+    ],
+    "drop_descriptors": [
+     [
+      5,
+      5,
+      5,
+      5
+     ],
+     [
+      5,
+      5,
+      5,
+      5
+     ],
+     [
+      4,
+      0,
+      4,
+      0
+     ],
+     [
+      5,
+      4,
+      4,
+      0
+     ],
+     [
+      5,
+      4,
+      5,
+      0
+     ],
+     [
+      9,
+      9,
+      9,
+      9
+     ]
+    ],
+    "dispatch_A377": [
+     "A384 type0",
+     "A383 type1 (ret)",
+     "A6D8 type2",
+     "A7A4 type3",
+     "A923 type4",
+     "A923 type5"
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "name": "Alligator Man / Woodcutter / Axe Man",
+     "aka": [
+      "Axe Man",
+      "Woodcutter",
+      "Alligator Man"
+     ],
+     "name_source": "Fan site Enemies page (Deeper Caverns, 'Runs back while throwing axes'). XP 10 and guaranteed 10-alma drop match.",
+     "hp": 8,
+     "contact_damage": 10,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       5,
+       5
+      ],
+      "table": {
+       "10 almas": 1.0
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "thrown axe (normal)",
+       "damage": 8,
+       "template": "A4FD facing right / A50A facing left: tile 9Ah, dir 40h (curved), max FFh",
+       "trajectory": "Curve A531 (right): 01 01 01 00 00 07 07 07 07 07 07 FF -> NE,NE,E,E,SE x6 (index 0 unused). Left A53D: 03 03 03 04 04 05 05 05 05 05 05 FF. One tile per frame; destroyed on walls.",
+       "spawn": "column m_x_rel+1 (right) or m_x_rel (left), row currY+2 (lower half)",
+       "fired_when": "Throw state frame anim==6 (2 frames after the throw starts)."
+      },
+      {
+       "name": "thrown axe (cornered)",
+       "damage": 20,
+       "template": "A517 right (dir 0) / A524 left (dir 4), tile 9Ah, max 7 steps",
+       "trajectory": "Straight horizontal, 7 tiles.",
+       "fired_when": "Used when the throw was triggered because the retreat was blocked (ai_state bit 02h)."
+      }
+     ],
+     "defence": {
+      "notes": "Big two-record monster: this (type 0) record controls a 2-wide x 4-tall body; type 1 is its lower half. A hit on either half damages this record (it copies the partner's hit flag at [si+15h]). No invulnerability."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Patrols; when the hero is within 5 rows it keeps a preferred distance (7-10 tiles), backing away if the hero comes closer, and throws axes.",
+      "size_tiles": "2x4 (two stacked 2x2 records, types 0+1)",
+      "states": [
+       {
+        "id": "fall",
+        "does": "Custom 2x4 fall (A653): moves both records S unless at window column 0 or 35.",
+        "transition": ""
+       },
+       {
+        "id": "patrol",
+        "does": "If the hero is within 5 rows but behind it, turn round. Every 2 frames (anim += 80h carry) step 1 tile in the facing direction using its own 2x4 collision (A549 east / A5CE west, needs 4 free rows).",
+        "transition": "Blocked -> reverse facing. Hero within 5 rows and in front -> keep-distance."
+       },
+       {
+        "id": "keep-distance",
+        "does": "Faces the hero. dist = |17 - m_x_rel|. Preferred distance D starts at 8 (separate values for hero-right A6D6 and hero-left A6D7). dist > D: step toward hero (1 tile/frame). dist < D: step away (runs backward). dist == D or approach blocked: re-roll D (right: 7..10, left: 7..10 from RNG) and start a throw.",
+        "transition": "Retreat blocked: 50% nothing this frame, 50% start a 'cornered' throw (straight axe)."
+       },
+       {
+        "id": "throw (ai_state bit 01h)",
+        "does": "anim=4, anim++ per frame; at anim 6 spawns the axe; at anim 8 ends (anim=0).",
+        "transition": "Back to keep-distance/patrol; 4 frames per throw."
+       }
+      ],
+      "speed": "Patrol 1 tile/2 frames; approach/retreat 1 tile/frame.",
+      "notes": "The type-0 record gets XP/drop; the lower record (type 1) has its own XP 10 and 10-alma descriptor in the tables but is killed together with the upper one."
+     },
+     "evidence": [
+      "302EAI2.bin A384..A6D5 (disassembled with capstone): hp=8 at A38A, partner-hit A397, distance tables A6D6/A6D7, Add_Projectile A4F5, templates A4FD/A50A/A517/A524, curves A531/A53D",
+      "MP20 records type 0 and 1 carry state_flags 10h (big monster)",
+      "ida/fight.asm monster_activation big_monster branch (two-record activation)"
+     ],
+     "confidence": "high",
+     "conflicts": "Fan site axe damage '3 points' is HUD bars; code damage is 8 (arcing) or 20 (straight)."
+    },
+    {
+     "type_id": 1,
+     "name": "Alligator Man (lower half)",
+     "aka": [],
+     "name_source": "Structural: partner record of type 0.",
+     "hp": 0,
+     "contact_damage": 10,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       5,
+       5
+      ],
+      "table": {
+       "10 almas": 1.0
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "Its AI entry (A383) is a bare RET; it is moved and animated by the type-0 record. Never place alone."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Lower half of the Axe Man; see type 0.",
+      "size_tiles": "2x2",
+      "states": [],
+      "speed": "",
+      "notes": ""
+     },
+     "evidence": [
+      "302EAI2 dispatch table A377 entry 1 = A383 (RET)",
+      "ida/fight.asm big_type1: odd types are not activated on their own"
+     ],
+     "confidence": "high",
+     "conflicts": ""
+    },
+    {
+     "type_id": 2,
+     "name": "Blue Slime",
+     "aka": [],
+     "name_source": "Fan site Enemies page (XP 4, 1 alma, 'basically stays in its place').",
+     "hp": 4,
+     "contact_damage": 8,
+     "xp": 4,
+     "drops": {
+      "codes": [
+       4,
+       0,
+       4,
+       0
+      ],
+      "table": {
+       "1 alma": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "1 alma"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "No special defence; does not do the hazard check."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Sits still, then oozes one tile left or right at random, avoiding ledges.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "idle",
+        "does": "Falls (move S) if possible. anim++ mod 8.",
+        "transition": "Every 8 frames -> ooze (ai_state bit 01h, timer 0)."
+       },
+       {
+        "id": "ooze",
+        "does": "Animation frames 8..11 driven by ai_timer; at timer 8: RNG sign clear -> if the tile 2 rows below and 2 columns right (offset 4Ah) is solid move E, else move W; RNG sign set -> if the tile 2 below, 1 left (47h) is solid move W else move E.",
+        "transition": "Timer 8..12 more animation, then idle (anim 0). Cycle length 8 + 12 frames."
+       }
+      ],
+      "speed": "1 tile per ~20 frames.",
+      "notes": ""
+     },
+     "evidence": [
+      "302EAI2.bin A6D8..A7A3: hp=4 at A6DE, random step A730..A782"
+     ],
+     "confidence": "high",
+     "conflicts": "Fan site: 'won't do you any damage at all' / '1 point'; code contact damage 8."
+    },
+    {
+     "type_id": 3,
+     "name": "Toad",
+     "aka": [],
+     "name_source": "Fan site Enemies page (XP 10, spits, hops toward you).",
+     "hp": 2,
+     "contact_damage": 10,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       5,
+       4,
+       4,
+       0
+      ],
+      "table": {
+       "10 almas": 0.25,
+       "1 alma": 0.5,
+       "nothing": 0.25
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "spit",
+       "damage": 20,
+       "template": "A8D2 right (dir 0) / A8DF left (dir 4), tile 9Eh, max 6 steps",
+       "trajectory": "Straight horizontal, 6 tiles, 1 tile/frame, destroyed on walls.",
+       "spawn": "column m_x_rel+1 (right) or m_x_rel (left), row currY+1",
+       "fired_when": "4th frame of the spit state."
+      }
+     ],
+     "defence": {
+      "notes": "Dies silently on hazard tiles."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Frog-like hopper that also stops to spit horizontally.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "ground",
+        "does": "anim=(anim+21h)&E1h; falls. If hero within 5 rows and in front: every frame choose randomly (RNG bit 0): spit or hop. Else only every 8 frames: if the hero is within 5 rows but behind, turn and hop; if hero not within 5 rows, random spit/hop.",
+        "transition": "-> hop or spit."
+       },
+       {
+        "id": "hop (bit 08h)",
+        "does": "4 steps NE,E,E,SE / NW,W,W,SW (tables A8EC/A8F0), 1 per frame.",
+        "transition": "Blocked: reverse unless the hero is in front; then fall."
+       },
+       {
+        "id": "spit (bit 04h)",
+        "does": "ai_timer 0..4 with anim toggling; at 4 fires spit, anim=7.",
+        "transition": "-> cooldown (bit 02h): 6 frames, then ground."
+       }
+      ],
+      "speed": "Hop 3 tiles in 4 frames.",
+      "notes": "Crouching avoids the spit only if the spit row passes over the crouched hero (projectile row = currY+1)."
+     },
+     "evidence": [
+      "302EAI2.bin A7A4..A922: hp=2 at A7B6, range test A8F4 (5 rows), spit A871..A8BB, template A8D2/A8DF"
+     ],
+     "confidence": "high",
+     "conflicts": "Fan site spit '3 points' (bars); code 20 HP."
+    },
+    {
+     "type_id": 4,
+     "name": "Danger Bat",
+     "aka": [],
+     "name_source": "Fan site Enemies page (XP 4, 'same as normal bat, double damage').",
+     "hp": 3,
+     "contact_damage": 8,
+     "xp": 4,
+     "drops": {
+      "codes": [
+       5,
+       4,
+       5,
+       0
+      ],
+      "table": {
+       "10 almas": 0.5,
+       "1 alma": 0.25,
+       "nothing": 0.25
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "Dies silently on hazard tiles."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Identical state machine to the World 1 Bat (hang / 3-frame windup / dive / return / 7-frame rest), code A944..AA9F. See world 1 type 0.",
+      "size_tiles": "2x2",
+      "states": [],
+      "speed": "1 tile/frame",
+      "notes": "Only hp (3) and table values differ from the World 1 bat."
+     },
+     "evidence": [
+      "302EAI2.bin A923..AA9F (byte-for-byte same logic as eai1 flags00), hp=3 at A935"
+     ],
+     "confidence": "high",
+     "conflicts": ""
+    },
+    {
+     "type_id": 5,
+     "name": "Magical Bat",
+     "aka": [
+      "one-time bat"
+     ],
+     "name_source": "Fan site Enemies page (XP 255, appears when you open a chest, only one in the game).",
+     "hp": 3,
+     "contact_damage": 40,
+     "xp": 255,
+     "drops": {
+      "codes": [
+       9,
+       9,
+       9,
+       9
+      ],
+      "table": {
+       "blue potion (full heal)": 1.0
+      },
+      "downward_thrust": "blue potion"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "Not placed as a monster record: the MP20 chest at x=47h,y=22h has MDT byte +9 = 05 and state_flags 29h; opening it (fight.asm flag_13 chest branch, anim low nibble 0) turns the chest record into monster type 5 with preset drop code 9 and the save-persist bit (flag byte 0Ah mask 80h), so it never returns once killed."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Same bat AI as type 4 (shared handler A923).",
+      "size_tiles": "2x2",
+      "states": [],
+      "speed": "1 tile/frame",
+      "notes": ""
+     },
+     "evidence": [
+      "302EAI2 dispatch A377: types 4 and 5 both -> A923",
+      "A008[5]=255, A010[5]=40, descriptor[5]=9,9,9,9",
+      "MP20 record '47 00 22 ff 73 00 00 29 00 05 00 0a 00 80 00 00'",
+      "ida/fight.asm flag_13 (chest opening -> flags = ai_state)"
+     ],
+     "confidence": "high",
+     "conflicts": "Community reference lists 'Almas 100 (Almas C)' for this bat; code drop is a blue potion (code 9). The chest note in ida/common.inc ('Chest, Blue Potion (With the One-time Bat)') agrees with the code."
+    }
+   ]
+  },
+  {
+   "world": 3,
+   "eai_chunk": "303EAI3 (EAI3.BIN)",
+   "eai_bin_idx": 4,
+   "cavern_level": 3,
+   "maps": [
+    "MP30",
+    "MP31"
+   ],
+   "tables": {
+    "xp_A008": [
+     20,
+     10,
+     10,
+     20,
+     0,
+     0,
+     0,
+     0
+    ],
+    "contact_A010": [
+     40,
+     40,
+     16,
+     40,
+     0,
+     0,
+     0,
+     0
+    ],
+    "drop_descriptors": [
+     [
+      4,
+      4,
+      0,
+      0
+     ],
+     [
+      5,
+      5,
+      0,
+      0
+     ],
+     [
+      4,
+      4,
+      4,
+      4
+     ],
+     [
+      5,
+      5,
+      5,
+      5
+     ]
+    ],
+    "dispatch_A2C0": [
+     "A2C8 type0",
+     "A44D type1",
+     "A4F0 type2",
+     "A66E type3"
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "name": "Bush Creature",
+     "aka": [],
+     "name_source": "Fan site Enemies page (XP 20, 'walking upside-down on ceilings'). Identified by the ceiling-walking AI.",
+     "hp": 2,
+     "contact_damage": 40,
+     "xp": 20,
+     "drops": {
+      "codes": [
+       4,
+       4,
+       0,
+       0
+      ],
+      "table": {
+       "1 alma": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "1 alma"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "No invulnerability flag; it is simply out of reach while on the ceiling."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Walks along the ceiling; drops down near the hero (or when the ceiling ends / it hits a wall a second time), hops and walks a little on the floor, then climbs diagonally back to the ceiling.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "0 ceiling walk",
+        "does": "Every 2 frames (anim bit 0) step 1 tile W/E along the ceiling. Needs collision above (check N); if nothing above -> drop.",
+        "transition": "Drop when m_x_rel is 18..20 (just right of the hero column), when the ceiling ends, or when it hits a wall while ai_timer is not 1 (after climbing back up ai_timer=1, so the first wall only turns it round)."
+       },
+       {
+        "id": "1 fall",
+        "does": "Move S each frame (anim 8).",
+        "transition": "Landed -> state 2 (1 frame) -> state 3."
+       },
+       {
+        "id": "3 hop",
+        "does": "One diagonal step up NW/NE (flip facing if blocked).",
+        "transition": "-> state 4."
+       },
+       {
+        "id": "4 walk",
+        "does": "Two horizontal steps W/E (flip if blocked).",
+        "transition": "-> state 5."
+       },
+       {
+        "id": "5 descend",
+        "does": "Diagonal SW/SE each frame until blocked.",
+        "transition": "-> state 6 (1 frame) -> state 7."
+       },
+       {
+        "id": "7 climb",
+        "does": "Diagonal NW/NE each frame; when the diagonal is blocked try N; if the tile above is solid it is on the ceiling again, else flip facing.",
+        "transition": "On ceiling -> state 0 with ai_timer=1."
+       }
+      ],
+      "speed": "Ceiling walk 1 tile/2 frames; falling/climbing 1 tile/frame.",
+      "notes": ""
+     },
+     "evidence": [
+      "303EAI3.bin A2C8..A44C: hp=2 at A2CE, state table A2E9 (8 states), ceiling check via check_collision_N2 (slot 601Ch), drop window A30E..A317"
+     ],
+     "confidence": "medium",
+     "conflicts": "Fan site value is 10 almas; code descriptor gives 1 alma 50% / nothing 50%. Chose code."
+    },
+    {
+     "type_id": 1,
+     "name": "Fox",
+     "aka": [],
+     "name_source": "Fan site Enemies page (XP 10, 'jumps towards you, much like the frog').",
+     "hp": 2,
+     "contact_damage": 40,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       0,
+       0
+      ],
+      "table": {
+       "10 almas": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": ""
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Bounds continuously toward the hero in 6-step arcs with a 2-frame pause between bounds.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "ground",
+        "does": "Unless ai_state bit 04h is set, faces the hero (right if m_x_rel < 17). Falls. Every 2 frames (anim += 80h carry) starts a bound.",
+        "transition": "-> bound (bit 08h)."
+       },
+       {
+        "id": "bound",
+        "does": "6 steps, 1 per frame: NE,NE,E,E,SE,SE (right) / NW,NW,W,W,SW,SW (left) (table A4E4/A4EA). Bit 04h cleared at bound start.",
+        "transition": "If the very first step is blocked: reverse facing and set bit 04h (keeps that direction next time). Any block or step 6: end, move S."
+       }
+      ],
+      "speed": "4 tiles per 8 frames.",
+      "notes": "No vertical range test: it homes on the hero column from anywhere in the window."
+     },
+     "evidence": [
+      "303EAI3.bin A44D..A4EF: hp=2 at A453, angle table A4E4 = 01 01 00 00 07 07 / 03 03 04 04 05 05"
+     ],
+     "confidence": "medium",
+     "conflicts": "Fan site value 1 alma; code 10 almas 50%. Chose code. Community XP 10 matches."
+    },
+    {
+     "type_id": 2,
+     "name": "Earthworm",
+     "aka": [],
+     "name_source": "Fan site Enemies page ('can only hit it when its head emerges to fire').",
+     "hp": 4,
+     "contact_damage": 16,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       4,
+       4,
+       4,
+       4
+      ],
+      "table": {
+       "1 alma": 1.0
+      },
+      "downward_thrust": "1 alma"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "spit",
+       "damage": 40,
+       "template": "A654 right (dir 0) / A661 left (dir 4), tile 2Bh, max 15 steps",
+       "trajectory": "Straight horizontal 15 tiles, 1 tile/frame, destroyed on walls.",
+       "spawn": "column m_x_rel+1 (right) or m_x_rel (left), row currY",
+       "fired_when": "While emerged, at one of the every-4-frame checks when the hero is within 5 rows and in front."
+      }
+     ],
+     "defence": {
+      "invulnerable_when": "Burrowed (state 0): flags |= 60h -> cannot be damaged (bit 20h) and deals no contact damage (bit 40h). Vulnerable from emergence (state 1 clears them) until it burrows again."
+     },
+     "weak_to": [],
+     "immune_to": [
+      "everything while burrowed"
+     ],
+     "behaviour": {
+      "summary": "Slithers under the slime, surfaces, turns back and forth looking for the hero, spits once, and burrows again.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "0 burrowed",
+        "does": "Every 2 frames moves 1 tile in its facing direction, turning if the tile 2 rows below the next column is a gap (ledge avoidance). ai_timer counts moves.",
+        "transition": "After 7 moves (14 frames) -> state 1, anim=2."
+       },
+       {
+        "id": "1 emerge",
+        "does": "anim 2..5 (3 frames).",
+        "transition": "-> state 2."
+       },
+       {
+        "id": "2 look/spit",
+        "does": "Every 4 frames: flip facing; if hero within 5 rows and in front -> fire spit, set bit 80h.",
+        "transition": "After a spit, or after 3 looks without one -> state 3."
+       },
+       {
+        "id": "3 retract",
+        "does": "anim 5 -> 1 (4 frames).",
+        "transition": "-> state 0."
+       }
+      ],
+      "speed": "Burrowed 1 tile/2 frames.",
+      "notes": "Cycle: 14 frames hidden + 3 + up to 12 + 4 frames exposed."
+     },
+     "evidence": [
+      "303EAI3.bin A4F0..A653: hp=4 at A4F6, state table A519 (A521 burrow sets flags|60h, A5A3 emerge clears), range test A625 (5 rows), template A654/A661 damage 28h"
+     ],
+     "confidence": "high",
+     "conflicts": "Fan site spit '5 points' (bars); code 40 HP."
+    },
+    {
+     "type_id": 3,
+     "name": "Mouse",
+     "aka": [],
+     "name_source": "Fan site Enemies page (XP 20, 10 almas, 'as you approach it, it will suddenly advance').",
+     "hp": 4,
+     "contact_damage": 40,
+     "xp": 20,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       5,
+       5
+      ],
+      "table": {
+       "10 almas": 1.0
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": ""
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Waits motionless facing the hero; when the hero is within 6 rows and 10 columns in front it charges for 20 frames.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "wait",
+        "does": "Falls; anim=1. If the hero is within 6 rows, turn to face him.",
+        "transition": "Hero within 6 rows, in front, and horizontal distance < 10 tiles -> charge (ai_state bit 01h, timer 0)."
+       },
+       {
+        "id": "charge",
+        "does": "1 tile/frame toward facing; if blocked, try the diagonal up (NE/NW) instead.",
+        "transition": "Stops after 20 frames or when both moves are blocked."
+       }
+      ],
+      "speed": "1 tile/frame charging (20 tiles max).",
+      "notes": ""
+     },
+     "evidence": [
+      "303EAI3.bin A66E..A736: hp=4 at A674, range A701 (6 rows, 10 columns), charge length cmp timer,14h"
+     ],
+     "confidence": "high",
+     "conflicts": ""
+    }
+   ]
+  },
+  {
+   "world": 4,
+   "eai_chunk": "304EAI4 (EAI4.BIN)",
+   "eai_bin_idx": 6,
+   "cavern_level": 4,
+   "maps": [
+    "MP40",
+    "MP41"
+   ],
+   "tables": {
+    "xp_A008": [
+     10,
+     10,
+     0,
+     0,
+     20,
+     0,
+     0,
+     0
+    ],
+    "contact_A010": [
+     20,
+     4,
+     80,
+     80,
+     80,
+     0,
+     0,
+     0
+    ],
+    "drop_descriptors": [
+     [
+      5,
+      4,
+      4,
+      5
+     ],
+     [
+      4,
+      4,
+      4,
+      4
+     ],
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      5,
+      5,
+      5,
+      4
+     ]
+    ],
+    "dispatch_A277": [
+     "A281 type0",
+     "A466 type1",
+     "A6B1 type2",
+     "A6B1 type3",
+     "A6F0 type4"
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "name": "Tortoise",
+     "aka": [],
+     "name_source": "Fan site Enemies page (XP 10, 1 or 10 almas, 'goes inside its shell and advances at great speed', 'gets across small obstacles by some special jumping technique').",
+     "hp": 8,
+     "contact_damage": 20,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       5,
+       4,
+       4,
+       5
+      ],
+      "table": {
+       "10 almas": 0.5,
+       "1 alma": 0.5
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "No invulnerability flag, including while in its shell."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Plods slowly; when level with the hero it may retract and charge at 2 tiles/frame; when it walks into a wall it withdraws, waits, and vaults the obstacle.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "walk",
+        "does": "Falls. Every 2 frames: if the hero's row equals its row (hero_y == currY or hero_y+1 == currY) it faces the hero and with probability 1/4 starts a charge (ai_state=5); it steps 1 tile in its facing direction.",
+        "transition": "Step blocked -> vault (ai_state=9)."
+       },
+       {
+        "id": "charge (bit 04h)",
+        "does": "Shell frames (anim 0Eh/0Fh). Each frame tries SE twice (diving off ledges), else E twice (mirror for left): 2 tiles/frame.",
+        "transition": "Both blocked -> reverse facing, anim=1Dh, ai_state=2 (emerge: anim counts 11->8), then walk."
+       },
+       {
+        "id": "vault (bit 08h)",
+        "does": "In shell: falls while ai_state += 10h per frame for 16 frames; then one horizontal step (east - ai_timer bit 3 is never set in this code); then an 8-step hop N,NE,NE,E,E,SE,SE,S (right) / N,NW,NW,W,W,SW,SW,S (left), 1 step/frame (tables A456/A45E).",
+        "transition": "If a middle hop step (index 1..5) is blocked, flip facing. After 8 steps -> ai_state=2 (emerge) -> walk."
+       }
+      ],
+      "speed": "Walk 1 tile/2 frames; charge 2 tiles/frame.",
+      "notes": ""
+     },
+     "evidence": [
+      "304EAI4.bin A281..A465: hp=8 at A287, 1/4 charge roll A2EF, double moves A386..A3BD, vault A3CD..A455, hop tables A456 = 02 01 01 00 00 07 07 06 / A45E = 02 03 03 04 04 05 05 06"
+     ],
+     "confidence": "medium",
+     "conflicts": ""
+    },
+    {
+     "type_id": 1,
+     "name": "Green Slime Monster",
+     "aka": [
+      "Green Slime"
+     ],
+     "name_source": "Fan site Enemies page (Ice Caverns, XP 10, 1 alma, multiplies if the sword is not powerful enough, Fuego kills it).",
+     "hp": 16,
+     "contact_damage": 4,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       4,
+       4,
+       4,
+       4
+      ],
+      "table": {
+       "1 alma": 1.0
+      },
+      "downward_thrust": "1 alma"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "damage_accepted_from": "Fuego (source 4), Lanzar (5), Guerra (8), the Enchantment Sword (source 1 with sword_type 6), or ANY hit that lands on a frame when anim bit 0 is set (the anim counter toggles bit 0 every frame while it sits on the ground, so roughly half of all other hits land).",
+      "otherwise": "The hit is discarded (ai_flags bit 20h cleared) and, if it is not already splitting (state_flags bit 40h), it splits: Find_Monsters_Near_Hero picks the first monster record that is dead or outside the 35-column range, that record is cleared and reserved (index kept in ai_timer), state_flags |= 40h. Six frames later (anim low bits reach 6) the child is placed 2 tiles beside the parent (to the right if facing right, needs a free 3x3 area; else left), with the parent's type, facing away, and becomes an ordinary green slime (hp 16 when it first runs). If no space the split waits; if no free record, no split."
+     },
+     "weak_to": [
+      "Fuego",
+      "Lanzar",
+      "Guerra",
+      "Enchantment Sword"
+     ],
+     "immune_to": [
+      "Training/Wise Man's/Spirit/Knight's/Illumination swords, Espada, Saeta, Rascar, Agua and Magia Stone on even frames (these cause splitting instead)"
+     ],
+     "behaviour": {
+      "summary": "Slow crawler that moves toward the hero when on the same row, otherwise keeps going and turns at walls.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "crawl",
+        "does": "anim low 2 bits cycle each frame; falls. On the ground anim high nibble -= 1 per frame; when it hits 0 it is reset to 4 and the slime steps 1 tile: toward the hero if the hero is on its row (hero_y == currY or hero_y+1 == currY), else in its facing direction; blocked -> try the other direction.",
+        "transition": ""
+       },
+       {
+        "id": "splitting",
+        "does": "See defence; movement continues.",
+        "transition": ""
+       }
+      ],
+      "speed": "1 tile per 4 frames.",
+      "notes": "Hits with the 'wrong' weapon cost nothing but spawn more slimes (limited by free monster records in the map)."
+     },
+     "evidence": [
+      "304EAI4.bin A466..A678: hp=10h at A46C, source filter A476..A4AC (cmp 4/5/8, cmp [0092h]=sword_type,6, test anim,1), split A4B1..A4E8 and A56C..A678"
+     ],
+     "confidence": "medium",
+     "conflicts": "Fan text says Fuego kills it and strong swords may; code: only the Enchantment Sword is fully effective among swords, others land about half the time. GAME_DATA_REFERENCE lists Fire as its weakness; code also accepts Lanzar and Guerra but NOT Agua."
+    },
+    {
+     "type_id": 2,
+     "name": "Icicle",
+     "aka": [
+      "falling icicle"
+     ],
+     "name_source": "Descriptive. Not in the fan enemy list; Playthrough.txt: 'the icicles will fall from the roof periodically' (Ice Caverns).",
+     "hp": null,
+     "contact_damage": 80,
+     "xp": 0,
+     "drops": {
+      "codes": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "table": {
+       "nothing": 1.0
+      },
+      "downward_thrust": "nothing"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "Sets flags |= 20h every frame: cannot be damaged. Never writes hp."
+     },
+     "weak_to": [],
+     "immune_to": [
+      "all"
+     ],
+     "behaviour": {
+      "summary": "Hangs from the ceiling; when the hero is roughly beneath it, it may drop; it shatters (disappears) on landing.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "hang",
+        "does": "Nothing unless m_x_rel is 8..18 (between 9 tiles left of and 1 tile right of the hero column).",
+        "transition": "While in that window: each frame 1/4 chance (RNG & 3 == 0) -> fall (ai_state bit 01h, anim 1)."
+       },
+       {
+        "id": "fall",
+        "does": "Move S 1 tile/frame.",
+        "transition": "When it cannot fall further: state_flags low nibble = 1 and the silent-death path removes it (no XP, no drop). It respawns from its spawn point like any monster."
+       }
+      ],
+      "speed": "Falls 1 tile/frame.",
+      "notes": "Types 2 and 3 share the handler (A6B1) and table values; they differ only in graphics frames."
+     },
+     "evidence": [
+      "304EAI4.bin A6B1..A6EF: or flags,20h; window cmp 8 / 13h; RNG&3; mvS; state_flags=1; jmp slot 6032h",
+      "A008[2]=0, A010[2]=80, descriptor[2]=1,1,1,1"
+     ],
+     "confidence": "medium",
+     "conflicts": "Absent from community enemy lists."
+    },
+    {
+     "type_id": 3,
+     "name": "Icicle (variant)",
+     "aka": [],
+     "name_source": "Same handler as type 2.",
+     "hp": null,
+     "contact_damage": 80,
+     "xp": 0,
+     "drops": {
+      "codes": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "table": {
+       "nothing": 1.0
+      },
+      "downward_thrust": "nothing"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "Invulnerable (flags bit 20h)."
+     },
+     "weak_to": [],
+     "immune_to": [
+      "all"
+     ],
+     "behaviour": {
+      "summary": "Identical to type 2.",
+      "size_tiles": "2x2",
+      "states": [],
+      "speed": "",
+      "notes": ""
+     },
+     "evidence": [
+      "304EAI4 dispatch A277 entries 2 and 3 both = A6B1"
+     ],
+     "confidence": "medium",
+     "conflicts": ""
+    },
+    {
+     "type_id": 4,
+     "name": "Arrow",
+     "aka": [],
+     "name_source": "Fan site Enemies page ('keeps circumnavigating around blocks of ice', high velocity).",
+     "hp": 2,
+     "contact_damage": 80,
+     "xp": 20,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       5,
+       4
+      ],
+      "table": {
+       "10 almas": 0.75,
+       "1 alma": 0.25
+      },
+      "downward_thrust": "10 almas"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "No invulnerability."
+     },
+     "weak_to": [],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Crawls around the outline of ice blocks (wall-follower) at 1 tile per frame, only while it is inside the active part of the window.",
+      "size_tiles": "2x2",
+      "states": [
+       {
+        "id": "orbit",
+        "does": "Only when m_x_rel is 3..32. ai_state (0..7) is the current heading; table row = (facing ? A7CE : A756) + 15*ai_state holds 5 candidates (direction, next ai_state, anim). It tries them in order with monster_move_in_direction; the first that succeeds sets ai_state and anim. If the 3rd candidate was the one that succeeded (a convex corner) it immediately performs a second move the same frame. If all 5 fail it flips its facing (orbit sense).",
+        "transition": ""
+       }
+      ],
+      "tables": {
+       "facing_left_A756": [
+        [
+         [
+          6,
+          2,
+          1
+         ],
+         [
+          7,
+          1,
+          2
+         ],
+         [
+          0,
+          0,
+          0
+         ],
+         [
+          1,
+          7,
+          3
+         ],
+         [
+          2,
+          6,
+          1
+         ]
+        ],
+        [
+         [
+          5,
+          3,
+          3
+         ],
+         [
+          6,
+          2,
+          1
+         ],
+         [
+          7,
+          1,
+          2
+         ],
+         [
+          0,
+          0,
+          0
+         ],
+         [
+          1,
+          7,
+          3
+         ]
+        ],
+        [
+         [
+          4,
+          4,
+          0
+         ],
+         [
+          5,
+          3,
+          3
+         ],
+         [
+          6,
+          2,
+          1
+         ],
+         [
+          7,
+          1,
+          2
+         ],
+         [
+          0,
+          0,
+          0
+         ]
+        ],
+        [
+         [
+          3,
+          5,
+          2
+         ],
+         [
+          4,
+          4,
+          0
+         ],
+         [
+          5,
+          3,
+          3
+         ],
+         [
+          6,
+          2,
+          1
+         ],
+         [
+          7,
+          1,
+          2
+         ]
+        ],
+        [
+         [
+          2,
+          6,
+          1
+         ],
+         [
+          3,
+          5,
+          2
+         ],
+         [
+          4,
+          4,
+          0
+         ],
+         [
+          5,
+          3,
+          3
+         ],
+         [
+          6,
+          2,
+          1
+         ]
+        ],
+        [
+         [
+          1,
+          7,
+          3
+         ],
+         [
+          2,
+          6,
+          1
+         ],
+         [
+          3,
+          5,
+          2
+         ],
+         [
+          4,
+          4,
+          0
+         ],
+         [
+          5,
+          3,
+          3
+         ]
+        ],
+        [
+         [
+          0,
+          0,
+          0
+         ],
+         [
+          1,
+          7,
+          3
+         ],
+         [
+          2,
+          6,
+          1
+         ],
+         [
+          3,
+          5,
+          2
+         ],
+         [
+          4,
+          4,
+          0
+         ]
+        ],
+        [
+         [
+          7,
+          1,
+          2
+         ],
+         [
+          0,
+          0,
+          0
+         ],
+         [
+          1,
+          7,
+          3
+         ],
+         [
+          2,
+          6,
+          1
+         ],
+         [
+          3,
+          5,
+          2
+         ]
+        ]
+       ],
+       "facing_right_A7CE": [
+        [
+         [
+          6,
+          6,
+          0
+         ],
+         [
+          5,
+          7,
+          3
+         ],
+         [
+          4,
+          0,
+          0
+         ],
+         [
+          3,
+          1,
+          2
+         ],
+         [
+          2,
+          2,
+          0
+         ]
+        ],
+        [
+         [
+          5,
+          7,
+          2
+         ],
+         [
+          4,
+          0,
+          0
+         ],
+         [
+          3,
+          1,
+          2
+         ],
+         [
+          2,
+          2,
+          1
+         ],
+         [
+          1,
+          3,
+          2
+         ]
+        ],
+        [
+         [
+          4,
+          0,
+          1
+         ],
+         [
+          3,
+          1,
+          2
+         ],
+         [
+          2,
+          2,
+          1
+         ],
+         [
+          1,
+          3,
+          3
+         ],
+         [
+          0,
+          4,
+          1
+         ]
+        ],
+        [
+         [
+          3,
+          1,
+          3
+         ],
+         [
+          2,
+          2,
+          1
+         ],
+         [
+          1,
+          3,
+          3
+         ],
+         [
+          0,
+          4,
+          0
+         ],
+         [
+          7,
+          5,
+          3
+         ]
+        ],
+        [
+         [
+          2,
+          2,
+          0
+         ],
+         [
+          1,
+          3,
+          3
+         ],
+         [
+          0,
+          4,
+          0
+         ],
+         [
+          7,
+          5,
+          2
+         ],
+         [
+          6,
+          6,
+          0
+         ]
+        ],
+        [
+         [
+          1,
+          3,
+          2
+         ],
+         [
+          0,
+          4,
+          0
+         ],
+         [
+          7,
+          5,
+          2
+         ],
+         [
+          6,
+          6,
+          1
+         ],
+         [
+          5,
+          7,
+          2
+         ]
+        ],
+        [
+         [
+          0,
+          4,
+          1
+         ],
+         [
+          7,
+          5,
+          2
+         ],
+         [
+          6,
+          6,
+          1
+         ],
+         [
+          5,
+          7,
+          3
+         ],
+         [
+          4,
+          0,
+          1
+         ]
+        ],
+        [
+         [
+          7,
+          5,
+          3
+         ],
+         [
+          6,
+          6,
+          1
+         ],
+         [
+          5,
+          7,
+          3
+         ],
+         [
+          4,
+          0,
+          0
+         ],
+         [
+          3,
+          1,
+          3
+         ]
+        ]
+       ],
+       "entry_format": "[direction 0-7 (0=E, counter-clockwise), next ai_state, anim frame]"
+      },
+      "speed": "1 tile/frame (2 on convex corners).",
+      "notes": "Because it hugs block surfaces it walks onto the top of the block the hero stands on and pushes into him."
+     },
+     "evidence": [
+      "304EAI4.bin A6F0..A755: hp=2 at A6F6, window cmp 3/21h, 5-candidate loop A72F..A748, tables A756/A7CE"
+     ],
+     "confidence": "high",
+     "conflicts": "Fan site XP 40; code A008[4]=20. Chose code."
+    }
+   ]
+  },
+  {
+   "world": 5,
+   "area": "The Graveyard (Tumba) - Caverns of Corroer / Cementar",
+   "eai_chunk": "305EAI5 (EAI5.BIN)",
+   "eai_bin_idx": 8,
+   "cavern_level": 5,
+   "maps": [
+    "MP50",
+    "MP51"
+   ],
+   "header": {
+    "xp_A008": [
+     50,
+     50,
+     20,
+     10,
+     10,
+     0,
+     0,
+     0
+    ],
+    "contact_A010": [
+     40,
+     40,
+     20,
+     20,
+     10,
+     0,
+     0,
+     0
+    ],
+    "drop_desc": [
+     [
+      11,
+      5,
+      5,
+      5
+     ],
+     [
+      11,
+      5,
+      5,
+      5
+     ],
+     [
+      5,
+      4,
+      5,
+      4
+     ],
+     [
+      5,
+      0,
+      5,
+      0
+     ],
+     [
+      5,
+      0,
+      5,
+      0
+     ]
+    ],
+    "dispatch_A345": [
+     "A350",
+     "A34F(ret)",
+     "A5F1",
+     "A812",
+     "A91A"
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "type_id_body": 1,
+     "name": "Zombie",
+     "aka": [
+      "Evil Woman (Playthrough.txt 4.5.3)"
+     ],
+     "name_source": "Fan site Enemies.txt / ENEMIES_DATABASE 'Zombie' (XP 50, spit, head hits only) - matches code; Playthrough.txt calls it 'Evil Women' (100 almas, head only).",
+     "hp": 24,
+     "contact_damage": {
+      "head_type0": 40,
+      "body_type1": 40
+     },
+     "xp": 50,
+     "drops": {
+      "codes": [
+       11,
+       5,
+       5,
+       5
+      ],
+      "table": {
+       "Almas 100": 0.25,
+       "Almas 10": 0.75
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "spit",
+       "damage": 40,
+       "dir": "0 (east) when facing right / 4 (west) when facing left, straight line",
+       "range_tiles": 20,
+       "spawn": "right: (x+1, y+1); left: (x, y+1) relative to head record",
+       "sprite_base_tile": "0xB1",
+       "fired_when": "attack state, when anim counter reaches 0x0B (~6 frames after the attack starts)",
+       "template_addr": "A41B (right) / A428 (left)"
+      }
+     ],
+     "defence": {
+      "head_only": true,
+      "detail": "Only the top (type 0) record processes hits; the body record (type 1) handler is a bare RET and its hit flag is cleared every frame (A363), so body hits do nothing. Hits from every source damage the head."
+     },
+     "weak_to": [
+      "all sword and spell hits that reach the head"
+     ],
+     "immune_to": [
+      "anything hitting only the lower body (e.g. ground-level Fuego flames)"
+     ],
+     "behaviour": {
+      "summary": "Slow walker that chases the hero horizontally and spits straight shots when the hero is on its level and it faces him.",
+      "size_tiles": "2 wide x 4 tall (big pair)",
+      "states": [
+       {
+        "id": "fall",
+        "does": "If not supported (2 columns under the body passable and no monster there), y += 1 per frame; nothing else happens that frame.",
+        "transition": "landed -> walk"
+       },
+       {
+        "id": "walk",
+        "does": "anim toggles bit7 each frame; every 2nd frame the low counter increments (mod 8); a step is taken when (counter & 3) == 0, i.e. 1 tile per 8 frames (0.68 s). Direction: right if m_x_rel <= 0x10, else left (always toward the hero column). Facing is set on a successful step.",
+        "transition": "each frame first calls aware(4): if hero within 4 rows and facing him -> with RNG&0xC0 == 0 (1/4) and counter&3 == 3 -> attack (anim = 8)"
+       },
+       {
+        "id": "attack",
+        "does": "No movement. anim advances every 2 frames 8->9->A->B: at 0x0B fires spit; at 0x0C returns.",
+        "transition": "-> walk with anim = 3 (~8 frames total)"
+       }
+      ],
+      "speed": "1 tile / 8 frames walking; falls 1 tile/frame",
+      "notes": "Moves are blocked at proximity-window edges (m_x_rel 0 / 0x22-0x23)."
+     },
+     "evidence": [
+      "305EAI5.bin @A337-A345 dispatch table",
+      "@A350-A45F head AI (HP 0x18 at A356, attack/fire A3D2-A419, walk A378-A3B3)",
+      "@A41B-A434 projectile templates: 00 00 B1 00 14 00 28 / ... 14 04 28",
+      "@A34F type 1 = RET",
+      "@A56A-A5C1 gravity for both records",
+      "@A5C2-A5F0 aware(4)",
+      "header A008/A010/A240 descriptor dump"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drops '1 or 10 almas' and spit '5 points'; code: 100 almas 25% / 10 almas 75% (Playthrough's 'worth 100 almas' agrees); spit 40 HP = 5 life-bar pixels."
+    },
+    {
+     "type_id": 2,
+     "name": "Red Slime Monster",
+     "aka": [
+      "Red Slime Creature (Playthrough 4.5.1)",
+      "Undestructible slime"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 20) - matches.",
+     "hp": 16,
+     "contact_damage": 20,
+     "xp": 20,
+     "drops": {
+      "codes": [
+       5,
+       4,
+       5,
+       4
+      ],
+      "table": {
+       "Almas 10": 0.5,
+       "Almas 1": 0.5
+      },
+      "downward_thrust": "Almas 10 (but a sword thrust cannot kill it unless Enchantment Sword)"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "damaging_sources": [
+       "Fuego (source 4)",
+       "Lanzar (source 5)",
+       "Guerra (source 8)",
+       "sword only if sword_type == 6 (Enchantment Sword)"
+      ],
+      "splitting": "Any other hit (other swords, Espada, Saeta, Rascar, Agua, Magia Stone) does no damage; the hit is cleared and, if the slime is not itself still spawning, it tries to spawn a copy: it takes a spare record of the map (an inactive record with spawnX = FFFF, found by FIND_MONSTERS_NEAR_HERO; supply is limited by the MDT's pre-allocated spare records) and places it 2 tiles ahead in its facing direction (needs 3 rows x 2 columns free, m_x_rel < 0x20 going right / >= 4 going left). The copy gets the same type with flag bits 0x60 (no contact, unhittable), state 2, anim 4, HP 0 (-> 16 on its first update); after 4 frames it clears 0x60 and acts normally. The parent skips its next move.",
+      "notes": "Agua does NOT damage it in the code (community says it does)."
+     },
+     "weak_to": [
+      "Fuego",
+      "Lanzar",
+      "Guerra",
+      "Enchantment Sword"
+     ],
+     "immune_to": [
+      "Training/Wise Man's/Spirit/Knight's/Illumination swords",
+      "Espada",
+      "Saeta",
+      "Rascar",
+      "Agua",
+      "Magia Stone"
+     ],
+     "behaviour": {
+      "summary": "Slow ground crawler that heads toward the hero when on the same row, otherwise patrols; multiplies when hit with the wrong weapon.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "airflow",
+        "does": "MOVE_BY_AIRFLOW each frame (pushed by air-current tiles under it)."
+       },
+       {
+        "id": "fall",
+        "does": "gravity 1 tile/frame",
+        "transition": "landed -> crawl"
+       },
+       {
+        "id": "crawl",
+        "does": "A 4-frame step timer (anim high nibble counts 4..0): one tile step every 4 frames. If hero_y == y or hero_y + 1 == y it steers toward the hero (right if m_x_rel <= 0x11, else left); otherwise keeps its facing. Blocked -> reverses and steps the other way."
+       },
+       {
+        "id": "spawning",
+        "does": "copy only: 4 frames intangible, no movement, then normal"
+       }
+      ],
+      "speed": "1 tile / 4 frames"
+     },
+     "evidence": [
+      "305EAI5.bin @A5F1-A649 hit filter (cmp source 4/5/8, sword_type 6)",
+      "@A634-A77C clone spawn",
+      "@A780-A811 movement",
+      "Playthrough.txt 4.5.1 (reproduces except Fuego/Lanzar; swords harmless; Enchantment kills)"
+     ],
+     "confidence": "high",
+     "conflicts": "GAME_DATA_REFERENCE lists Agua as able to kill it; code does not accept source 7 (Agua). Community drop '1 or 10' matches."
+    },
+    {
+     "type_id": 3,
+     "name": "Eyeball Monster",
+     "aka": [
+      "Eyeballs (Playthrough 4.5.2)"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 10, 'hyper gear').",
+     "hp": 8,
+     "contact_damage": 20,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       5,
+       0,
+       5,
+       0
+      ],
+      "table": {
+       "Almas 10": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "Almas 10"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {},
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Patrols, stops to look around, and once it sees the hero charges at double speed until it hits a wall.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "airflow+fall",
+        "does": "MOVE_BY_AIRFLOW, then gravity 1 tile/frame"
+       },
+       {
+        "id": "patrol (st 0)",
+        "does": "aware(4) true -> charge. Else if hero in vertical range but facing away -> look. Otherwise walk 1 tile per 2 frames in facing direction; blocked -> look."
+       },
+       {
+        "id": "look (st 2)",
+        "does": "anim counts 0->4->0 one per frame; at 0 faces left, at 4 faces right; at those moments aware(4) -> charge, else 50% (RNG bit7) back to patrol."
+       },
+       {
+        "id": "charge (st 4)",
+        "does": "timer++; first 4 frames 1 tile / 2 frames, from frame 5 on 2 tiles per frame in the facing direction.",
+        "transition": "blocked -> look (anim 0 or 4 by direction). It never gives up otherwise."
+       }
+      ],
+      "speed": "patrol 1 tile/2 frames; charge 2 tiles/frame"
+     },
+     "evidence": [
+      "305EAI5.bin @A812-A919",
+      "aware(4) @A5C2"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drop '1 alma'; code 10 almas or nothing."
+    },
+    {
+     "type_id": 4,
+     "name": "Spider",
+     "aka": [
+      "Bats (Playthrough 4.5.4 'swoop down in a different way')"
+     ],
+     "name_source": "Fan site Enemies.txt 'Spider: attacks from the ceiling and returns' (XP 10).",
+     "hp": 8,
+     "contact_damage": 10,
+     "xp": 10,
+     "drops": {
+      "codes": [
+       5,
+       0,
+       5,
+       0
+      ],
+      "table": {
+       "Almas 10": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "Almas 10"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {},
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Clings to the ceiling, tracks the hero horizontally, drops straight down when directly over the hero's column, then climbs back diagonally.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "ceiling (st 0)",
+        "does": "MOVE_N every frame (rises 1 tile/frame until the ceiling). Every 2 frames steps 1 tile toward the hero (right if m_x_rel <= 0x10 else left; if blocked tries the other way).",
+        "transition": "0x0F < m_x_rel <= 0x12 (over the hero, no height check) -> drop, anim 4"
+       },
+       {
+        "id": "drop (st 1)",
+        "does": "1 frame pause, then falls 2 tiles per frame.",
+        "transition": "landed -> 2-3 frame pause -> climb"
+       },
+       {
+        "id": "climb (st 2)",
+        "does": "Each frame MOVE_N + MOVE_NE (hero to the right, m_x_rel <= 0x10) or MOVE_NW; if the diagonal is blocked tries plain MOVE_N.",
+        "transition": "cannot move up -> ceiling"
+       }
+      ],
+      "speed": "horizontal 1 tile/2 frames; drop 2 tiles/frame; climb up to 2 tiles/frame"
+     },
+     "evidence": [
+      "305EAI5.bin @A91A-A9F6"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drop '1 alma'; code 10 almas or nothing."
+    }
+   ]
+  },
+  {
+   "world": 6,
+   "area": "The Gold Caverns (Dorado) - Caverns of Tesoro / Plata (Arrugia MP62 has no enemies)",
+   "eai_chunk": "306EAI6 (EAI6.BIN)",
+   "eai_bin_idx": 10,
+   "cavern_level": 6,
+   "maps": [
+    "MP60",
+    "MP61"
+   ],
+   "header": {
+    "xp_A008": [
+     100,
+     100,
+     50,
+     50,
+     0,
+     0,
+     0,
+     0
+    ],
+    "contact_A010": [
+     80,
+     80,
+     40,
+     40,
+     80,
+     0,
+     0,
+     0
+    ],
+    "drop_desc": [
+     [
+      11,
+      11,
+      11,
+      11
+     ],
+     [
+      11,
+      11,
+      11,
+      11
+     ],
+     [
+      5,
+      5,
+      5,
+      5
+     ],
+     [
+      5,
+      5,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "dispatch_A407": [
+     "A412",
+     "A411(ret)",
+     "A6B8",
+     "A857",
+     "A95F"
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "type_id_body": 1,
+     "name": "Femme Fatale (Kiss of Death Woman)",
+     "aka": [
+      "Evil Women (Playthrough 4.6.3)"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 100, kiss 3 points).",
+     "hp": 48,
+     "contact_damage": {
+      "head_type0": 80,
+      "body_type1": 80,
+      "while_hidden": "none (flag 0x40)"
+     },
+     "xp": 100,
+     "drops": {
+      "codes": [
+       11,
+       11,
+       11,
+       11
+      ],
+      "table": {
+       "Almas 100": 1.0
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "kiss (heart)",
+       "damage": 20,
+       "dir": "east/west by facing, straight",
+       "range_tiles": 20,
+       "spawn": "right (x+1, y+1), left (x, y+1)",
+       "sprite_base_tile": "0x63",
+       "fired_when": "8th frame of the visible phase",
+       "template_addr": "A4DD / A4EA"
+      }
+     ],
+     "defence": {
+      "head_only": true,
+      "sword_only": "Only sword hits (source 1) count; any spell or Magia Stone hit is discarded (A42E). Body-record hits discarded (A432).",
+      "invisible": "While hidden the type byte carries 0x60: not drawn as solid, no contact damage and cannot be hit."
+     },
+     "weak_to": [
+      "swords (head)"
+     ],
+     "immune_to": [
+      "all spells",
+      "Magia Stone",
+      "hits on the body"
+     ],
+     "behaviour": {
+      "summary": "Wanders invisibly, materialises in front of the hero, blows one kiss, and vanishes again.",
+      "size_tiles": "2 wide x 4 tall (big pair)",
+      "states": [
+       {
+        "id": "fall",
+        "does": "gravity for the whole body, 1 tile/frame"
+       },
+       {
+        "id": "hidden (st 0)",
+        "does": "type |= 0x60 (invisible, intangible), anim 1, timer++ each frame. Each frame picks a random direction (RNG bit0) and steps 1 tile that way if free (sets facing on success).",
+        "transition": "timer >= 16 AND aware(4) (hero within 4 rows and she happens to face him) -> appear (timer = 0, anim 0)"
+       },
+       {
+        "id": "appear (st 1)",
+        "does": "anim +1 per frame (0..15). anim 1-3 still invisible; from anim 4 visible and hittable; at anim 8 fires the kiss.",
+        "transition": "anim wraps to 0 (16 frames, ~1.35 s) -> hidden (anim 1, type |= 0x60)"
+       }
+      ],
+      "speed": "hidden random walk up to 1 tile/frame; stationary when visible",
+      "notes": "Visible/vulnerable window = 12 frames (~1.0 s) per appearance."
+     },
+     "evidence": [
+      "306EAI6.bin @A412-A526",
+      "@A4DD-A4F6 kiss templates 00 00 63 00 14 00 14",
+      "aware(4) @A527",
+      "gravity @A660",
+      "fight.asm place_monster_in_proximity_and_run_ai (0x20 flag blocks hits), get_monster_in_row_or_above (0x40 flag skips contact)"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drop '1 alma'; code always 100 almas (Playthrough: 'worth 100 Almas'). Kiss 20 HP = '3 points'."
+    },
+    {
+     "type_id": 2,
+     "name": "Flying Octopus",
+     "aka": [
+      "Red Ghost (Playthrough 4.6.1)"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 50, becomes temporarily invulnerable after damage) - the post-hit phase-out below identifies this type.",
+     "hp": 16,
+     "contact_damage": 40,
+     "xp": 50,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       5,
+       5
+      ],
+      "table": {
+       "Almas 10": 1.0
+      },
+      "downward_thrust": "Almas 10"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "post_hit_invulnerability": "When hit (and not killed) it sets state 1 and type |= 0x60: 7 frames frozen and intangible, then 15 frames fleeing (faces away from the hero) still intangible, then 4 frames still, then type &= 0x1F (tangible). Total 26 frames (~2.2 s) of invulnerability. A weapon that deals >= 16 in one hit kills it outright."
+     },
+     "weak_to": [
+      "high single-hit damage (Illumination Sword, Lanzar etc.)"
+     ],
+     "immune_to": [
+      "damage during the 26-frame phase-out"
+     ],
+     "behaviour": {
+      "summary": "Flies (no gravity) toward the hero's height while bobbing along a horizontal wave path.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "hunt (st 0)",
+        "does": "Every frame: (1) if not aware(8) and the path phase is 0 (every 8 frames): face the hero if within 8 rows, else random facing; (2) one vertical step toward the hero's y (MOVE_S if hero at or below, else MOVE_N); (3) st += 0x10, path index = (st>>4)&7, step in direction path[index].",
+        "transition": "hit -> phase-out"
+       },
+       {
+        "id": "phase-out (st 1 -> 2 -> 4)",
+        "does": "see defence; in st 2 it keeps flying the same way but facing away from the hero"
+       }
+      ],
+      "path_table": {
+       "facing_right": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        7,
+        0
+       ],
+       "facing_left": [
+        4,
+        4,
+        3,
+        4,
+        4,
+        4,
+        5,
+        4
+       ],
+       "legend": "0=E 1=NE 3=NW 4=W 5=SW 7=SE; blocked path step reverses facing"
+      },
+      "speed": "1 path step + 1 vertical step per frame"
+     },
+     "evidence": [
+      "306EAI6.bin @A6B8-A827",
+      "path tables @A75E/A766",
+      "aware(8) @A828"
+     ],
+     "confidence": "high (behaviour); medium (which of types 2/3 the fan names 'octopus' vs 'bird')",
+     "conflicts": "Community drop '1 alma'; code always 10 almas."
+    },
+    {
+     "type_id": 3,
+     "name": "Armour-Piercing Bird of Prey",
+     "aka": [
+      "Condor (Playthrough 4.6.2 'can speed up to twice the speed')"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 50, supersonic). Assigned by elimination and by its sudden 2-tiles/frame dash.",
+     "hp": 8,
+     "contact_damage": 40,
+     "xp": 50,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       0,
+       0
+      ],
+      "table": {
+       "Almas 10": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "Almas 10"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {},
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Walks back and forth; when the hero is within 8 rows and in front of it, dashes at 2 tiles per frame.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "fall",
+        "does": "gravity 1 tile/frame (it is a ground unit in code)"
+       },
+       {
+        "id": "patrol (st 0)",
+        "does": "1 tile per 2 frames in facing direction; blocked -> reverse; timer-- and every 16 frames reverses anyway.",
+        "transition": "aware(8) -> dash (st 1)"
+       },
+       {
+        "id": "dash (st 1)",
+        "does": "2 tiles per frame in facing direction (re-faces the hero if in range). If blocked it tries to drop 1 tile (or climb, once a climb flag is set); if that also fails it turns round and pauses 3 frames. Every 32 frames re-checks range.",
+        "transition": "hero out of 8-row range at a 32-frame check -> patrol"
+       }
+      ],
+      "speed": "patrol 1 tile/2 frames, dash 2 tiles/frame"
+     },
+     "evidence": [
+      "306EAI6.bin @A857-A95E"
+     ],
+     "confidence": "medium",
+     "conflicts": "Community drop '1 alma'; code 10 almas or nothing."
+    },
+    {
+     "type_id": 4,
+     "name": "Falling ceiling hazard (unnamed)",
+     "aka": [],
+     "name_source": "No community entry; behaviour from code only (likely a dripping gold / rock trap in the Gold Caverns). 32 placed in MP60/MP61.",
+     "hp": 0,
+     "contact_damage": 80,
+     "xp": 0,
+     "drops": {
+      "codes": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "table": {
+       "nothing": 1.0
+      },
+      "downward_thrust": "n/a"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "indestructible": "Sets type |= 0x20 every frame, so hits are never registered."
+     },
+     "weak_to": [],
+     "immune_to": [
+      "everything"
+     ],
+     "behaviour": {
+      "summary": "Hangs until the hero is near horizontally, then falls and shatters.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "wait (st 0)",
+        "does": "Nothing until 8 <= m_x_rel < 0x13 (hero within about 8 columns to its right or 2 to its left); then each frame 1/4 chance (RNG&3 == 0) to release."
+       },
+       {
+        "id": "fall (st 1)",
+        "does": "1 tile per frame straight down.",
+        "transition": "lands -> st 2; plays sound 0x21 if within 19 rows of the viewport top"
+       },
+       {
+        "id": "shatter (st 2)",
+        "does": "~6 frames of animation (anim +1 every 2 frames), then state_flags drop code 1 and it dies without XP (DEACTIVATE/die entry 6032h). Gone until the map reloads."
+       }
+      ],
+      "speed": "fall 1 tile/frame"
+     },
+     "evidence": [
+      "306EAI6.bin @A95F-A9D0",
+      "header A010[4] = 80, A008[4] = 0"
+     ],
+     "confidence": "high (behaviour), low (name)",
+     "conflicts": "Not in community enemy lists."
+    }
+   ]
+  },
+  {
+   "world": 7,
+   "area": "The Burning Inferno (Llama) - Caverns of Caliente / Reaccion / Correr",
+   "eai_chunk": "307EAI7 (EAI7.BIN)",
+   "eai_bin_idx": 12,
+   "cavern_level": 7,
+   "maps": [
+    "MP70",
+    "MP71",
+    "MP72"
+   ],
+   "header": {
+    "xp_A008": [
+     80,
+     80,
+     200,
+     200,
+     50,
+     0,
+     0,
+     0
+    ],
+    "contact_A010": [
+     80,
+     80,
+     80,
+     80,
+     40,
+     0,
+     0,
+     0
+    ],
+    "drop_desc": [
+     [
+      11,
+      11,
+      11,
+      5
+     ],
+     [
+      11,
+      11,
+      11,
+      5
+     ],
+     [
+      11,
+      11,
+      11,
+      5
+     ],
+     [
+      11,
+      11,
+      11,
+      5
+     ],
+     [
+      11,
+      5,
+      5,
+      0
+     ]
+    ],
+    "dispatch_A2FF": [
+     "A30A",
+     "A309(ret)",
+     "A639",
+     "A638(ret)",
+     "A749"
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "type_id_body": 1,
+     "name": "Parrot Man",
+     "aka": [
+      "Troll (Playthrough 4.7.2, 'run away ... shoot darts')"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 80, runs back while throwing arrows).",
+     "hp": 16,
+     "contact_damage": {
+      "head_type0": 80,
+      "body_type1": 80
+     },
+     "xp": 80,
+     "drops": {
+      "codes": [
+       11,
+       11,
+       11,
+       5
+      ],
+      "table": {
+       "Almas 100": 0.75,
+       "Almas 10": 0.25
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "arrow/dart",
+       "damage": 40,
+       "dir": "east/west by facing, straight",
+       "range_tiles": 20,
+       "spawn": "right (x+1, y+1), left (x, y+1)",
+       "sprite_base_tile": "0x30 right / 0x2F left",
+       "fired_when": "attack state anim 6 (2 frames after starting)",
+       "template_addr": "A460 / A46D"
+      }
+     ],
+     "defence": {
+      "legs_hittable": "Hits on either record count (A31D: a body hit is forwarded to the head record), so crouching slashes at the legs work."
+     },
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Keeps a preferred distance of 7-10 tiles from the hero, backing away if the hero comes closer, and shoots arrows when at that distance.",
+      "size_tiles": "2 wide x 4 tall (big pair)",
+      "states": [
+       {
+        "id": "fall",
+        "does": "gravity 1 tile/frame"
+       },
+       {
+        "id": "wander (not aware(5))",
+        "does": "If within 5 rows but facing away, turns to face the hero. Moves 1 tile per 2 frames in facing direction, reversing when blocked."
+       },
+       {
+        "id": "keep-distance (aware(5))",
+        "does": "Faces the hero (hero right if m_x_rel <= 0x11). d = horizontal distance to the hero's column. If d == preferred -> re-roll preferred distances (right-side value 7..10 = 7 + (RNG&3), left-side value 7..10) and, if still aware, start shooting. If d < preferred: step away (backwards, keeps facing the hero); if that is blocked, 50% chance to start shooting. If d > preferred: step toward the hero. One step per frame.",
+        "transition": "-> shoot"
+       },
+       {
+        "id": "shoot (st 1)",
+        "does": "anim 4 -> 5 -> 6 (fire arrow) -> 7 -> 8 end; one per frame.",
+        "transition": "-> keep-distance (anim 0)"
+       }
+      ],
+      "initial_preferred_distance": 8,
+      "speed": "1 tile/frame while spacing, 1 tile/2 frames while wandering"
+     },
+     "evidence": [
+      "307EAI7.bin @A30A-A490",
+      "templates @A460 (00 00 30 00 14 00 28 / ... 2F 00 14 04 28)",
+      "preferred distance bytes @A491/A492 initial 08 08",
+      "aware(5) @A609"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drops '1 or 10'; code mostly 100 almas. Arrow 40 HP = '5 points' (matches)."
+    },
+    {
+     "type_id": 2,
+     "type_id_body": 3,
+     "name": "Fire Creature",
+     "aka": [],
+     "name_source": "Fan site Enemies.txt (XP 200, head hits only, blue ammo 5 points).",
+     "hp": 64,
+     "contact_damage": {
+      "head_type2": 80,
+      "body_type3": 80
+     },
+     "xp": 200,
+     "drops": {
+      "codes": [
+       11,
+       11,
+       11,
+       5
+      ],
+      "table": {
+       "Almas 100": 0.75,
+       "Almas 10": 0.25
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "blue fireball",
+       "damage": 40,
+       "dir": "east/west by facing, straight",
+       "range_tiles": 20,
+       "spawn": "right (x+1, y+1), left (x, y+1)",
+       "sprite_base_tile": "0x32 right / 0x31 left",
+       "fired_when": "attack anim 6 (~4 frames after start)",
+       "template_addr": "A704 / A711"
+      }
+     ],
+     "defence": {
+      "head_only": true,
+      "detail": "Body-record hits are cleared (A64C)."
+     },
+     "weak_to": [
+      "anything that hits the head"
+     ],
+     "immune_to": [
+      "body hits"
+     ],
+     "behaviour": {
+      "summary": "Slow walker that closes on the hero and shoots fireballs, like the Zombie but with a faster fire cycle.",
+      "size_tiles": "2 wide x 4 tall (big pair)",
+      "states": [
+       {
+        "id": "fall",
+        "does": "gravity 1 tile/frame"
+       },
+       {
+        "id": "walk",
+        "does": "counter +1 every 2 frames, step when the counter is even -> 1 tile per 4 frames toward the hero (right if m_x_rel <= 0x10).",
+        "transition": "aware(5) and RNG&0xC0 == 0 (1/4) and counter odd -> shoot"
+       },
+       {
+        "id": "shoot (st 1)",
+        "does": "anim 4->5->6 (fire)->7->0, advancing every 2 frames (~8 frames)",
+        "transition": "-> walk (anim 3)"
+       }
+      ],
+      "speed": "1 tile / 4 frames"
+     },
+     "evidence": [
+      "307EAI7.bin @A639-A748",
+      "templates @A704 (00 00 32 00 14 00 28 / 31 00 14 04 28)"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drops '1 or 10'; code mostly 100."
+    },
+    {
+     "type_id": 4,
+     "name": "Wolf",
+     "aka": [
+      "Rats (Playthrough 4.7.3 'very fast and valuable')"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 50, jumps small obstacles, accelerates).",
+     "hp": 8,
+     "contact_damage": 40,
+     "xp": 50,
+     "drops": {
+      "codes": [
+       11,
+       5,
+       5,
+       0
+      ],
+      "table": {
+       "Almas 100": 0.25,
+       "Almas 10": 0.5,
+       "nothing": 0.25
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "hazard_death": "Each frame GROUND_CHECK_2ROWS_BELOW: if the tile two rows below is a hazard ('aggressive ground') tile it dies at once (no XP)."
+     },
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Runs at 2 tiles per frame, leaps gaps and obstacles along fixed arcs, and locks on to the hero.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "fall",
+        "does": "gravity 1 tile/frame"
+       },
+       {
+        "id": "run",
+        "does": "If not chasing and within 6 rows but facing away: face the hero and start chasing (st bit1). If the tile 2 rows down in front of its leading edge is passable (gap) -> gap-leap. Otherwise moves 2 tiles per frame; when not chasing it skips one frame in 16. Chasing ends when aware(6) fails. Blocked -> obstacle-leap."
+       },
+       {
+        "id": "leap",
+        "does": "7 moves, one per frame, from a direction table, then gravity.",
+        "tables": {
+         "gap_leap_right": [
+          1,
+          1,
+          0,
+          0,
+          0,
+          7,
+          7
+         ],
+         "gap_leap_left": [
+          3,
+          3,
+          4,
+          4,
+          4,
+          5,
+          5
+         ],
+         "obstacle_leap_right": [
+          2,
+          1,
+          1,
+          0,
+          0,
+          7,
+          7
+         ],
+         "obstacle_leap_left": [
+          2,
+          3,
+          3,
+          4,
+          4,
+          5,
+          5
+         ],
+         "legend": "0=E 1=NE 2=N 3=NW 4=W 5=SW 6=S 7=SE"
+        },
+        "transition": "a blocked move ends the leap early"
+       }
+      ],
+      "speed": "2 tiles/frame"
+     },
+     "evidence": [
+      "307EAI7.bin @A749-A8B0",
+      "leap tables @A8B1-A8CE"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drops '1 or 10'; code includes 100 (25%)."
+    }
+   ]
+  },
+  {
+   "world": 8,
+   "area": "The Fruit Gardens (Pureza / Esco) - Caverns of Absor / Milagro / Desleal / Falter",
+   "eai_chunk": "308EAI8 (EAI8.BIN)",
+   "eai_bin_idx": 14,
+   "cavern_level": 8,
+   "maps": [
+    "MP80",
+    "MP81",
+    "MP82",
+    "MP83"
+   ],
+   "header": {
+    "xp_A008": [
+     255,
+     255,
+     255,
+     255,
+     255,
+     0,
+     0,
+     0
+    ],
+    "contact_A010": [
+     160,
+     160,
+     60,
+     80,
+     80,
+     0,
+     0,
+     0
+    ],
+    "drop_desc": [
+     [
+      11,
+      11,
+      11,
+      11
+     ],
+     [
+      11,
+      11,
+      11,
+      11
+     ],
+     [
+      5,
+      5,
+      0,
+      0
+     ],
+     [
+      11,
+      11,
+      5,
+      5
+     ],
+     [
+      11,
+      5,
+      0,
+      0
+     ]
+    ],
+    "dispatch_A2C7": [
+     "A2D2",
+     "A2D1(ret)",
+     "A483",
+     "A538",
+     "A68F"
+    ]
+   },
+   "enemies": [
+    {
+     "type_id": 0,
+     "type_id_body": 1,
+     "name": "Flying Jellyfish (Grell)",
+     "aka": [
+      "Medusa (Playthrough 4.8.3)"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 255, head only, charges at full speed).",
+     "hp": 100,
+     "contact_damage": {
+      "head_type0": 160,
+      "body_type1": 160
+     },
+     "xp": 255,
+     "drops": {
+      "codes": [
+       11,
+       11,
+       11,
+       11
+      ],
+      "table": {
+       "Almas 100": 1.0
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "head_only": true,
+      "detail": "Tentacle (body record) hits are cleared (A2E5). 100 HP: Guerra (255) or Enchantment Sword (127+level/2, doubled by thrust) one-shots it."
+     },
+     "weak_to": [
+      "Guerra",
+      "Enchantment Sword",
+      "anything reaching the head"
+     ],
+     "immune_to": [
+      "tentacle hits"
+     ],
+     "behaviour": {
+      "summary": "Hovers at its spawn height (no gravity, no vertical movement) and charges horizontally at 1 tile per frame.",
+      "size_tiles": "2 wide x 4 tall (big pair)",
+      "states": [
+       {
+        "id": "hover (st 0)",
+        "does": "Animates (6-frame cycle, +1 every 2 frames). If within 5 rows but facing away, turns to face the hero.",
+        "transition": "aware(5) and horizontal distance < 15 -> charge"
+       },
+       {
+        "id": "charge (st 1)",
+        "does": "1 tile per frame in facing direction for up to 16 frames.",
+        "transition": "blocked or 16 frames -> hover"
+       }
+      ],
+      "speed": "1 tile/frame charging"
+     },
+     "evidence": [
+      "308EAI8.bin @A2D2-A482",
+      "aware(5) with distance in AH @A75D"
+     ],
+     "confidence": "high",
+     "conflicts": "Community '10 almas'; code always 100."
+    },
+    {
+     "type_id": 2,
+     "name": "Lobster",
+     "aka": [
+      "Bug (Playthrough 4.8.2)"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 255, charges, accelerates when aggro'd).",
+     "hp": 48,
+     "contact_damage": 60,
+     "xp": 255,
+     "drops": {
+      "codes": [
+       5,
+       5,
+       0,
+       0
+      ],
+      "table": {
+       "Almas 10": 0.5,
+       "nothing": 0.5
+      },
+      "downward_thrust": "Almas 10"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {},
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Walker that doubles its speed while it faces the hero within 5 rows.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "fall",
+        "does": "gravity 1 tile/frame"
+       },
+       {
+        "id": "walk (st 0)",
+        "does": "Re-checks aware(5) each frame (faces the hero if in range). 1 tile per 2 frames; blocked -> reverse.",
+        "transition": "aware(5) -> charge"
+       },
+       {
+        "id": "charge (st 1)",
+        "does": "1 tile per frame; re-checks aware(5) every 4 frames.",
+        "transition": "not aware or blocked -> walk"
+       }
+      ],
+      "speed": "1 tile/2 frames, 1 tile/frame charging"
+     },
+     "evidence": [
+      "308EAI8.bin @A483-A537"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drop '1 alma'; code 10 or nothing."
+    },
+    {
+     "type_id": 3,
+     "name": "Slime Monster",
+     "aka": [
+      "Lava Slime Creature (Playthrough 4.8.1)"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 255, green spit left weak / red spit right lethal).",
+     "hp": 64,
+     "contact_damage": 80,
+     "xp": 255,
+     "drops": {
+      "codes": [
+       11,
+       11,
+       5,
+       5
+      ],
+      "table": {
+       "Almas 100": 0.5,
+       "Almas 10": 0.5
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [
+      {
+       "name": "red spit (shot to the right)",
+       "damage": 80,
+       "dir": "0 east",
+       "range_tiles": 18,
+       "spawn": "(x+1, y)",
+       "sprite_base_tile": "0x2A",
+       "template_addr": "A666"
+      },
+      {
+       "name": "green spit (shot to the left)",
+       "damage": 1,
+       "dir": "4 west",
+       "range_tiles": 18,
+       "spawn": "(x, y)",
+       "sprite_base_tile": "0x2B",
+       "template_addr": "A673"
+      }
+     ],
+     "defence": {},
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Mostly sits still, occasionally shuffles one tile, and spits at the hero when he is within 5 rows; the spit's damage depends on which side it is fired to.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "fall",
+        "does": "gravity 1 tile/frame"
+       },
+       {
+        "id": "idle (st 0)",
+        "does": "If within 5 rows: faces the hero and with 1/8 chance per frame starts shooting. Every 2 frames a 3-step anim cycle; at its wrap (every 6 frames) 1/4 chance to start a shuffle."
+       },
+       {
+        "id": "shoot (st 4)",
+        "does": "3 frames wind-up, then fires the spit for its facing side; next frame ends."
+       },
+       {
+        "id": "shuffle (st 1 -> 3)",
+        "does": "8 frames of anim, then one tile step left or right (random; the code's floor test reads a byte of the monster record, effectively arbitrary), then back to idle."
+       }
+      ],
+      "speed": "almost stationary"
+     },
+     "evidence": [
+      "308EAI8.bin @A538-A68E",
+      "templates @A666: 00 00 2A 00 12 00 50 / 00 00 2B 00 12 04 01"
+     ],
+     "confidence": "high",
+     "conflicts": "Community red spit '10 points' = 80 HP, green '1 point' = 1 HP (consistent). Drops community '1 or 10'; code 100 or 10."
+    },
+    {
+     "type_id": 4,
+     "name": "Blue Flying Creature",
+     "aka": [
+      "Blue Ghost (Playthrough 4.8.4)"
+     ],
+     "name_source": "Fan site Enemies.txt (XP 255, flies, moves slowly).",
+     "hp": 96,
+     "contact_damage": 80,
+     "xp": 255,
+     "drops": {
+      "codes": [
+       11,
+       5,
+       0,
+       0
+      ],
+      "table": {
+       "Almas 100": 0.25,
+       "Almas 10": 0.25,
+       "nothing": 0.5
+      },
+      "downward_thrust": "Almas 100"
+     },
+     "gold": 0,
+     "projectiles": [],
+     "defence": {
+      "notes": "No invulnerability phase (unlike the Flying Octopus)."
+     },
+     "weak_to": [
+      "everything"
+     ],
+     "immune_to": [],
+     "behaviour": {
+      "summary": "Same flight model as the Flying Octopus but acting only every 2nd frame.",
+      "size_tiles": "2 x 2",
+      "states": [
+       {
+        "id": "hunt",
+        "does": "Every 2 frames: retarget like the octopus (8-row range, every 8th path step, random facing if out of range), one vertical step toward the hero's y, one step along the path table.",
+        "path_table": {
+         "facing_right": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          7,
+          0
+         ],
+         "facing_left": [
+          4,
+          4,
+          3,
+          4,
+          4,
+          4,
+          5,
+          4
+         ]
+        }
+       }
+      ],
+      "speed": "1 path + 1 vertical step per 2 frames"
+     },
+     "evidence": [
+      "308EAI8.bin @A68F-A71A",
+      "path tables @A71B/A723",
+      "range @A72B (8 rows)"
+     ],
+     "confidence": "high",
+     "conflicts": "Community drop '1 or 10'; code adds 100 (25%)."
+    }
+   ]
+  }
+ ]
+}

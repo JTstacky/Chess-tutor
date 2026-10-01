@@ -1,0 +1,810 @@
+{
+ "id": "mp72",
+ "file": "mp72.mdt",
+ "name": "Cavern of Correr",
+ "width": 128,
+ "height": 64,
+ "bank": "mpp7",
+ "level": 7,
+ "boss": false,
+ "tear": null,
+ "entryHeadRow": 10,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "Dg4PEgoTAAEABwoJDQ4ODg4ODg4ODg4ODg4ODxIKEwABAAcKCQ0ODg4ODg4ODg4ODg4ODg4PEgoTAAAABwoJDQ4ODg4ODg4ODg4ODg4ODg8SChMAAAAHCgkMDg4ODg4ODg4ODg4ODg4PEgoTAAEABwoJEA4ODg4ODg4ODg4ODg4ODhASChMAAQAHCgkQDg4ODg4ODg4ODg4ODg4QEgoTAAEABwoKEQ0ODg4ODg4ODg4ODg4ODg8SChMAAAAHCgkNDg4ODg4ODg4ODg4ODg4ODxIKEwAAAAcKCQ0ODg4ODg4ODg4ODg4ODhASChMAAQAHCgoRDQ4ODg4ODg4ODg4ODhAQEQoTGQABAAcKChEQEBAQEBAQEBAQEBAQEBEKChMAAgAYBwoKEQ0QEBAQEBAQEBAQEBAQDxIKGwAAABgHChERDRAQEBAQEBAQEBAQEBARCgoTAAAABwoJDRAQEBAQEBAQEBAQEBAQEQoTGwABABgHCgkNEBAQEBAQEBAQEBAQEREKExkAAAIAGBoHChERERERERERERERERERCgoTGQACAAAYGgcKERERERERERERERERERERChMAAAAAAAcKCgoREREREREREREREREREQoTGhkAAAAYBwoREREREREREREREREREREKChMAAAEAABoHChEREREREREREREREREKCgoTAAAAAQAAKAcKCgoKCgoKCgoKCgoKCgoTGhkAAAEAAAAAGAcKCgoKCgoKCgoKCgoKCgoKEwAAAAAAGBoKCgoKCgoKCgoKCgoKCgoKExkAAAAAAAAaBwoKCgoKCgoKCgoKCgoKCgoKEwAAAgAAABgHCgoKCgoKCgoKCgoKChQUGhkAAAABAAAoGBQaFAMUFBQUFBQUFBQUGhgAAAAAAQAAAAAAFBoDFBQUFBQUGhQUFBQUFBoZAAAAAAAoKBgUFBQUFBQUFBQUFBQUFBoYAAAAAAAAAAAYGhQUAxQUFBQUFBoUFBQUFBoZAAABAAAAABgaFAMUFBoUFBQUFBQUAAAAAAAAAAIAACgoKCgAAQAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAKCgoKAAAAAAAAAAAAAAAAAAAACgoKCgoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAACgoKCgoAAAAAAAAAAEAAAAAAAAAAQApKSkpAAAAAAAAAAAAAAAAAgAAKCgoKAABAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAgAoKCgoAAAAAAAAAAAAAAAAAAAAKCgoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAKCgoKCgAAAAAAAAAAgAAAAAAAAACACkpKSkAAAAAAAAAAAAAAAABAAAoKCgoAAIAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACACgoKCgAAAAAAAAAAAAAAAAAAAAoKCgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAoKCgoKAAAAAAAAAACAAAAAAAAAAIAKSkpKQAAAAAAAAAAAAAAAAEAACgoKCgAAgAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAKCgoKAAAAAAAAAAAAAAAAAAAACgoKCgoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAACgoKCgoAAAAAAAAAAEAAAAAAAAAAQApKSkpAAAAAAAAAAAAAAAAAQAAKCgoKAABAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAoKCgoAAAAAAAAAAAAAAAAAAAAKCgoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAKCgoKCgAAAAAAAAAAQAAAAAAAAABACkpKSkAAAAAAAAAAAAAAAAAAAAoKCgoAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABACgoKCgAAAAAAAAAAAAAAAAAAAAoKCgoKCoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAoKCgoKAAAAAAAAAAAAAAAAAAAAAEAKSkpKQAAAAAABQUFBQUFBQUFBQUFBQYAAQAEBQUFBQUFBQUFBQUFBQUFBQUFBQUGAAEABAUFBQUFBQUFBQUFBQUFBQUFBQUFBQYqKioEBQUFBQUFBQUFBQUFBQUFBQUFBQUFBgABAAQFBQUFBQUFBQUFBQUFBQUFBQUFBQYAAQAEBQUFBQUFBQUWFhYWFhYWFhYWFhYWEwABAAcWFhYWFhYWFhYWFhYWFhYWFhYWFhMAAQAHFhYWFhYWFhYWFhYWFhYWFhYWFhYWEwAAAAcWFhYWFhYWFhYWFhYWFhYWFhYWFhYTAAEABxYWFhYWFhYWFhYWFhYWFhYWFhYWEwABAAcWFhYWFhYWFgsLCwsLCwsLCwsLCgoTAAEABwoKCwsLCwsLCwsLCwsLCwsLCgoKEwACAAcKCgoLCwsLCwsLCwsLCwsLCwsLCgoTAAAABwoKCgsLCwsLCwsLCwsLCwsLCwsKChMAAgAHCgoLCwsLCwsLCwsLCwsLCwsLCgoTAAIABwoKCwsLCwsLDAwMDAwMDAwMDA8SChMAAQAHCgkNDAwMDAwMDAwMDAwMDA8LEgoTAAEABwoJCwwMDAwMDAwMDAwMDAwMDA8SChMAAAAHCgkLDAwMDAwMDAwMDAwMDAwMDxIKEwACAAcKCQ0MDAwMDAwMDAwMDAwMDA8SChMAAgAHCgkNDAwMDAwODg4ODg4ODg4ODxIKEwACAAcKCQ0ODg4ODg4ODg4ODg4ODg8SChMAAQAHCgkNDg4ODg4ODg4ODg4ODg4ODxIKEwAAAAcKCQ0ODg4ODg4ODg4ODg4ODg4PEgoTAAEABwoJDQ4ODg4ODg4ODg4ODg4ODxIKEwABAAcKCQ0ODg4ODg4ODg4ODg4ODg4QEhMaAAIABwoJDQ4ODg4ODg4ODg4ODg4ODxITGQACAAcKCQ0ODg4ODg4ODg4ODg4ODg4PEgoTAAAABwoJDQ4ODg4ODg4ODg4ODg4ODg8SChMAAQAHCgkNDg4ODg4ODg4ODg4ODg4PEgoTAAEABwoJDQ4ODg4OEBAQEBAQEBAQEBEKEwAAAQAYBwkNEBAQEBAQEBAQEBAQEBARChMpAAIAGAcJDRAQEBAQEBAQEBAQEBAQEBEKChMAAAAYBwkNEBAQEBAQEBAQEBAQEBAQDxIKEwABAAcKChERDRAQEBAQEBAQEBAQEBEKChMAAQAYBwoREBAQEBARERERERERERERCgoTAAABAAAHChEREREREREREREREREREQoTGikAAQAABwoRERERERERERERERERERERChMaGQAAAAAHChERERERERERERERERERERERChMZAAEAGBoHCgoRERERERERERERERERCgoTGQABAAAHCgoREREREQoKCgoKCgoKCgoKExkAAAEAABsHCgoKCgoKCgoKCgoKCgoKExkpKQABAAAYBwoKCgoKCgoKCgoKCgoKCgoTGSgoAAAAABgHCgoKCgoKCgoKCgoKCgoKCgoTGSgAAQAAABgHCgoKCgoKCgoKCgoKCgoKExkAAAIAABgaBwoKCgoKFBQUFBQUFAMUFBoZAAAAAQAAABgaFBQUGhQUFBQUFBQDFBoZKSkpAAEAAAAYGhQUFBQUFBQUFBQUFAMUFBkoKCgAAAAAABgaFBQUFBQUFBQUFBQUAxQUGhkoKAACAAAAABgaFBQUFBQUFBQUFBQUFBoZAAAAAQAAAAAYGhQUGhQoAAAAAAAAAQAAAAAAAAACAAAAAAAAACgoKCgoAAAAAAEAKSkpKSkAAgAAAAAAAAAAAAAAAAAAAAAAAQAoKCgoKAAAAAAAAAAAAAAAAAAAAAAAAAABACkpKCgoAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAApKSkoKCgAAAAAAAABAAAAAAAAAAEAAAAAAAAAKCgoKCgAAAAAAQApKSkpKQABAAAAAAAAAAAAAAAAAAAAAAABACgoKCgoAAAAAAAAAAAAAAAAAAAAAAAAAAEAKSkoKCgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAACkpKSgoKAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAoKCgoKAAAAAACACkpKSkpAAEAAAAAAAAAAAAAAAAAAAAAAAIAKCgoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAQApKSgoKAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAKSkpKCgoAAAAAAAAAgAAAAAAAAABAAAAAAAAACgoKCgoAAAAAAIAKSkpKSkAAQAAAAAAAAAAAAAAAAAAAAAAAQAoKCgoKAAAAAAAAAAAAAAAAAAAAAAAAAABACkpKCgoAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAApKSkoKCgAAAAAAAABAAAAAAAAAAEAAAAAAAAAKCgoKCgAAAAAAQApKSkpKQABAAAAAAAAAAAAAAAAAAAAAAABACgoKCgoAAAAAAAAAAAAAAAAAAAAAAAAAAEAKSkoKCgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAACkpKSgoKAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAoKCgoKAAAAAABACkpKSkpAAAAAAAAAAAAAAAAAAAAAAAAAAIAKCgoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAgApKSgoKAAAAAAAAAAAAAAAAAAAAAAAACoAAAAAAAAAAAAAAAAAKSkpKCgFBQUFBQYAAQAEBQUFBQUFBQUFBQUFBQUFBQUFBQUGAAEABAUFBQUFBQUFBQUFBQUFBQUFBQUFBQYAAgAEBQUFBQUFBQUFBQUFBQUFBQUFBQUFBgABAAQFBQUFBQUFBQUFBQUFBQUFBQUFBQYqKioEBQUFBQUFBQUFBQUFBQUFBRYWFhYWEwABAAcWFhYWFhYWFhYWFhYWFhYWFhYWFhMAAQAHFhYWFhYWFhYWFhYWFhYWFhYWFhYWEwABAAcWFhYWFhYWFhYWFhYWFhYWFhYWFhYTAAEABxYWFhYWFhYWFhYWFhYWFhYWFhYWEyoqKgcWFhYWFhYWFhYWFhYWFhYWCwsLCgoTAAEABwoKCwsLCwsLCwsLCwsLCwsLCgoKEwABAAcKCgsLCwsLCwsLCwsLCwsLCwsLCgoTAAEABwoKCwsLCwsLCwsLCwsLCwsLCwsKChMAAgAHCgoLCwsLCwsLCwsLCwsLCwsLCgoTKioqBwoKCwsLCwsLCwsLCwsLCwsMDA8SChMAAgAHCgkNDAwMDAwMDAwMDAwMDA8LEgoTAAIABwoJDQwMDAwMDAwMDAwMDAwMDA8SChMAAQAHCgkNDAwMDAwMDAwMDAwMDAwMDxIKEwABAAcKCQ0MDAwMDAwMDAwMDAwMDA8SChMqKioHCgkNDAwMDAwMDAwMDAwMDA4ODxIKEwACAAcKCQ0ODg4ODg4ODg4ODg4ODg8SChMAAQAHCgkNDg4ODg4ODg4ODg4ODg4ODxIKEwABAAcKCQ0ODg4ODg4ODg4ODg4ODg4PEgoTAAEABwoJDQ4ODg4ODg4ODg4ODg4ODxIKEyoqKgcKCQ0ODg4ODg4ODg4ODg4ODg4PEhMZAAEABwoKEQ0ODg4ODg4ODg4ODg4ODxIKEwACAAcKCQ0ODg4ODg4ODg4ODg4ODg4PEgoTAAIAGAcKEQ0ODg4ODg4ODg4ODg4ODxEKChMAAgAHCgkNDg4ODg4ODg4ODg4ODg4PEgoTKioqBwoJDQ4ODg4ODg4ODg4ODg4QDxEKEwAAAQAYGgcJDRAQEBAQEBAQEBAQEBERCgoTAAEAGAcKERENEBAQEBAQEBAQEBAQDxEKExkAAQAABwoKEQ0QEBAQEBAQEBAQEBAPCgoTGQACAAcKChEREBAQEBAQEBAQEBAQEA8SChMqKioYBwoREQ0QEBAQEBAQEBAQEBERCgoTAAACAAAABwoRERERERERERERERERCgoTGhkAAQAAGgcKChERERERERERERERERERCgoTAAABAAAYGgcKEREREREREREREREREREKChMAAAIAGBoHCgoREREREREREREREREREQoTGSoqKikaBwoKERERERERERERERERCgoKExkAAAEAAAAYBwoKCgoKCgoKCgoKCgoTGhsAAAABAAAABwoKCgoKCgoKCgoKCgoKCgoKExkAAAEAAAAAGAcKCgoKCgoKCgoKCgoKChMaGQAAAgAAABgYBwoKCgoKCgoKCgoKCgoKChMoKioqKQAYGQcKCgoKCgoKCgoKCgoUFBoUAAAAAQAAAAAaGBQDFBQUFBQUFBQUFBkAAAAAAAIAAAAYGhQUAxQUFBQUFBQaFBQUFBoZAAAAAgAAAAAAGBoDFBQUFBQUFBQaFBQaGQAAAAABAAAAAAAYGgMUFBQUFBQUFBQUFBQaGSgqKiopAAAAGBQDFBQUFBQUFBoUFAAAAAAAAAABAAAAAAAAAAEAKCgoKAAAAAAAAAAAAAAAAgAAAAAAAAABAAAAACkpKSkpAAAAAAAAAAACAAAAAAAAAAEAAAAAKCgoKCgAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAKioqKioAAAAAAAEAAAAAKSkpKSkAAAAAAAAAAAIAAAAAAAAAAgAoKCgoAAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAKSkpKSkAAAAAAAAAAAIAAAAAAAAAAQAAAAAoKCgoKAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAqKioqKgAAAAAAAgAAAAApKSkpKQAAAAAAAAAAAQAAAAAAAAACACgoKCgAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAApKSkpKQAAAAAAAAAAAQAAAAAAAAABAAAAACgoKCgoAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAACkpKSkpAAAAAAAAAAABAAAAAAAAAAEAKCgoKAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAACkpKSkpAAAAAAAAAAABAAAAAAAAAAIAAAAAKCgoKCgAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAKSkpKSkAAAAAAAAAAAEAAAAAAAAAAQAoKCgoAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAAKSkpKSkAAAAAAAAAAAEAAAAAAAAAAgAAAAAoKCgoKAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAApKSkpKQAAAAAAAAAAAAAAAAAAAAABACgoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAApKSkpKQAAAAAAAAAAAAAAAAAAAAABAAAAACgoKCgoAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAACkpKSkpAAUFBQUFBQUFBQUFBQUGAAEABAUFBQUFBQUFBQUFBQUFBQUFBQUFBgACAAQFBQUFBQUFBQUFBQUFBQUFBQUFBQUGAAEABAUFBQUFBQUFBQUFBQUFBQUFBQUFBQYAAQAEBQUFBQUFBQUFBQUFBQUFBQUFBQUGAAEABAUFBQUFBQUFFhYWFhYWFhYWFhYWFhMAAQAHFhYWFhYWFhYWFhYWFhYWFhYWFhYTAAEABxYWFhYWFhYWFhYWFhYWFhYWFhYWFhMAAQAHFhYWFhYWFhYWFhYWFhYWFhYWFhYWEwABAAcWFhYWFhYWFhYWFhYWFhYWFhYWFhMAAQAHFhYWFhYWFhYLCwsLCwsLCwsLCwoKEwABAAcKCgsLCwsLCwsLCwsLCwsLCwsKChMAAQAHCgoLCwsLCwsLCwsLCwsLCwsLCwoKEwACAAcKCgoLCwsLCwsLCwsLCwsLCwsLCgoTAAIABwoKCwsLCwsLCwsLCwsLCwsLCwoKEwABAAcKCgsLCwsLCwwMDAwMDAwMDAwPEgoTAAIABwoLDQwMDAwMDAwMDAwMDAwMDxIKEwABAAcKCQ0MDAwMDAwMDAwMDAwMDAwPEgoTAAIABwoJCwwMDAwMDAwMDAwMDAwMDA8SChMAAQAHCgkNDAwMDAwMDAwMDAwMDAwPEgoTAAIABwoJDQwMDAwMDg4ODg4ODg4ODg8SChMAAQAHCg0ODg4ODg4ODg4ODg4ODg4PEgoTAAEABwoJDQ4ODg4ODg4ODg4ODg4ODg8SChMAAgAHCgkNDg4ODg4ODg4ODg4ODg4ODxIKEwABAAcKCQ0ODg4ODg4ODg4ODg4ODg8SChMAAQAHCgkNDg4ODg4ODg4ODg4ODg4OEBIKEwACAAcKDQ4ODg4ODg4ODg4ODg4ODhASChMAAgAHCgkQDg4ODg4ODg4ODg4ODg4OEBIKEwABAAcKCQ0ODg4ODg4ODg4ODg4ODg4PEgoTAAEABwoJEA4ODg4ODg4ODg4ODg4PEQoKEwABAAcKCQ0ODg4ODhAQEBAQEBAQEBARChMZAAIABwoRDRAQEBAQEBAQEBAQEBAQERIKEwACABgHChEQEBAQEBAQEBAQEBAQEBARCgoTAAEAGAcKERAQEBAQEBAQEBAQEBAQEA8SChMAAQAYBwoREBAQEBAQEBAQEBAQEA8SExoZAAIABwoKEQ0QEBAQEREREREREREREQoTGQAAAQAYBwoREREREREREREREREREREKCgoTAAEAAAcKChEREREREREREREREREREQoKExkAAQAAGBoHEREREREREREREREREREREQobGQACACgUBwoREREREREREREREREREQoTKSkAAQAYGgcKEREREREKCgoKCgoKCgoKChMAAAABAAAHCgoKCgoKCgoKCgoKCgoKChMUGhkAAQAAGgcKCgoKCgoKCgoKCgoKCgoKExoUAAABAAAAAAcKCgoKCgoKCgoKCgoKCgoKExkAAAIAKCgHCgoKCgoKCgoKCgoKCgoKExkpKQABAAAABwoKCgoKChQUFBQUFBQDFBoUGQAAAAEAABgaFBQUFBQUFBQUFBQUAxQUGSgoKAABAAAAGBoUFBQUFBQaFBQUFBQUFBQZAAAAAAIAAAAAGBoUFBQUFBQUGhQUFBQUFBoZAAAAAQAoKBgaFBQUFBQUFBQUFBQDFBoZKSkpAAIAAAAYFBQaFBQUAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAACACgoKCgoAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABACgoKCgAAAAAAAAAAAAAAAEAKSkpKSkAAgAAAAAAKSkpKSkAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAIAKCgoKCgAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAKCgoKAAAAAAAAAAAAAAAAQApKSkpKQABAAAAAAApKSkpKQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAoKCgoKAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAoKCgoAAAAAAAAAAAAAAACACkpKSkpAAEAAAAAACkpKSkpAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAABACgoKCgoAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABACgoKCgAAAAAAAAAAAAAAAEAKSkpKSkAAQAAAAAAKSkpKSkAAAAAAAAAAgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAEAKCgoKCgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAKCgoKAAAAAAAAAAAAAAAAgApKSkpKQABAAAAAAApKSkpKQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAoKCgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKCgoAAAAAAAAAAAAAAABACkpKSkpAAAAAAAAACkpKSkpBQUFBQUGAAEABAUFBQUFBQUFBQUFBQUFBQUFBQUFBgABAAQFBQUFBQUFBQUFBQUFBQUFBQUFBQUGAAAABAUFBQUFBQUFBQUFBQUFBQUFBQUFBQYAAAAEBQUFBQUFBQUFBQUFBQUFBQUFBQUGAAEABAUFBQUFBQUFBQUFBQUFBQUWFhYWFhMAAQAHFhYWFhYWFhYWFhYWFhYWFhYWFhYTAAEABxYWFhYWFhYWFhYWFhYWFhYWFhYWFhMAAAAHFhYWFhYWFhYWFhYWFhYWFhYWFhYWEwAAAAcWFhYWFhYWFhYWFhYWFhYWFhYWFhMAAQAHFhYWFhYWFhYWFhYWFhYWFgsLCgoKEwABAAcKCgsLCwsLCwsLCwsLCwsLCwsKChMAAgAHCgoLCwsLCwsLCwsLCwsLCwsLCwoKEwAAAAcKCgsLCwsLCwsLCwsLCwsLCwsLCgoTAAAABwoKCgsLCwsLCwsLCwsLCwsLCwoKEwACAAcKCgsLCwsLCwsLCwsLCwsLDAwLEgoTAAEABwoJDQwMDAwMDAwMDAwMDAwMDxIKEwACAAcKCQ0MDAwMDAwMDAwMDAwMDAwPEgoTAAAABwoJDQwMDAwMDAwMDAwMDAwMDA8SChMAAAAHCgkLDAwMDAwMDAwMDAwMDAwPEgoTAAIABwoJDQwMDAwMDAwMDAwMDAw=",
+ "monsters": [
+  {
+   "index": 0,
+   "raw": "02002aff0400000000000002002a0400",
+   "x": 2,
+   "y": 42,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 2,
+    "y": 42,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 1,
+   "raw": "11001aff0400000000000011001a0400",
+   "x": 17,
+   "y": 26,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 17,
+    "y": 26,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 2,
+   "raw": "12003aff0400000000000012003a0400",
+   "x": 18,
+   "y": 58,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 18,
+    "y": 58,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 3,
+   "raw": "18000aff0400000000000018000a0400",
+   "x": 24,
+   "y": 10,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 24,
+    "y": 10,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 4,
+   "raw": "1c000aff730000200019003500040000",
+   "x": 28,
+   "y": 10,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "blue_potion",
+    "code": "0x19"
+   },
+   "saveFlag": {
+    "byte": "0x35",
+    "mask": "0x04",
+    "name": "caliente_items_1",
+    "description": "Chest, Blue Potion"
+   },
+   "respawn": false
+  },
+  {
+   "index": 5,
+   "raw": "2b003aff040000000000002b003a0400",
+   "x": 43,
+   "y": 58,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 43,
+    "y": 58,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 6,
+   "raw": "2e001aff040000000000002e001a0400",
+   "x": 46,
+   "y": 26,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 46,
+    "y": 26,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 7,
+   "raw": "36002aff0400000000000036002a0400",
+   "x": 54,
+   "y": 42,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 54,
+    "y": 42,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 8,
+   "raw": "3a000aff730000200016003500020000",
+   "x": 58,
+   "y": 10,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "key",
+    "code": "0x16"
+   },
+   "saveFlag": {
+    "byte": "0x35",
+    "mask": "0x02",
+    "name": "caliente_items_1",
+    "description": "Chest, Key (Correr, 3rd one)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 9,
+   "raw": "46001aff0400000000000046001a0400",
+   "x": 70,
+   "y": 26,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 70,
+    "y": 26,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 10,
+   "raw": "4b003aff040000000000004b003a0400",
+   "x": 75,
+   "y": 58,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 75,
+    "y": 58,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 11,
+   "raw": "4e002aff040000000000004e002a0400",
+   "x": 78,
+   "y": 42,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 78,
+    "y": 42,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 12,
+   "raw": "54000aff0400000000000054000a0400",
+   "x": 84,
+   "y": 10,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 84,
+    "y": 10,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 13,
+   "raw": "66001aff0400000000000066001a0400",
+   "x": 102,
+   "y": 26,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 102,
+    "y": 26,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 14,
+   "raw": "66002aff0400000000000066002a0400",
+   "x": 102,
+   "y": 42,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 102,
+    "y": 42,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 15,
+   "raw": "6a000aff040000000000006a000a0400",
+   "x": 106,
+   "y": 10,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 50,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 106,
+    "y": 10,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 16,
+   "raw": "77003aff730005200000003500010000",
+   "x": 119,
+   "y": 58,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "gold_1000"
+   },
+   "saveFlag": {
+    "byte": "0x35",
+    "mask": "0x01",
+    "name": "caliente_items_1",
+    "description": "Chest, 1000 Golds (Correr)"
+   },
+   "respawn": false
+  }
+ ],
+ "doors": [
+  {
+   "index": 0,
+   "raw": "190028831314000900ffffff",
+   "x": 25,
+   "y": 40,
+   "frame": {
+    "x": 24,
+    "y": 40,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 25,
+    "heroHeadRow": 41
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 3,
+   "flags": "0x83",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp71",
+    "place": "0x13",
+    "x": 20,
+    "headRow": 10,
+    "y1": 9
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 1,
+   "raw": "320008821253000100ffffff",
+   "x": 50,
+   "y": 8,
+   "frame": {
+    "x": 49,
+    "y": 8,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 50,
+    "heroHeadRow": 9
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 2,
+   "flags": "0x82",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp70",
+    "place": "0x12",
+    "x": 83,
+    "headRow": 2,
+    "y1": 1
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 2,
+   "raw": "4c000881125c002900ffffff",
+   "x": 76,
+   "y": 8,
+   "frame": {
+    "x": 75,
+    "y": 8,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 76,
+    "heroHeadRow": 9
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 1,
+   "flags": "0x81",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp70",
+    "place": "0x12",
+    "x": 92,
+    "headRow": 42,
+    "y1": 41
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 3,
+   "raw": "6500388112b0002b00ffffff",
+   "x": 101,
+   "y": 56,
+   "frame": {
+    "x": 100,
+    "y": 56,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 101,
+    "heroHeadRow": 57
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 1,
+   "flags": "0x81",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp70",
+    "place": "0x12",
+    "x": 176,
+    "headRow": 44,
+    "y1": 43
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 4,
+   "raw": "7f00088312cd002d00ffffff",
+   "x": 127,
+   "y": 8,
+   "frame": {
+    "x": 126,
+    "y": 8,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 127,
+    "heroHeadRow": 9
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 3,
+   "flags": "0x83",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp70",
+    "place": "0x12",
+    "x": 205,
+    "headRow": 46,
+    "y1": 45
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  }
+ ],
+ "platforms": {
+  "vertical": [],
+  "collapsing": [],
+  "horizontal": []
+ },
+ "items": [
+  {
+   "entity": 4,
+   "x": 28,
+   "y": 10,
+   "type": "chest",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x35",
+    "mask": "0x04",
+    "name": "caliente_items_1",
+    "description": "Chest, Blue Potion"
+   }
+  },
+  {
+   "entity": 8,
+   "x": 58,
+   "y": 10,
+   "type": "chest",
+   "contents": "key",
+   "saveFlag": {
+    "byte": "0x35",
+    "mask": "0x02",
+    "name": "caliente_items_1",
+    "description": "Chest, Key (Correr, 3rd one)"
+   }
+  },
+  {
+   "entity": 16,
+   "x": 119,
+   "y": 58,
+   "type": "chest",
+   "contents": "gold_1000",
+   "saveFlag": {
+    "byte": "0x35",
+    "mask": "0x01",
+    "name": "caliente_items_1",
+    "description": "Chest, 1000 Golds (Correr)"
+   }
+  }
+ ],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x35",
+    "mask": "0x04",
+    "name": "caliente_items_1",
+    "description": "Chest, Blue Potion"
+   },
+   "writes": [
+    {
+     "addr": "0xd1da",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 4,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd1e5",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 4,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "350004dad100ffe5d1ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x35",
+    "mask": "0x02",
+    "name": "caliente_items_1",
+    "description": "Chest, Key (Correr, 3rd one)"
+   },
+   "writes": [
+    {
+     "addr": "0xd21a",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 8,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd225",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 8,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "3500021ad200ff25d2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x35",
+    "mask": "0x01",
+    "name": "caliente_items_1",
+    "description": "Chest, 1000 Golds (Correr)"
+   },
+   "writes": [
+    {
+     "addr": "0xd29a",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 16,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd2a5",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 16,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "3500019ad200ffa5d2ffffffff"
+  }
+ ],
+ "alternateTables": [],
+ "descriptor": {
+  "raw": "1500060c0c",
+  "isBossCavern": false,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mus7",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp7",
+  "eai": "eai7",
+  "enp": "enp7"
+ },
+ "nameInfo": {
+  "x": 22,
+  "y": 175,
+  "color": 2
+ },
+ "raw": {
+  "header": "95d1800014d116d118d11ad158d181d19ad107ffffff0a000014d1",
+  "pointers": {
+   "descriptor": "0xd195",
+   "width": "0x0080",
+   "vplat": "0xd114",
+   "cplat": "0xd116",
+   "hplat": "0xd118",
+   "doors": "0xd11a",
+   "accomplished": "0xd158",
+   "name": "0xd181",
+   "monsters": "0xd19a",
+   "signs": "0x0000",
+   "mapEnd": "0xd114"
+  }
+ }
+}

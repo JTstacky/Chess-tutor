@@ -1,0 +1,291 @@
+{
+ "id": "esmp",
+ "file": "esmp.mdt",
+ "name": "Esco village",
+ "place": "0x89",
+ "width": 215,
+ "height": 8,
+ "bank": "mpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "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",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "390003",
+   "x": 57,
+   "triggerX": [
+    56,
+    57,
+    58
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  },
+  {
+   "index": 1,
+   "raw": "6f0004",
+   "x": 111,
+   "triggerX": [
+    110,
+    111,
+    112
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  },
+  {
+   "index": 2,
+   "raw": "8a0006",
+   "x": 138,
+   "triggerX": [
+    137,
+    138,
+    139
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  },
+  {
+   "index": 3,
+   "raw": "ab0005",
+   "x": 171,
+   "triggerX": [
+    170,
+    171,
+    172
+   ],
+   "dest": "0x05",
+   "kind": "church"
+  },
+  {
+   "index": 4,
+   "raw": "cd0008",
+   "x": 205,
+   "triggerX": [
+    204,
+    205,
+    206
+   ],
+   "dest": "0x08",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp81",
+   "heroX": 123,
+   "heroHeadRow": 6,
+   "runLeft": false
+  }
+ ],
+ "transitions": [],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "7b00060018",
+   "map": "mp81",
+   "heroX": 123,
+   "heroHeadRow": 6,
+   "runLeft": false
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "0800000001030001",
+   "x": 8,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "If you fall from a stone and are blocked by a wall, thrust through it with your sword. If the wall crumbles away you'll be on the road leading to the abode of Jashiin."
+  },
+  {
+   "index": 1,
+   "raw": "2600020001030003",
+   "x": 38,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "Look for another door with a blue symbol. If you see it, turn to the right."
+  },
+  {
+   "index": 2,
+   "raw": "5200000001030002",
+   "x": 82,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "By jumping in front of the ivy rather than going down it, you can open a new road."
+  },
+  {
+   "index": 3,
+   "raw": "7e00020001030000",
+   "x": 126,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "Pay attention to the door with the blue symbol. It has turned three colors."
+  },
+  {
+   "index": 4,
+   "raw": "a900010000000004",
+   "x": 169,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 4,
+   "text": "Do you have doubts? Here there is only slaughter and destruction. What do you expect to accomplish?"
+  },
+  {
+   "index": 5,
+   "raw": "ad00010000000005",
+   "x": 173,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 5,
+   "text": "Why have the Spirits sent you on this journey of slaughter? Why does Jashiin await you in silence?"
+  },
+  {
+   "index": 6,
+   "raw": "9f00040001030006",
+   "x": 159,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 4,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 6,
+   "text": "Pay no heed to those two, they are in league with Jashiin. They are trying to weaken your will."
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Pay attention to the door with the blue symbol. It has turned three colors.",
+   "controlCodes": [],
+   "raw": "50617920617474656e74696f6e20746f2074686520646f6f7220776974682074686520626c75652073796d626f6c2e20497420686173207475726e656420746872656520636f6c6f72732e"
+  },
+  {
+   "index": 1,
+   "text": "If you fall from a stone and are blocked by a wall, thrust through it with your sword. If the wall crumbles away you'll be on the road leading to the abode of Jashiin.",
+   "controlCodes": [],
+   "raw": "496620796f752066616c6c2066726f6d20612073746f6e6520616e642061726520626c6f636b656420627920612077616c6c2c20746872757374207468726f756768206974207769746820796f75722073776f72642e204966207468652077616c6c206372756d626c6573206177617920796f755c6c6c206265206f6e2074686520726f6164206c656164696e6720746f207468652061626f6465206f66204a61736869696e2e"
+  },
+  {
+   "index": 2,
+   "text": "By jumping in front of the ivy rather than going down it, you can open a new road.",
+   "controlCodes": [],
+   "raw": "4279206a756d70696e6720696e2066726f6e74206f66207468652069767920726174686572207468616e20676f696e6720646f776e2069742c20796f752063616e206f70656e2061206e657720726f61642e"
+  },
+  {
+   "index": 3,
+   "text": "Look for another door with a blue symbol. If you see it, turn to the right.",
+   "controlCodes": [],
+   "raw": "4c6f6f6b20666f7220616e6f7468657220646f6f722077697468206120626c75652073796d626f6c2e20496620796f75207365652069742c207475726e20746f207468652072696768742e"
+  },
+  {
+   "index": 4,
+   "text": "Do you have doubts? Here there is only slaughter and destruction. What do you expect to accomplish?",
+   "controlCodes": [],
+   "raw": "446f20796f75206861766520646f756274733f2048657265207468657265206973206f6e6c7920736c6175676874657220616e64206465737472756374696f6e2e205768617420646f20796f752065787065637420746f206163636f6d706c6973683f"
+  },
+  {
+   "index": 5,
+   "text": "Why have the Spirits sent you on this journey of slaughter? Why does Jashiin await you in silence?",
+   "controlCodes": [],
+   "raw": "57687920686176652074686520537069726974732073656e7420796f75206f6e2074686973206a6f75726e6579206f6620736c617567687465723f2057687920646f6573204a61736869696e20617761697420796f7520696e2073696c656e63653f"
+  },
+  {
+   "index": 6,
+   "text": "Pay no heed to those two, they are in league with Jashiin. They are trying to weaken your will.",
+   "controlCodes": [],
+   "raw": "506179206e6f206865656420746f2074686f73652074776f2c20746865792061726520696e206c65616775652077697468204a61736869696e2e20546865792061726520747279696e6720746f207765616b656e20796f75722077696c6c2e"
+  }
+ ],
+ "patches": [],
+ "patrolBounds": {
+  "min": 30,
+  "max": 166
+ },
+ "sageRespawnX": 171,
+ "townId": 9,
+ "descriptor": {
+  "raw": "0400ff0001",
+  "music": "mgt2",
+  "npcGroup": "mman",
+  "middleLayer": "ympd (surface)",
+  "bank": "mpat"
+ },
+ "raw": {
+  "header": "d3c6d700d8c609e8c6e8c6f9c600c7c8c9cfc6ab00fec6",
+  "pointers": {
+   "descriptor": "0xc6d3",
+   "name": "0xc6d8",
+   "transitions": "0xc6e8",
+   "doors": "0xc6e8",
+   "entrances": "0xc6f9",
+   "texts": "0xc700",
+   "npcs": "0xc9c8",
+   "patrol": "0xc6cf",
+   "c015": "0xc6fe"
+  },
+  "nameInfo": "19af000c"
+ }
+}

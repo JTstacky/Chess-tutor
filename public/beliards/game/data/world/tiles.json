@@ -1,0 +1,9221 @@
+{
+ "source": "Zeliard (DOS) mpp*/cpat/mpat/dpat GRP headers + fight.asm/town.asm collision routines",
+ "rules": {
+  "cavern": {
+   "bankHeader": "First 48 bytes of the unpacked mpp*.grp (loaded at seg1:8000h). 0x00-0x17 passable list (24 bytes, zero padded), 0x18 slope \"/\" ids (x4), 0x1C slope \"\\\" ids (x4), 0x20 hazard ids (aggressive_ground_list, x4), 0x24 airflow up, 0x28 airflow left, 0x2C airflow right (x4 each).",
+   "routines": [
+    {
+     "name": "is_blocking_tile",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:2532",
+     "rule": "id < 0x40: blocked unless in passable list; id >= 0x40 passable. Used for walls, head room, jump start, airborne moves (callers 871, 1111, 1394, 1682-1718, 1848)."
+    },
+    {
+     "name": "is_blocking_tile_simple",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:2585",
+     "rule": "id < 0x49: blocked unless in passable list (so platform tiles 0x40-0x48 are solid floor); id >= 0x49 passable. Used by check_floor_for_landing (1940-1960) and the foot-level check when walking (1130, 1413)."
+    },
+    {
+     "name": "is_blocking",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:8890",
+     "rule": "Monsters: id < 0x49 list lookup; 0x49-0x7F passable; >= 0x80 blocked (entity markers in the proximity layer)."
+    },
+    {
+     "name": "is_blocking_tile_extended",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:2543",
+     "rule": "Same as is_blocking_tile but threshold 0x49. Its 0x90/0x91 \"cant_pass\" branch is unreachable for map tiles (only reached with id < 0x49)."
+    },
+    {
+     "name": "is_over_rope",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:1974",
+     "rule": "Tiles 1 and 2 are rope in every bank."
+    },
+    {
+     "name": "get_slope_direction",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:1992",
+     "rule": "Slope ids come from the bank header lists at 0x18 / 0x1C."
+    },
+    {
+     "name": "step_on_aggressive_ground",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:3563",
+     "rule": "Hazard ids from header 0x20; damage per cavern level (table at 3624): 1,1,4,8,20,20,20,20,20 for levels 1-9; Pirika shoes give immunity; checks the 3x3 hero body plus the tile under its centre."
+    },
+    {
+     "name": "get_airflow_direction",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:3983",
+     "rule": "Airflow ids from header 0x24/0x28/0x2C. Pushes the hero 2 rows (up) or 2 tiles (left/right) per frame. At cavern level 7 airflow does not block hero movement; at level 5 left/right airflow tiles block monsters (200FIGHT.asm area_num checks 1772, 7502)."
+    },
+    {
+     "name": "set_zero_flag_if_slippery",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:2426",
+     "rule": "Cavern level 4: all standing ground except tiles 0x40-0x48 is ice unless Ruzeria shoes are worn."
+    }
+   ],
+   "notes": [
+    "Door frames (0x49-0x60) and door signs (0x61+variant) are stamped over the base grid at load by process_doors (research/zeliard-expanded/extracted/Zeliard-master/asm/fight.asm:4144, tiles at 4294). They are passable.",
+    "Platform tiles 0x40-0x48 are NOT in the base grid; the platform tables stamp them at run time.",
+    "Breakable walls, falling blocks, chests and pickups are entities in the monster table, not tiles.",
+    "There is no water mechanic in the cavern engine.",
+    "Heat: cavern level 7 costs 15 HP every 64 frames unless the Asbestos cape is worn (tile-independent)."
+   ]
+  },
+  "town": {
+   "bankHeader": "cpat/mpat/dpat unpacked: word +0 anim-count table, +2 special (blocked) list [count][ids], +4 replacement pairs [count]([old][new])... FFh. Pointers are relative to the file start (town.asm:2203-2208 relocates them).",
+   "routines": [
+    {
+     "name": "check_tile_in_special_list",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/town.asm:1189",
+     "rule": "A tile blocks the hero only if it is in the bank special list. Only row 7 (the floor row) of the column ahead is checked (left: research/zeliard-expanded/extracted/Zeliard-master/asm/town.asm:1080, right: 1132)."
+    },
+    {
+     "name": "find_non_passable_npc_at_x_pos",
+     "ref": "research/zeliard-expanded/extracted/Zeliard-master/asm/town.asm:1218",
+     "rule": "NPCs with n_flags bit 6 also block."
+    }
+   ]
+  }
+ },
+ "banks": {
+  "mpp1": {
+   "kind": "cavern",
+   "maps": [
+    "mp10",
+    "mp1d"
+   ],
+   "levels": [
+    1
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x08",
+     "0x09",
+     "0x0a",
+     "0x0b",
+     "0x0c",
+     "0x0f",
+     "0x10",
+     "0x11",
+     "0x12",
+     "0x13",
+     "0x14",
+     "0x15",
+     "0x16",
+     "0x17",
+     "0x18",
+     "0x19"
+    ],
+    "slopeLeft": [
+     "0x0b"
+    ],
+    "slopeRight": [
+     "0x0c"
+    ],
+    "hazard": [
+     "0x0f",
+     "0x0e",
+     "0x0d"
+    ],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "00010208090a0b0c0f1011121314151617181900000000000b0000000c0000000f0e0d00000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 7579,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 151,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 133,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 226,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 1071,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 199,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 9310,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 303,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 646,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x09": {
+     "count": 87,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0a": {
+     "count": 119,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0b": {
+     "count": 4,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0c": {
+     "count": 4,
+     "class": "passable",
+     "tags": [
+      "slope_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0d": {
+     "count": 14,
+     "class": "solid",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 32,
+     "class": "solid",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0f": {
+     "count": 32,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x10": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x11": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x12": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x13": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x14": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x15": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x16": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x17": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x18": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x19": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x40": {
+     "count": 2,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x41": {
+     "count": 2,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x42": {
+     "count": 2,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x46": {
+     "count": 4,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 4,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 4,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 6,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 6,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 6,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 6,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 6,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 6,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 1,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 1,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp2": {
+   "kind": "cavern",
+   "maps": [
+    "mp20",
+    "mp21",
+    "mp2d"
+   ],
+   "levels": [
+    2
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x0e",
+     "0x0f",
+     "0x10",
+     "0x11",
+     "0x12",
+     "0x13",
+     "0x15",
+     "0x16",
+     "0x17",
+     "0x18",
+     "0x19"
+    ],
+    "slopeLeft": [
+     "0x10"
+    ],
+    "slopeRight": [
+     "0x11"
+    ],
+    "hazard": [
+     "0x12",
+     "0x13",
+     "0x14"
+    ],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "0001020e0f10111213151617181900000000000000000000100000001100000012131400000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 11188,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 280,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 91,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 109,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 732,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 649,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 121,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 245,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 1576,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x09": {
+     "count": 4361,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0a": {
+     "count": 2055,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0b": {
+     "count": 194,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0c": {
+     "count": 945,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0d": {
+     "count": 624,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 312,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0f": {
+     "count": 24,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x10": {
+     "count": 10,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x12": {
+     "count": 36,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x13": {
+     "count": 34,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x14": {
+     "count": 31,
+     "class": "solid",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x15": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x16": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x17": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x18": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x19": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x40": {
+     "count": 7,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x41": {
+     "count": 7,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x42": {
+     "count": 7,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x46": {
+     "count": 8,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 8,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 8,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 10,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 10,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 10,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 10,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 10,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 10,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 7,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 7,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 7,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 7,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 7,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 7,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 7,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 20,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 20,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 1,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 5,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp3": {
+   "kind": "cavern",
+   "maps": [
+    "mp30",
+    "mp31",
+    "mp3d"
+   ],
+   "levels": [
+    3
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x07",
+     "0x0b",
+     "0x0c",
+     "0x1b",
+     "0x1c",
+     "0x1d",
+     "0x20",
+     "0x21",
+     "0x22",
+     "0x23",
+     "0x24",
+     "0x25",
+     "0x26"
+    ],
+    "slopeLeft": [
+     "0x1b"
+    ],
+    "slopeRight": [
+     "0x1c"
+    ],
+    "hazard": [
+     "0x1d",
+     "0x1e",
+     "0x1f"
+    ],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "000102070b0c1b1c1d2021222324252600000000000000001b0000001c0000001d1e1f00000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 19653,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 289,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 137,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 48,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 3199,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 139,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 119,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 94,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x08": {
+     "count": 279,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x09": {
+     "count": 173,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0a": {
+     "count": 407,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0b": {
+     "count": 174,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0c": {
+     "count": 58,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0d": {
+     "count": 484,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 640,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0f": {
+     "count": 1716,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x10": {
+     "count": 657,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x11": {
+     "count": 507,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x12": {
+     "count": 19,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x13": {
+     "count": 20,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x14": {
+     "count": 43,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x15": {
+     "count": 1216,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x16": {
+     "count": 31,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x17": {
+     "count": 30,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x18": {
+     "count": 25,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x19": {
+     "count": 25,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1a": {
+     "count": 48,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1b": {
+     "count": 4,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1c": {
+     "count": 3,
+     "class": "passable",
+     "tags": [
+      "slope_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1d": {
+     "count": 23,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1e": {
+     "count": 13,
+     "class": "solid",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1f": {
+     "count": 23,
+     "class": "solid",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x20": {
+     "count": 6,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x22": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x23": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x24": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x25": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x26": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x40": {
+     "count": 4,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x41": {
+     "count": 4,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x42": {
+     "count": 4,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x46": {
+     "count": 2,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 2,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 2,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 52,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 52,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 4,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 5,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 7,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 6,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x65": {
+     "count": 4,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp4": {
+   "kind": "cavern",
+   "maps": [
+    "mp40",
+    "mp41",
+    "mp4d"
+   ],
+   "levels": [
+    4
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x08",
+     "0x0b",
+     "0x0d",
+     "0x0e",
+     "0x0f",
+     "0x10",
+     "0x11",
+     "0x12",
+     "0x13"
+    ],
+    "slopeLeft": [
+     "0x0d"
+    ],
+    "slopeRight": [
+     "0x0e"
+    ],
+    "hazard": [
+     "0x0b",
+     "0x0c"
+    ],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "000102080b0d0e0f101112130000000000000000000000000d0000000e0000000b0c0000000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 24080,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 578,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 115,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 92,
+     "class": "solid",
+     "tags": [
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 2021,
+     "class": "solid",
+     "tags": [
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 161,
+     "class": "solid",
+     "tags": [
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 94,
+     "class": "solid",
+     "tags": [
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 7298,
+     "class": "solid",
+     "tags": [
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 2129,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x09": {
+     "count": 90,
+     "class": "solid",
+     "tags": [
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0a": {
+     "count": 133,
+     "class": "solid",
+     "tags": [
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0b": {
+     "count": 201,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0c": {
+     "count": 193,
+     "class": "solid",
+     "tags": [
+      "hazard",
+      "slippery_on_level_4"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0d": {
+     "count": 12,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0e": {
+     "count": 11,
+     "class": "passable",
+     "tags": [
+      "slope_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0f": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x10": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x11": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x12": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x13": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x46": {
+     "count": 17,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 17,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 17,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 12,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 9,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 9,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 9,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 9,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 9,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 9,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 9,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 24,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 3,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 1,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 4,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x65": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp5": {
+   "kind": "cavern",
+   "maps": [
+    "mp50",
+    "mp51",
+    "mp5d"
+   ],
+   "levels": [
+    5
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x18",
+     "0x19",
+     "0x1a",
+     "0x1b",
+     "0x1c",
+     "0x1d",
+     "0x21",
+     "0x22",
+     "0x23",
+     "0x24",
+     "0x25",
+     "0x26",
+     "0x27",
+     "0x28",
+     "0x29",
+     "0x2a",
+     "0x2d",
+     "0x2e",
+     "0x2f"
+    ],
+    "slopeLeft": [
+     "0x21"
+    ],
+    "slopeRight": [
+     "0x22"
+    ],
+    "hazard": [
+     "0x1a",
+     "0x1b",
+     "0x1c",
+     "0x1d"
+    ],
+    "airflowUp": [],
+    "airflowLeft": [
+     "0x25",
+     "0x26"
+    ],
+    "airflowRight": [
+     "0x23",
+     "0x24"
+    ]
+   },
+   "headerRaw": "00010218191a1b1c1d2122232425262728292a2d2e2f000021000000220000001a1b1c1d000000002526000023240000",
+   "tiles": {
+    "0x00": {
+     "count": 19763,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 498,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 193,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 1316,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 539,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 150,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 340,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 7095,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 439,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x09": {
+     "count": 195,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0a": {
+     "count": 205,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0b": {
+     "count": 71,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0c": {
+     "count": 795,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0d": {
+     "count": 4,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 3,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0f": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x10": {
+     "count": 12,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x11": {
+     "count": 10,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x12": {
+     "count": 6,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x13": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x14": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x16": {
+     "count": 13,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x17": {
+     "count": 6,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x18": {
+     "count": 2268,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x19": {
+     "count": 67,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1a": {
+     "count": 19,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1b": {
+     "count": 354,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1c": {
+     "count": 6,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1d": {
+     "count": 24,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1e": {
+     "count": 34,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1f": {
+     "count": 329,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x20": {
+     "count": 38,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x21": {
+     "count": 17,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x23": {
+     "count": 11,
+     "class": "passable",
+     "tags": [
+      "airflow_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x24": {
+     "count": 1,
+     "class": "passable",
+     "tags": [
+      "airflow_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x25": {
+     "count": 9,
+     "class": "passable",
+     "tags": [
+      "airflow_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x26": {
+     "count": 3,
+     "class": "passable",
+     "tags": [
+      "airflow_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x27": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x28": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x29": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2a": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2b": {
+     "count": 36,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x2c": {
+     "count": 214,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x2d": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2e": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2f": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x40": {
+     "count": 5,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x41": {
+     "count": 5,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x42": {
+     "count": 5,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x46": {
+     "count": 12,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 12,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 12,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 16,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 16,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 16,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 16,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 16,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 16,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 2,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 14,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 14,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 14,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 14,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 14,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 14,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 14,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 32,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 32,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 1,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 7,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x65": {
+     "count": 4,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp6": {
+   "kind": "cavern",
+   "maps": [
+    "mp60",
+    "mp61",
+    "mp62",
+    "mp6d"
+   ],
+   "levels": [
+    6
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x06",
+     "0x0a",
+     "0x0b",
+     "0x0e",
+     "0x0f",
+     "0x10",
+     "0x11",
+     "0x12",
+     "0x13",
+     "0x14",
+     "0x15",
+     "0x16",
+     "0x17",
+     "0x18",
+     "0x19",
+     "0x1a",
+     "0x1b",
+     "0x1c",
+     "0x21",
+     "0x22"
+    ],
+    "slopeLeft": [
+     "0x19"
+    ],
+    "slopeRight": [
+     "0x18"
+    ],
+    "hazard": [
+     "0x16",
+     "0x21",
+     "0x22"
+    ],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "000102060a0b0e0f101112131415161718191a1b1c212200190000001800000016212200000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 27267,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 603,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 469,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 2539,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 11748,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 179,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x07": {
+     "count": 166,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 143,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x09": {
+     "count": 487,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0a": {
+     "count": 219,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0b": {
+     "count": 134,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0c": {
+     "count": 77,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0d": {
+     "count": 38,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 6,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0f": {
+     "count": 36,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x10": {
+     "count": 6,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x12": {
+     "count": 5,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x13": {
+     "count": 28,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x14": {
+     "count": 5,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x16": {
+     "count": 26,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x17": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x18": {
+     "count": 36,
+     "class": "passable",
+     "tags": [
+      "slope_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x19": {
+     "count": 22,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1a": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1b": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1c": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1d": {
+     "count": 518,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x20": {
+     "count": 849,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x21": {
+     "count": 26,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x40": {
+     "count": 16,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x41": {
+     "count": 16,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x42": {
+     "count": 16,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x46": {
+     "count": 31,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 31,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 31,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 4,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 27,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 27,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 27,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 27,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 27,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 27,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 27,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 62,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 62,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 4,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 7,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 10,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x65": {
+     "count": 8,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp7": {
+   "kind": "cavern",
+   "maps": [
+    "mp70",
+    "mp71",
+    "mp72",
+    "mp7d"
+   ],
+   "levels": [
+    7
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x14",
+     "0x17",
+     "0x18",
+     "0x19",
+     "0x1a",
+     "0x1b",
+     "0x1c",
+     "0x1d",
+     "0x1e",
+     "0x23",
+     "0x24",
+     "0x25",
+     "0x26",
+     "0x27",
+     "0x28",
+     "0x29",
+     "0x2a",
+     "0x2b",
+     "0x2c",
+     "0x2d",
+     "0x2e"
+    ],
+    "slopeLeft": [
+     "0x1e"
+    ],
+    "slopeRight": [
+     "0x23"
+    ],
+    "hazard": [
+     "0x2b",
+     "0x2c",
+     "0x2d"
+    ],
+    "airflowUp": [
+     "0x2a"
+    ],
+    "airflowLeft": [
+     "0x29"
+    ],
+    "airflowRight": [
+     "0x28"
+    ]
+   },
+   "headerRaw": "000102141718191a1b1c1d1e232425262728292a2b2c2d2e1e000000230000002b2c2d002a0000002900000028000000",
+   "tiles": {
+    "0x00": {
+     "count": 17739,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 423,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 183,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 36,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 110,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 1718,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 121,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 610,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 183,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x09": {
+     "count": 266,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0a": {
+     "count": 2028,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0b": {
+     "count": 1644,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0c": {
+     "count": 1044,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0d": {
+     "count": 316,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 2270,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0f": {
+     "count": 321,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x10": {
+     "count": 998,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x11": {
+     "count": 1578,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x12": {
+     "count": 288,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x13": {
+     "count": 616,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x14": {
+     "count": 1308,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x15": {
+     "count": 36,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x16": {
+     "count": 1714,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x17": {
+     "count": 34,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x18": {
+     "count": 138,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x19": {
+     "count": 137,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1a": {
+     "count": 232,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1b": {
+     "count": 59,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1c": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1d": {
+     "count": 1,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1e": {
+     "count": 16,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1f": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x20": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x21": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x23": {
+     "count": 4,
+     "class": "passable",
+     "tags": [
+      "slope_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x24": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x25": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x26": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x27": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x28": {
+     "count": 847,
+     "class": "passable",
+     "tags": [
+      "airflow_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x29": {
+     "count": 401,
+     "class": "passable",
+     "tags": [
+      "airflow_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2a": {
+     "count": 594,
+     "class": "passable",
+     "tags": [
+      "airflow_up"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2b": {
+     "count": 12,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2c": {
+     "count": 12,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x2e": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x40": {
+     "count": 11,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x41": {
+     "count": 11,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x42": {
+     "count": 11,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x43": {
+     "count": 7,
+     "class": "platform_collapsing",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x44": {
+     "count": 7,
+     "class": "platform_collapsing",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x45": {
+     "count": 7,
+     "class": "platform_collapsing",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x46": {
+     "count": 12,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 12,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 12,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 26,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 3,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 23,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 23,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 23,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 23,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 23,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 23,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 23,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 52,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 52,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 3,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 9,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 6,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 6,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x65": {
+     "count": 2,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp8": {
+   "kind": "cavern",
+   "maps": [
+    "mp80",
+    "mp81",
+    "mp82",
+    "mp83",
+    "mp84",
+    "mp8d"
+   ],
+   "levels": [
+    8
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x08",
+     "0x0f",
+     "0x10",
+     "0x11",
+     "0x12",
+     "0x13",
+     "0x17",
+     "0x18",
+     "0x19",
+     "0x1a",
+     "0x1b",
+     "0x1c",
+     "0x25",
+     "0x26",
+     "0x27",
+     "0x28",
+     "0x29"
+    ],
+    "slopeLeft": [
+     "0x0f"
+    ],
+    "slopeRight": [
+     "0x10"
+    ],
+    "hazard": [
+     "0x25",
+     "0x26",
+     "0x27",
+     "0x28"
+    ],
+    "airflowUp": [
+     "0x13",
+     "0x14",
+     "0x15",
+     "0x16"
+    ],
+    "airflowLeft": [
+     "0x12",
+     "0x1a",
+     "0x1b",
+     "0x1c"
+    ],
+    "airflowRight": [
+     "0x11",
+     "0x17",
+     "0x18",
+     "0x19"
+    ]
+   },
+   "headerRaw": "000102080f101112131718191a1b1c2526272829000000000f000000100000002526272813141516121a1b1c11171819",
+   "tiles": {
+    "0x00": {
+     "count": 35688,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 522,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 520,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 154,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 2751,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 776,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 149,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 13801,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 619,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x09": {
+     "count": 1030,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0a": {
+     "count": 1086,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0b": {
+     "count": 677,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0c": {
+     "count": 1980,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0d": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0f": {
+     "count": 12,
+     "class": "passable",
+     "tags": [
+      "slope_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x10": {
+     "count": 12,
+     "class": "passable",
+     "tags": [
+      "slope_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x11": {
+     "count": 253,
+     "class": "passable",
+     "tags": [
+      "airflow_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x12": {
+     "count": 276,
+     "class": "passable",
+     "tags": [
+      "airflow_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x13": {
+     "count": 353,
+     "class": "passable",
+     "tags": [
+      "airflow_up"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x14": {
+     "count": 8,
+     "class": "solid",
+     "tags": [
+      "airflow_up"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x15": {
+     "count": 20,
+     "class": "solid",
+     "tags": [
+      "airflow_up"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x16": {
+     "count": 3,
+     "class": "solid",
+     "tags": [
+      "airflow_up"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x17": {
+     "count": 5,
+     "class": "passable",
+     "tags": [
+      "airflow_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x19": {
+     "count": 1,
+     "class": "passable",
+     "tags": [
+      "airflow_right"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1a": {
+     "count": 16,
+     "class": "passable",
+     "tags": [
+      "airflow_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1b": {
+     "count": 4,
+     "class": "passable",
+     "tags": [
+      "airflow_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1c": {
+     "count": 4,
+     "class": "passable",
+     "tags": [
+      "airflow_left"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x1d": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1e": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1f": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x20": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x21": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x22": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x23": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x24": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x25": {
+     "count": 297,
+     "class": "passable",
+     "tags": [
+      "hazard"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x29": {
+     "count": 139,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x40": {
+     "count": 27,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x41": {
+     "count": 27,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x42": {
+     "count": 27,
+     "class": "platform_vertical",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x43": {
+     "count": 14,
+     "class": "platform_collapsing",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x44": {
+     "count": 14,
+     "class": "platform_collapsing",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x45": {
+     "count": 14,
+     "class": "platform_collapsing",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x46": {
+     "count": 37,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x47": {
+     "count": 37,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x48": {
+     "count": 37,
+     "class": "platform_horizontal",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x49": {
+     "count": 36,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4a": {
+     "count": 36,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4b": {
+     "count": 36,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4c": {
+     "count": 36,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4d": {
+     "count": 36,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4e": {
+     "count": 36,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x4f": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x50": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x51": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x52": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x53": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x54": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x55": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x56": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x57": {
+     "count": 5,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x58": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x59": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5a": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5b": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5c": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5d": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5e": {
+     "count": 31,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x5f": {
+     "count": 72,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x60": {
+     "count": 72,
+     "class": "door_frame",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x61": {
+     "count": 8,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x62": {
+     "count": 5,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x63": {
+     "count": 9,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x64": {
+     "count": 8,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x65": {
+     "count": 6,
+     "class": "door_sign",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    }
+   }
+  },
+  "mpp9": {
+   "kind": "cavern",
+   "maps": [
+    "mp90"
+   ],
+   "levels": [
+    9
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x01",
+     "0x02",
+     "0x03",
+     "0x04",
+     "0x05",
+     "0x06",
+     "0x07",
+     "0x08",
+     "0x09"
+    ],
+    "slopeLeft": [],
+    "slopeRight": [],
+    "hazard": [],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "000102030405060708090000000000000000000000000000000000000000000000000000000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 2346,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 15,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x02": {
+     "count": 7,
+     "class": "rope",
+     "tags": [
+      "climbable"
+     ],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x03": {
+     "count": 7,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x04": {
+     "count": 7,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x05": {
+     "count": 15,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x06": {
+     "count": 7,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x07": {
+     "count": 7,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x08": {
+     "count": 8,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x09": {
+     "count": 119,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0a": {
+     "count": 21,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0b": {
+     "count": 21,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0c": {
+     "count": 21,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0d": {
+     "count": 21,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0e": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x0f": {
+     "count": 9,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x10": {
+     "count": 6,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x11": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x12": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x13": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x14": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x15": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x16": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x17": {
+     "count": 14,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x18": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x19": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1b": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1c": {
+     "count": 3,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1e": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x1f": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x20": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x21": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x22": {
+     "count": 2,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x23": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x24": {
+     "count": 4,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x25": {
+     "count": 1,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x26": {
+     "count": 6,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    }
+   }
+  },
+  "mppa": {
+   "kind": "cavern",
+   "maps": [
+    "mpa0"
+   ],
+   "levels": [
+    10
+   ],
+   "lists": {
+    "passable": [
+     "0x00",
+     "0x09",
+     "0x0a",
+     "0x0b",
+     "0x0c",
+     "0x0d",
+     "0x0e",
+     "0x11",
+     "0x12",
+     "0x13"
+    ],
+    "slopeLeft": [],
+    "slopeRight": [],
+    "hazard": [],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "00090a0b0c0d0e1112130000000000000000000000000000000000000000000000000000000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 3723,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 76,
+     "class": "solid",
+     "tags": [
+      "rope_id_but_not_passable_in_this_bank"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x02": {
+     "count": 70,
+     "class": "solid",
+     "tags": [
+      "rope_id_but_not_passable_in_this_bank"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x03": {
+     "count": 249,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x04": {
+     "count": 82,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x05": {
+     "count": 4,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x06": {
+     "count": 4,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x07": {
+     "count": 4,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x08": {
+     "count": 4,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x09": {
+     "count": 10,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0a": {
+     "count": 10,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0b": {
+     "count": 6,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0c": {
+     "count": 6,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0d": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x0e": {
+     "count": 2,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x11": {
+     "count": 224,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x12": {
+     "count": 88,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x13": {
+     "count": 78,
+     "class": "passable",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x14": {
+     "count": 30,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    }
+   }
+  },
+  "mppb": {
+   "kind": "cavern",
+   "maps": [
+    "mp73"
+   ],
+   "levels": [
+    1
+   ],
+   "lists": {
+    "passable": [
+     "0x00"
+    ],
+    "slopeLeft": [],
+    "slopeRight": [],
+    "hazard": [],
+    "airflowUp": [],
+    "airflowLeft": [],
+    "airflowRight": []
+   },
+   "headerRaw": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+   "tiles": {
+    "0x00": {
+     "count": 3850,
+     "class": "empty",
+     "tags": [],
+     "heroBlocks": false,
+     "floorSolid": false,
+     "monsterBlocks": false
+    },
+    "0x01": {
+     "count": 13,
+     "class": "solid",
+     "tags": [
+      "rope_id_but_not_passable_in_this_bank"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x02": {
+     "count": 13,
+     "class": "solid",
+     "tags": [
+      "rope_id_but_not_passable_in_this_bank"
+     ],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    },
+    "0x03": {
+     "count": 796,
+     "class": "solid",
+     "tags": [],
+     "heroBlocks": true,
+     "floorSolid": true,
+     "monsterBlocks": true
+    }
+   }
+  },
+  "cpat": {
+   "kind": "town",
+   "maps": [
+    "cmap"
+   ],
+   "lists": {
+    "blocked": [
+     "0x3c",
+     "0x3d"
+    ],
+    "replacementPairs": [
+     [
+      "0x02",
+      "0x03"
+     ],
+     [
+      "0x03",
+      "0x04"
+     ],
+     [
+      "0x04",
+      "0x05"
+     ],
+     [
+      "0x05",
+      "0x02"
+     ]
+    ]
+   },
+   "headerRaw": "0600a300a600",
+   "tiles": {
+    "0x00": {
+     "count": 199,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 4
+    },
+    "0x01": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x02": {
+     "count": 13,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x06": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x07": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x08": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x09": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0a": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0b": {
+     "count": 36,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0c": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0d": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0e": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0f": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x10": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x11": {
+     "count": 35,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x12": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x13": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x14": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x15": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x16": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x17": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x18": {
+     "count": 18,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x19": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1a": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1b": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1c": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1d": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1e": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1f": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x20": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x21": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x22": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x23": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x24": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x25": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x26": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x27": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x28": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x29": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2a": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2b": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2c": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2d": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2e": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2f": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x30": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x31": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x32": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x33": {
+     "count": 35,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x34": {
+     "count": 17,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x35": {
+     "count": 27,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x36": {
+     "count": 23,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x37": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x38": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x39": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x3a": {
+     "count": 26,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x3b": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x3c": {
+     "count": 1,
+     "class": "blocked",
+     "blocksHeroOnRow7": true,
+     "animFrames": 0
+    },
+    "0x3d": {
+     "count": 5,
+     "class": "blocked",
+     "blocksHeroOnRow7": true,
+     "animFrames": 0
+    },
+    "0x3e": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x3f": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x40": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x41": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x42": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x43": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x44": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x46": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x47": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x48": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x49": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4a": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4b": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4c": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4d": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4e": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4f": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x50": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x51": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x52": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x53": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x54": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x55": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x56": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x57": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x58": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x59": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x5a": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x5b": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x5c": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5d": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5e": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5f": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x60": {
+     "count": 13,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x61": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x62": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x63": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x64": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x65": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x66": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x67": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x68": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x69": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6a": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6b": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6c": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6d": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6e": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6f": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x71": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x72": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x73": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x74": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x75": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x76": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x77": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x78": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x79": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7a": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7b": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7c": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7d": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7e": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7f": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x80": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x81": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x82": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x83": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x84": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x85": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x86": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x87": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x88": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x89": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8a": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8b": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8c": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8d": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8e": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8f": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x90": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x91": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x92": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x93": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x94": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x95": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x96": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x97": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x98": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x99": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9a": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9b": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9c": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    }
+   }
+  },
+  "dpat": {
+   "kind": "town",
+   "maps": [
+    "stmp",
+    "hlmp",
+    "tmmp",
+    "drmp",
+    "prmp"
+   ],
+   "lists": {
+    "blocked": [
+     "0xbf"
+    ],
+    "replacementPairs": [
+     [
+      "0x01",
+      "0x02"
+     ],
+     [
+      "0x02",
+      "0x03"
+     ],
+     [
+      "0x03",
+      "0x04"
+     ],
+     [
+      "0x04",
+      "0x05"
+     ],
+     [
+      "0x05",
+      "0x06"
+     ],
+     [
+      "0x06",
+      "0x01"
+     ],
+     [
+      "0x07",
+      "0x08"
+     ],
+     [
+      "0x08",
+      "0x09"
+     ],
+     [
+      "0x09",
+      "0x0a"
+     ],
+     [
+      "0x0a",
+      "0x0b"
+     ],
+     [
+      "0x0b",
+      "0x0c"
+     ],
+     [
+      "0x0c",
+      "0x07"
+     ],
+     [
+      "0x0d",
+      "0x0e"
+     ],
+     [
+      "0x0e",
+      "0x0f"
+     ],
+     [
+      "0x0f",
+      "0x10"
+     ],
+     [
+      "0x10",
+      "0x11"
+     ],
+     [
+      "0x11",
+      "0x12"
+     ],
+     [
+      "0x12",
+      "0x0d"
+     ],
+     [
+      "0x13",
+      "0x14"
+     ],
+     [
+      "0x14",
+      "0x15"
+     ],
+     [
+      "0x15",
+      "0x16"
+     ],
+     [
+      "0x16",
+      "0x17"
+     ],
+     [
+      "0x17",
+      "0x18"
+     ],
+     [
+      "0x18",
+      "0x13"
+     ]
+    ]
+   },
+   "headerRaw": "0600c500c700",
+   "tiles": {
+    "0x00": {
+     "count": 3815,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 4
+    },
+    "0x01": {
+     "count": 47,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x02": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x03": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x06": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x07": {
+     "count": 47,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x08": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x09": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0c": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0d": {
+     "count": 44,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0e": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0f": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x12": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x13": {
+     "count": 44,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x14": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x15": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x18": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x19": {
+     "count": 19,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1a": {
+     "count": 17,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1b": {
+     "count": 153,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1c": {
+     "count": 804,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1d": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x1e": {
+     "count": 121,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1f": {
+     "count": 132,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x20": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x21": {
+     "count": 30,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x22": {
+     "count": 38,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x23": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x24": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x25": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x26": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x27": {
+     "count": 194,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x28": {
+     "count": 28,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x29": {
+     "count": 111,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2a": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2b": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2c": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2d": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2e": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2f": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x30": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x31": {
+     "count": 66,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x32": {
+     "count": 45,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x35": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x36": {
+     "count": 78,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x37": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x38": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x39": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3a": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x3b": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x3c": {
+     "count": 84,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3d": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3e": {
+     "count": 24,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3f": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x40": {
+     "count": 33,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x41": {
+     "count": 38,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x42": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x43": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x44": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x45": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x46": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x47": {
+     "count": 44,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x48": {
+     "count": 35,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x49": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4a": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4b": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4c": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x4d": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x4e": {
+     "count": 26,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4f": {
+     "count": 30,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x50": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x51": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x52": {
+     "count": 28,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x53": {
+     "count": 17,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x54": {
+     "count": 61,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x55": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x56": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x57": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x58": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x59": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x5a": {
+     "count": 51,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5b": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5c": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x5d": {
+     "count": 51,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5e": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5f": {
+     "count": 170,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x60": {
+     "count": 76,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x61": {
+     "count": 33,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x62": {
+     "count": 90,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x63": {
+     "count": 30,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x64": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x65": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x66": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x67": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x68": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x69": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6a": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6b": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6c": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6d": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6e": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6f": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x70": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x71": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x72": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x73": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x74": {
+     "count": 43,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x75": {
+     "count": 39,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x76": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x77": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x78": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x79": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x7a": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x7b": {
+     "count": 33,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x7c": {
+     "count": 40,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7d": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x7e": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7f": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x80": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x81": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x82": {
+     "count": 57,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x83": {
+     "count": 56,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x84": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x85": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x86": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x87": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x88": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x89": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x8a": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x8b": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x8c": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x8d": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8e": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8f": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x90": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x91": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x92": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x93": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x94": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x95": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x96": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x97": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x98": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x99": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9a": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9b": {
+     "count": 24,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9c": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9d": {
+     "count": 46,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9e": {
+     "count": 249,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9f": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa0": {
+     "count": 79,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa1": {
+     "count": 35,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa2": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa3": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa4": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa5": {
+     "count": 18,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa6": {
+     "count": 25,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa7": {
+     "count": 24,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa8": {
+     "count": 27,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xa9": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xaa": {
+     "count": 172,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xab": {
+     "count": 479,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xac": {
+     "count": 66,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xad": {
+     "count": 25,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xae": {
+     "count": 25,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xaf": {
+     "count": 128,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb0": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 2
+    },
+    "0xb1": {
+     "count": 103,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb2": {
+     "count": 66,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb3": {
+     "count": 26,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb4": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb5": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb6": {
+     "count": 58,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb7": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb8": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb9": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xba": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbb": {
+     "count": 242,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbc": {
+     "count": 23,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbd": {
+     "count": 81,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbe": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbf": {
+     "count": 8,
+     "class": "blocked",
+     "blocksHeroOnRow7": true,
+     "animFrames": null
+    }
+   }
+  },
+  "mpat": {
+   "kind": "town",
+   "maps": [
+    "mrmp",
+    "bsmp",
+    "llmp",
+    "esmp"
+   ],
+   "lists": {
+    "blocked": [
+     "0x96",
+     "0x97"
+    ],
+    "replacementPairs": []
+   },
+   "headerRaw": "0600f800fb00",
+   "tiles": {
+    "0x00": {
+     "count": 1774,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 4
+    },
+    "0x01": {
+     "count": 65,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x02": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x03": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x04": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x05": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x06": {
+     "count": 77,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x07": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x08": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x09": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0a": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0b": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0c": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x0d": {
+     "count": 88,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0e": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x0f": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x10": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x11": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x12": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x13": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x14": {
+     "count": 50,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x15": {
+     "count": 30,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x16": {
+     "count": 190,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x17": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x18": {
+     "count": 60,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x19": {
+     "count": 165,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1a": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1b": {
+     "count": 49,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1c": {
+     "count": 44,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1d": {
+     "count": 21,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1e": {
+     "count": 80,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x1f": {
+     "count": 37,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x20": {
+     "count": 17,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x22": {
+     "count": 68,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x23": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x24": {
+     "count": 53,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x25": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x26": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 2
+    },
+    "0x27": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x28": {
+     "count": 36,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x29": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x2a": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 2
+    },
+    "0x2b": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2c": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2d": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2e": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x2f": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x30": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x31": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x32": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x33": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x34": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x35": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x36": {
+     "count": 78,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x37": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x38": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x39": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3a": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3b": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3c": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3d": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3e": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x3f": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x40": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x41": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x42": {
+     "count": 132,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x43": {
+     "count": 88,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x44": {
+     "count": 84,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x45": {
+     "count": 204,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x46": {
+     "count": 138,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x47": {
+     "count": 315,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x48": {
+     "count": 33,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x49": {
+     "count": 43,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4a": {
+     "count": 42,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4c": {
+     "count": 85,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4d": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4e": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x4f": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x50": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x51": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x52": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x53": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x54": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x55": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x56": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x57": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x58": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x59": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5a": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5b": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5c": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x5d": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x5e": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0x5f": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x60": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x61": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x62": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x63": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x64": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x65": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x66": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x67": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x68": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x69": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x6a": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x6b": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x6c": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6d": {
+     "count": 21,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6e": {
+     "count": 31,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x6f": {
+     "count": 24,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x70": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x71": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x72": {
+     "count": 28,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x73": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x74": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x75": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x76": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x77": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x78": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x79": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x7a": {
+     "count": 17,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x7b": {
+     "count": 17,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x7c": {
+     "count": 18,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x7d": {
+     "count": 21,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x7e": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x7f": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x80": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 1
+    },
+    "0x81": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x82": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x83": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x84": {
+     "count": 21,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x85": {
+     "count": 34,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x86": {
+     "count": 18,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x87": {
+     "count": 19,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x88": {
+     "count": 33,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x89": {
+     "count": 37,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8a": {
+     "count": 13,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8b": {
+     "count": 29,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8c": {
+     "count": 29,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8d": {
+     "count": 30,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8e": {
+     "count": 42,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x8f": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x90": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x91": {
+     "count": 26,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x92": {
+     "count": 24,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x93": {
+     "count": 19,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x94": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x95": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x96": {
+     "count": 7,
+     "class": "blocked",
+     "blocksHeroOnRow7": true,
+     "animFrames": 0
+    },
+    "0x97": {
+     "count": 41,
+     "class": "blocked",
+     "blocksHeroOnRow7": true,
+     "animFrames": 0
+    },
+    "0x98": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x99": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9a": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9b": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9c": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9d": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9e": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0x9f": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa0": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa1": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa2": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa3": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa4": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa5": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa6": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa7": {
+     "count": 11,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa8": {
+     "count": 9,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xa9": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xaa": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xab": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xac": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xad": {
+     "count": 1,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xae": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xaf": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xb0": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xb1": {
+     "count": 6,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xb2": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb3": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb4": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb5": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xb6": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xb7": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xb9": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xba": {
+     "count": 12,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbb": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbc": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbd": {
+     "count": 16,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbe": {
+     "count": 18,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xbf": {
+     "count": 27,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc0": {
+     "count": 20,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc1": {
+     "count": 29,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc2": {
+     "count": 40,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc3": {
+     "count": 31,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc4": {
+     "count": 24,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc5": {
+     "count": 26,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc6": {
+     "count": 29,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc7": {
+     "count": 31,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc8": {
+     "count": 26,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xc9": {
+     "count": 35,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xca": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xcb": {
+     "count": 22,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xcc": {
+     "count": 60,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xcd": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xce": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xcf": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xd0": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xd1": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xd2": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xd3": {
+     "count": 2,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xd4": {
+     "count": 4,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xd7": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xd8": {
+     "count": 74,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xd9": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xda": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xdb": {
+     "count": 17,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xdc": {
+     "count": 7,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 3
+    },
+    "0xdd": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xde": {
+     "count": 41,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xdf": {
+     "count": 23,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe0": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe1": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe2": {
+     "count": 8,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe3": {
+     "count": 3,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe4": {
+     "count": 13,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe5": {
+     "count": 14,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe6": {
+     "count": 199,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe7": {
+     "count": 36,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe8": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xe9": {
+     "count": 15,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xea": {
+     "count": 18,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xeb": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xec": {
+     "count": 10,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xed": {
+     "count": 5,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xee": {
+     "count": 19,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    },
+    "0xef": {
+     "count": 54,
+     "class": "scenery",
+     "blocksHeroOnRow7": false,
+     "animFrames": 0
+    }
+   }
+  }
+ }
+}

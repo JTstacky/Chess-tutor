@@ -1,0 +1,467 @@
+{
+ "id": "prmp",
+ "file": "prmp.mdt",
+ "name": "Pureza Town",
+ "place": "0x88",
+ "width": 320,
+ "height": 8,
+ "bank": "dpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "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",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "310004",
+   "x": 49,
+   "triggerX": [
+    48,
+    49,
+    50
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  },
+  {
+   "index": 1,
+   "raw": "5d0007",
+   "x": 93,
+   "triggerX": [
+    92,
+    93,
+    94
+   ],
+   "dest": "0x07",
+   "kind": "inn"
+  },
+  {
+   "index": 2,
+   "raw": "800002",
+   "x": 128,
+   "triggerX": [
+    127,
+    128,
+    129
+   ],
+   "dest": "0x02",
+   "kind": "sage"
+  },
+  {
+   "index": 3,
+   "raw": "b50006",
+   "x": 181,
+   "triggerX": [
+    180,
+    181,
+    182
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  },
+  {
+   "index": 4,
+   "raw": "e70003",
+   "x": 231,
+   "triggerX": [
+    230,
+    231,
+    232
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  },
+  {
+   "index": 5,
+   "raw": "2601ff",
+   "x": 294,
+   "triggerX": [
+    293,
+    294,
+    295
+   ],
+   "dest": "0xff",
+   "kind": "warp",
+   "note": "Pureza back building: warps to Dorado (drmp), hero x 149 (town.asm loc_6F77/loc_6FC1)",
+   "map": "drmp",
+   "heroX": 149
+  }
+ ],
+ "transitions": [
+  {
+   "edge": "left",
+   "raw": "8100ffff",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp80",
+   "heroX": 111,
+   "heroHeadRow": 21
+  }
+ ],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "6f00150117",
+   "map": "mp80",
+   "heroX": 111,
+   "heroHeadRow": 21,
+   "runLeft": true
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "1600810003030001",
+   "x": 22,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "Are you from the outside world? Welcome. You are certainly a courageous man guided by the Spirits. "
+  },
+  {
+   "index": 1,
+   "raw": "2c00820000060003",
+   "x": 44,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "I think you should know that this town is very close to the fortress of Jashiin, and his henchmen are sure to be around. Be careful."
+  },
+  {
+   "index": 2,
+   "raw": "4400800003020002",
+   "x": 68,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "A moment, sir. I have seen the fortress of Jashiin. It is at the edge of this world. The Spirits guided me back from there alive so I could tell you about it."
+  },
+  {
+   "index": 3,
+   "raw": "5400030003030004",
+   "x": 84,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 4,
+   "text": "YOU! The princess you struggle to rescue will lead you to your doom! The Spirits are just demons in disguise. What does this mean? You do the devil's work, you must be the devil!  WA, HA, HA, HA, HA... "
+  },
+  {
+   "index": 4,
+   "raw": "7900820003030005",
+   "x": 121,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 5,
+   "text": "The Spirits gave me a lion's head key but it was stolen by one of Jashiin's underlings. I hope you will find it on your travels."
+  },
+  {
+   "index": 5,
+   "raw": "9a0003000302000c",
+   "x": 154,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 12,
+   "text": "Beware of Jashiin's last henchman, Algaien. It is said that Jashiin used his power to give him eternal life."
+  },
+  {
+   "index": 6,
+   "raw": "ad00000003010008",
+   "x": 173,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 8,
+   "text": "The one weapon you'll need to defeat Jashiin is the Fairy Flame Sword. According to legend it gives off a peculiar light and can vanquish any foe with only one blow. However, where it is to be found is another matter... "
+  },
+  {
+   "index": 7,
+   "raw": "c700810003030009",
+   "x": 199,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 9,
+   "text": "Nearby is a village called Esko, but I don't know what has happened to it recently. I once knew many people there."
+  },
+  {
+   "index": 8,
+   "raw": "f70003000306000a",
+   "x": 247,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 10,
+   "text": "I've heard that the lion's head key fell between two towers under a stone slab. It is supposedly near this town."
+  },
+  {
+   "index": 9,
+   "raw": "240182000303800b",
+   "x": 292,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x80",
+   "autoTalk": true,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 11,
+   "text": "Help!&.&.&.&."
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Fooled again! Meddlesome fool! Taste the past and never return here again. \nHA, HA, HA, HA... ",
+   "controlCodes": [],
+   "raw": "466f6f6c656420616761696e21204d6564646c65736f6d6520666f6f6c2120546173746520746865207061737420616e64206e657665722072657475726e206865726520616761696e2e202f48412c2048412c2048412c2048412e2e2e20"
+  },
+  {
+   "index": 1,
+   "text": "Are you from the outside world? Welcome. You are certainly a courageous man guided by the Spirits. ",
+   "controlCodes": [],
+   "raw": "41726520796f752066726f6d20746865206f75747369646520776f726c643f2057656c636f6d652e20596f7520617265206365727461696e6c79206120636f75726167656f7573206d616e206775696465642062792074686520537069726974732e20"
+  },
+  {
+   "index": 2,
+   "text": "A moment, sir. I have seen the fortress of Jashiin. It is at the edge of this world. The Spirits guided me back from there alive so I could tell you about it.",
+   "controlCodes": [],
+   "raw": "41206d6f6d656e742c207369722e20492068617665207365656e2074686520666f727472657373206f66204a61736869696e2e204974206973206174207468652065646765206f66207468697320776f726c642e20546865205370697269747320677569646564206d65206261636b2066726f6d20746865726520616c69766520736f204920636f756c642074656c6c20796f752061626f75742069742e"
+  },
+  {
+   "index": 3,
+   "text": "I think you should know that this town is very close to the fortress of Jashiin, and his henchmen are sure to be around. Be careful.",
+   "controlCodes": [],
+   "raw": "49207468696e6b20796f752073686f756c64206b6e6f772074686174207468697320746f776e206973207665727920636c6f736520746f2074686520666f727472657373206f66204a61736869696e2c20616e64206869732068656e63686d656e20617265207375726520746f2062652061726f756e642e204265206361726566756c2e"
+  },
+  {
+   "index": 4,
+   "text": "YOU! The princess you struggle to rescue will lead you to your doom! The Spirits are just demons in disguise. What does this mean? You do the devil's work, you must be the devil!  WA, HA, HA, HA, HA... ",
+   "controlCodes": [],
+   "raw": "594f552120546865207072696e6365737320796f75207374727567676c6520746f207265736375652077696c6c206c65616420796f7520746f20796f757220646f6f6d2120546865205370697269747320617265206a7573742064656d6f6e7320696e2064697367756973652e205768617420646f65732074686973206d65616e3f20596f7520646f2074686520646576696c5c7320776f726b2c20796f75206d7573742062652074686520646576696c21202057412c2048412c2048412c2048412c2048412e2e2e20"
+  },
+  {
+   "index": 5,
+   "text": "The Spirits gave me a lion's head key but it was stolen by one of Jashiin's underlings. I hope you will find it on your travels.",
+   "controlCodes": [],
+   "raw": "54686520537069726974732067617665206d652061206c696f6e5c732068656164206b657920627574206974207761732073746f6c656e206279206f6e65206f66204a61736869696e5c7320756e6465726c696e67732e204920686f706520796f752077696c6c2066696e64206974206f6e20796f75722074726176656c732e"
+  },
+  {
+   "index": 6,
+   "text": "Ah, yes -- that's the key that was entrusted to me by the Spirits. Make good use of it. ",
+   "controlCodes": [],
+   "raw": "41682c20796573202d2d20746861745c7320746865206b657920746861742077617320656e7472757374656420746f206d652062792074686520537069726974732e204d616b6520676f6f6420757365206f662069742e20"
+  },
+  {
+   "index": 7,
+   "text": "I pray for your safe return. ",
+   "controlCodes": [],
+   "raw": "49207072617920666f7220796f757220736166652072657475726e2e20"
+  },
+  {
+   "index": 8,
+   "text": "The one weapon you'll need to defeat Jashiin is the Fairy Flame Sword. According to legend it gives off a peculiar light and can vanquish any foe with only one blow. However, where it is to be found is another matter... ",
+   "controlCodes": [],
+   "raw": "546865206f6e6520776561706f6e20796f755c6c6c206e65656420746f20646566656174204a61736869696e2069732074686520466169727920466c616d652053776f72642e204163636f7264696e6720746f206c6567656e64206974206769766573206f6666206120706563756c696172206c6967687420616e642063616e2076616e717569736820616e7920666f652077697468206f6e6c79206f6e6520626c6f772e20486f77657665722c20776865726520697420697320746f20626520666f756e6420697320616e6f74686572206d61747465722e2e2e20"
+  },
+  {
+   "index": 9,
+   "text": "Nearby is a village called Esko, but I don't know what has happened to it recently. I once knew many people there.",
+   "controlCodes": [],
+   "raw": "4e656172627920697320612076696c6c6167652063616c6c65642045736b6f2c20627574204920646f6e5c74206b6e6f772077686174206861732068617070656e656420746f20697420726563656e746c792e2049206f6e6365206b6e6577206d616e792070656f706c652074686572652e"
+  },
+  {
+   "index": 10,
+   "text": "I've heard that the lion's head key fell between two towers under a stone slab. It is supposedly near this town.",
+   "controlCodes": [],
+   "raw": "495c7665206865617264207468617420746865206c696f6e5c732068656164206b65792066656c6c206265747765656e2074776f20746f7765727320756e64657220612073746f6e6520736c61622e20497420697320737570706f7365646c79206e656172207468697320746f776e2e"
+  },
+  {
+   "index": 11,
+   "text": "Help!&.&.&.&.",
+   "controlCodes": [],
+   "raw": "48656c7021262e262e262e262e"
+  },
+  {
+   "index": 12,
+   "text": "Beware of Jashiin's last henchman, Algaien. It is said that Jashiin used his power to give him eternal life.",
+   "controlCodes": [],
+   "raw": "426577617265206f66204a61736869696e5c73206c6173742068656e63686d616e2c20416c676169656e2e20497420697320736169642074686174204a61736869696e20757365642068697320706f77657220746f20676976652068696d20657465726e616c206c6966652e"
+  }
+ ],
+ "patches": [
+  {
+   "condition": {
+    "byte": "0x42",
+    "mask": "0x08",
+    "name": "absor_items",
+    "description": "Lion's Head Key"
+   },
+   "writes": [
+    {
+     "addr": "0xd0b1",
+     "value": "0xff",
+     "target": {
+      "npc": 9,
+      "field": "x"
+     }
+    },
+    {
+     "addr": "0xd0b2",
+     "value": "0xff",
+     "target": {
+      "npc": 9,
+      "field": "x_hi"
+     }
+    }
+   ],
+   "raw": "420008b1d0ffb2d0ffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x42",
+    "mask": "0x08",
+    "name": "absor_items",
+    "description": "Lion's Head Key"
+   },
+   "writes": [
+    {
+     "addr": "0xd090",
+     "value": "0x06",
+     "target": {
+      "npc": 4,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "42000890d006ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x2b",
+    "mask": "0x10",
+    "name": "plata_items",
+    "description": "Open locked door to Cavern of Arrugia (Overwrites what the lion key girl says in Pureza Town)"
+   },
+   "writes": [
+    {
+     "addr": "0xd090",
+     "value": "0x07",
+     "target": {
+      "npc": 4,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "2b001090d007ffff"
+  }
+ ],
+ "patrolBounds": {
+  "min": 72,
+  "max": 275
+ },
+ "sageRespawnX": 128,
+ "townId": 8,
+ "descriptor": {
+  "raw": "0201ff0102",
+  "music": "ugm1",
+  "npcGroup": "cman",
+  "middleLayer": "ckpd (cave)",
+  "bank": "dpat"
+ },
+ "raw": {
+  "header": "1bca400120ca082fca33ca47ca69ca69d017ca80004cca",
+  "pointers": {
+   "descriptor": "0xca1b",
+   "name": "0xca20",
+   "transitions": "0xca2f",
+   "doors": "0xca33",
+   "entrances": "0xca47",
+   "texts": "0xca69",
+   "npcs": "0xd069",
+   "patrol": "0xca17",
+   "c015": "0xca4c"
+  },
+  "nameInfo": "19af020b"
+ }
+}

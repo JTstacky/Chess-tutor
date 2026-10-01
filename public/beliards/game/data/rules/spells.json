@@ -1,0 +1,184 @@
+{
+  "_meta": {
+    "file": "spells.json",
+    "game": "Zeliard (Game Arts 1987 / Sierra On-Line 1990, MS-DOS English release)",
+    "purpose": "The seven hero spells: acquisition, charges, damage, projectile behaviour, refills.",
+    "units": {
+      "frame": "One main cavern-loop iteration (200FIGHT game_loop_render_and_timing). Length = speed_const*4 PIT ticks at 236.70 Hz; default speed_const 5 (F9 digit 5) => 20 ticks = 84.5 ms (11.83 frames/s). F9 digit d sets speed_const = 10-d.",
+      "tile": "Map cell. The cavern 'proximity map' around the hero is 36 columns x 64 rows; the visible viewport is 28 x 19 tiles. Hero occupies 3x3 tiles."
+    },
+    "sources": [
+      "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/ida/fight.asm (IDA-annotated 200FIGHT): magic_spell_fire_handler, init_magic_projectile, init_rascar, init_agua, init_guerra, espada_move, saeta_move, fuego_move, rascar_move, agua_move, monster_is_in_spawn_range_and_clear, mark_proximity_monster_as_spell_target, Get_Stats, byte_98BE",
+      "3_Assembly/masm/working/zelres2/code/217KENJP.asm + tasm/bin/zelres2/217KENJP.bin (sage texts, spell-grant opcodes 07h..0Dh, per-level charge table at DS:A380)",
+      "3_Assembly/masm/working/zelres2/code/201SELCT.asm (Elixir of Kashi / Chikara Powder refills)",
+      "3_Assembly/tasm/bin/zelres2/214CHURP.bin, 216INNAP.bin (church/inn refill: copy max -> current)",
+      "3_Assembly/tasm/bin/stdply.bin (starting charges)",
+      "Community: 4_Resources/GameData/GAME_DATA_REFERENCE.md, manuals/text/Zeliard_ Magical Items and Spells.txt"
+    ]
+  },
+  "mechanics": {
+    "save_bytes": {
+      "current_charges": "player record 0xAB..0xB1 (Espada..Guerra), one byte each",
+      "max_charges": "player record 0xB4..0xBA",
+      "learned_flags": "player record 0xBB..0xC1 (00 = not learned, FF = learned)",
+      "selected_spell": "player record 0x9D (0 = none, 1..7 = Espada..Guerra)",
+      "note": "ida/common.inc labels 0xAB as 'spells_espada default' and 0xB4 as 'espada_count'; the code proves 0xAB..0xB1 is the CURRENT count (decremented by magic_spell_fire_handler) and 0xB4..0xBA the MAX (church/inn/Chikara copy 0xB4.. -> 0xAB..). masm stdply.inc agrees."
+    },
+    "casting": {
+      "key": "ALT (the 'magic' button). A spell must be selected in the inventory (0x9D != 0).",
+      "blocked_when": ["sword swing in progress", "a previous spell effect is still active (flag FF3E) - only one spell effect can exist at a time", "selected spell has 0 charges (animation plays, nothing fires)"],
+      "timeline": "Cast animation counter 9F2B += 2 each frame: frame 1 value 2, frame 2 value 4 -> charge is decremented and the projectile(s) spawn; frame 3 value 6 -> cast pose ends. So the projectile appears on the 2nd frame after pressing ALT.",
+      "spawn_point": "Single projectiles spawn at the hero's head row (+1 row when crouching), 4 or 5 columns right of the hero's left edge depending on facing, travelling in the facing direction.",
+      "hit_test": "Each frame every live projectile tests the 3x3 tile block centred on it (monster_is_in_spawn_range_and_clear). Any monster cell found gets ai_flags = 0x40 | (spell_number+1) unless it is already flagged 'being hit' (bit 0x20) or is an object; the monster's own AI then calls Hero_Hits_monster. Projectiles only hit inside window columns 2..33 of the 36-wide proximity map.",
+      "damage": "Hero_Hits_monster -> Get_Stats(al = spell_number+1) -> fixed table byte_98BE = [2, 4, 8, 16, 32, 64, 255] for spells 1..7. Spell damage does NOT scale with level, sword or Sabre Oil. Monster HP is one byte; hp <= damage kills.",
+      "bosses": "In boss caverns a projectile that reaches the boss while boss_being_hit is set does nothing; boss chunks apply their own multipliers/dividers to spell damage (see bosses.json)."
+    },
+    "acquisition": {
+      "rule": "Spells are taught by Sages on the FIRST visit (intro speech, one-time; 'sages_spoken_to_hero' bitmask at 0xE5). The intro script's opcode 07h..0Dh sets learned flag 0xBA+n to FF and makes it the selected spell (0x9D = n). Learning does not change charges.",
+      "order": [
+        {"spell": 1, "id": "espada", "sage": "Yasmin", "town": "Satono"},
+        {"spell": 2, "id": "saeta", "sage": "Hajjar", "town": "Bosque"},
+        {"spell": 3, "id": "fuego", "sage": "Chiriga", "town": "Helada"},
+        {"spell": 4, "id": "lanzar", "sage": "Hisham", "town": "Tumba"},
+        {"spell": 5, "id": "rascar", "sage": "Maryam", "town": "Dorado"},
+        {"spell": 6, "id": "agua", "sage": "Saied", "town": "Llama"},
+        {"spell": 7, "id": "guerra", "sage": "Indihar", "town": "Pureza"}
+      ],
+      "note": "Marid (Muralla) teaches nothing. Esco has no Sage."
+    },
+    "charges": {
+      "starting": {"espada": 12, "saeta": 6, "fuego": 8, "lanzar": 4, "rascar": 3, "agua": 4, "guerra": 3},
+      "per_level_max": {
+        "_source": "217KENJP.bin DS:A380, 16 rows x 9 bytes [HP word, 7 charge bytes], row index = level BEFORE the level-up",
+        "_columns": ["espada", "saeta", "fuego", "lanzar", "rascar", "agua", "guerra"],
+        "0": [12, 6, 8, 4, 3, 4, 3],
+        "1": [12, 6, 8, 8, 3, 4, 3],
+        "2": [12, 6, 8, 8, 3, 4, 3],
+        "3": [12, 6, 8, 8, 3, 4, 3],
+        "4": [12, 6, 8, 8, 3, 4, 3],
+        "5": [16, 6, 8, 8, 3, 4, 3],
+        "6": [20, 6, 8, 8, 3, 4, 3],
+        "7": [24, 6, 8, 8, 3, 4, 3],
+        "8": [28, 12, 8, 8, 3, 4, 3],
+        "9": [32, 18, 12, 8, 3, 4, 3],
+        "10": [36, 24, 16, 8, 3, 4, 3],
+        "11": [40, 30, 20, 16, 3, 4, 3],
+        "12": [44, 36, 24, 24, 3, 4, 3],
+        "13": [48, 42, 28, 32, 3, 4, 3],
+        "14": [52, 48, 36, 48, 9, 8, 6],
+        "15": [56, 54, 44, 54, 15, 12, 9],
+        "16": [60, 60, 60, 72, 21, 16, 12],
+        "17_plus": "each level-up from level 16 upward adds +2 to every max (saturating at 255)"
+      },
+      "refills": [
+        {"source": "Sage level-up", "effect": "max charges set from the table above and current charges set equal to max (full refill). No refill if the Sage does not raise your level.", "evidence": "217KENJP.bin at A32B..A33E: copy BB36 -> 0xB4 and -> 0xAB"},
+        {"source": "Church (Muralla, Esco)", "effect": "current = max for all 7 (and HP = max)", "evidence": "214CHURP.bin: mov si,00B4 / mov di,00AB / mov cx,7 / rep movsb"},
+        {"source": "Inn", "effect": "current = max for all 7 (and HP = max)", "evidence": "216INNAP.bin same byte pattern"},
+        {"source": "Elixir of Kashi", "effect": "current = max for the SELECTED spell only; no effect if no spell selected", "evidence": "201SELCT.asm use_weapon_restore (misnamed)"},
+        {"source": "Chikara Powder", "effect": "current = max for all 7 spells", "evidence": "201SELCT.asm use_all_weapons_restore (misnamed)"}
+      ],
+      "community_exploit_confirmed_by_code": "Paguro trick: use Agua charges before the next level-up; the level-up refill restores them (level-up always refills)."
+    }
+  },
+  "spells": [
+    {
+      "number": 1,
+      "id": "espada",
+      "name": "Espada",
+      "sage_description": "the Magic Spell of Throwing Swords: Espada.",
+      "damage": 2,
+      "projectiles": 1,
+      "behaviour": "Straight horizontal throw in the facing direction at 2 tiles/frame, animated 3-frame cycle. Lives 5 frames (about 10 tiles). Stops (sets return/deactivate bit 0x80 in mp_dir) on the first frame it hits a monster.",
+      "pierces": false,
+      "evidence": ["ida/fight.asm espada_move: life_timer < 5; on hit 'or mp_dir,80h'", "sub_8BC2: x += 2 * direction"],
+      "community": "weak, short range",
+      "confidence": "high"
+    },
+    {
+      "number": 2,
+      "id": "saeta",
+      "name": "Saeta",
+      "sage_description": "the Magic Spell of Arrows: Saeta.",
+      "damage": 4,
+      "projectiles": 1,
+      "behaviour": "Straight horizontal arrow, 2 tiles/frame, lives 10 frames (about 20 tiles). Does not stop on hit: damages every monster it passes (each monster once per hit window).",
+      "pierces": true,
+      "evidence": ["ida/fight.asm saeta_move: life_timer < 0Ah, no deactivate on hit"],
+      "community": "good range; 'useful for breaking walls' (community claim, not verified in the projectile code - walls are map objects hit via the same monster-cell test)",
+      "confidence": "high"
+    },
+    {
+      "number": 3,
+      "id": "fuego",
+      "name": "Fuego",
+      "sage_description": "the Magic Spell of Fire: Fuego.",
+      "damage": 8,
+      "projectiles": 1,
+      "behaviour": "Frames 1-3: flies forward 2 tiles/frame (no animation). From frame 4 it stops moving horizontally, animates (4-frame cycle) and drops 1 row per frame while the two tiles two rows below are passable, i.e. falls to the floor and burns in place. Lives 12 frames total (~1 s). Hits everything overlapping its 3x3 area every frame it is alive.",
+      "pierces": true,
+      "evidence": ["ida/fight.asm fuego_move: life < 0Ch; life < 4 -> move; else fall if is_non_blocking_tile(di+72) and (di+73)"],
+      "community": "fire that burns on ground, short range; needed vs slimes",
+      "confidence": "high"
+    },
+    {
+      "number": 4,
+      "id": "lanzar",
+      "name": "Lanzar",
+      "sage_description": "the Magic Spell of Flame: Lanzar.",
+      "damage": 16,
+      "projectiles": 1,
+      "behaviour": "Identical movement to Saeta (uses saeta_move): straight, 2 tiles/frame, 10 frames, piercing. Different graphics and 4x Saeta's damage.",
+      "pierces": true,
+      "evidence": ["ida/fight.asm funcs_8AC2 entry 4 = saeta_move"],
+      "community": "great range and damage",
+      "confidence": "high"
+    },
+    {
+      "number": 5,
+      "id": "rascar",
+      "name": "Rascar",
+      "sage_description": "the Magic Spell of Falling Rocks: Rascar.",
+      "damage": 32,
+      "projectiles": 4,
+      "behaviour": "Four rocks spawn above the top of the screen at proximity-map columns 8, 14, 20 and 26 (6*i+2 for i=1..4, i.e. spread across the whole view regardless of facing), each starting 3..6 rows above the viewport top (random 0..3 extra). All fall 2 rows per frame for 11 frames (22 rows) and ignore walls. Each rock hits monsters in its 3x3 area.",
+      "pierces": true,
+      "evidence": ["ida/fight.asm init_rascar (mul 6, add 2; y = viewport_top-3-rand&3)", "rascar_move: y += 2 for 4 rocks while life < 0Ch"],
+      "community": "hard to aim, mostly useless",
+      "confidence": "high"
+    },
+    {
+      "number": 6,
+      "id": "agua",
+      "name": "Agua",
+      "sage_description": "the Magic Spell of Water: Agua.",
+      "damage": 64,
+      "projectiles": 3,
+      "behaviour": "Three parallel horizontal jets spawned like a normal projectile but at rows y-2, y, y+2 (a 7-row-tall wave). All move 2 tiles/frame for 10 frames and pierce.",
+      "pierces": true,
+      "evidence": ["ida/fight.asm init_agua (3x init_magic_projectile, row -2 / +2)", "agua_move: life < 0Ah, 3 projectiles"],
+      "community": "powerful, kills most enemies in 1 hit; 'Agua evaporates' vs Dragon (boss-side rule, see bosses.json)",
+      "confidence": "high"
+    },
+    {
+      "number": 7,
+      "id": "guerra",
+      "name": "Guerra",
+      "sage_description": "the Magic Spell of Lightning: Guerra.",
+      "damage": 255,
+      "projectiles": 0,
+      "behaviour": "Instant screen-wide lightning: on the firing frame every monster cell in a 36 x 19 block starting one row above the viewport is marked as hit by spell 7 (each monster once). Screen flashes (9EED/9EEE), sound 19h, no projectile persists. In a boss cavern it does nothing if the boss is currently in its 'being hit' state.",
+      "pierces": true,
+      "evidence": ["ida/fight.asm init_guerra: rows_19 x columns_36 loop calling mark_proximity_monster_as_spell_target"],
+      "community": "lightning in all directions, ultimate spell",
+      "confidence": "high"
+    }
+  ],
+  "conflicts": [
+    {"topic": "charge storage", "community_or_label": "ida/common.inc names 0xAB 'spells_*' (defaults) and 0xB4 '*_count'", "code": "0xAB = current, 0xB4 = max", "chosen": "code"},
+    {"topic": "Lanzar starting charges", "community_or_label": "ida/common.inc comment 'Lanzar default: 4'", "code": "stdply.bin 4 at level 0; the level-up table raises it to 8 from level 1", "chosen": "both are true: 4 at level 0, 8 after the first level-up"}
+  ],
+  "gaps": [
+    "Spell projectile sprite graphics come from the MPPx.GRP chunks selected by mdt_descriptor.mpp_grp_idx; tile layouts are in 200FIGHT sequences0/sequences1 tables (not transcribed here).",
+    "Per-enemy spell immunities (e.g. slimes vs fire) are implemented inside each EAI handler; see enemies.json."
+  ]
+}

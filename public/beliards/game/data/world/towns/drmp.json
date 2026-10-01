@@ -1,0 +1,473 @@
+{
+ "id": "drmp",
+ "file": "drmp.mdt",
+ "name": "Dorado Town",
+ "place": "0x86",
+ "width": 215,
+ "height": 8,
+ "bank": "dpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "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",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "2f0003",
+   "x": 47,
+   "triggerX": [
+    46,
+    47,
+    48
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  },
+  {
+   "index": 1,
+   "raw": "460007",
+   "x": 70,
+   "triggerX": [
+    69,
+    70,
+    71
+   ],
+   "dest": "0x07",
+   "kind": "inn"
+  },
+  {
+   "index": 2,
+   "raw": "5c0002",
+   "x": 92,
+   "triggerX": [
+    91,
+    92,
+    93
+   ],
+   "dest": "0x02",
+   "kind": "sage"
+  },
+  {
+   "index": 3,
+   "raw": "800006",
+   "x": 128,
+   "triggerX": [
+    127,
+    128,
+    129
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  },
+  {
+   "index": 4,
+   "raw": "b80004",
+   "x": 184,
+   "triggerX": [
+    183,
+    184,
+    185
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  }
+ ],
+ "transitions": [
+  {
+   "edge": "left",
+   "raw": "8100ffff",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp61",
+   "heroX": 31,
+   "heroHeadRow": 6
+  },
+  {
+   "edge": "right",
+   "raw": "8001ffff",
+   "kind": "cavern",
+   "entrance": 1,
+   "map": "mp60",
+   "heroX": 315,
+   "heroHeadRow": 49
+  }
+ ],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "1f0006010f",
+   "map": "mp61",
+   "heroX": 31,
+   "heroHeadRow": 6,
+   "runLeft": true
+  },
+  {
+   "index": 1,
+   "raw": "3b0131000e",
+   "map": "mp60",
+   "heroX": 315,
+   "heroHeadRow": 49,
+   "runLeft": false
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "be0081b101000000",
+   "x": 190,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0xb1",
+   "animPhase": 1,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "Welcome to Dorado.\nThis was once a thriving merchant town where everyone lived a peaceful life. Jashiin has reduced it to a sad, desolate place."
+  },
+  {
+   "index": 1,
+   "raw": "b40084bb01060001",
+   "x": 180,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 4,
+   "headTile": "0xbb",
+   "animPhase": 1,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "The Spirits say that Jashiin returned because the people, made soft by peace and prosperity, sank into corruption."
+  },
+  {
+   "index": 2,
+   "raw": "8b00800001020002",
+   "x": 139,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "Using the money and treasures of Dorado and other places, Jashiin built a place of his own. The Tesoro and Burata Caverns are his domain."
+  },
+  {
+   "index": 3,
+   "raw": "6900020001020003",
+   "x": 105,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "A word to the wise: The door bearing the green symbol cannot be opened. There's no use trying to force it, it absolutely cannot be opened."
+  },
+  {
+   "index": 4,
+   "raw": "8800002901050004",
+   "x": 136,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x29",
+   "animPhase": 1,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 4,
+   "text": "Somewhere in the caverns are the Shirukaano shoes made by the shoemaker Percel. Try to find them; when you wear those shoes you can climb any slope."
+  },
+  {
+   "index": 5,
+   "raw": "6600806001030005",
+   "x": 102,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 0,
+   "headTile": "0x60",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 5,
+   "text": "Someone who went into the caverns told me the Shirukaano shoes are hidden in Tesoro. Of the four rooms in the center, they are in the far right room."
+  },
+  {
+   "index": 6,
+   "raw": "5500800001050006",
+   "x": 85,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 6,
+   "text": "Of the four doors in Tesoro, three bear a blue symbol. What was the other one? For the life of me I can't remember."
+  },
+  {
+   "index": 7,
+   "raw": "9a00824f01070007",
+   "x": 154,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x4f",
+   "animPhase": 1,
+   "ai": 7,
+   "aiName": "static",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 7,
+   "text": "This building wasn't here before, was it? You can't put up a building like this overnight -- how did it get here?"
+  },
+  {
+   "index": 8,
+   "raw": "380080a001050008",
+   "x": 56,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 0,
+   "headTile": "0xa0",
+   "animPhase": 1,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 8,
+   "text": "A peace statue called 'Taruso' stood here, but one night it disappeared. Where in the world can it have gone? The evil Jashiin must have taken a liking to it."
+  },
+  {
+   "index": 9,
+   "raw": "240004bb01020009",
+   "x": 36,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 4,
+   "headTile": "0xbb",
+   "animPhase": 1,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 9,
+   "text": "I have a message from the Spirits: wait for the moving edge of the platform made of shining blocks."
+  },
+  {
+   "index": 10,
+   "raw": "7a0082000103000a",
+   "x": 122,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 10,
+   "text": "When you find green stone slabs that can be moved up and down, arrange them like a staircase so you can go up easily."
+  },
+  {
+   "index": 11,
+   "raw": "150083450101000b",
+   "x": 21,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x45",
+   "animPhase": 1,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 11,
+   "text": "The middle of the caverns is made of pure gold! But there is one fake gold wall that can be destroyed."
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Welcome to Dorado.\nThis was once a thriving merchant town where everyone lived a peaceful life. Jashiin has reduced it to a sad, desolate place.",
+   "controlCodes": [],
+   "raw": "57656c636f6d6520746f20446f7261646f2e2f5468697320776173206f6e63652061207468726976696e67206d65726368616e7420746f776e2077686572652065766572796f6e65206c69766564206120706561636566756c206c6966652e204a61736869696e20686173207265647563656420697420746f2061207361642c206465736f6c61746520706c6163652e"
+  },
+  {
+   "index": 1,
+   "text": "The Spirits say that Jashiin returned because the people, made soft by peace and prosperity, sank into corruption.",
+   "controlCodes": [],
+   "raw": "5468652053706972697473207361792074686174204a61736869696e2072657475726e65642062656361757365207468652070656f706c652c206d61646520736f667420627920706561636520616e642070726f737065726974792c2073616e6b20696e746f20636f7272757074696f6e2e"
+  },
+  {
+   "index": 2,
+   "text": "Using the money and treasures of Dorado and other places, Jashiin built a place of his own. The Tesoro and Burata Caverns are his domain.",
+   "controlCodes": [],
+   "raw": "5573696e6720746865206d6f6e657920616e6420747265617375726573206f6620446f7261646f20616e64206f7468657220706c616365732c204a61736869696e206275696c74206120706c616365206f6620686973206f776e2e20546865205465736f726f20616e64204275726174612043617665726e73206172652068697320646f6d61696e2e"
+  },
+  {
+   "index": 3,
+   "text": "A word to the wise: The door bearing the green symbol cannot be opened. There's no use trying to force it, it absolutely cannot be opened.",
+   "controlCodes": [],
+   "raw": "4120776f726420746f2074686520776973653a2054686520646f6f722062656172696e672074686520677265656e2073796d626f6c2063616e6e6f74206265206f70656e65642e2054686572655c73206e6f2075736520747279696e6720746f20666f7263652069742c206974206162736f6c7574656c792063616e6e6f74206265206f70656e65642e"
+  },
+  {
+   "index": 4,
+   "text": "Somewhere in the caverns are the Shirukaano shoes made by the shoemaker Percel. Try to find them; when you wear those shoes you can climb any slope.",
+   "controlCodes": [],
+   "raw": "536f6d65776865726520696e207468652063617665726e7320617265207468652053686972756b61616e6f2073686f6573206d616465206279207468652073686f656d616b65722050657263656c2e2054727920746f2066696e64207468656d3b207768656e20796f7520776561722074686f73652073686f657320796f752063616e20636c696d6220616e7920736c6f70652e"
+  },
+  {
+   "index": 5,
+   "text": "Someone who went into the caverns told me the Shirukaano shoes are hidden in Tesoro. Of the four rooms in the center, they are in the far right room.",
+   "controlCodes": [],
+   "raw": "536f6d656f6e652077686f2077656e7420696e746f207468652063617665726e7320746f6c64206d65207468652053686972756b61616e6f2073686f6573206172652068696464656e20696e205465736f726f2e204f662074686520666f757220726f6f6d7320696e207468652063656e7465722c20746865792061726520696e207468652066617220726967687420726f6f6d2e"
+  },
+  {
+   "index": 6,
+   "text": "Of the four doors in Tesoro, three bear a blue symbol. What was the other one? For the life of me I can't remember.",
+   "controlCodes": [],
+   "raw": "4f662074686520666f757220646f6f727320696e205465736f726f2c2074687265652062656172206120626c75652073796d626f6c2e20576861742077617320746865206f74686572206f6e653f20466f7220746865206c696665206f66206d6520492063616e5c742072656d656d6265722e"
+  },
+  {
+   "index": 7,
+   "text": "This building wasn't here before, was it? You can't put up a building like this overnight -- how did it get here?",
+   "controlCodes": [],
+   "raw": "54686973206275696c64696e67207761736e5c742068657265206265666f72652c207761732069743f20596f752063616e5c74207075742075702061206275696c64696e67206c696b652074686973206f7665726e69676874202d2d20686f77206469642069742067657420686572653f"
+  },
+  {
+   "index": 8,
+   "text": "A peace statue called 'Taruso' stood here, but one night it disappeared. Where in the world can it have gone? The evil Jashiin must have taken a liking to it.",
+   "controlCodes": [],
+   "raw": "41207065616365207374617475652063616c6c6564205c54617275736f5c2073746f6f6420686572652c20627574206f6e65206e696768742069742064697361707065617265642e20576865726520696e2074686520776f726c642063616e206974206861766520676f6e653f20546865206576696c204a61736869696e206d75737420686176652074616b656e2061206c696b696e6720746f2069742e"
+  },
+  {
+   "index": 9,
+   "text": "I have a message from the Spirits: wait for the moving edge of the platform made of shining blocks.",
+   "controlCodes": [],
+   "raw": "4920686176652061206d6573736167652066726f6d2074686520537069726974733a207761697420666f7220746865206d6f76696e672065646765206f662074686520706c6174666f726d206d616465206f66207368696e696e6720626c6f636b732e"
+  },
+  {
+   "index": 10,
+   "text": "When you find green stone slabs that can be moved up and down, arrange them like a staircase so you can go up easily.",
+   "controlCodes": [],
+   "raw": "5768656e20796f752066696e6420677265656e2073746f6e6520736c61627320746861742063616e206265206d6f76656420757020616e6420646f776e2c20617272616e6765207468656d206c696b6520612073746169726361736520736f20796f752063616e20676f20757020656173696c792e"
+  },
+  {
+   "index": 11,
+   "text": "The middle of the caverns is made of pure gold! But there is one fake gold wall that can be destroyed.",
+   "controlCodes": [],
+   "raw": "546865206d6964646c65206f66207468652063617665726e73206973206d616465206f66207075726520676f6c642120427574207468657265206973206f6e652066616b6520676f6c642077616c6c20746861742063616e2062652064657374726f7965642e"
+  },
+  {
+   "index": 12,
+   "text": "Ah! You found the Shirukaano shoes! Now you can scale any slope.",
+   "controlCodes": [],
+   "raw": "41682120596f7520666f756e64207468652053686972756b61616e6f2073686f657321204e6f7720796f752063616e207363616c6520616e7920736c6f70652e"
+  },
+  {
+   "index": 13,
+   "text": "Brave lad! A message from the Spirits: Take great care when you enter the next world.",
+   "controlCodes": [],
+   "raw": "4272617665206c6164212041206d6573736167652066726f6d2074686520537069726974733a2054616b652067726561742063617265207768656e20796f7520656e74657220746865206e65787420776f726c642e"
+  }
+ ],
+ "patches": [
+  {
+   "condition": {
+    "byte": "0x2a",
+    "mask": "0x04",
+    "name": "tesoro_items",
+    "description": "Silkarn Shoes (Changes a couple things in town)"
+   },
+   "writes": [
+    {
+     "addr": "0xcdfb",
+     "value": "0x0c",
+     "target": {
+      "npc": 4,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xce03",
+     "value": "0x0d",
+     "target": {
+      "npc": 5,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "2a0004fbcd0c03ce0dffff"
+  }
+ ],
+ "patrolBounds": {
+  "min": 28,
+  "max": 172
+ },
+ "sageRespawnX": 92,
+ "townId": 6,
+ "descriptor": {
+  "raw": "0600ff0102",
+  "music": "ugm2",
+  "npcGroup": "mman",
+  "middleLayer": "ckpd (cave)",
+  "bank": "dpat"
+ },
+ "raw": {
+  "header": "d3c6d700d8c606e7c6efc600c717c7d4cdcfc65c000ac7",
+  "pointers": {
+   "descriptor": "0xc6d3",
+   "name": "0xc6d8",
+   "transitions": "0xc6e7",
+   "doors": "0xc6ef",
+   "entrances": "0xc700",
+   "texts": "0xc717",
+   "npcs": "0xcdd4",
+   "patrol": "0xc6cf",
+   "c015": "0xc70a"
+  },
+  "nameInfo": "19af020b"
+ }
+}

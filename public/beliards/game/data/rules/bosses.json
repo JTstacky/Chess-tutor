@@ -1,0 +1,1106 @@
+{
+ "_meta": {
+  "file": "bosses.json",
+  "source_game": "Zeliard, MS-DOS English release (Sierra 1990). Japanese-version differences are in japanese_balance.json.",
+  "source_root": "research/zeliard-expanded/extracted/zeliard-main/",
+  "method": "Bosses 1-6 (Cangrejo..Tarso) from ida/crab.asm plus the release EAI chunks 3xxCRAB/TAKO/TORI/ZELA/MEDA/LEGA; bosses 7-10 (Paguro, Dragon, Alguien, Jashiin) disassembled from the release binaries 315ZEL2..319MAO2 (chunk loaded at DS:A000; addresses cited are runtime addresses). Release binaries 3_Assembly/tasm/bin/zelres3/3xx*.bin were disassembled with capstone (the 4-byte SAR size header is stripped, and the chunk loads at DS:A000). The addresses below are those runtime addresses. The MASM files 3_Assembly/masm/working/zelres3/code/315ZEL2.asm..319MAO2.asm hold the same bytes, but their Sourcer labels are mostly wrong (for example zel2_scroll_x is really boss_x), so cite by address. The shared framework comes from ida/crab.asm and ida/fight.asm.",
+  "join_keys": {
+   "id": "stable lowercase boss id used across rules files",
+   "arena_map": "MDT map id of the boss arena (MP1D, MP2D, MP3D, MP4D, MP5D, MP6D, MP73, MP7D, MP8D, MP90, MPA0); joins to game/data/world/",
+   "chunk": "EAI module name selected by the arena MDT descriptor byte 3 (eai_bin_idx)",
+   "part ids": "monster record byte +4 low nibble; indexes the contact-damage table at DS:A010 of the boss chunk"
+  },
+  "units": {
+   "frame": "One main-loop update. At the default F9 speed 5 a frame is 20 PIT ticks at 236.7 Hz, which is 84.5 ms (11.83 fps). Seconds below assume the default speed.",
+   "tile": "One map cell. Boss X is a world tile column and Y is a map row (0..63, which wraps). The hero is 3 tiles wide. With the camera centred, the hero's world X is H = proximity_left_col+16, and his columns are H..H+2.",
+   "hero_ref_x": "Boss AIs locate the hero as proximity_map_left_col_x + k (the 36-column window around the hero; hero body occupies ~columns 16..18 of it). Crab/Zela use left+12, Tori uses left+hero_x_in_viewport, Meda/Zela use left+16/left+18."
+  },
+  "evidence_levels": "Each boss has 'evidence' (file/address citations) and 'confidence'. Code-derived numbers are verified from the release binaries; items marked community come from walkthroughs/wiki and are not verified.",
+  "summary_table": [
+   {
+    "id": "cangrejo",
+    "hp": 150,
+    "xp": 120,
+    "almas": 150,
+    "arena_map": "MP1D"
+   },
+   {
+    "id": "pulpo",
+    "hp": 250,
+    "xp": 200,
+    "almas": 200,
+    "arena_map": "MP2D"
+   },
+   {
+    "id": "pollo",
+    "hp": 500,
+    "xp": 500,
+    "almas": 500,
+    "arena_map": "MP3D"
+   },
+   {
+    "id": "agar",
+    "hp": 500,
+    "xp": 1000,
+    "almas": 600,
+    "arena_map": "MP4D"
+   },
+   {
+    "id": "vista",
+    "hp": 700,
+    "xp": 3000,
+    "almas": 800,
+    "arena_map": "MP5D"
+   },
+   {
+    "id": "tarso",
+    "hp": 640,
+    "xp": 6000,
+    "almas": 1500,
+    "arena_map": "MP6D"
+   },
+   {
+    "id": "paguro",
+    "hp": 600,
+    "xp": 3000,
+    "almas": 1600,
+    "arena_map": "MP73 ('In the Hut'). This is a boss map (descriptor byte0 0x99, boss_ai 18) reached from a house in Llama town. Its cavern_level byte is 1."
+   },
+   {
+    "id": "dragon",
+    "hp": 800,
+    "xp": 12000,
+    "almas": 2500,
+    "arena_map": "MP7D (Burning Inferno boss room, descriptor byte0 0x99, 70 tiles wide)"
+   },
+   {
+    "id": "alguien",
+    "hp": 800,
+    "xp": 30000,
+    "almas": 3800,
+    "arena_map": "MP8D (Fruit Gardens boss room, 70 wide)"
+   },
+   {
+    "id": "jashiin_intro",
+    "hp": 250,
+    "xp": 200,
+    "almas": 0,
+    "arena_map": "MP90 ('Jashiin's room', 42 wide). The descriptor byte0 is 0x5B: the is_jashiin_cavern bit is set and the boss bit is not."
+   },
+   {
+    "id": "jashiin",
+    "hp": 800,
+    "xp": 10000,
+    "almas": 0,
+    "arena_map": "MPA0 (Jashiin's room, 73 wide, a boss cavern entered directly from MP90)"
+   }
+  ]
+ },
+ "common_boss_framework": {
+  "descriptor": "Word at DS:A002 points to a 13-byte descriptor: +0 word x, +2 byte y, +3 word HP (current, decremented in place; also shown as max on the HUD at arena entry), +5 word XP reward, +7 byte (arena/ref x), +8 byte (HUD name x), +9 word ptr to name block ([x][y-attr][len][ASCII]), +11 word almas reward.",
+  "contact_damage_table": "Bytes DS:A010..A01F = contact damage indexed by (body-part monster record byte +4 & 0x0F), used by 200FIGHT check_hero_contact_damage exactly as for regular enemies (sum over the hero's probe cells; if the hero faces the part and carries a shield, damage = (d>>1)>>((shield_type+1)>>1), taken from both shield HP and hero HP; otherwise full damage to HP). Parts whose byte +4 has bit 0x40 set are ignored.",
+  "body_rendering": "Every frame the AI rewrites the cavern monster table (C010) with one 16-byte record per visible body part (x, y, part id at +4, frame at +6, +5 = 0 or 0x20 while being hit) and terminates it with FFFF. Hitting any part with the sword/spell/Magia Stone sets +5 bit 0x40 and the source in bits 0..4; the AI scans for it at the start of the next frame.",
+  "damage_sources": "Get_Stats (fight_cb 6038h) source 1 = sword (sword_damages[1,2,4,8,32,127][sword-1] + level/2, times (1+byte E4 sabre-oil count), capped 255, doubled for the ground downward thrust), 2..8 = spells Espada..Guerra fixed [2,4,8,16,32,64,255], 9 = Magia Stone spirit ((level+1)*4 capped 255), 0 = crushing platform (level/2+1). Each boss rescales this value (see per-boss 'damage_taken').",
+  "hit_rate": "Only the first struck part found in the scan is used, so at most one damage event per frame.",
+  "death": "When HP reaches 0 the AI sets FF2E (dying; 200FIGHT then stops contact damage and monster spawning), plays a ~40-frame death animation (first ~20 frames flashing with a sound every few frames), then sets FF30 (completion). 200FIGHT then adds XP ([A002]+5, capped 65535) and almas ([A002]+11, capped 65535) and sets warp_pending.",
+  "post_death_arena": "load_place_and_reinit (ida/fight.asm 2909-2999) reloads the arena as a normal cavern and applies the arena MDT descriptor's optional initialisers: replaces the monster table (one reward object) and door table (an open exit door), and writes FFFF to the boss's defeated word in the save record (0x00 Cangrejo, 0x08 Pulpo, 0x10 Pollo, 0x18 Agar, 0x20 Vista, 0x28 Tarso). The exit door has d_features 0x80 and an achievement write (the cavern's 'Collected a Tear of Esmesanti' bit); passing through it plays the Tear cut-scene 300ROKAD (which bumps stdply[A0h], the Tears count) and returns the hero to the parent cavern.",
+  "respawn": "A boss never respawns once its defeated word is FFFF (the arena loads its post-boss tables). If the hero dies or leaves (Kioku Feather) mid-fight, the boss chunk is reloaded from disk next time, so HP and position reset to the descriptor defaults.",
+  "enemy_projectiles": "Bosses that shoot use 200FIGHT Add_Projectile_To_Array (fight_cb 603Ah) with a 13-byte projectile record: +0 screen-relative x, +1 y, +2 base tile, +3 step count, +4 max steps, +5 direction (0=E,1=NE,2=N,3=NW,4=W,5=SW,6=S,7=SE; 0x40 = curved path), +6 damage. Projectiles move 1 tile per frame, vanish on a blocking tile or after max steps. Hit on the hero: full damage to HP (not shield-reduced) unless blocked: blocked when a shield is carried, the sword is not being swung, the hero is not on a rope, the projectile is horizontal/diagonal and the hero faces it; Honor/Light/Titanium block at any height, Clay/Wise/Stone only when the projectile is at the covered height (ida/fight.asm 5600-5690). Blocked projectiles do not wear the shield.",
+  "body_as_monster_cells": "Each frame the boss rebuilds its body as up to N 16-byte monster records in the MDT monster table (C010). Each record is a 2x2-tile sprite cell. [si+4] is the part type (low nibble indexes the contact-damage table at DS:A010), [si+6] is the sprite frame, and [si+5] bit 7 is the facing flip. OR-ing 0x20 or 0x40 into [si+4] makes a cell unhittable (0x20) and/or harmless (0x40). Contact damage uses the normal enemy path: per touching cell, byte A010[type&0Fh], reduced by the shield when the hero faces the boss (see fight.asm apply_hit_from_left/right). While the boss is dying (FF2E set) contact damage is disabled (check_hero_contact_damage).",
+  "being_hit": "The engine marks a struck cell's [si+5] with 0x40 plus the damage source (low 5 bits: 1 = sword, 2..8 = spell row+1, 9 = Magia Stone, 0 = crushing platform). The boss scans its cells, takes the first hit found each frame, and calls Get_Stats (cs:6038). That returns the sword total (base + level/2, times (1 + Sabre Oil count byte E4), cap 255, doubled on a ground downward thrust), the spell table value 2/4/8/16/32/64/255 for Espada..Guerra, or (level+1)*4 for Magia Stone. The boss then applies its own scaling (given per boss below) and subtracts from its HP word. There are no invulnerability frames: a hit can register every frame.",
+  "tears": "A boss arena whose post-victory exit door carries the Tear achievement bit yields one Tear of Esmesanti via the post-victory exit door (cut-scene 300ROKAD increments stdply[0xA0]). No boss fight checks the Tear count. Tear objects are map data (game/data/world/)."
+ },
+ "bosses": [
+  {
+   "id": "cangrejo",
+   "name": "Cangrejo",
+   "name_variants": [
+    "Cangreo (misspelling in some notes)",
+    "Giant Crab"
+   ],
+   "name_note": "The DOS game's HUD string is 'Cangrejo' (Pascal string in 309CRAB.bin descriptor name block at A7D0).",
+   "chunk": "309CRAB (CRAB.BIN, eai_bin_idx 1)",
+   "graphics": "CRAB.GRP",
+   "arena_map": "MP1D",
+   "world": 1,
+   "start_position": {
+    "x": 43,
+    "y": 12
+   },
+   "body": "10 columns x 6 rows (x..x+9, y..y+5). Normal layout (ida/crab.asm col_layout_normal): row 0 parts at cols 3,5 (eye stalks); row 2 parts at cols 1,3,5,7,9 (shell); row 4 parts at cols 0,2,4,6,8 with ids 7,0x10,0x11,0x12,8 (legs at the ends, three centre parts flagged 0x10). Jump pose uses col_layout_acid_drip.",
+   "hp": 150,
+   "xp": 120,
+   "almas": 150,
+   "contact_damage": {
+    "all_parts": 6,
+    "acid_droplet": 6
+   },
+   "damage_taken": {
+    "formula": "HP -= Get_Stats(source) * 4; parts whose id has bit 0x10 (row-4 centre underside: ids 0x10,0x11,0x12, and 0x14/0x90 in the jump pose) take * 8.",
+    "example": "Training Sword at level 0 = 4 per hit (38 hits); Wise Man's Sword level 2 = 12; underside doubles."
+   },
+   "knockback": "On every damaging hit the crab is shoved 2 columns away from the hero (if boss_x+5 < hero_ref it moves left twice, else right twice; clamped to the patrol range).",
+   "movement_range": {
+    "x_min": 16,
+    "x_max": 49
+   },
+   "projectiles": [
+    {
+     "name": "acid droplet (toxic spit)",
+     "kind": "monster-slot hazard (record byte +4 = 0x35, contact damage table index 5 = 6)",
+     "spawn": "at (boss_x+4, boss_y+3) on jump step 4",
+     "path": "falls straight down 1 row per frame for 7 frames (acid_droplet_spawn_sequence 80,80,80,80,80,81,82 = fall frames, then 03,04 = splash frames), then disappears",
+     "damage": 6
+    }
+   ],
+   "phases": [
+    {
+     "id": "patrol",
+     "does": "Walks horizontally 1 column every 2 frames, legs animating (states 0..5), reversing at x=16 / x=49.",
+     "timing": "Each frame outside other phases: RNG (Accumulate_folded_ff1b) & 7 == 0 starts 'crouch' (1/8 chance per frame, mean ~8 frames = 0.7 s).",
+     "transition": "-> crouch"
+    },
+    {
+     "id": "crouch",
+     "does": "Tenses legs: 7 frames of body states 7,8,8,8,8,8,6.",
+     "timing": "7 frames (0.59 s)",
+     "transition": "-> jump; direction chosen toward the hero (moves right if boss_x+5 < hero_ref)."
+    },
+    {
+     "id": "jump",
+     "does": "Follows acid_descent_sequence F1 x5, F8 x3, F2 x5: each frame moves 1 column toward the hero side (within 16..49) and y -1 (F1), 0 (F8) or +1 (F2). Net arc: up 5, across 13, down 5. Drops the acid droplet on step 4. Landing on the hero = contact damage from the body parts.",
+     "timing": "13 frames (1.1 s)",
+     "transition": "-> recoil"
+    },
+    {
+     "id": "recoil",
+     "does": "Body states 7,8,8,0; patrol direction reversed.",
+     "timing": "4 frames",
+     "transition": "-> patrol"
+    }
+   ],
+   "weak_points": "Underside centre parts (row 4 centre, flag 0x10) take double damage.",
+   "invulnerable": "None while alive; no per-hit invulnerability window (one hit per frame max). No damage once dying.",
+   "requirements": [
+    "Door to Cangrejo's lair in Malicia (MP10) needs an ordinary key (save byte 0x03 bit 0x80 'Door to Cangrejo open')."
+   ],
+   "rewards": {
+    "xp": 120,
+    "almas": 150,
+    "tears": 1,
+    "flags": [
+     "save word 0x00 = FFFF (Cangrejo_Defeated)",
+     "post-boss object: ordinary key (type 0x76) with save flag byte 0x02 bit 0x08",
+     "exit door (to MP10 x=0x8D,y=0x20) records byte 0x03 bit 0x20 'Collected a Tear' and plays the Tear cut-scene"
+    ]
+   },
+   "death_sequence": "death_timer 0..19: flashes/wobbles left-right with sound 0x23 every other frame; 20..39: holds pose 8; at 40 sets boss_is_dead -> rewards.",
+   "respawn": "Never after defeat (defeated word). Resets fully if the fight is abandoned.",
+   "evidence": [
+    "3_Assembly/ida/crab.asm 121-285 Cangrejo_AI_proc (hit scan, x4/x8 damage, 2-column knockback, 1/8 RNG crouch trigger, patrol 1 col per 2 frames)",
+    "3_Assembly/ida/crab.asm 291-302 boss_move_left/right limits 0x10/0x31",
+    "3_Assembly/ida/crab.asm 344-402 trigger_acid_drop + acid_descent_sequence (line 522) jump arc; acid_droplet_spawn_sequence droplet type 0x35",
+    "3_Assembly/ida/crab.asm 528-571 death_sequence_handler; 662-674 part layouts; 679-706 apply_damage_to_boss; 709-716 descriptor (x 0x2B, y 0x0C, HP 0x96, XP 0x78, almas 150, 'Cangrejo')",
+    "3_Assembly/tasm/bin/zelres3/309CRAB.bin header DS:A010.. = 06 x16 (contact damage)",
+    "3_Assembly/tasm/bin/zelres3/321MP1D.mdt descriptor initialisers: [C010]=C224,[C00A]=C1B6,[C226]=FF05,[0000]=FFFF",
+    "3_Assembly/ida/fight.asm 2735-2760 reward code; 2909-2999 load_place_and_reinit"
+   ],
+   "confidence": "high (fully annotated IDA source + release bytes)",
+   "conflicts": "Community says 150 almas + 120 XP (matches). Community 'throws toxic spit while jumping' matches the droplet. Name: community pages use both 'Cangrejo' and 'Cangreo'; the game prints 'Cangrejo'."
+  },
+  {
+   "id": "pulpo",
+   "name": "Pulpo",
+   "name_variants": [
+    "Giant Octopus",
+    "Tako (Japanese module name)"
+   ],
+   "name_note": "HUD string 'Pulpo' in 310TAKO.bin (A A8D name block).",
+   "chunk": "310TAKO (TAKO.BIN, eai_bin_idx 3)",
+   "graphics": "TAKO.GRP",
+   "arena_map": "MP2D",
+   "world": 2,
+   "start_position": {
+    "x": 36,
+    "y": 16
+   },
+   "body": "Stationary. 7 columns of 8 rows emitted from sprite_pat_tbl_a patterns (tako_vector_tbl masks); pattern set chosen by dl = 0 (all arms), 8 (hurt/alt), 16 (front arms gone), 24 (spit pose).",
+   "hp": 250,
+   "xp": 200,
+   "almas": 200,
+   "contact_damage": {
+    "all_parts": 10,
+    "spit": 10
+   },
+   "damage_taken": {
+    "formula": "HP -= Get_Stats(source) * 2; parts whose id (record byte +4) >= 0x0E take * 4.",
+    "note": "Part-id >= 0x0E parts are the double-damage area (exact sprite region not decoded from the pattern tables)."
+   },
+   "knockback": "None (Pulpo never moves).",
+   "projectiles": [
+    {
+     "name": "toxic spit",
+     "kind": "monster-slot hazard: up to 4 consecutive columns, record byte +4 = 0x30 (contact damage index 0 = 10), frames from the table at DS:AA20+(n-1)*4",
+     "spawn": "x = boss_x+4, y = boss_y+4 when a spit cycle fires",
+     "path": "moves left 1 column per frame for 24 frames (counter 1..0x19), then vanishes",
+     "damage": 10
+    }
+   ],
+   "phases": [
+    {
+     "id": "passive",
+     "does": "Sits animating (8-frame cycle). Never attacks. The hero can rest in the arena.",
+     "timing": "until hit",
+     "transition": "Each hit while not already flinching: flag_a += 8 (0 -> 8 on first hit, 8 -> 16 on the next hit after the flinch ends) and a 16-frame flinch starts (sound 0x26)."
+    },
+    {
+     "id": "flinch",
+     "does": "Alternates between the hurt pattern set and the normal set every frame (flag_b toggles 0x20).",
+     "timing": "16 frames (1.35 s)",
+     "transition": "back to previous behaviour; once flag_a reaches 16 (front two limbs removed) the spit cycle is enabled"
+    },
+    {
+     "id": "spit_cycle",
+     "does": "Only when flag_a == 16. Wind-up 4 frames (flag_c low 2 bits count, pose alternates), then fires the spit (sound 0x27); the spit travels 24 frames; when it expires a new wind-up starts. Paused while flinching.",
+     "timing": "about 29 frames per spit (~2.4 s)",
+     "transition": "repeats until death"
+    }
+   ],
+   "weak_points": "Parts with id >= 0x0E double damage.",
+   "invulnerable": "None; no damage once dying.",
+   "requirements": [
+    "Door to Pulpo's lair in Peligro (MP20) needs an ordinary key (community: 'Key, Pulpo's Lair' save byte 0x0A bit 0x10)."
+   ],
+   "rewards": {
+    "xp": 200,
+    "almas": 200,
+    "tears": 1,
+    "flags": [
+     "save word 0x08 = FFFF (Pulpo_Defeated)",
+     "post-boss object: ordinary key (type 0x76), save byte 0x0B bit 0x10",
+     "exit door (to map 2 = MP20... dest map id 2, x=0xBE, y=0x2F) records byte 0x0B bit 0x08 (Tear)"
+    ]
+   },
+   "death_sequence": "timer 0..19: alternates normal/hurt pattern each frame with sound 0x28; 20..39: hurt pose; 40: completion.",
+   "respawn": "Never after defeat; resets if abandoned.",
+   "evidence": [
+    "3_Assembly/masm/working/zelres3/code/310TAKO.asm 391-427 scan_done (x2/x4 damage by part id >= 0Eh, flinch/limb counter flag_a += 8)",
+    "310TAKO.asm 428-560 dispatch_phase / flag_c spit cycle (A0h launch at row_pos+4 / row_delta+4, dec x per frame, stop at count 19h)",
+    "310TAKO.asm 660-688 subtract_hp_amount (HP word at AA83), 696-730 death_phase",
+    "3_Assembly/tasm/bin/zelres3/310TAKO.bin descriptor at AA80: 24 00 10 FA 00 C8 00 07 FF 8D AA C8 00 (x 36, y 16, HP 250, XP 200, almas 200), contact table 0A x16",
+    "324MP2D.mdt initialisers [C010]=C346,[C00A]=C2DC,[C348]=FF0D,[0008]=FFFF"
+   ],
+   "confidence": "medium-high (mechanics clear; which sprite parts are 'weak' not visually confirmed)",
+   "conflicts": "Community 'spit pushes player to end of cavern': no push is coded in TAKO - the spit is an ordinary contact hazard (the push is probably the generic contact knock-back of 200FIGHT). Community 'passive until attacked' and 'removes front 2 limbs when damaged' confirmed (spit only after the second limb stage). Community lists 2 crystals for some bosses: code awards exactly one Tear per boss arena (Tears count is incremented once by 300ROKAD)."
+  },
+  {
+   "id": "pollo",
+   "name": "Pollo",
+   "name_variants": [
+    "Giant Chicken",
+    "Tori (Japanese module name)"
+   ],
+   "name_note": "HUD string 'Pollo'.",
+   "chunk": "311TORI (TORI.BIN, eai_bin_idx 5)",
+   "graphics": "TORI.GRP",
+   "arena_map": "MP3D",
+   "world": 3,
+   "start_position": {
+    "x": 46,
+    "y": 18
+   },
+   "body": "Up to 9 columns x 8 rows composed from 4 overlay layers (body/flinch, neck direction 0..3, wing/swoop 0..2, legs 0..3) or the glide/landing sprites.",
+   "hp": 500,
+   "xp": 500,
+   "almas": 500,
+   "contact_damage": {
+    "head_part_id_0": 56,
+    "other_parts": 18
+   },
+   "damage_taken": {
+    "formula": "HP -= Get_Stats(source) * 2; the head (part id 0) takes * 8.",
+    "example": "Spirit Sword level 4 (6) = 12 on the body, 48 on the head."
+   },
+   "knockback": "When hit on the ground it steps 1 column right (if x < 48). When hit while gliding the glide is cancelled and it lands. Every hit shows a 4-frame flinch pose.",
+   "movement_range": {
+    "x_min": 13,
+    "x_max": 48,
+    "y_ground": 18,
+    "y_glide_top": 14
+   },
+   "projectiles": [
+    {
+     "name": "beak projectile",
+     "kind": "standard enemy projectile (record at DS:A766: tile A7, max 50 steps, dir 4, damage 0x28)",
+     "spawn": "(boss_x+4, boss_y+4)",
+     "path": "straight left, 1 column per frame, up to 50 columns",
+     "damage": 40
+    }
+   ],
+   "phases": [
+    {
+     "id": "stalk",
+     "does": "Every 2 frames compares boss_x with the hero's x: if the gap > 12 it walks 1 column left (neck anim +1); if < 12 it backs off 1 column right (neck anim -1); at exactly 12 it holds. Legs animate every frame.",
+     "timing": "1 column per 2 frames",
+     "transition": "RNG & 0x0F == 0 each frame (1/16) -> shoot; if holding at distance 12, RNG & 0x1F == 0 (1/32) -> flap_attack; if it cannot back off (x >= 48, cornered) -> flap_attack; if hit while x >= 20 -> flap_attack"
+    },
+    {
+     "id": "shoot",
+     "does": "Head bob: every 3rd frame the dive counter increments (sound 0x2A, 2-frame pose) twice, then fires the beak projectile.",
+     "timing": "~6 frames wind-up",
+     "transition": "-> stalk"
+    },
+    {
+     "id": "flap_attack",
+     "does": "Flaps wings: every 3rd frame a flap (sound 0x2A, 4-frame pose), 4 flaps.",
+     "timing": "~12 frames (1 s)",
+     "transition": "-> glide"
+    },
+    {
+     "id": "glide",
+     "does": "Rises 1 row per frame from y 18 to 14, flies left 1 column per frame (while x >= 17), wing sound 0x2B every 4 frames.",
+     "timing": "up to 15 frames",
+     "transition": "ends when the 15-frame counter expires, it reaches x < 17, or it is hit -> landing"
+    },
+    {
+     "id": "landing",
+     "does": "Descends 1 row every 2 frames back to y 18, moving 1 column left on each descent step (if x >= 13).",
+     "timing": "~8 frames",
+     "transition": "-> stalk"
+    }
+   ],
+   "weak_points": "Head (part id 0): x4 relative to body (x8 vs x2) and it is also the dangerous part (56 contact).",
+   "invulnerable": "None; no damage once dying.",
+   "requirements": [
+    "Hero's Crest (save 0x9C) so the Bosque sentry lets you pass",
+    "Pollo's lair door key (community 'Key, Pollo's Lair' save byte 0x13 bit 0x04)"
+   ],
+   "rewards": {
+    "xp": 500,
+    "almas": 500,
+    "tears": 1,
+    "flags": [
+     "save word 0x10 = FFFF (Pollo_Defeated)",
+     "post-boss object: key (type 0x76), save byte 0x13 bit 0x04",
+     "exit door (dest map id 6, x=0xAE, y=0x04) records byte 0x13 bit 0x02 (Tear)"
+    ]
+   },
+   "death_sequence": "40 frames: first 20 flap/turn animation with sound 0x2C, then turning pose; then completion. Active projectiles are cleared on death (fight_cb 603Ch).",
+   "respawn": "Never after defeat; resets if abandoned.",
+   "evidence": [
+    "3_Assembly/masm/working/zelres3/code/311TORI.asm 441-474 scan_done (x2, head part id 0 -> x8, hit knock-right / glide cancel). NB the MASM labels tori_hp/tori_row_hi/tori_row_lo are really boss x / y / HP (descriptor at A773).",
+    "311TORI.asm 482-530 check_glide_branch / attack_advance (glide and landing)",
+    "311TORI.asm 531-583 check_phase_limit / land_aim (flap x4, projectile via fight_cb 603Ah with record A766)",
+    "311TORI.asm 588-651 walk_dispatch (distance-12 stalking, RNG triggers)",
+    "311TORI.asm 817-886 helpers: move-left if x >= 0Dh / >= 11h, move-right if x < 30h; 888-923 tori_apply_damage; 931-960 death_phase",
+    "3_Assembly/tasm/bin/zelres3/311TORI.bin: A766 = 00 00 A7 00 32 04 28 (projectile), descriptor 2E 00 12 F4 01 F4 01 (x 46, y 18, HP 500, XP 500), almas 0x01F4, contact table 38 12 12..."
+   ],
+   "confidence": "high for stats/damage, medium for exact phase timings",
+   "conflicts": "Community describes 'neck peck' as a distinct attack; in code the peck is the head part (56 contact damage) reaching the hero while stalking/flapping, not a separate state. Community '500 almas + 500 XP' matches."
+  },
+  {
+   "id": "agar",
+   "name": "Agar",
+   "name_variants": [
+    "Giant Agar Block",
+    "Zela (module name)"
+   ],
+   "name_note": "HUD string 'Agar'.",
+   "chunk": "312ZELA (ZELA.BIN, eai_bin_idx 7)",
+   "graphics": "ZELA.GRP",
+   "arena_map": "MP4D",
+   "world": 4,
+   "start_position": {
+    "x": 48,
+    "y": 12
+   },
+   "body": "8 columns x 6 rows (4 part columns x 3 part rows of 2x2 cells) from a 12-entry tile buffer.",
+   "hp": 500,
+   "xp": 1000,
+   "almas": 600,
+   "contact_damage": {
+    "all_parts": 30
+   },
+   "damage_taken": {
+    "formula": "HP -= floor(Get_Stats(source) / 2); if the source is 4 (Fuego spell) the result is * 4 (Fuego base 8 -> 16).",
+    "note": "Swords do half damage; a Training Sword at level 0/1 (damage 1) does 0. Fuego is the effective spell."
+   },
+   "knockback": "Every hit pushes Agar 2 columns away from the hero (bounds 17..50).",
+   "movement_range": {
+    "x_min": 17,
+    "x_max": 50
+   },
+   "projectiles": [
+    {
+     "name": "sphere (left)",
+     "kind": "standard enemy projectile (record DS:A552: tile 15h, max 50, dir 4, damage 0x50)",
+     "spawn": "(boss_x+1, boss_y+3)",
+     "path": "straight left 1 column/frame, up to 50",
+     "damage": 80
+    },
+    {
+     "name": "sphere (right)",
+     "kind": "standard enemy projectile (record DS:A55F: tile 14h, max 50, dir 0, damage 0x50)",
+     "spawn": "(boss_x+7, boss_y+3)",
+     "path": "straight right 1 column/frame, up to 50",
+     "damage": 80
+    }
+   ],
+   "phases": [
+    {
+     "id": "slither",
+     "does": "Body animation phase advances every 2 frames (8 phases = 16-frame cycle). Moves toward the hero: 1 column left on each frame the phase is 0 when the hero is left of it, 1 column right when the phase is 4 and the hero is right (about 2 columns per 16 frames).",
+     "timing": "16-frame cycle",
+     "transition": "each frame RNG & 0x0F == 0 (1/16) -> jump; while not jumping, RNG & 1 == 0 may arm a shot aimed at the hero's side (armed on phase 2 for the left shot / phase 6 for the right shot, fired when the phase reaches 4 / 0)"
+    },
+    {
+     "id": "shoot",
+     "does": "Fires one sphere toward the hero (left or right record).",
+     "timing": "arm-to-fire 2..4 phase steps",
+     "transition": "-> slither"
+    },
+    {
+     "id": "jump",
+     "does": "3-frame crouch, then a 10-step table (zela_dispatch_tbl A307): y-1; y-1 + 1 column toward hero (x3); 1 column toward hero (x2); y+1 + 1 column (x3); y+1 and end. Horizontal steps stop when it is directly over the hero (x == hero_ref) so it lands on the hero. Then a 4-frame landing recovery.",
+     "timing": "~17 frames",
+     "transition": "-> slither"
+    }
+   ],
+   "weak_points": "None by part; weak to Fuego (x4 multiplier on top of the halving).",
+   "invulnerable": "Effectively immune to weak swords at low level (damage rounds to 0). No damage once dying.",
+   "requirements": [
+    "Ruzeria Shoes for the ice approach (community)",
+    "Agar's lair door key (Escarcha, save byte 0x1B bit 0x01)"
+   ],
+   "rewards": {
+    "xp": 1000,
+    "almas": 600,
+    "tears": 1,
+    "flags": [
+     "save word 0x18 = FFFF (Agar_Defeated)",
+     "no reward object",
+     "exit door (dest map id 0x0B, x=0x19, y=0x0E) records byte 0x1C bit 0x10 (Tear)"
+    ]
+   },
+   "death_sequence": "40 frames: first 20 cycling animation with sound 0x28 every 4 frames, then static; completion.",
+   "respawn": "Never after defeat; resets if abandoned.",
+   "evidence": [
+    "3_Assembly/masm/working/zelres3/code/312ZELA.asm 272-300 npc_scan_done (damage >> 1, source 4 -> x4, 2-column knockback). MASM labels are mis-named: zela_scroll_x = boss x (A5EE), zela_scroll_phase = y, zela_scroll_y = HP (A5F1).",
+    "312ZELA.asm 321-370 state_check_phase_started (1/16 jump trigger, 3-frame crouch) and capstone disassembly of A31B-A348 (jump step handlers) + table A307 = A334,A33E,A33E,A33E,A348,A348,A343,A343,A343,A31B",
+    "312ZELA.asm 648-672 init_tile_slots (projectile records A552/A55F via fight_cb 603Ah); 674-700 bounds 11h..32h; 717-739 apply_scroll_offset (= HP subtract); 741+ death_handler",
+    "3_Assembly/tasm/bin/zelres3/312ZELA.bin: A552 = 00 00 15 00 32 04 50, A55F = 00 00 14 00 32 00 50; descriptor 30 00 0C F4 01 E8 03 .. 58 02; contact 1E x16"
+   ],
+   "confidence": "medium-high (MASM disassembly garbled; key paths verified by capstone on release bytes)",
+   "conflicts": "Community: 'Fuego does good damage but Agar retreats' - consistent (x4 multiplier + 2-column knockback). Community '600 almas, 1000 XP' matches."
+  },
+  {
+   "id": "vista",
+   "name": "Vista",
+   "name_variants": [
+    "Flying Cyclops Fish-Cow",
+    "Meda (module name)"
+   ],
+   "name_note": "HUD string 'Vista'.",
+   "chunk": "313MEDA (MEDA.BIN, eai_bin_idx 9)",
+   "graphics": "MEDA.GRP",
+   "arena_map": "MP5D",
+   "world": 5,
+   "start_position": {
+    "x": 48,
+    "y": 11
+   },
+   "body": "Up to 14 columns x 12 rows composed from 4 layers (body, wings, head pose 0..5 chosen from hero offset, tail/mouth anim 0..4).",
+   "hp": 700,
+   "xp": 3000,
+   "almas": 800,
+   "contact_damage": {
+    "all_parts": 30
+   },
+   "damage_taken": {
+    "formula": "HP -= floor(Get_Stats(source) / 8); if the source is the sword (1) AND sword_type >= 4 (Knight's, Illumination or Enchantment Sword) the result is * 32.",
+    "example": "Knight's Sword level 0: floor(8/8)*32 = 32 per hit (22 hits). Spirit Sword: floor((4+L/2)/8) = 0 until level 8, then 1. Guerra: 31. Magia Stone: floor((L+1)*4/8).",
+    "note": "Part flag 0x08 is read but discarded (masked out before the source compare) - no weak point."
+   },
+   "knockback": "None.",
+   "movement_range": {
+    "x_min": 9,
+    "x_max": 49,
+    "y_by_x": "altitude table A6ED indexed by x-9: y 12,11,10,9,8 at x 9..13, y 7 from x 14 to 44, then 8,9,10,11,12 at x 45..49 (it touches down in the corners)"
+   },
+   "projectiles": [
+    {
+     "name": "green spit (pair)",
+     "kind": "standard enemy projectiles (record DS:A6E0: tile 30h, max 50, dir 6 = straight down, damage 0x50)",
+     "spawn": "two drops per volley: (boss_x+6, boss_y+12) and (boss_x+7, boss_y+10)",
+     "path": "straight down 1 row per frame until they hit ground (max 50)",
+     "damage": 80
+    }
+   ],
+   "phases": [
+    {
+     "id": "cruise",
+     "does": "Flies 1 column per frame toward one wall, then reverses (x 9..49); y follows the altitude table, so it is low only at the corners. A mouth counter runs 0..4 each frame; at 4 it spits a volley; at 5 it pauses 3 frames and restarts.",
+     "timing": "volley every 8 frames (~0.68 s); crossing the arena ~40 frames",
+     "transition": "when y == 7 and the hero is under its belly (hero_ref in (x+4, x+6]) -> dive"
+    },
+    {
+     "id": "dive",
+     "does": "Waits 3 frames, then descends 1 row per frame to y 11, then climbs 1 row per frame back to cruise altitude; horizontal motion paused. Spitting continues.",
+     "timing": "~3 + 4 + 4 frames",
+     "transition": "-> cruise"
+    }
+   ],
+   "weak_points": "None; the Knight's Sword (or better) multiplier is the requirement.",
+   "invulnerable": "Practically immune to everything except Knight's/Illumination/Enchantment Sword hits (other sources do Get_Stats/8). No damage once dying.",
+   "requirements": [
+    "Knight's Sword or better (damage gate, see damage_taken)",
+    "Pirika Shoes to cross Gelroid in the Graveyard (community)",
+    "Vista's lair door key (Cementar, save byte 0x23 bit 0x02) and the locked door (save byte 0x24 bit 0x10)"
+   ],
+   "rewards": {
+    "xp": 3000,
+    "almas": 800,
+    "tears": 1,
+    "flags": [
+     "save word 0x20 = FFFF (Vista_Defeated)",
+     "post-boss object: Blue Potion (type 0x79), save byte 0x24 bit 0x08 'Blue Potion (In Vista's Lair)'",
+     "exit door (dest map id 0x0E, x=0x0E, y=0x05) records byte 0x24 bit 0x04 (Tear)"
+    ]
+   },
+   "death_sequence": "40 frames: first 20 with sound 0x23 and head tracking, then head pose 5; completion.",
+   "respawn": "Never after defeat; resets if abandoned.",
+   "evidence": [
+    "capstone disassembly of 3_Assembly/tasm/bin/zelres3/313MEDA.bin A1EA-A286: damage = ah>>3, x32 only when source==1 and [92h] (sword_type) >= 4",
+    "313MEDA.bin A291-A316: dive trigger at y==7 with hero between x+4 and x+6; A408/A412 dive rows 7..0Bh; A41D/A42B x bounds 0Ah..31h; A317 altitude table A6ED",
+    "313MEDA.bin A328-A355 + A3C1-A403: spit counter 0..4, two projectiles from record A6E0 (00 00 30 00 32 06 50)",
+    "313MEDA.bin A575-A5A5 HP subtract/death arm; A5A6-A5DB death sequence",
+    "descriptor A716: 30 00 0B BC 02 B8 0B 0C 00 23 A7 20 03 (x 48, y 11, HP 700, XP 3000, almas 800)",
+    "333MP5D.mdt initialisers [C010]=C257 (Blue Potion object), [C00A]=C1F0, [C259]=FF0D, [0020]=FFFF"
+   ],
+   "confidence": "high for damage gate and projectile; medium for dive timing",
+   "conflicts": "Community says the Knight's Sword is needed because the Spirit Sword 'isn't long enough to reach'. Code shows the real reason is a damage gate: only sword_type >= 4 gets the x32 multiplier (reach may also matter, but it is not the rule). Community 'lands on you, extremely painful' = contact 30 per touching part summed. Community lists 2 crystals: code gives one Tear."
+  },
+  {
+   "id": "tarso",
+   "name": "Tarso",
+   "name_variants": [
+    "Taruso (statue of peace in Dorado lore)",
+    "Giant Titan",
+    "Lega (module name)"
+   ],
+   "name_note": "HUD string 'Tarso'.",
+   "chunk": "314LEGA (LEGA.BIN, eai_bin_idx 11)",
+   "graphics": "LEGA.GRP",
+   "arena_map": "MP6D",
+   "world": 6,
+   "start_position": {
+    "x": 38,
+    "y": 7
+   },
+   "body": "Up to 8 columns x 10 rows from pose tables indexed by walk frame (0..8) and arm pose; part id = (byte >> 4) & 7; bytes with the top bit set become non-contact parts (flags |= 0x60).",
+   "hp": 640,
+   "xp": 6000,
+   "almas": 1500,
+   "contact_damage": {
+    "part_ids_0_to_5": 160,
+    "part_id_6_rock": 80,
+    "part_ids_7_plus": 10
+   },
+   "damage_taken": {
+    "formula": "source 1 (sword): HP -= Get_Stats * 2; source 9 (Magia Stone): HP -= Get_Stats; any other source (spells, platform): HP -= floor(Get_Stats / 8).",
+    "note": "Spells are nearly useless (Guerra 31); sword and Magia Stone are the tools."
+   },
+   "knockback": "Each hit (while x < 47) makes it walk backwards (to the right) for 20 frames.",
+   "movement_range": {
+    "x_min": 14,
+    "x_max": 50
+   },
+   "projectiles": [
+    {
+     "name": "rolling rock",
+     "kind": "monster-slot hazard (record byte +4 = 0x26, contact damage index 6 = 80)",
+     "spawn": "(boss_x+4, boss_y) at the throw",
+     "path": "per-frame (dx,dy) table A5D8: (-1,0),(-1,0),(-1,+1),(0,+2),(-1,+2),(0,+2),(-1,+2),(-1,-2),(-1,0),(-1,+2),(-1,-1),(-1,0),(-1,+1),(-1,0)... then (-1,0) forever: thrown, drops, bounces twice, then rolls left 1 column/frame (bounce sounds at steps 9,12,15). When its x < 18 it shatters (3 frames) and disappears.",
+     "damage": 80
+    }
+   ],
+   "phases": [
+    {
+     "id": "advance",
+     "does": "Walk frame cycles 0..7 each frame; on frames 2,5,6,7,0 it steps 1 column left (twice on frame 7): ~6 columns per 8 frames toward the hero side. Arm swing pose cycles 0,1,2,1.",
+     "timing": "continuous",
+     "transition": "at x <= 14 -> retreat; hit (x < 47) -> retreat for 20 frames; on walk frame 6 with RNG & 1 == 0, no rock active and x >= 20 -> throw (sound 0x30 'stomp')"
+    },
+    {
+     "id": "retreat",
+     "does": "Walk frames run backwards; on frames 7,6,3,1 it steps 1 column right.",
+     "timing": "up to 60 frames (20 after a hit) or until x reaches 50",
+     "transition": "-> advance"
+    },
+    {
+     "id": "throw",
+     "does": "3 frames: wind-up pose (spawns the rock), release pose, recover. While the rock is in its first 13 steps Tarso stands still.",
+     "timing": "3 frames + up to 13 frames standing",
+     "transition": "-> advance"
+    }
+   ],
+   "weak_points": "None by part; weak to the sword (x2) and Magia Stone, resistant to spells (/8).",
+   "invulnerable": "No damage once dying.",
+   "requirements": [
+    "Silkarn Shoes / Light Shield recommended (community)",
+    "Tarso's lair door key (save byte 0x2D bit 0x20 per community list) and locked door (save byte 0x2B bit 0x08)"
+   ],
+   "rewards": {
+    "xp": 6000,
+    "almas": 1500,
+    "tears": 1,
+    "flags": [
+     "save word 0x28 = FFFF (Tarso_Defeated)",
+     "post-boss object: key (type 0x76), save byte 0x2D bit 0x20",
+     "exit door (dest map id 0x0E, x=0x1C, y=0x2E) records byte 0x2D bit 0x10 (Tear)"
+    ]
+   },
+   "death_sequence": "40 frames: first 10 play a collapse sequence (walk frames 0,1,2,3,6,7,6,3,2,...; sound 0x33 on frames >= 3), then the fallen pose; completion.",
+   "respawn": "Never after defeat; resets if abandoned.",
+   "evidence": [
+    "capstone disassembly of 3_Assembly/tasm/bin/zelres3/314LEGA.bin A26D-A2B4: source 9 x1, source 1 x2, else >>3; hit -> retreat 20 frames",
+    "314LEGA.bin A2DA-A39E: advance/retreat walk tables A41F [2,5,6,7,0] / A424 [1,3,6,7,7], move helpers A429 (left, min 14) / A43B (right, max 50), throw trigger (walk frame 6, RNG&1, x>=20)",
+    "314LEGA.bin A3B5-A419 throw steps; A544-A5D7 rock flight with table A5D8, shatter at x<18; A5FA-A643 rock record type 0x26",
+    "314LEGA.bin A644-A66D HP subtract (HP word A7A3), A66E+ death sequence",
+    "descriptor A7A0: 26 00 07 80 02 70 17 08 FF AD A7 DC 05 (x 38, y 7, HP 640, XP 6000, almas 1500); contact table A0 A0 A0 A0 A0 A0 50 0A..",
+    "337MP6D.mdt initialisers [C010]=C2EA, [C00A]=C281, [C2EC]=FF05, [0028]=FFFF"
+   ],
+   "confidence": "high for stats/damage/rock, medium for walk cadence",
+   "conflicts": "Community 'less health than Vista' confirmed (640 vs 700). Community 'stomps foot occasionally' = the throw wind-up sound 0x30. Community lists 2 crystals; code gives one Tear."
+  },
+  {
+   "id": "paguro",
+   "name": "Paguro",
+   "name_variants": [
+    "Paguro"
+   ],
+   "name_source": "The Pascal string 'Paguro' at DS:A5EF in 315ZEL2.bin. The MDT MP73 is named 'In the Hut'.",
+   "chunk": "315ZEL2 (ZEL2.BIN). The eai_bin_idx 18 table entry is ZEL2.BIN. It is Agar's (312ZELA) code with different constants.",
+   "graphics": "ZELA.GRP (the MP73 descriptor's boss_grp is 7, which is the ZELA sprite set, shared with Agar)",
+   "arena_map": "MP73 ('In the Hut'). This is a boss map (descriptor byte0 0x99, boss_ai 18) reached from a house in Llama town. Its cavern_level byte is 1.",
+   "world": 7,
+   "hp": 600,
+   "xp": 3000,
+   "almas": 1600,
+   "descriptor_raw": "DS:A5DF: 30 00 0c 58 02 b8 0b 0c 00 ec a5 40 06 11 bb 00 06 'Paguro'. This decodes to x=48, y=12, hp=600, xp=3000, hero entry viewport x=12, name ptr A5EC, almas=1600.",
+   "size": "8 x 6 tiles: 4 columns x 3 rows of 2x2 cells at (x+0/2/4/6, y+0/2/4). X is clamped to 17..50 (subroutines A525/A534). Y only changes during a jump.",
+   "contact_damage": {
+    "all_body_cells": 30,
+    "table": "A010..A02F are all 0x1E"
+   },
+   "damage_taken": "Get_Stats(source) >> 1 for every source (A224: shr bl,1). No weak point and no spell bonus. Agar (312ZELA) is identical except that Fuego takes (x>>1)*4. Paguro has no such bonus.",
+   "knockback_on_hit": "On any hit the boss is shoved 2 tiles away from the hero: if boss_x < H-1 it moves 2 left, otherwise 2 right (A230..A251). Walls stop the shove.",
+   "projectiles": [
+    {
+     "name": "spit ball (fired left)",
+     "record": "DS:A543, 13-byte projectile struct: x_rel = column of boss_x+1, y = boss_y+3, base tile 05, max_steps 0x32 (50), trajectory dir 4 (straight west), p_damage 0x78 (120), curve ptr 0 (straight)",
+     "damage": 120,
+     "fired_when": "The boss is right of the hero (boss_x >= H+2).",
+     "path": "Straight horizontal. It advances one tile per projectile update (fight.asm projectile_advance_position), is removed on hitting a blocking tile or after 50 steps, and is added via Add_Projectile_To_Array (cs:603A)."
+    },
+    {
+     "name": "spit ball (fired right)",
+     "record": "DS:A550: x_rel = column of boss_x+7, y = boss_y+3, tile 04, max 50, dir 0 (east), damage 120",
+     "damage": 120,
+     "fired_when": "The boss is entirely left of the hero: boss_x < H+2 and boss_x+7 < H.",
+     "path": "Straight horizontal east."
+    }
+   ],
+   "projectile_blocking_note": "This is the general engine rule (fight.asm around 84CD). A horizontal projectile does no damage if the hero has a shield, faces it, is not swinging and is not on a rope, and the shield is Honor or better. With a weaker shield it is blocked only when it arrives at shield height. A projectile from behind always hits.",
+   "phases": [
+    {
+     "id": "creep",
+     "does": "The walk-cycle byte (A5F6) advances every 2 frames (0..7). When the boss is left of the reference R = H+2 it steps 1 tile right on walk phase 4. When it is right of R it steps 1 tile left on walk phase 0. Net speed is 1 tile per 16 frames (about 1.35 s/tile). The body slowly slides over the hero.",
+     "timing": "1 tile / 16 frames",
+     "transition": "Each frame (while not jumping, not mid-spit and not dying) there is a 1/16 RNG chance (Accumulate_folded_ff1b & 0Fh == 0) to start a jump (A265..A2AA)."
+    },
+    {
+     "id": "spit",
+     "does": "Only when not jumping and no spit is pending (A5F7==0). On frames where RNG bit0==0: if the boss is right of R and the walk phase is 2, it sets spit mode 1, opens its mouth (cells A606/A60C use types 0E/0F) and fires the west ball when the walk phase reaches 4. If it is fully left of the hero and the walk phase is 6, it sets mode 2 (mouth types 0C/0D) and fires east at phase 0.",
+     "timing": "The chance of a spit starting in each 16-frame walk cycle is about 75%. The ball leaves 4 frames after the mouth opens.",
+     "transition": "Spit mode clears when the ball is spawned (A4E3)."
+    },
+    {
+     "id": "jump_onto_hero",
+     "does": "It picks a direction at the start (A5F9=FF means leftward if boss_x >= H-2, otherwise rightward). There are 4 crouch frames. Then an air script of 10 frames runs from table A2F8: [rise 1], [rise 1 + step], [rise 1 + step], [rise 1 + step], [step], [step], [fall 1 + step], [fall 1 + step], [fall 1 + step], [fall 1 + land]. That is up 4 tiles, down 4 tiles, and up to 8 one-tile horizontal steps. Horizontal steps stop as soon as boss_x == H-4 (the body centred on the hero) or a wall is hit. Then 4 landing-crouch frames follow. The landing on the hero deals contact damage from every overlapping cell (30 each, several cells).",
+     "timing": "About 18 frames (about 1.5 s): 4 crouch + 10 air + 4 land",
+     "transition": "Back to creep. There is no spitting while jumping."
+    }
+   ],
+   "weak_points": "None. All 12 cells take the same halved damage.",
+   "invulnerable": "Never, except during the death animation.",
+   "requirements": [
+    "None in code. The hut is entered from Llama town. Any sword or spell works."
+   ],
+   "rewards": {
+    "xp": 3000,
+    "almas": 1600,
+    "tears": 0,
+    "save_flags": "Post-victory initialisers after the MP73 descriptor: [C010]=C1A7 (new monster table), [C00A]=C173 (new doors), and save word 0x30 (Paguro_Defeated)=FFFF.",
+    "elf_crest": "Not given by the boss. Afterwards the Llama girl's dialog (town.asm around 6685) sets caliente_items (save 0x34) bit7 'spoke to the girl after defeating Paguro' and elf_crest (save 0x9A)=FF."
+   },
+   "death_sequence": "Death counter A601. On frames 1-20 the body flashes (FF2F), the walk anim cycles, and sound 28h plays every 4 frames. Frames 21-40 hold anim phase 2. At frame 40 boss_is_dead is set (A58B..A5D9). Live projectiles are cleared at the killing blow (jmp Browse_Projectiles).",
+   "respawn": "Once Paguro_Defeated (0x30) is FFFF it does not return: the post-victory table swap persists through the save flag.",
+   "evidence": [
+    "315ZEL2.bin DS:A1B6-A254: part scan, hit source, Get_Stats >>1, sound 24h, apply damage A55D, 2-tile shove",
+    "DS:A25E-A2AF: 1/16 jump trigger and direction choice; A2AF-A2F5 crouch counter and air-script dispatch through table A2F8 (A325 rise, A32F rise+step, A339 step, A334 fall+step, A30C land)",
+    "DS:A362-A3B7: creep toward H+2 on walk phases 0/4",
+    "DS:A3EB-A457 and A4E3-A524: spit decision and projectile spawn from records A543/A550",
+    "DS:A525/A534: X clamp 17..50. DS:A55D-A586: HP subtract and death. DS:A58B-A5DE: death animation",
+    "DS:A5DF descriptor. DS:A010: contact table all 0x1E",
+    "312ZELA.bin diff: identical code except the Fuego x4 bonus (A228) and projectiles with damage 0x50",
+    "MP73.mdt descriptor [153,0,10,18,255,7,0,0,...] plus initialisers [C010]=C1A7,[C00A]=C173,[0030]=FFFF",
+    "ida/town.asm around 926-934: elf_crest set when talking to the girl"
+   ],
+   "confidence": "high for numbers and the state machine; medium for exact projectile travel speed (engine side)",
+   "conflicts": "Community: 'Agua 3-4 shots kill Paguro'. By code, Agua does 64>>1 = 32 per registering frame. A single Agua bolt passing through the 8-wide body can register on several frames, so a few casts is plausible. I kept the code formula. Community says 'same as Agar': true except for the Fuego weakness and the projectile damage (Agar 80, Paguro 120)."
+  },
+  {
+   "id": "dragon",
+   "name": "Dragon",
+   "name_variants": [
+    "Dragon",
+    "Dragon of the 4Ds (fan site)"
+   ],
+   "name_source": "The Pascal string 'Dragon' at DS:AA4D in 316DRGN.bin",
+   "chunk": "316DRGN (DRGN.BIN, eai_bin_idx 13)",
+   "graphics": "DRGN.GRP (MP7D boss_grp 13)",
+   "arena_map": "MP7D (Burning Inferno boss room, descriptor byte0 0x99, 70 tiles wide)",
+   "world": 7,
+   "hp": 800,
+   "xp": 12000,
+   "almas": 2500,
+   "descriptor_raw": "DS:AA3C: 1e 00 08 20 03 e0 2e 05 00 49 aa c4 09 11 bb 00 06 'Dragon'. This decodes to x=30, y=8, hp=800, xp=12000, hero entry viewport x=5, almas=2500.",
+   "size": "29 columns x 10 rows, facing left (the head is at the low-X end). Assembly per frame (A542..A5E4) into a 29x10 cell grid at (x.., y..): head/neck piece by pose at columns 0-11 (rows 1..), body (2 frames, alternating each frame) at columns 12-22, two leg pieces (4-frame walk cycle) at columns 9-15 and 17-23 (rows 6..), tail at columns 25-28. X ranges 15..30 (A521/A532). Y is fixed at 8.",
+   "part_types": {
+    "0": "head (bytes 00-07)",
+    "1-2": "neck",
+    "3-4": "body",
+    "5": "legs",
+    "7": "jaw/neck variant in pose 5",
+    "8": "arc flame cells",
+    "9": "low flame cells"
+   },
+   "contact_damage": {
+    "head_type0": 40,
+    "neck_body_legs_types1_7": 30,
+    "flame_types8_9": 40,
+    "table": "A010: 28 1e 1e 1e 1e 1e 1e 1e 28 28"
+   },
+   "damage_taken": "d = Get_Stats(source) >> 1. If the source is not the sword (spells and Magia Stone), d >>= 2 more, giving 1/8. If the struck cell is type 0 (the head), d is doubled. So a sword on the head does full damage and on the body half. Spells on the head do 1/4 and on the body 1/8 (A345..A381).",
+   "reaction_to_hits": {
+    "head_hit": "Sound 34h. Cancels any breath wind-up or flame (AA61/AA56=0). Starts a retreat of up to 7 tiles to the right (AA5F=FF, AA60=8) and plays a 7-frame reaction pose script (AA68). If the dragon was in a raised-head pose (<6): poses 10,9,6,3,2,3,3. That is, the head slams down to ground level at the front (the 'chomp') and then recovers. If it was in a low pose (>=6): poses 3,2,3,2,1,3,3.",
+    "body_hit": "Sound 35h. Sets retreat (AA5F=FF) without reloading the counter. With the counter at 0 this means backing up 1 tile per 2 frames until the right limit x=30."
+   },
+   "projectiles": [],
+   "breath_is_contact_cells": "The flame is not a projectile. It is drawn as extra body cells (types 8/9, flagged 0x20 so it cannot be hit) that do 40 contact damage per cell per frame, reduced by the shield if the hero faces the dragon.",
+   "phases": [
+    {
+     "id": "advance",
+     "does": "When not retreating, breathing or winding up, it walks left 1 tile every 2 frames down to x=15, animating its legs. When retreating it walks right 1 tile every 2 frames until the counter expires or x=30.",
+     "timing": "1 tile / 2 frames (about 5.9 tiles/s)",
+     "transition": "Each frame it chooses a pose (below)."
+    },
+    {
+     "id": "pose_select",
+     "does": "The pose depends on the hero's X (H) relative to the dragon's front x. If H < x (hero in front of the snout): low-neck pose 7 (via 6), with the head at ground level at columns 0-2. If x <= H < x+5 (hero under the raised head): pose 0 (head high at columns 3-5). If H >= x+5 (hero under the body): pose 4 (head mid-height). Changing between high and low passes through pose 6 for one frame.",
+     "timing": "Every frame unless a reaction script, wind-up or flame is running",
+     "transition": "When in pose 0, 4 or 7, each frame has a 1/4 chance (RNG & C0h == 0) to begin a breath wind-up."
+    },
+    {
+     "id": "breath_windup",
+     "does": "The dragon stands still and alternates pose p / p+1 for 6 frames (chewing), then sets pose p+1 and ignites (AA56=FF, sound 36h).",
+     "timing": "6 frames (about 0.5 s)",
+     "transition": "Flame. A head hit during the wind-up cancels it: this is the 'interruptible lean-down' from the community notes."
+    },
+    {
+     "id": "flame",
+     "does": "Lasts 10 frames with sound 36h every frame. The flame anim frame runs 1,2,3,2,3,... Geometry (cell offsets from the dragon's x,y). For the far/under-head breath (pose 1) and the under-body breath (pose 5, shifted 4 tiles right): an arc of cells from the mouth at (x+2,y+4) curving down-left to a ground strip at rows y+8, columns x-5..x+1 (pose 1) or x-1..x+5 (pose 5). For the low-neck breath (pose 8): a horizontal jet on row y+6 that grows from (x-2..x-1) to cells at x-10,x-9,x-7,x-5,x-3,x-1 over 3 frames. The hero standing in front at ground level is inside it.",
+     "timing": "10 frames (about 0.85 s)",
+     "transition": "Back to pose selection. Movement resumes."
+    },
+    {
+     "id": "chomp",
+     "does": "There is no separate bite routine. The 'chomp' is the head-hit reaction script starting with poses 10/9, where the head cells (40 contact damage each) drop to the front at ground level. Poses 7-10 also keep the head low at the snout. Jumping to hit the raised head therefore triggers a head-slam onto the hero.",
+     "timing": "The first 2 frames of the 7-frame reaction script"
+    }
+   ],
+   "weak_points": "The head (type-0 cells, 1-3 cells depending on pose) takes 2x the body damage. The body takes half sword damage. Spells are nearly useless (1/8 on the body).",
+   "invulnerable": "Flame cells cannot be hit. There are no invulnerability frames on the body. It is invulnerable while dying.",
+   "requirements": [
+    "Asbestos Cape to cross the Burning Inferno (environment, not checked by the boss code)",
+    "The boss-door key per the MDT (caliente_items bit 4 'Open locked door to Dragon's lair')"
+   ],
+   "rewards": {
+    "xp": 12000,
+    "almas": 2500,
+    "tears": "1 (collected after the fight; save caliente_items_2 0x36 bit7 'Collected a Tear of Esmesanti'. The pickup itself is map/object data in the post-victory monster table C2CC)",
+    "save_flags": "Post-victory initialisers after the MP7D descriptor: [C010]=C2CC, [C00A]=C26E, and save word 0x32 (Dragon_Defeated)=FFFF."
+   },
+   "death_sequence": "Counter AA58. On frames 1-29 it flashes and alternates poses 2/3 with sound 37h every 4 frames. Frames 30-39 hold pose 10 (head down). At frame 40 boss_is_dead is set (A9F2..AA3B).",
+   "respawn": "It does not respawn after Dragon_Defeated is set.",
+   "evidence": [
+    "316DRGN.bin DS:A2DD-A336: cell scan, head flag (type 0 -> bit7 of AA5A)",
+    "DS:A345-A3B5: damage scaling (>>1, spells >>2 more, head x2) and the head-hit reaction setup",
+    "DS:A3DC-A410: walk/retreat every 2 frames, and the A521/A532 limits 15..30",
+    "DS:A410-A48B: 1/4 breath chance in poses 0/4/7, and pose choice by H vs x",
+    "DS:A48E-A4B1 with tables A4B4/A4BB: reaction pose scripts",
+    "DS:A4C2-A51F: 6-frame wind-up, then 10-frame flame",
+    "DS:A542-A687: body assembly (pose tables A783/A810, body A8DE/A8FD, legs A881/A89A, tail A87A)",
+    "DS:A693-A757: flame cells (tables A917/A930 for pose<6, A96C/A985 for pose>=6, x = dragon_x-10, +4 for pose 5)",
+    "DS:A9B4-AA3B: HP and death. DS:AA3C: descriptor. DS:A010: contact table",
+    "MP7D.mdt post-victory initialisers [C010]=C2CC,[C00A]=C26E,[0032]=FFFF"
+   ],
+   "confidence": "high for numbers, damage scaling and the state machine; medium for exact flame-cell geometry (the row/column orientation of the bit-mask tables was inferred from the blit loop) and for the exact hero-reference column (it assumes the camera-centred hero at proximity column 16)",
+   "conflicts": "Community: far = horizontal flame, medium = ground at a distance, close = ground next to him. Code: the low horizontal jet is used when the hero is in front of the snout at any distance; the two arc variants are used when the hero is under the head or body. The community's 'never jump, the neck comes down' matches the head-hit reaction script (poses 10/9). The community's 'spells do little / Agua evaporates' matches the 1/8 spell scaling. I kept the code."
+  },
+  {
+   "id": "alguien",
+   "name": "Alguien",
+   "name_variants": [
+    "Alguien",
+    "Alguein (fan-site typo)"
+   ],
+   "name_source": "The Pascal string 'Alguien' at DS:AA17 in 317AKMA.bin",
+   "chunk": "317AKMA (AKMA.BIN, eai_bin_idx 15)",
+   "graphics": "AKMA.GRP (MP8D boss_grp 15)",
+   "arena_map": "MP8D (Fruit Gardens boss room, 70 wide)",
+   "world": 8,
+   "hp": 800,
+   "xp": 30000,
+   "almas": 3800,
+   "descriptor_raw": "DS:AA06: 2a 00 00 20 03 30 75 0c 00 13 aa d8 0e 10 bb 02 07 'Alguien'. This decodes to x=42, y=0, hp=800, xp=30000, hero entry viewport x=12, almas=3800. The initial direction byte AA21=FF (moving right).",
+   "size": "13 columns x 13 rows (a 13x16 cell grid). Wings (types 1/2) are at the top rows, the body and head (type 0) in the middle, the mouth (type 4, patched cells), the dangling legs/tail (type 3), and type-5 cells at the bottom row (y+12, the 'tail/feet'). X ranges 10..51.",
+   "contact_damage": {
+    "all_body_cells": 40,
+    "breath_cells_type6": 80,
+    "table": "A010: 28 28 28 28 28 28 50 28 ..."
+   },
+   "damage_taken": "Full Get_Stats(source) for every source and every cell (A393..A3A8, no shift). A hit on a type-5 (bottom) cell is flagged (bit7) but the flag is never used for damage.",
+   "projectiles": [],
+   "breath_is_contact_cells": "The breath is a line of cells with part byte 0x26 (body segments, frame 3) and 0x26 (tip, frame 2), or frames 7/6 for the steep variant. They are unhittable (0x20) and do 80 contact damage each.",
+   "phases": [
+    {
+     "id": "sweep",
+     "does": "It flies horizontally 2 tiles per frame in its current direction. The wings flap on a 3-frame cycle (AA20) with a flap sound (2Bh) every 3rd frame. Altitude follows a per-X profile indexed (x-10)/2. Moving right (table A954): y = -4,-4,-3,-2,-1,-1,0,0,0 then 1 for the rest. Moving left (table A969): y = 1 for most, then 0,0,0,-1,-1,-2,-3,-4,-4 near the left end. Y is the top of the 13-row body, so the feet/tail cells ride at about y+12 (about hero height). The hero is 'kicked' by the low cells.",
+     "timing": "2 tiles/frame (about 24 tiles/s). A full crossing of about 41 tiles takes about 21 frames (1.8 s).",
+     "transition": "At an end wall (x cannot move 2 more) it goes to the turn phase."
+    },
+    {
+     "id": "turn_and_rise",
+     "does": "At the wall it rises 2 rows per frame until y == 61 (off the top of the screen), then reverses direction and starts a breath attack (sound 34h). The breath style is chosen when turning at the left wall: steep if the hero X < 40. When turning at the right wall: steep if the hero X >= 20. Otherwise it is shallow.",
+     "timing": "A few frames of rising",
+     "transition": "Next frame it sweeps again. It re-enters at its profile altitude while breathing."
+    },
+    {
+     "id": "breath",
+     "does": "The mouth pose is AA24 = 2 + steep. Length AA26 grows by 1 cell per frame up to 7 (steep) or 8 (shallow), then shrinks by 1 per frame to 0. Cells are drawn from the mouth each frame, anchored to the current body position. Shallow, facing left: cells at (x-2k, y+9+k). Shallow, facing right: (x+11+2k, y+9+k). Steep, facing left: (x+1-2k, y+9+2k). Steep, facing right: (x+10+2k, y+9+2k), for k=1..length. So it is a diagonal line sloping down in the direction of flight, 1:2 (shallow) or 1:1 (steep).",
+     "timing": "About 14-16 frames (about 1.3 s) per turn",
+     "transition": "It ends when the length returns to 0. It then keeps sweeping until the next wall."
+    }
+   ],
+   "weak_points": "None in the damage code. Any cell takes full damage. The community's 'hit the tail' is about reachability: only the bottom cells (y+10..y+12) are within jumping reach.",
+   "invulnerable": "Breath cells cannot be hit. It is invulnerable only while dying.",
+   "requirements": [
+    "None in code. The community treats the Feruza Shoes as effectively required to reach the body. The boss door key per the MDT (desleal_items bit5 'Open 3rd locked door (Milagro, Alguien's Boss Door)')."
+   ],
+   "rewards": {
+    "xp": 30000,
+    "almas": 3800,
+    "tears": "1 (save falter_items 0x45 bit6 'Collected a Tear of Esmesanti'. The pickup is map data)",
+    "save_flags": "Post-victory initialisers after the MP8D descriptor: [C010]=C27D, [C00A]=C23B, [C27F]=FF00. There is no save-flag word: Alguien has no 'defeated' flag in the save record."
+   },
+   "death_sequence": "Counter AA29. On frames 1-30 it flashes, the wings and mouth animate, and sound 37h plays every 4 frames. Frames 31-40 hold wing frame 1 and mouth 1. At frame 40 boss_is_dead is set.",
+   "respawn": "'Eternal life' is confirmed by code. The post-victory initialisers only patch in-memory tables and write no save word, so every re-entry to MP8D (after dying to Jashiin, a Kioku Feather, or reloading) reloads the boss and it can be killed again for another 30000 XP and 3800 almas. The tear flag (0x45 bit6) only affects the MDT accomplished-items patching.",
+   "evidence": [
+    "317AKMA.bin DS:A32B-A3A8: cell scan and full-damage hit (no shift). Type-5 flag at A370",
+    "DS:A3B5-A3D1: 3-frame flap cycle and sound 2Bh",
+    "DS:A3D5-A491: move by 2 per frame (A4D4 limit x>=10, A4E6 limit x<=51), rise 2 per frame to y=61, turn, and breath-style choice by hero X (40/20 thresholds)",
+    "DS:A47A-A48F: altitude profile tables A954/A969",
+    "DS:A492-A4D2: breath grow/shrink counters (7 or 8)",
+    "DS:A617-A789: breath cell placement (types 0x26 with frames 3/2 or 7/6)",
+    "DS:A4F7-A613: body assembly from layout tables A7EE/A7F4 (bitmasks A870/A876) and patches A918/A92C/A940/A94A",
+    "DS:A97E-AA05: HP and death. DS:AA06: descriptor. DS:A010: contact table",
+    "MP8D.mdt post-victory initialisers [C010]=C27D,[C00A]=C23B,[C27F]=FF00 (no save word)"
+   ],
+   "confidence": "high for numbers, speed, respawn and breath; medium for exact altitude semantics (it assumes y is the top row of the 16-row layout)",
+   "conflicts": "Community says Alguien 'kicks' and has a 'non-avoidable tongue breath' of low damage. Code: the breath does 80 per cell (the highest contact value in the fight), but the hero only takes it where the line crosses him. Community says to hit the tail. Code: no weak point, damage is equal everywhere. The community's '3 Guerras' (255 x 3 = 765) is consistent with full spell damage (4 casts, or 3 if one bolt registers on more than one frame)."
+  },
+  {
+   "id": "jashiin_intro",
+   "name": "Jashiin",
+   "name_variants": [
+    "Jashiin"
+   ],
+   "name_source": "The Pascal string 'Jashiin' at DS:A595 in 318MAO1.bin. The map name string in MP90 is 'Jashiin\\s room' (backslash = apostrophe in the game font).",
+   "chunk": "318MAO1 (MAO1.BIN, eai_bin_idx 16)",
+   "graphics": "MAO1.GRP (enp 16)",
+   "arena_map": "MP90 ('Jashiin's room', 42 wide). The descriptor byte0 is 0x5B: the is_jashiin_cavern bit is set and the boss bit is not.",
+   "world": 9,
+   "hp": 250,
+   "xp": 200,
+   "almas": 0,
+   "descriptor_raw": "DS:A581: 10 00 01 fa 00 c8 00 05 ff 8e a5 00 00 11 bb 02 07 'Jashiin'. The HP/XP fields are unused: MAO1 never processes hits or sets boss_is_dead, and MP90 is not a boss cavern, so no reward is paid.",
+   "role": "This is a non-combat cut-scene. When the hero enters MP90 the fight engine places the hero at hero_x_in_viewport 5 (fight.asm jashiin_place) and MAO1 plays a scripted appearance with three lines of dialogue. It then clears is_jashiin_cavern, and the engine immediately loads MPA0 (Jashiin's room, the real fight, MAO2) as a boss cavern.",
+   "contact_damage": {
+    "all": 0,
+    "table": "A010.. all 00"
+   },
+   "projectiles": [],
+   "phases": [
+    {
+     "id": "cutscene_script",
+     "does": "A frame counter indexes the script table at DS:A3BB. Values 0..10 are Jashiin sprite-frame sets built from bitmask tables. Values with bit7 set are events: 80h/81h/82h show a text line, C0h clears the text box, E0h plays sound 38h, and FFh ends the scene (is_jashiin_cavern=0). The text lines are 'Finally, you reached me.' (DS:A44A), 'I enjoyed your show.' (A465), and 'Come on!  I\\ll kill you.' (A47C; backslash = apostrophe, two spaces after '!').",
+     "timing": "Frames 1-40: frame 0. Frame 10: 'Finally, you reached me.' Frame 41: clear. Frames 43-51: frames 1,2,3 (materialising). Frame 52: 'I enjoyed your show.' Frame 82: clear. Frames 86-88: frames 4,5. Frame 89: 'Come on!  I'll kill you.' Frame 120: clear. Frames 123-133: frames 6..10 (sound 38h at frame 126). Frame 134: end. Total 134 frames (about 11.3 s).",
+     "transition": "MPA0 is loaded and the Jashiin fight (MAO2) begins."
+    }
+   ],
+   "weak_points": "n/a",
+   "invulnerable": "Always. There is no hit handling in the module.",
+   "requirements": [
+    "Reach the MP90 door. The final locked door needs the final key (falter_items bits 16/32). No tear-count check exists in MAO1, MAO2 or the fight engine; Tears_of_Esmesanti_count is only read by game.asm render_tears_collected."
+   ],
+   "rewards": {
+    "xp": 0,
+    "almas": 0
+   },
+   "death_sequence": "n/a",
+   "respawn": "It replays every time MP90 is entered.",
+   "evidence": [
+    "318MAO1.bin DS:A23C-A34F: script-driven sprite assembly (tables A513 via [bx-5B6B] / [bx-5AD1])",
+    "DS:A350-A3BA: event handler (80..82 text via Render_String_FF_Terminated at a box drawn by Draw_Bordered_Rectangle, C0 clear, E0 sound 38h, FF clears save byte E6 is_jashiin_cavern)",
+    "DS:A3BB..A447: 141-byte script. DS:A448..A49A: three text pointers and strings",
+    "ida/fight.asm jashiin_place (around 199-236): hero at viewport x 5, wait while is_jashiin_cavern, then load MPA0 (ah=30) as a boss cavern",
+    "MP90.mdt descriptor [91,0,8,16,16,255,255]"
+   ],
+   "confidence": "high",
+   "conflicts": "Community describes 'a small chit chat' before the fight. This is that chat. It is not a combat phase: the invisible phase is part of MAO2."
+  },
+  {
+   "id": "jashiin",
+   "name": "Jashiin",
+   "name_variants": [
+    "Jashiin",
+    "the Dark One (manual)"
+   ],
+   "name_source": "The Pascal string 'Jashiin' at DS:AC14 in 319MAO2.bin",
+   "chunk": "319MAO2 (MAO2.BIN, eai_bin_idx 17)",
+   "graphics": "MAO2.GRP (enp 17)",
+   "arena_map": "MPA0 (Jashiin's room, 73 wide, a boss cavern entered directly from MP90)",
+   "world": 9,
+   "hp": 800,
+   "xp": 10000,
+   "almas": 0,
+   "descriptor_raw": "DS:AC03: 30 00 09 20 03 10 27 0c 00 10 ac 00 00 11 bb 02 07 'Jashiin'. This decodes to x=48, y=9, hp=800, xp=10000, almas=0.",
+   "size": "6 columns x 9 rows of cells (layout tables A957/A9E4 by pose, masks AA71/AAE1). X ranges 15..53 (A691/A6A7). Y=9 while on the ground.",
+   "contact_damage": {
+    "all_cells_including_fireball_and_bolt": 80,
+    "table": "A010..A02F are all 0x50"
+   },
+   "damage_taken": "d = Get_Stats(source) >> 1, and if the source is not the sword (spells, Magia Stone) d >>= 1 again, giving 1/4 (A36F..A381). Hit sound 39h. A hit that leaves HP < 200 switches him to the grounded 'visible' mode (AC32=FF).",
+   "projectiles": [
+    {
+     "name": "fireball (the fan site's 'Fuego')",
+     "implementation": "A single boss cell of type 0x24 (unhittable, contact 80), not an engine projectile. Spawned at A8E5.",
+     "damage": 80,
+     "spawn": "x = Jashiin x+5 if facing right, else x+0. y = Jashiin y+4. Direction = facing. Sound 3Ah.",
+     "path": "It moves 1 tile per frame horizontally for 9 frames. It also falls 1 row per frame for its first 3 frames (ending at y+7, about hero body height), then lingers 2 frames. It is removed at age 11. Range is about 9 tiles.",
+     "used": "Phase-mode appearances of type 0, and every visible-mode attack."
+    },
+    {
+     "name": "lightning bolt",
+     "implementation": "A boss cell of type 0x25 (unhittable, contact 80). Spawned at A90E.",
+     "damage": 80,
+     "spawn": "x = Jashiin x+7 facing right, or x-1 facing left. y = Jashiin y+4. Sound 3Ah.",
+     "path": "It falls 1 row per frame for 3 frames, then travels horizontally 1 tile per frame until X leaves 16..56, i.e. across the whole arena.",
+     "used": "Phase-mode appearances of type 1 only."
+    }
+   ],
+   "phases": [
+    {
+     "id": "wait",
+     "does": "Nothing is drawn and nothing happens until global byte FF21 becomes non-zero. That byte is not written by any other zelres3 module. It is presumably set by the engine or driver once the hero is ready.",
+     "timing": "Unknown / engine-driven. The community reports 'no sight of Jashiin' for a while after entering.",
+     "transition": "Phase mode."
+    },
+    {
+     "id": "phase_mode_appearance (HP >= 200)",
+     "does": "One appearance runs as follows. (1) Teleport: it picks a random side and sets X = view-left+4 (about 6-12 tiles left of the hero, facing right) or view-left+24 (about 6-8 tiles right, facing left), flipping side if outside X 16..52. Y=9. It picks a random attack type (0 = fireball, 1 = lightning). (2) Frames 1-5: blinking in. On odd frames it is not drawn. On even frames it is drawn as intangible cells (type |0x60: no contact damage, cannot be hit) with sound 3Bh. (3) Frames 6-10: solid and hittable, playing pose script [0,0,7,7,9] (fireball) or [10,10,11,11,12] (lightning). The attack is launched on the pose-9/12 frame (frame 10). (4) Frames 11-16: blinking out (intangible, sound 3Bh on even frames). (5) Frame 17: done. The next appearance starts only once its fireball/bolt has expired.",
+     "timing": "The hittable window is 5 frames (about 0.42 s) per appearance. One cycle is about 17 frames (about 1.4 s) plus the projectile lifetime (fireball 11 frames; the bolt runs until it leaves the arena).",
+     "transition": "Taking a hit that leaves HP < 200 moves to visible mode immediately."
+    },
+    {
+     "id": "visible_mode (HP < 200)",
+     "does": "Always solid. It keeps a gap of exactly 8 tiles (measured from its X to hero X+3, even-rounded). Too close: it backs away. Too far: it approaches. It moves 1 or 2 tiles per frame, alternating, so about 1.5 tiles/frame, faster than the hero. If blocked by the arena edge while backing away (cornered), it leaps over the hero: a 14-frame jump from table A666 (2 crouch frames at pose 4; 3 frames rising 2 rows each; 3 hovering frames; 3 frames falling 2 rows each, moving 2 tiles/frame horizontally during the 8 airborne frames, about 16 tiles; 2 landing frames), then faces the other way. When it has held position 2 frames in a row, each frame has a 1/16 chance to attack with the fireball pose script [0,0,7,7,9], firing on frame 5.",
+     "timing": "It heals every 32 frames (about 2.7 s): HP += 80 with sound 3Ch. When HP+80 would exceed 800 it is set to 800, visible mode ends, and it re-enters phase mode at the blink-out stage. Healing from 199 to full takes 8 ticks (256 frames, about 21.6 s).",
+     "transition": "Death at HP 0, or back to phase mode on full heal."
+    }
+   ],
+   "weak_points": "No damage bonus anywhere. A cell of part type 0 with sprite frame 0 is flagged but unused. Use the sword: spells and Magia Stone do quarter damage.",
+   "invulnerable": "While absent or blinking (cells OR'd with 0x60), during the 'wait' phase, and while dying. It can only be hit in the 5 solid frames of each phase-mode appearance, and at any time in visible mode.",
+   "requirements": [
+    "The final key/door (falter_items: 'Key (Final)' bit4, 'Open final locked door (Jashiin's Lair)' bit5). The Feruza Shoes are needed to reach the lair (community, and map geometry for the map agent). No Tears-of-Esmesanti check exists in the fight code."
+   ],
+   "rewards": {
+    "xp": 10000,
+    "almas": 0,
+    "tears": "The 9th tear is not awarded by the boss code. The post-victory monster table (C3EF) presumably holds it (map data, for the map agent). The castle NPC text 'Ah, the Nine Tears of Esmesanti. Jashiin exists no more...' (CMAP) follows.",
+    "save_flags": "Post-victory initialisers after the MPA0 descriptor: [C010]=C3EF, [C00A]=C3A6, and save word 0x47=FFFF (Jashiin defeated; unnamed in ida/common.inc). The MPA0 accomplished-items table keys on 0x47."
+   },
+   "death_sequence": "Counter AC20. On frames 1-20 it flashes with poses from ABF9 (8,8,8,12,12,12,13,13,11,11 at half rate) and sound 23h every 8 frames. Frames 21-40 hold. At frame 40 boss_is_dead is set, the engine pays the XP, and the post-victory initialisers run. The ending (250ENDMO) is reached later through the castle and Princess Felicia's chamber (211OMOYP end_demo_transition), not directly from MAO2.",
+   "respawn": "The descriptor re-initialises on every entry. The encounter is gated by the MP90 intro. After victory, save word 0x47 prevents a rematch.",
+   "evidence": [
+    "319MAO2.bin DS:A2F2-A395: cell scan, damage >>1 (sword) or >>2 (others), sound 39h, HP<200 switches to visible mode (A389)",
+    "DS:A396-A3B4: wait on FF21",
+    "DS:A3B5-A46C with table A46F: phase-mode appearance timeline (blink frames, the intangible 0x60 mask at AC22, attack pose scripts)",
+    "DS:A479-A4C8: teleport side selection (left+4 / left+24, X window 16..52)",
+    "DS:A4C9-A664: visible mode: 8-tile spacing, retreat/approach, corner leap (table A666), 1/16 attack",
+    "DS:A691/A6A7: X limits 15..53",
+    "DS:A7AE-A853 and A8E5: fireball cell (type 0x24). DS:A853-A8E4 and A90E: lightning cell (type 0x25)",
+    "DS:AB51-AB87: HP and death trigger. DS:AB88-ABC1: regeneration +80 per 32 frames, back to phase mode at 800. DS:ABC4-ABF8: death animation",
+    "DS:AC03: descriptor. DS:A010: contact table all 0x50",
+    "MPA0.mdt post-victory initialisers [C010]=C3EF,[C00A]=C3A6,[0047]=FFFF",
+    "ida/fight.asm jashiin_place: MPA0 is loaded as a boss cavern after MAO1 clears is_jashiin_cavern"
+   ],
+   "confidence": "high for the mode logic, damage scaling, timings and healing; medium for the meaning of FF21 and for where the 9th tear is granted",
+   "conflicts": "Community: 'heals about 25 points in one go'. Code: +80 HP per 32 frames on an 800 scale (the fan figure is probably bar pixels). Community: 'fires Fuego or Lightning' matches the random attack type. Community: 'only hurt when visible, not while blinking' matches the 0x60 mask. Community: 'Agua doesn't do much damage' matches the 1/4 scaling for non-sword sources. Community: 'loses phase-out after being weakened' matches the HP < 200 threshold. The community's corner trick (it only blinks and reappears quickly near a corner) is not modelled explicitly in code. The side-flip at the X window edges may produce that effect."
+  }
+ ],
+ "conflicts": [
+  {
+   "topic": "Paguro damage taken",
+   "code": "all sources halved (315ZEL2 A224 shr bl,1)",
+   "community": "TCRF lists DOS Paguro sword x1, spell /2",
+   "picked": "code"
+  },
+  {
+   "topic": "Tarso body contact damage",
+   "code": "160 per touching part cell (LEGA A010), summed over up to 4 probe cells",
+   "community": "TCRF lists 800 for DOS",
+   "picked": "code; 800 is likely TCRF's aggregate or a different unit"
+  },
+  {
+   "topic": "Tears per boss",
+   "code": "one Tear per boss via the exit-door cut-scene",
+   "community": "some walkthroughs claim two crystals",
+   "picked": "code"
+  },
+  {
+   "topic": "Alguien 'eternal life'",
+   "code": "no defeated save word, so he returns on every re-entry to MP8D",
+   "community": "manual flavour text",
+   "picked": "code (consistent)"
+  }
+ ],
+ "gaps": [
+  "Jashiin waits for global byte FF21 to become non-zero before appearing; the writer of FF21 was not found.",
+  "Pulpo's double-damage region (part id >= 0x0E) was not mapped to a sprite area.",
+  "Dragon flame cell layout and Alguien flight altitudes are medium confidence.",
+  "The save byte 0x04 used by the Castle ending NPC is not traced (see towns.json)."
+ ]
+}

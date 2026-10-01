@@ -1,0 +1,581 @@
+{
+ "id": "mp21",
+ "file": "mp21.mdt",
+ "name": "Cavern of Peligro",
+ "width": 96,
+ "height": 64,
+ "bank": "mpp2",
+ "level": 2,
+ "boss": false,
+ "tear": null,
+ "entryHeadRow": 10,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "AAAAAAAAAAAAAAMEBAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0NCggICgoJCAgICAkJCQkKCAgKCgoKCgoKCAgKCgoJCAkMAAAAAAAAAAABAAAAAAAAAAAAAwoKCgkGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAwKDQoKCAgIBwoKCgoKCAgICgoKCgoICAkJCQkIDAkAAAAAAAAAAAABAAMEBAQEBQUEBAoMDAsLBQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANAAwMCQkJCAkICQgJCAkJCQkJCQgICQkJCQkJCAgAAAAAAAAAAAABAAwMDAwMDAwNDA0AAAwMDA0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAwJCQkJCAkHCQkJCQkJBwkJCQkJCQkJCAcAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAADBAQEBAgJCggGAAAAAAAAAAAAAAAAAAAAAwQEBQQGAAAAAAAAAAAAAAAMCQkJCQkJCQkJCQkJCQkJCAgJCQwJCQkGAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAICgoKCAgJCQkMAAAAAAAAAAAAAAAAAAAABwkJCgoKCQYAAAAAAAAAAAACDAsJCQkJBwkJCQkHCQkJCAgJCQkJCQkJBQUFBgAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAKBwoKCgkJCwwAAAAAAAAAAAAAAAAAAAAABwkJCQkJCQkEBgAAAAAAAAABAAcJCQkJCQkJCQkMCQcICAwMCQkJCQkJCQgICAUGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICgoKCgoJDQAAAAAAAAAAAAAAAAAAAAAADQkJCQkICAkJBQYAAAAAAAABAAkJCAkICQkJCQsDCQkICAAODAgICAgICAgICAgIBQYABQQEBAQEBAQFBQUFBQUFBAQEBAQICAgICAkNAAAAAAAAAAAAAAAAAAAAAAAAAAwNCQcICAkHCAUGAAAAAAABAAkICAcICQkJCQwICQkLDA4AAAgICQkJCAgICQkICAgICAkMCQgICAkMBwgJCAgICAgICAgICQcJCQ0AAAAAAAAAAAAAAAAAAAAAAAAAAAAODQ0JCQkICAkIAAAAAAABAAkICAgJCQkJCQkJCAwMAAAAAAwJCQkJCQkICAgICAgHCAsDCQcICAwDCAkJCQkICAkIDAgJDAcJDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4NDQkNCQkJBgAAAAABAAwJCAkJCQkJCQgJCwAAAAAAAA4MDAwMCQkJCQkJDAgICQkMCQkIDAANDA0JCQcJDAkJDgcMAAwMAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg0ACQkHBQYAAAABAA4JCAcJCQsJCQcIDQAAAAAAAAAAAAAODAwMDAwMDgwJDAwODAwMAA4ADgAMDQwMAA0MAAwADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4ADQwJCQoFBgABAAAMCQkICQkJCQgIBgAAAAAAAAAAAAAAAA4AAAAAAAAMAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMCw0MDAABAAADCQgJCQkHCAgICQAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEhISEhISEhISEhISEhIAAAAAAAAAAAAADQAAAAABAAAJCAgJCQkJCAgJCQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExMTExMTExMTExMTExMAAAAAAAAAAAAAAAAAAAABAAAMCQsJDAkJCAkJCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMEBQUGFBQUFBQUFBQUFBQUFBQEBQYAAAAAAAAAAAAAAAABAAAADAkLAAwJCQkJCAAAAAAAAAAAAAAAAAAAAAAAAAAABQUFBAQEBAQEBQUFBQUFBQUFBQQEBAQEBAQEBAkJCQgEBAQEBAQEBAUFBQUEBAQJCQkEBQUGAAAAAAAAAAABAAAAAAkNAA4MCQkMDQAAAAAAAAMFBQUEBAQEBAUFBQUFCQgICQkJCAkICAkJBwkJCQkJCAkJCQkKCgoKCgoJCQkICQkKCgoKCgoKCgoKCgoKCAkKCgoJBgAAAAAAAAABAAAAAAwOAAAADAwAAAAAAAADBAkIBwkJCQgICQkJCQgJCAgJCQkICAcICAkJCQkJCQkJCAkHCQkICQgICAgICAgHCAoKCgoKCgoJCQgJCAgICQwJCgoJCAUFBQYAAAABAAAAAAAAAAAAAAAADgAAAAAMCQkICQwJCAkHCQkJCAkICQcJCQkICAgJCQkHCQkJCAgHCQkJCQkJCAcJCAkKCgoKCgkICQgICQkMDAwIDAkJDQAMDAwMCgoKCgwAAAABAAAAAAAAAAAAAAAAAAAAAAAADAwMDAAMDAkHCQgHCQkICQkMCQgJCQkJCQkJCQkJCAgICQkICAkJBwgMDAkNCQcICwwNDAsMDAwOAAAMDAwMAA4AAA4ADAwMDAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAgwLCQkJCQkJCQwJCQgMCQkJCAkJCQkHCAgJCQwMCQkJCAkOAAwACQkJDAABAAwOAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAMDAgJCQwJDAAMDA0ADAkJCAkJCAgICAkJDAAODAkJCQwAAAAOCQkMDgACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAADgwJDAAMAAAOAAEAAAkJCQkJBwkMCQkMDgAAAAwJCQ4AAAAACQwAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAMAAAOAAAAAAEADgkHCQkJCAgADQkAAAAAAAALDAAAAAAACwAOAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAQEBAQEBQUFBgAAAAAAAAAAAAMEBQYAAgAAAAAAAAAAAAAAAAIAAAwJCQkICQwAAA0OAAAAAAANAAAAAAAADQAAAAABAAAAABAEBAQEBAQEBAQFBQUFBQUFBAQEBAQJCQkICAkJCQkJDAAAAAAAAAAAAAwJCAgAAQAAAAAAAAAAAAAAAAIAAAAMCQkIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAEAkJCQkJCgoKCgoKCgoKCQgICQkJCQkJCQgICQkJCQgMAAAAAAAAAAAAAAAMDA0AAQAAAAAAAAAAAAAAAAEAAAAOCQkJDgAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAQCQoKCggJCQkJBwgICQkJBwgJDQkIDAwJCAgICQkHCAgAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAEAAAAACQsMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABABAJCAkJCQkJDQwJCAgMCQgJCAgMAAkNAAAJCAkJCQkJCAkGAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAEAAAAACQ0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAkJCAoKCQwMAAAJCQwADQsMDAwAAAwADgMJCQkJCAgIBwkJBQUFBgAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAEAAAAADQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAkICAgHCQAADgAMDQAAAAwADgAAAAAAAAwMCQkICAkJCAkJCQsJCQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAwJCAgJDAAAAAAAAAAAAAAAAAAAAAAAAAAODAwMDAwMDAkJCQkJCQkFBQUFBQQEBAQEBAUFBgAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJCgoIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAwMDA0MCQkJCQgJCAgJCQkJCQgICAYAAAAABQUGAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMJCQcIBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAODAoJCQgHCAkLCQkJBwkICQkJBQUFCQgNAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAkJCAgJCQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwJDAkJCQkMCQgICAwJCQkJCAgJCQkAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwQEBAQEBQUJCQgJCAkJCQkFBQQAAAAFBAQEBAUFBgAAAAAAAAAAAAAAAAAAAAAAAAAMDgwMDAwADAkJDAAMDAsJBwgJCQsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMECQgICQkICQkJBwgJCQkHCAgICQkAAAAJCQkJCQkJCQUGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAwNAAAAAQkICAkMCQwAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAQJCAkJDAgJCQgICQsJCQkIBwgJCQwAAAANDA0JCw0JCQkJBQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg0LCQkJCQkJBAQEBAQEBAUFBQUFBQQFBQQEBAQJCg0NDQwNDAwMCQwMDQ0NCQkJCQ0MDQAAAAAAAA4NDAALDQ0ICQQEBQQEBQUFBQQEBAQGAAAAAAAAAAAAAAAAAAAAAQAMCQkJCAoKCgoKCAgKCQkICAkJCQkICAkJDAwNDAAAAAAOAA4ADQAAAQAODQwNDAAADgAAAAAAAAAAAA4MAAANDQ0NDQ0NDQ0JCQkJCQkJBgAAAAAAAAAAAAAAAAAAAgABDAkJCAkKCggJCQkJCQkICQcJCAkJCQwMAAAAAA4AAAAAAAAAAAAAAQAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALCQkJCQkJCQUGAAAAAAAAAAAAAAAAAQACAAkICQkJCggKCQkJCAkICQkJCQkJCQAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAA4AAAAMCQkJCQkJCQgICQUFBQQEBAUFBQYAAQACAA0JBwkICAgJCAkJCQkJCQkJCAkAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACQkJCQkJCQgJCQkJCAkJCQkICAgAAgABAAEJCQkJCAgJCQcJCQkJCQkJCQkAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACQgJCQkJCQkJCggICAkJCQkJCAgAAQABAAEJCQsMCQkJCQkJCwkJCQkJCQkJCQUFBQUEBAQEBQUFBQUFBQYAAQADBAUEBAQFBQUFBQQEBAQEBQUFBQQEBAUFBQUGAAADCQkLCQgICAgLDAoKCQcJCQkJCAkAAQABAAEMCQ0ADAkHCQkJCQkJCQkJCQkICAkJCQkJCQkJCAkJCQkICQwAAQAMCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkICQgMAAAMCQkNCggJCgoMAAwKCgoKCggJCQkAAAACAAIACwAOAAkJCQkJCQkJCQgIDAkIBwkJDAwMCQgIBwkJCAkJDAAAAQAACQgMCQkJDAsJCAkMDAkJCAkJDAwMCAgJDAwAAAAADAwACgoLDAwADgANCwwMDAoJCQgGAAABAAIADAAAAAwJCQkJCQkMDAwMAAwMCQwMDgAODAwMCQkJDAwMAAAAAgAADAwODAwMDgwMCQwOAAwICQsMAA4ADAkIDgAAAAAAAAAADAwMAA4AAAAODAAADgwKCAgJAAABAAEAAAAAAA4MCQkICAwAAAAAAAAADAAAAAAAAAAADAwMDgAAAAAAAgAAAAAAAA4AAAAADAAAAA4MDA0AAAAAAAwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMCAkJAAAAAAEAAAAAAAAACQkICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgkJAAAAAAEAAAAAAAAODQgIBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwkIAAAAAAEAAAAAAAAAAAkICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACggIAAAAAAIAAAAAAAAAAAwICQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADCQkIBgAAAAEAAAAAAAAAAAAJBAUFBQQEBAUFBQUFBQUEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBQUFBQUFBQYAAAEAAAMEBAQEBQUFBAQEBAQEBAQEBAQEBAQFBQUFBQQECQkJCAAAAAEAAAAAAAAAAAANDAkLDA0JDAkICAkICAgICAkJCQgJCAgJCQkJDAkJCQkLCQkJCQgJCAgJCQkGAAIAAwkJCQkJCQgICQkJCAgJCQkJCQkJCAkJBwkICAkJCQkICAAAAAEAAAAAAAAAAAAAAA0MAAEMCQkICQkJCAgHCQkJCQgHCAkJCQcJCAkJBwkMCQkICAgICQkJCQkLAAIACgkJBwkJCQkHCQkICAkMCQcJCQgMCQkJCQkICAkJCQkICQAAAAEAAAAAAAAAAAAAAAAAAAEACggIBwoJCAgKCgoKCggKDA0MDAwKCgoMDAoDCgoIDAkKCgwKCgsMAAEADAwMCwwMDAwMDAgIDAwMDA0MDAsMDQwMDAgICgoJCQgJCAAAAAAAAAAAAAAAAAAAAAAAAAIADAoHCQwJCAwMDAsKCgoMAAAOAAAMDA0AAAwKCgwMDgkJCgoLCgwAAAEAAAAODAAOAAAOAAwMAA4AAAAADgwOAAAOAA0KCgoIDQkJCQUGAAAAAAAAAAAAAAAAAAAAAAEAAAwKCQ4NDQAADgwKDA0AAAAAAAAOAAAADgAKDA4AAAwMCQkLDA4AAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKCggIAAwMCwgKBAUGBgAAAAAAAAAAAAAAAAAAAAALDAAAAAAAAAAMDgAAAAAAAAAAAAAAAAAMAAAAAAAABwkIAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMCQgNAAAOCQsMDQgIDAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACQkKBQYAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMKCggAAAAACQwAAAwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAkICgoGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKCQkGAAAADAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwMDAoJBQUFBAQEBAUFBQUFBQUFBQUEBAQEBAQEBAUFBQkKCQkJAAAAAAAAAAAB",
+ "monsters": [
+  {
+   "index": 0,
+   "raw": "070006ff020000000000000700060200",
+   "x": 7,
+   "y": 6,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 4,
+   "contactDamage": 8,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 7,
+    "y": 6,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 1,
+   "raw": "0e001aff040000000000000e001a0400",
+   "x": 14,
+   "y": 26,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 4,
+   "contactDamage": 8,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 14,
+    "y": 26,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 2,
+   "raw": "0f000fff020000000000000f000f0200",
+   "x": 15,
+   "y": 15,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 4,
+   "contactDamage": 8,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 15,
+    "y": 15,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 3,
+   "raw": "11002bffd0000020001b000a00020000",
+   "x": 17,
+   "y": 43,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "almas_100",
+   "containsCode": "0x1b",
+   "saveFlag": {
+    "byte": "0x0a",
+    "mask": "0x02",
+    "name": "peligro_items",
+    "description": "Wall, 100 almas"
+   },
+   "respawn": false
+  },
+  {
+   "index": 4,
+   "raw": "2b001fff040000000000002b001f0400",
+   "x": 43,
+   "y": 31,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 4,
+   "contactDamage": 8,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 43,
+    "y": 31,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 5,
+   "raw": "2e0018ff020000000000002e00180200",
+   "x": 46,
+   "y": 24,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 4,
+   "contactDamage": 8,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 46,
+    "y": 24,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 6,
+   "raw": "4e001eff020000000000004e001e0200",
+   "x": 78,
+   "y": 30,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 4,
+   "contactDamage": 8,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 78,
+    "y": 30,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 7,
+   "raw": "50003dff730000200018000a00010000",
+   "x": 80,
+   "y": 61,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "red_potion",
+    "code": "0x18"
+   },
+   "saveFlag": {
+    "byte": "0x0a",
+    "mask": "0x01",
+    "name": "peligro_items",
+    "description": "Chest, Red Potion"
+   },
+   "respawn": false
+  },
+  {
+   "index": 8,
+   "raw": "580003ff030000000000005800030300",
+   "x": 88,
+   "y": 3,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 10,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 88,
+    "y": 3,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  }
+ ],
+ "doors": [
+  {
+   "index": 0,
+   "raw": "0f002382025f002300ffffff",
+   "x": 15,
+   "y": 35,
+   "frame": {
+    "x": 14,
+    "y": 35,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 15,
+    "heroHeadRow": 36
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 2,
+   "flags": "0x82",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp20",
+    "place": "0x02",
+    "x": 95,
+    "headRow": 36,
+    "y1": 35
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 1,
+   "raw": "0f0032c3005f003200ffffff",
+   "x": 15,
+   "y": 50,
+   "frame": {
+    "x": 14,
+    "y": 50,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 15,
+    "heroHeadRow": 51
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp10",
+    "place": "0x00",
+    "x": 95,
+    "headRow": 51,
+    "y1": 50
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 2,
+   "raw": "420023c20292002300ffffff",
+   "x": 66,
+   "y": 35,
+   "frame": {
+    "x": 65,
+    "y": 35,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 66,
+    "heroHeadRow": 36
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 2,
+   "flags": "0xc2",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp20",
+    "place": "0x02",
+    "x": 146,
+    "headRow": 36,
+    "y1": 35
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 3,
+   "raw": "4f003283009f003200ffffff",
+   "x": 79,
+   "y": 50,
+   "frame": {
+    "x": 78,
+    "y": 50,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 79,
+    "heroHeadRow": 51
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 3,
+   "flags": "0x83",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp10",
+    "place": "0x00",
+    "x": 159,
+    "headRow": 51,
+    "y1": 50
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  }
+ ],
+ "platforms": {
+  "vertical": [
+   {
+    "index": 0,
+    "raw": "2f0024",
+    "x": 47,
+    "y": 36,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 1,
+    "raw": "3b0019",
+    "x": 59,
+    "y": 25,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   }
+  ],
+  "collapsing": [],
+  "horizontal": [
+   {
+    "index": 0,
+    "raw": "07403d01000e00",
+    "x": 7,
+    "y": 61,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 1,
+    "maxX": 14,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 1,
+    "raw": "2640841e002a00",
+    "x": 38,
+    "y": 4,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 30,
+    "maxX": 42,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 2,
+    "raw": "4c801949004f00",
+    "x": 76,
+    "y": 25,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 73,
+    "maxX": 79,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   }
+  ]
+ },
+ "items": [
+  {
+   "entity": 3,
+   "x": 17,
+   "y": 43,
+   "type": "breakable_block",
+   "contents": "almas_100",
+   "saveFlag": {
+    "byte": "0x0a",
+    "mask": "0x02",
+    "name": "peligro_items",
+    "description": "Wall, 100 almas"
+   }
+  },
+  {
+   "entity": 7,
+   "x": 80,
+   "y": 61,
+   "type": "chest",
+   "contents": "red_potion",
+   "saveFlag": {
+    "byte": "0x0a",
+    "mask": "0x01",
+    "name": "peligro_items",
+    "description": "Chest, Red Potion"
+   }
+  }
+ ],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x0a",
+    "mask": "0x02",
+    "name": "peligro_items",
+    "description": "Wall, 100 almas"
+   },
+   "writes": [
+    {
+     "addr": "0xcb7b",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 3,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "0a00027bcb0000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x0a",
+    "mask": "0x01",
+    "name": "peligro_items",
+    "description": "Chest, Red Potion"
+   },
+   "writes": [
+    {
+     "addr": "0xcbb2",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 7,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xcbbd",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 7,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "0a0001b2cb00ffbdcbffffffff"
+  }
+ ],
+ "alternateTables": [],
+ "descriptor": {
+  "raw": "0b00010202",
+  "isBossCavern": false,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mus2",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp2",
+  "eai": "eai2",
+  "enp": "enp2"
+ },
+ "nameInfo": {
+  "x": 22,
+  "y": 175,
+  "color": 2
+ },
+ "raw": {
+  "header": "3dcb6000bdcac5cac7cadeca10cb28cb42cb02ffff000a0000bdca",
+  "pointers": {
+   "descriptor": "0xcb3d",
+   "width": "0x0060",
+   "vplat": "0xcabd",
+   "cplat": "0xcac5",
+   "hplat": "0xcac7",
+   "doors": "0xcade",
+   "accomplished": "0xcb10",
+   "name": "0xcb28",
+   "monsters": "0xcb42",
+   "signs": "0x0000",
+   "mapEnd": "0xcabd"
+  }
+ }
+}

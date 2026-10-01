@@ -1,0 +1,496 @@
+{
+ "id": "bsmp",
+ "file": "bsmp.mdt",
+ "name": "Bosque village",
+ "place": "0x83",
+ "width": 152,
+ "height": 8,
+ "bank": "mpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "AAAAlqipqrCxAAAAAAAAAAAAAABjZHl6e3x6e2QAAAAAAAAAAAAAAAAAAAAAAGNkeXp7fABjZAAAAAAAAAAAAAAAAAAAAGN5ent8ZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAHwAAAAAAAAAAAAAAAAAAAClAKKfoJYAAAAAAACXvL3Jyqe2twAAAAAAAAAAZWaFfX5/gH6BamsAAAMEBQYGBgYGBwgJXgBlZmd9fn+AgGZnAAAAAAAAAAAAAgAAAABlZn1+f4CBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABjZAAAAwQFBgYGBgYGBgcICQoAAGVmgGQAAAAAAAAAAACsqaippqegpKHElwAAAAAAAJe+v8vKwcausQAAAAAAAABoaYmBgoOEhIWGamsLDA0NDQ0NDQ4PEBFdE2hpiYGCg4SFhWpr19jY2NjY2NjZ2tvb3GhpgYKDhIVr19jY2NjY2drb29wAY2QAAAMEBQYGBgYHCAleAGZnAAsMDQ0NDQ0NDQ0ODxAREhMAaYmEamsAAAAAAACio63Iyby9wMHExciXAAAAAAAAl8DBvLy8vb66tQAAAAAAAGxthYWGh4iFhoeIbxQVFhYWFhYWGBkZGRkbbG2JhYaHiIGEbm/d3t/e397f3uDh4eHjAHCLhoeIbm8jIiIiIiIiJCQkJQBtbgBfYg0NDQ0NDg8QEWBhbW5vFBUWFhYWFhYWFhgZGRkZG2xthYiMbgAAAAAAmZrAwcLLvr/Cw8bHypcAAAAAAACXwsPMzMzMxcjDnLKzAAAAbG2JiouMjYmKi4xyFBUWFlFSU1QYGRkdGRtwcYmKi4yMhohucgDm5uTl5OXk5e/v7wBsbYWLjI2JciMiIlVWV1gkJCQlbG1ubxQfH01OT1AYGRkZGRttcXIUFRYWFllaW1wWGBkaHRkbbG2NiYmMcgAAAJmavL3Cxr/MzMzMv8bKlwAAAAAAAJfExczT0czGw8nJtLUAAABwcY6Fj4yNjZCIi28UFRYWFhwBFhgZGR0ZG3Nxbo6NjoqLjW5vAObm5ugBAenq7+7vAHCNiI+QiIlyIyIiIhwBIiQkJCVwcYlyFB8fHxwBHxgZGRkZG3FxbxQVFhYWFxwBFhYYGRodGRtzjY2Oh25vAACZvLy+v8LDxMzNz8zKxb+XAAAAAAAAl8bHzNTSzMDJvr/AwZy7AHR1jpGOjpGOjpF2ABQVFhYWHAEWGBkZGRkbAHR1kpGOkZCRdnIA5ubm6AEB6eru7+8Ac3WOjpGOdgAjIiIiHAEiJCQkJXR1dgAUHx8fHAEfGBkZGRkbdXZyFBUWFhYXHAEWFhgZGRkZGwB0dY6LdnKbnLy9wMHBxcjJzM7QzL/FypcAAAAAAACXyMnM1NLMwsrFxsfIybq5AHeSk5SSk5SSk3gAFBUWFhYcARYYGRkZGRsAAHeSk5KSlJV4AADk5eboAQHp6uzt7gAAd5SUlZJ4ACMiIiIcASIkJCQlAHd4ABQgICAcASAYGRkZGRp3eAAUFRYWFhccARYWGBkZGRkbAAB3lJN4AJmavr/Cw8bHv8vMztDMxcrKlwAAAA==",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "070009",
+   "x": 7,
+   "triggerX": [
+    6,
+    7,
+    8
+   ],
+   "dest": "0x09",
+   "kind": "cavern",
+   "entrance": 1,
+   "map": "mp31",
+   "heroX": 149,
+   "heroHeadRow": 14,
+   "runLeft": true
+  },
+  {
+   "index": 1,
+   "raw": "240006",
+   "x": 36,
+   "triggerX": [
+    35,
+    36,
+    37
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  },
+  {
+   "index": 2,
+   "raw": "3d0002",
+   "x": 61,
+   "triggerX": [
+    60,
+    61,
+    62
+   ],
+   "dest": "0x02",
+   "kind": "sage"
+  },
+  {
+   "index": 3,
+   "raw": "510004",
+   "x": 81,
+   "triggerX": [
+    80,
+    81,
+    82
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  },
+  {
+   "index": 4,
+   "raw": "600003",
+   "x": 96,
+   "triggerX": [
+    95,
+    96,
+    97
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  },
+  {
+   "index": 5,
+   "raw": "720007",
+   "x": 114,
+   "triggerX": [
+    113,
+    114,
+    115
+   ],
+   "dest": "0x07",
+   "kind": "inn"
+  },
+  {
+   "index": 6,
+   "raw": "8e0008",
+   "x": 142,
+   "triggerX": [
+    141,
+    142,
+    143
+   ],
+   "dest": "0x08",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp30",
+   "heroX": 185,
+   "heroHeadRow": 19,
+   "runLeft": false
+  }
+ ],
+ "transitions": [],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "b900130005",
+   "map": "mp30",
+   "heroX": 185,
+   "heroHeadRow": 19,
+   "runLeft": false
+  },
+  {
+   "index": 1,
+   "raw": "95000e0106",
+   "map": "mp31",
+   "heroX": 149,
+   "heroHeadRow": 14,
+   "runLeft": true
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "090001cc0004c00b",
+   "x": 9,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 1,
+   "headTile": "0xcc",
+   "animPhase": 0,
+   "ai": 4,
+   "aiName": "bob",
+   "flags": "0xc0",
+   "autoTalk": true,
+   "blocksHero": true,
+   "canTalk": false,
+   "textIndex": 11,
+   "text": "Hold on there! Do you have the Hero's Crest? {0x81}Don't lie, it won't do any good. Get out of here!"
+  },
+  {
+   "index": 1,
+   "raw": "6500811900000002",
+   "x": 101,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x19",
+   "animPhase": 0,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "The temple that once stood here had the crest of the Warrior God carved into it. Winners of the martial arts competitions held in front of the temple were awarded with such crests. Thus the crest, the symbol of a true hero, became known as the Hero's Crest."
+  },
+  {
+   "index": 2,
+   "raw": "1500048e0005000a",
+   "x": 21,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 4,
+   "headTile": "0x8e",
+   "animPhase": 0,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 10,
+   "text": "That sentry must have sold his soul to Jashiin. Why else would he interfere with brave men such as yourself?"
+  },
+  {
+   "index": 3,
+   "raw": "6b00046f00050006",
+   "x": 107,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 4,
+   "headTile": "0x6f",
+   "animPhase": 0,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 6,
+   "text": "A spirit appeared and told me to say this if I met a brave man: \"If you go through the door to the right of the tree that forms a cross, you will be able to go up.\"\nI&hope it helps you."
+  },
+  {
+   "index": 4,
+   "raw": "5700842500060004",
+   "x": 87,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 4,
+   "headTile": "0x25",
+   "animPhase": 0,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 4,
+   "text": "The crest must be hidden somewhere in the forest, but I couldn't say where."
+  },
+  {
+   "index": 5,
+   "raw": "8300000003030000",
+   "x": 131,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "Welcome to Bosque Village, brave warrior. This once was a forest surrounding a temple, but the temple was destroyed by Jashiin. Now the village of Bosque is desolate. I hope you are here to help us."
+  },
+  {
+   "index": 6,
+   "raw": "4f00002200010001",
+   "x": 79,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x22",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "Listen, stranger, a sentry is posted on the outskirts of the city. I'm telling you this for your own good; it's best to stay away from there."
+  },
+  {
+   "index": 7,
+   "raw": "5a00008900020007",
+   "x": 90,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x89",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 7,
+   "text": "I have some advice for you: Be careful if you come to a place where the leaves of the trees are thin. The ground there is not very strong."
+  },
+  {
+   "index": 8,
+   "raw": "2c00001b03030008",
+   "x": 44,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x1b",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 8,
+   "text": "The sentry at the edge of town says the Spirits came to him in a dream, and told him not to allow anyone to pass unless they bear the Hero's Crest. I wonder if the Spirits really ordered such a thing? Perhaps he's mad."
+  },
+  {
+   "index": 9,
+   "raw": "4400000000050005",
+   "x": 68,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 5,
+   "text": "When the temple was destroyed I heard Jashiin ordering his underlings to hide the crest in the trunk of the biggest tree. That must be where it is hidden. I hope you can find it."
+  },
+  {
+   "index": 10,
+   "raw": "5900028b03030003",
+   "x": 89,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x8b",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "When he destroyed the temple, Jashiin stole the Hero's Crest.  No one has any idea where to find it."
+  },
+  {
+   "index": 11,
+   "raw": "2000021500060009",
+   "x": 32,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x15",
+   "animPhase": 0,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 9,
+   "text": "A few have slipped by the sentry undetected, but none have returned. There must be some terrible monster out there."
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Welcome to Bosque Village, brave warrior. This once was a forest surrounding a temple, but the temple was destroyed by Jashiin. Now the village of Bosque is desolate. I hope you are here to help us.",
+   "controlCodes": [],
+   "raw": "57656c636f6d6520746f20426f737175652056696c6c6167652c2062726176652077617272696f722e2054686973206f6e636520776173206120666f7265737420737572726f756e64696e6720612074656d706c652c20627574207468652074656d706c65207761732064657374726f796564206279204a61736869696e2e204e6f77207468652076696c6c616765206f6620426f73717565206973206465736f6c6174652e204920686f706520796f7520617265206865726520746f2068656c702075732e"
+  },
+  {
+   "index": 1,
+   "text": "Listen, stranger, a sentry is posted on the outskirts of the city. I'm telling you this for your own good; it's best to stay away from there.",
+   "controlCodes": [],
+   "raw": "4c697374656e2c20737472616e6765722c20612073656e74727920697320706f73746564206f6e20746865206f7574736b69727473206f662074686520636974792e20495c6d2074656c6c696e6720796f75207468697320666f7220796f7572206f776e20676f6f643b2069745c73206265737420746f207374617920617761792066726f6d2074686572652e"
+  },
+  {
+   "index": 2,
+   "text": "The temple that once stood here had the crest of the Warrior God carved into it. Winners of the martial arts competitions held in front of the temple were awarded with such crests. Thus the crest, the symbol of a true hero, became known as the Hero's Crest.",
+   "controlCodes": [],
+   "raw": "5468652074656d706c652074686174206f6e63652073746f6f6420686572652068616420746865206372657374206f66207468652057617272696f7220476f642063617276656420696e746f2069742e2057696e6e657273206f6620746865206d61727469616c206172747320636f6d7065746974696f6e732068656c6420696e2066726f6e74206f66207468652074656d706c652077657265206177617264656420776974682073756368206372657374732e2054687573207468652063726573742c207468652073796d626f6c206f6620612074727565206865726f2c20626563616d65206b6e6f776e20617320746865204865726f5c732043726573742e"
+  },
+  {
+   "index": 3,
+   "text": "When he destroyed the temple, Jashiin stole the Hero's Crest.  No one has any idea where to find it.",
+   "controlCodes": [],
+   "raw": "5768656e2068652064657374726f796564207468652074656d706c652c204a61736869696e2073746f6c6520746865204865726f5c732043726573742e20204e6f206f6e652068617320616e79206964656120776865726520746f2066696e642069742e"
+  },
+  {
+   "index": 4,
+   "text": "The crest must be hidden somewhere in the forest, but I couldn't say where.",
+   "controlCodes": [],
+   "raw": "546865206372657374206d7573742062652068696464656e20736f6d65776865726520696e2074686520666f726573742c20627574204920636f756c646e5c74207361792077686572652e"
+  },
+  {
+   "index": 5,
+   "text": "When the temple was destroyed I heard Jashiin ordering his underlings to hide the crest in the trunk of the biggest tree. That must be where it is hidden. I hope you can find it.",
+   "controlCodes": [],
+   "raw": "5768656e207468652074656d706c65207761732064657374726f7965642049206865617264204a61736869696e206f72646572696e672068697320756e6465726c696e677320746f20686964652074686520637265737420696e20746865207472756e6b206f6620746865206269676765737420747265652e2054686174206d7573742062652077686572652069742069732068696464656e2e204920686f706520796f752063616e2066696e642069742e"
+  },
+  {
+   "index": 6,
+   "text": "A spirit appeared and told me to say this if I met a brave man: \"If you go through the door to the right of the tree that forms a cross, you will be able to go up.\"\nI&hope it helps you.",
+   "controlCodes": [],
+   "raw": "412073706972697420617070656172656420616e6420746f6c64206d6520746f2073617920746869732069662049206d65742061206272617665206d616e3a2022496620796f7520676f207468726f7567682074686520646f6f7220746f20746865207269676874206f66207468652074726565207468617420666f726d7320612063726f73732c20796f752077696c6c2062652061626c6520746f20676f2075702e222f4926686f70652069742068656c707320796f752e"
+  },
+  {
+   "index": 7,
+   "text": "I have some advice for you: Be careful if you come to a place where the leaves of the trees are thin. The ground there is not very strong.",
+   "controlCodes": [],
+   "raw": "49206861766520736f6d652061647669636520666f7220796f753a204265206361726566756c20696620796f7520636f6d6520746f206120706c61636520776865726520746865206c6561766573206f662074686520747265657320617265207468696e2e205468652067726f756e64207468657265206973206e6f742076657279207374726f6e672e"
+  },
+  {
+   "index": 8,
+   "text": "The sentry at the edge of town says the Spirits came to him in a dream, and told him not to allow anyone to pass unless they bear the Hero's Crest. I wonder if the Spirits really ordered such a thing? Perhaps he's mad.",
+   "controlCodes": [],
+   "raw": "5468652073656e747279206174207468652065646765206f6620746f776e20736179732074686520537069726974732063616d6520746f2068696d20696e206120647265616d2c20616e6420746f6c642068696d206e6f7420746f20616c6c6f7720616e796f6e6520746f207061737320756e6c6573732074686579206265617220746865204865726f5c732043726573742e204920776f6e646572206966207468652053706972697473207265616c6c79206f72646572656420737563682061207468696e673f20506572686170732068655c73206d61642e"
+  },
+  {
+   "index": 9,
+   "text": "A few have slipped by the sentry undetected, but none have returned. There must be some terrible monster out there.",
+   "controlCodes": [],
+   "raw": "4120666577206861766520736c6970706564206279207468652073656e74727920756e64657465637465642c20627574206e6f6e6520686176652072657475726e65642e205468657265206d75737420626520736f6d65207465727269626c65206d6f6e73746572206f75742074686572652e"
+  },
+  {
+   "index": 10,
+   "text": "That sentry must have sold his soul to Jashiin. Why else would he interfere with brave men such as yourself?",
+   "controlCodes": [],
+   "raw": "546861742073656e747279206d757374206861766520736f6c642068697320736f756c20746f204a61736869696e2e2057687920656c736520776f756c6420686520696e746572666572652077697468206272617665206d656e207375636820617320796f757273656c663f"
+  },
+  {
+   "index": 11,
+   "text": "Hold on there! Do you have the Hero's Crest? {0x81}Don't lie, it won't do any good. Get out of here!",
+   "controlCodes": [
+    "0x81"
+   ],
+   "raw": "486f6c64206f6e2074686572652120446f20796f75206861766520746865204865726f5c732043726573743f2081446f6e5c74206c69652c20697420776f6e5c7420646f20616e7920676f6f642e20476574206f7574206f66206865726521"
+  },
+  {
+   "index": 12,
+   "text": "Don't lie, it won't do any good. Get out of here!",
+   "controlCodes": [],
+   "raw": "446f6e5c74206c69652c20697420776f6e5c7420646f20616e7920676f6f642e20476574206f7574206f66206865726521"
+  },
+  {
+   "index": 13,
+   "text": "You cannot pass here without the Hero's Crest. My orders are from the Spirits themselves! ",
+   "controlCodes": [],
+   "raw": "596f752063616e6e6f742070617373206865726520776974686f757420746865204865726f5c732043726573742e204d79206f7264657273206172652066726f6d207468652053706972697473207468656d73656c7665732120"
+  },
+  {
+   "index": 14,
+   "text": "Hold on there! You have the Hero's Crest, I see. You may pass.",
+   "controlCodes": [],
+   "raw": "486f6c64206f6e2074686572652120596f75206861766520746865204865726f5c732043726573742c2049207365652e20596f75206d617920706173732e"
+  }
+ ],
+ "patches": [
+  {
+   "condition": {
+    "byte": "0x12",
+    "mask": "0x08",
+    "name": "madera_items",
+    "description": "Hero's Crest (This one must be set so the crazy guard will let you pass to defeat Pollo.)"
+   },
+   "writes": [
+    {
+     "addr": "0xccfa",
+     "value": "0x80",
+     "target": {
+      "npc": 0,
+      "field": "n_flags"
+     }
+    },
+    {
+     "addr": "0xccfb",
+     "value": "0x0e",
+     "target": {
+      "npc": 0,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "120008facc80fbcc0effff"
+  }
+ ],
+ "patrolBounds": {
+  "min": 67,
+  "max": 123
+ },
+ "sageRespawnX": 60,
+ "townId": 3,
+ "descriptor": {
+  "raw": "0400ff0001",
+  "music": "mgt2",
+  "npcGroup": "mman",
+  "middleLayer": "ympd (surface)",
+  "bank": "mpat"
+ },
+ "raw": {
+  "header": "dbc49800e0c403f2c4f2c409c520c5f4ccd7c43c0013c5",
+  "pointers": {
+   "descriptor": "0xc4db",
+   "name": "0xc4e0",
+   "transitions": "0xc4f2",
+   "doors": "0xc4f2",
+   "entrances": "0xc509",
+   "texts": "0xc520",
+   "npcs": "0xccf4",
+   "patrol": "0xc4d7",
+   "c015": "0xc513"
+  },
+  "nameInfo": "18af000e"
+ }
+}

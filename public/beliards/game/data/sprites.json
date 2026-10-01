@@ -1,0 +1,7853 @@
+{
+ "old.hero_idle": {
+  "src": "../assets/sprites/hero_idle/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_walk": {
+  "src": "../assets/sprites/hero_walk/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_run": {
+  "src": "../assets/sprites/hero_run/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_jump": {
+  "src": "../assets/sprites/hero_jump/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_attack": {
+  "src": "../assets/sprites/hero_attack/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_block": {
+  "src": "../assets/sprites/hero_block/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_cast": {
+  "src": "../assets/sprites/hero_cast/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_defeat": {
+  "src": "../assets/sprites/hero_defeat/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_town_walk": {
+  "src": "../assets/sprites/hero_town_walk/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_climb": {
+  "src": "../assets/sprites/hero_climb/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_crouch_walk": {
+  "src": "../assets/sprites/hero_crouch_walk/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_down_thrust": {
+  "src": "../assets/sprites/hero_down_thrust/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_overhead_attack": {
+  "src": "../assets/sprites/hero_overhead_attack/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_collect_gem": {
+  "src": "../assets/sprites/hero_collect_gem/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_push": {
+  "src": "../assets/sprites/hero_push/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_swim": {
+  "src": "../assets/sprites/hero_swim/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_idle": {
+  "src": "../assets/sprites/hero_no_shield_idle/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_walk": {
+  "src": "../assets/sprites/hero_no_shield_walk/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_run": {
+  "src": "../assets/sprites/hero_no_shield_run/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_jump": {
+  "src": "../assets/sprites/hero_no_shield_jump/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_attack": {
+  "src": "../assets/sprites/hero_no_shield_attack/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_block": {
+  "src": "../assets/sprites/hero_no_shield_block/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_cast": {
+  "src": "../assets/sprites/hero_no_shield_cast/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_no_shield_defeat": {
+  "src": "../assets/sprites/hero_no_shield_defeat/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_idle": {
+  "src": "../assets/sprites/hero_tower_shield_idle/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_walk": {
+  "src": "../assets/sprites/hero_tower_shield_walk/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_run": {
+  "src": "../assets/sprites/hero_tower_shield_run/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_jump": {
+  "src": "../assets/sprites/hero_tower_shield_jump/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_attack": {
+  "src": "../assets/sprites/hero_tower_shield_attack/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_block": {
+  "src": "../assets/sprites/hero_tower_shield_block/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_cast": {
+  "src": "../assets/sprites/hero_tower_shield_cast/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.hero_tower_shield_defeat": {
+  "src": "../assets/sprites/hero_tower_shield_defeat/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.mossback_beetle": {
+  "src": "../assets/sprites/mossback_beetle/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.candle_wisp": {
+  "src": "../assets/sprites/candle_wisp/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.fern_toad": {
+  "src": "../assets/sprites/fern_toad/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.ivory_moth": {
+  "src": "../assets/sprites/ivory_moth/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.root_goblin": {
+  "src": "../assets/sprites/root_goblin/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.sapphire_slug": {
+  "src": "../assets/sprites/sapphire_slug/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.coral_crawler": {
+  "src": "../assets/sprites/coral_crawler/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.thorn_bat": {
+  "src": "../assets/sprites/thorn_bat/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.mushroom_imp": {
+  "src": "../assets/sprites/mushroom_imp/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.crimson_antlion": {
+  "src": "../assets/sprites/crimson_antlion/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.thorn_vine": {
+  "src": "../assets/sprites/thorn_vine/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.amber_spider": {
+  "src": "../assets/sprites/amber_spider/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.ice_tortoise": {
+  "src": "../assets/sprites/ice_tortoise/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.frost_grub": {
+  "src": "../assets/sprites/frost_grub/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.crystal_slime": {
+  "src": "../assets/sprites/crystal_slime/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.frost_wisp": {
+  "src": "../assets/sprites/frost_wisp/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.ember_leech": {
+  "src": "../assets/sprites/ember_leech/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.porcelain_eye": {
+  "src": "../assets/sprites/porcelain_eye/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.crown_creeper": {
+  "src": "../assets/sprites/crown_creeper/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.bone_sentinel": {
+  "src": "../assets/sprites/bone_sentinel/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.sand_revenant": {
+  "src": "../assets/sprites/sand_revenant/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.garnet_imp": {
+  "src": "../assets/sprites/garnet_imp/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.dust_serpent": {
+  "src": "../assets/sprites/dust_serpent/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.bone_dartling": {
+  "src": "../assets/sprites/bone_dartling/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.steam_hound": {
+  "src": "../assets/sprites/steam_hound/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.antler_ogre": {
+  "src": "../assets/sprites/antler_ogre/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.obsidian_golem": {
+  "src": "../assets/sprites/obsidian_golem/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.lava_pillar": {
+  "src": "../assets/sprites/lava_pillar/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.veiled_drifter": {
+  "src": "../assets/sprites/veiled_drifter/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.night_wolf": {
+  "src": "../assets/sprites/night_wolf/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.jade_duelist": {
+  "src": "../assets/sprites/jade_duelist/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.star_orb": {
+  "src": "../assets/sprites/star_orb/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 110,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.bellcrag": {
+  "src": "../assets/sprites/bellcrag/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.nautilume": {
+  "src": "../assets/sprites/nautilume/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.quillwyrm": {
+  "src": "../assets/sprites/quillwyrm/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.rime_reliquary": {
+  "src": "../assets/sprites/rime_reliquary/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.manylid": {
+  "src": "../assets/sprites/manylid/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.brass_strider": {
+  "src": "../assets/sprites/brass_strider/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.verdant_reliquary": {
+  "src": "../assets/sprites/verdant_reliquary/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.furnace_wyrm": {
+  "src": "../assets/sprites/furnace_wyrm/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.crescent_mantis": {
+  "src": "../assets/sprites/crescent_mantis/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.unlit_regent": {
+  "src": "../assets/sprites/unlit_regent/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 8,
+  "fps": 8,
+  "ax": 96,
+  "ay": 180,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "move": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack": [
+    4,
+    5
+   ],
+   "hurt": [
+    6
+   ],
+   "defeat": [
+    6,
+    7
+   ]
+  }
+ },
+ "old.archivist": {
+  "src": "../assets/sprites/archivist/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.blacksmith": {
+  "src": "../assets/sprites/blacksmith/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.herbalist": {
+  "src": "../assets/sprites/herbalist/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.bank_clerk": {
+  "src": "../assets/sprites/bank_clerk/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.innkeeper": {
+  "src": "../assets/sprites/innkeeper/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.pilgrim": {
+  "src": "../assets/sprites/pilgrim/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.lantern_bearer": {
+  "src": "../assets/sprites/lantern_bearer/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.queen": {
+  "src": "../assets/sprites/queen/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 4,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.knight_portrait": {
+  "src": "../assets/sprites/knight_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.archivist_portrait": {
+  "src": "../assets/sprites/archivist_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.smith_portrait": {
+  "src": "../assets/sprites/smith_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.queen_portrait": {
+  "src": "../assets/sprites/queen_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.regent_portrait": {
+  "src": "../assets/sprites/regent_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.innkeeper_portrait": {
+  "src": "../assets/sprites/innkeeper_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.herbalist_portrait": {
+  "src": "../assets/sprites/herbalist_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.guard_portrait": {
+  "src": "../assets/sprites/guard_portrait/atlas.png",
+  "fw": 192,
+  "fh": 192,
+  "frames": 4,
+  "fps": 4,
+  "ax": 96,
+  "ay": 186,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "old.halberd_guard": {
+  "src": "../assets/sprites/halberd_guard/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.gate_captain": {
+  "src": "../assets/sprites/gate_captain/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.spectral_blade": {
+  "src": "../assets/sprites/spectral_blade/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.amber_arrow": {
+  "src": "../assets/sprites/amber_arrow/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.ghostflame": {
+  "src": "../assets/sprites/ghostflame/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.fire_lance": {
+  "src": "../assets/sprites/fire_lance/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.stonefall": {
+  "src": "../assets/sprites/stonefall/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.tidal_surge": {
+  "src": "../assets/sprites/tidal_surge/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.star_nova": {
+  "src": "../assets/sprites/star_nova/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.stone_ward": {
+  "src": "../assets/sprites/stone_ward/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.iron_slash": {
+  "src": "../assets/sprites/iron_slash/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.brass_slash": {
+  "src": "../assets/sprites/brass_slash/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.rune_slash": {
+  "src": "../assets/sprites/rune_slash/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.ivory_slash": {
+  "src": "../assets/sprites/ivory_slash/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.sun_slash": {
+  "src": "../assets/sprites/sun_slash/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.star_slash": {
+  "src": "../assets/sprites/star_slash/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.treasure_chest": {
+  "src": "../assets/sprites/treasure_chest/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.save_lantern": {
+  "src": "../assets/sprites/save_lantern/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.rune_gate": {
+  "src": "../assets/sprites/rune_gate/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.vine": {
+  "src": "../assets/sprites/vine/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.spike_trap": {
+  "src": "../assets/sprites/spike_trap/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.lava_pool": {
+  "src": "../assets/sprites/lava_pool/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.falling_icicle": {
+  "src": "../assets/sprites/falling_icicle/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "old.quest_crystal": {
+  "src": "../assets/sprites/quest_crystal/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "item.iron_sword": {
+  "src": "../assets/items/iron_sword.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.brass_sword": {
+  "src": "../assets/items/brass_sword.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.rune_sword": {
+  "src": "../assets/items/rune_sword.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.knight_sword": {
+  "src": "../assets/items/knight_sword.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.sun_sword": {
+  "src": "../assets/items/sun_sword.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.star_sword": {
+  "src": "../assets/items/star_sword.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.bronze_key": {
+  "src": "../assets/items/bronze_key.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.silver_key": {
+  "src": "../assets/items/silver_key.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.wood_buckler": {
+  "src": "../assets/items/wood_buckler.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.brass_shield": {
+  "src": "../assets/items/brass_shield.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.stone_shield": {
+  "src": "../assets/items/stone_shield.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.honour_shield": {
+  "src": "../assets/items/honour_shield.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.sun_shield": {
+  "src": "../assets/items/sun_shield.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.star_shield": {
+  "src": "../assets/items/star_shield.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.gold_key": {
+  "src": "../assets/items/gold_key.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.obsidian_key": {
+  "src": "../assets/items/obsidian_key.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.blade_sigil": {
+  "src": "../assets/items/blade_sigil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.arrow_sigil": {
+  "src": "../assets/items/arrow_sigil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.flame_sigil": {
+  "src": "../assets/items/flame_sigil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.lance_sigil": {
+  "src": "../assets/items/lance_sigil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.stone_sigil": {
+  "src": "../assets/items/stone_sigil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.water_sigil": {
+  "src": "../assets/items/water_sigil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.nova_sigil": {
+  "src": "../assets/items/nova_sigil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.spellbook": {
+  "src": "../assets/items/spellbook.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.healing_tonic": {
+  "src": "../assets/items/healing_tonic.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.sunfruit": {
+  "src": "../assets/items/sunfruit.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.mana_elixir": {
+  "src": "../assets/items/mana_elixir.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.aether_powder": {
+  "src": "../assets/items/aether_powder.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.ward_stone": {
+  "src": "../assets/items/ward_stone.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.homeward_feather": {
+  "src": "../assets/items/homeward_feather.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.sword_oil": {
+  "src": "../assets/items/sword_oil.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.repair_water": {
+  "src": "../assets/items/repair_water.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.trail_boots": {
+  "src": "../assets/items/trail_boots.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.wing_boots": {
+  "src": "../assets/items/wing_boots.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.spike_boots": {
+  "src": "../assets/items/spike_boots.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.ivory_boots": {
+  "src": "../assets/items/ivory_boots.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.moss_cloak": {
+  "src": "../assets/items/moss_cloak.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.midnight_cloak": {
+  "src": "../assets/items/midnight_cloak.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.dawn_cloak": {
+  "src": "../assets/items/dawn_cloak.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.teal_cloak": {
+  "src": "../assets/items/teal_cloak.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.compass": {
+  "src": "../assets/items/compass.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.ruby_shard": {
+  "src": "../assets/items/ruby_shard.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.amber_shard": {
+  "src": "../assets/items/amber_shard.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.sapphire_tear": {
+  "src": "../assets/items/sapphire_tear.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.violet_diamond": {
+  "src": "../assets/items/violet_diamond.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.emerald_shard": {
+  "src": "../assets/items/emerald_shard.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.moon_pearl": {
+  "src": "../assets/items/moon_pearl.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.ice_star": {
+  "src": "../assets/items/ice_star.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.void_crystal": {
+  "src": "../assets/items/void_crystal.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.coin": {
+  "id": "art.item.gold",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "gold": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/gold.png",
+  "alias": "art.item.gold"
+ },
+ "item.spirit_mote": {
+  "id": "art.item.almas",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "almas": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/almas.png",
+  "alias": "art.item.almas"
+ },
+ "item.closed_chest_icon": {
+  "src": "../assets/items/closed_chest_icon.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.open_chest_icon": {
+  "src": "../assets/items/open_chest_icon.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.lantern_icon": {
+  "src": "../assets/items/lantern_icon.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.scroll": {
+  "src": "../assets/items/scroll.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.family_crest": {
+  "src": "../assets/items/family_crest.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.crown": {
+  "src": "../assets/items/crown.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.heart": {
+  "src": "../assets/items/heart.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.broken_shield": {
+  "src": "../assets/items/broken_shield.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.ring": {
+  "src": "../assets/items/ring.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.necklace": {
+  "src": "../assets/items/necklace.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.map": {
+  "src": "../assets/items/map.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.rope": {
+  "src": "../assets/items/rope.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.torch": {
+  "src": "../assets/items/torch.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "item.bell": {
+  "src": "../assets/items/bell.png",
+  "frames": 1,
+  "fps": 1
+ },
+ "art.boss.agar": {
+  "id": "art.boss.agar",
+  "fw": 316,
+  "fh": 186,
+  "frames": 4,
+  "ax": 158,
+  "ay": 178,
+  "fps": 6,
+  "anims": {
+   "agar": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/agar.png"
+ },
+ "art.boss.alguien": {
+  "id": "art.boss.alguien",
+  "fw": 686,
+  "fh": 404,
+  "frames": 4,
+  "ax": 343,
+  "ay": 396,
+  "fps": 6,
+  "anims": {
+   "alguien": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/alguien.png"
+ },
+ "art.boss.cangrejo": {
+  "id": "art.boss.cangrejo",
+  "fw": 316,
+  "fh": 186,
+  "frames": 4,
+  "ax": 158,
+  "ay": 178,
+  "fps": 6,
+  "anims": {
+   "cangrejo": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/cangrejo.png"
+ },
+ "art.boss.dragon": {
+  "id": "art.boss.dragon",
+  "fw": 1176,
+  "fh": 312,
+  "frames": 4,
+  "ax": 588,
+  "ay": 304,
+  "fps": 6,
+  "anims": {
+   "dragon": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/dragon.png"
+ },
+ "art.boss.jashiin": {
+  "id": "art.boss.jashiin",
+  "fw": 474,
+  "fh": 280,
+  "frames": 4,
+  "ax": 237,
+  "ay": 272,
+  "fps": 6,
+  "anims": {
+   "jashiin": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/jashiin.png"
+ },
+ "art.boss.paguro": {
+  "id": "art.boss.paguro",
+  "fw": 316,
+  "fh": 186,
+  "frames": 4,
+  "ax": 158,
+  "ay": 178,
+  "fps": 6,
+  "anims": {
+   "paguro": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/paguro.png"
+ },
+ "art.boss.pollo": {
+  "id": "art.boss.pollo",
+  "fw": 422,
+  "fh": 248,
+  "frames": 4,
+  "ax": 211,
+  "ay": 240,
+  "fps": 6,
+  "anims": {
+   "pollo": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/pollo.png"
+ },
+ "art.boss.pulpo": {
+  "id": "art.boss.pulpo",
+  "fw": 422,
+  "fh": 248,
+  "frames": 4,
+  "ax": 211,
+  "ay": 240,
+  "fps": 6,
+  "anims": {
+   "pulpo": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/pulpo.png"
+ },
+ "art.boss.tarso": {
+  "id": "art.boss.tarso",
+  "fw": 528,
+  "fh": 312,
+  "frames": 4,
+  "ax": 264,
+  "ay": 304,
+  "fps": 6,
+  "anims": {
+   "tarso": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/tarso.png"
+ },
+ "art.boss.vista": {
+  "id": "art.boss.vista",
+  "fw": 632,
+  "fh": 374,
+  "frames": 4,
+  "ax": 316,
+  "ay": 366,
+  "fps": 6,
+  "anims": {
+   "vista": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "p0": [
+    0
+   ],
+   "p1": [
+    1
+   ],
+   "p2": [
+    2
+   ],
+   "p3": [
+    3
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ]
+  },
+  "faces": -1,
+  "src": "art/bosses/sheets/vista.png"
+ },
+ "art.enemy.w1.t0": {
+  "id": "art.enemy.w1.t0",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w1/t0.png"
+ },
+ "art.enemy.w1.t1": {
+  "id": "art.enemy.w1.t1",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t1": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w1/t1.png"
+ },
+ "art.enemy.w1.t2": {
+  "id": "art.enemy.w1.t2",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w1/t2.png"
+ },
+ "art.enemy.w1.t3": {
+  "id": "art.enemy.w1.t3",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w1/t3.png"
+ },
+ "art.enemy.w2.t0": {
+  "id": "art.enemy.w2.t0",
+  "fw": 342,
+  "fh": 210,
+  "frames": 4,
+  "ax": 171,
+  "ay": 204,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w2/t0.png"
+ },
+ "art.enemy.w2.t1": {
+  "id": "art.enemy.w2.t1",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t1": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w2/t1.png"
+ },
+ "art.enemy.w2.t2": {
+  "id": "art.enemy.w2.t2",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w2/t2.png"
+ },
+ "art.enemy.w2.t3": {
+  "id": "art.enemy.w2.t3",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w2/t3.png"
+ },
+ "art.enemy.w2.t4": {
+  "id": "art.enemy.w2.t4",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t4": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w2/t4.png"
+ },
+ "art.enemy.w2.t5": {
+  "id": "art.enemy.w2.t5",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t5": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w2/t5.png"
+ },
+ "art.enemy.w3.t0": {
+  "id": "art.enemy.w3.t0",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w3/t0.png"
+ },
+ "art.enemy.w3.t1": {
+  "id": "art.enemy.w3.t1",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t1": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w3/t1.png"
+ },
+ "art.enemy.w3.t2": {
+  "id": "art.enemy.w3.t2",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w3/t2.png"
+ },
+ "art.enemy.w3.t3": {
+  "id": "art.enemy.w3.t3",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w3/t3.png"
+ },
+ "art.enemy.w4.t0": {
+  "id": "art.enemy.w4.t0",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w4/t0.png"
+ },
+ "art.enemy.w4.t1": {
+  "id": "art.enemy.w4.t1",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t1": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w4/t1.png"
+ },
+ "art.enemy.w4.t2": {
+  "id": "art.enemy.w4.t2",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w4/t2.png"
+ },
+ "art.enemy.w4.t3": {
+  "id": "art.enemy.w4.t3",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w4/t3.png"
+ },
+ "art.enemy.w4.t4": {
+  "id": "art.enemy.w4.t4",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t4": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w4/t4.png"
+ },
+ "art.enemy.w5.t0": {
+  "id": "art.enemy.w5.t0",
+  "fw": 342,
+  "fh": 210,
+  "frames": 4,
+  "ax": 171,
+  "ay": 204,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w5/t0.png"
+ },
+ "art.enemy.w5.t2": {
+  "id": "art.enemy.w5.t2",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w5/t2.png"
+ },
+ "art.enemy.w5.t3": {
+  "id": "art.enemy.w5.t3",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w5/t3.png"
+ },
+ "art.enemy.w5.t4": {
+  "id": "art.enemy.w5.t4",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t4": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w5/t4.png"
+ },
+ "art.enemy.w6.t0": {
+  "id": "art.enemy.w6.t0",
+  "fw": 342,
+  "fh": 210,
+  "frames": 4,
+  "ax": 171,
+  "ay": 204,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w6/t0.png"
+ },
+ "art.enemy.w6.t2": {
+  "id": "art.enemy.w6.t2",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w6/t2.png"
+ },
+ "art.enemy.w6.t3": {
+  "id": "art.enemy.w6.t3",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w6/t3.png"
+ },
+ "art.enemy.w6.t4": {
+  "id": "art.enemy.w6.t4",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t4": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w6/t4.png"
+ },
+ "art.enemy.w7.t0": {
+  "id": "art.enemy.w7.t0",
+  "fw": 342,
+  "fh": 210,
+  "frames": 4,
+  "ax": 171,
+  "ay": 204,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w7/t0.png"
+ },
+ "art.enemy.w7.t2": {
+  "id": "art.enemy.w7.t2",
+  "fw": 342,
+  "fh": 210,
+  "frames": 4,
+  "ax": 171,
+  "ay": 204,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w7/t2.png"
+ },
+ "art.enemy.w7.t4": {
+  "id": "art.enemy.w7.t4",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t4": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w7/t4.png"
+ },
+ "art.enemy.w8.t0": {
+  "id": "art.enemy.w8.t0",
+  "fw": 342,
+  "fh": 210,
+  "frames": 4,
+  "ax": 171,
+  "ay": 204,
+  "fps": 6,
+  "anims": {
+   "t0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w8/t0.png"
+ },
+ "art.enemy.w8.t2": {
+  "id": "art.enemy.w8.t2",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w8/t2.png"
+ },
+ "art.enemy.w8.t3": {
+  "id": "art.enemy.w8.t3",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w8/t3.png"
+ },
+ "art.enemy.w8.t4": {
+  "id": "art.enemy.w8.t4",
+  "fw": 170,
+  "fh": 104,
+  "frames": 4,
+  "ax": 85,
+  "ay": 98,
+  "fps": 6,
+  "anims": {
+   "t4": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "idle": [
+    0,
+    1
+   ],
+   "move": [
+    0,
+    1
+   ],
+   "attack": [
+    2
+   ],
+   "defeat": [
+    3
+   ]
+  },
+  "src": "art/enemies/w8/t4.png"
+ },
+ "art.hero.attack": {
+  "id": "art.hero.attack",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 14,
+  "anims": {
+   "attack": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/attack.png"
+ },
+ "art.hero.cast": {
+  "id": "art.hero.cast",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 12,
+  "anims": {
+   "cast": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/cast.png"
+ },
+ "art.hero.climb": {
+  "id": "art.hero.climb",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "climb": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/climb.png"
+ },
+ "art.hero.crouch": {
+  "id": "art.hero.crouch",
+  "fw": 200,
+  "fh": 168,
+  "frames": 1,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "crouch": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/hero/sheets/crouch.png"
+ },
+ "art.hero.dead": {
+  "id": "art.hero.dead",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 6,
+  "anims": {
+   "dead": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/dead.png"
+ },
+ "art.hero.fall": {
+  "id": "art.hero.fall",
+  "fw": 200,
+  "fh": 168,
+  "frames": 1,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "fall": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/hero/sheets/fall.png"
+ },
+ "art.hero.hurt": {
+  "id": "art.hero.hurt",
+  "fw": 200,
+  "fh": 168,
+  "frames": 2,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "hurt": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ]
+  },
+  "src": "art/hero/sheets/hurt.png"
+ },
+ "art.hero.idle": {
+  "id": "art.hero.idle",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 5,
+  "anims": {
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/idle.png"
+ },
+ "art.hero.jump": {
+  "id": "art.hero.jump",
+  "fw": 200,
+  "fh": 168,
+  "frames": 1,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "jump": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/hero/sheets/jump.png"
+ },
+ "art.hero.land": {
+  "id": "art.hero.land",
+  "fw": 200,
+  "fh": 168,
+  "frames": 2,
+  "ax": 100,
+  "ay": 156,
+  "fps": 12,
+  "anims": {
+   "land": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ]
+  },
+  "src": "art/hero/sheets/land.png"
+ },
+ "art.hero.low": {
+  "id": "art.hero.low",
+  "fw": 200,
+  "fh": 168,
+  "frames": 3,
+  "ax": 100,
+  "ay": 156,
+  "fps": 14,
+  "anims": {
+   "low": [
+    0,
+    1,
+    2
+   ],
+   "default": [
+    0,
+    1,
+    2
+   ]
+  },
+  "src": "art/hero/sheets/low.png"
+ },
+ "art.hero.overhead": {
+  "id": "art.hero.overhead",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 14,
+  "anims": {
+   "overhead": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/overhead.png"
+ },
+ "art.hero.talk": {
+  "id": "art.hero.talk",
+  "fw": 200,
+  "fh": 168,
+  "frames": 2,
+  "ax": 100,
+  "ay": 156,
+  "fps": 2,
+  "anims": {
+   "talk": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ]
+  },
+  "src": "art/hero/sheets/talk.png"
+ },
+ "art.hero.thrust": {
+  "id": "art.hero.thrust",
+  "fw": 200,
+  "fh": 168,
+  "frames": 2,
+  "ax": 100,
+  "ay": 156,
+  "fps": 10,
+  "anims": {
+   "thrust": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ]
+  },
+  "src": "art/hero/sheets/thrust.png"
+ },
+ "art.hero.victory": {
+  "id": "art.hero.victory",
+  "fw": 200,
+  "fh": 168,
+  "frames": 2,
+  "ax": 100,
+  "ay": 156,
+  "fps": 4,
+  "anims": {
+   "victory": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ]
+  },
+  "src": "art/hero/sheets/victory.png"
+ },
+ "art.hero.walk": {
+  "id": "art.hero.walk",
+  "fw": 200,
+  "fh": 168,
+  "frames": 8,
+  "ax": 100,
+  "ay": 156,
+  "fps": 12,
+  "anims": {
+   "walk": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "src": "art/hero/sheets/walk.png"
+ },
+ "art.npc.a0": {
+  "id": "art.npc.a0",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "a0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/a0.png"
+ },
+ "art.npc.a1": {
+  "id": "art.npc.a1",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "a1": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/a1.png"
+ },
+ "art.npc.a2": {
+  "id": "art.npc.a2",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "a2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/a2.png"
+ },
+ "art.npc.a3": {
+  "id": "art.npc.a3",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "a3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/a3.png"
+ },
+ "art.npc.b0": {
+  "id": "art.npc.b0",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "b0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/b0.png"
+ },
+ "art.npc.b1": {
+  "id": "art.npc.b1",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "b1": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/b1.png"
+ },
+ "art.npc.b2": {
+  "id": "art.npc.b2",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "b2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/b2.png"
+ },
+ "art.npc.b3": {
+  "id": "art.npc.b3",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "b3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/b3.png"
+ },
+ "art.npc.c0": {
+  "id": "art.npc.c0",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "c0": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/c0.png"
+ },
+ "art.npc.c1": {
+  "id": "art.npc.c1",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "c1": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/c1.png"
+ },
+ "art.npc.c2": {
+  "id": "art.npc.c2",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "c2": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/c2.png"
+ },
+ "art.npc.c3": {
+  "id": "art.npc.c3",
+  "fw": 120,
+  "fh": 110,
+  "frames": 4,
+  "ax": 60,
+  "ay": 104,
+  "fps": 4,
+  "anims": {
+   "c3": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    2
+   ],
+   "walk": [
+    0,
+    1
+   ],
+   "idle": [
+    2
+   ],
+   "talk": [
+    3
+   ]
+  },
+  "src": "art/npcs/sheets/c3.png"
+ },
+ "art.item.almas": {
+  "id": "art.item.almas",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "almas": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/almas.png"
+ },
+ "art.item.almas10": {
+  "id": "art.item.almas10",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "almas10": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/almas10.png"
+ },
+ "art.item.almas100": {
+  "id": "art.item.almas100",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "almas100": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/almas100.png"
+ },
+ "art.prop.chest": {
+  "id": "art.prop.chest",
+  "fw": 64,
+  "fh": 64,
+  "frames": 2,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "chest": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "open": [
+    1
+   ],
+   "closed": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/chest.png"
+ },
+ "art.item.gold": {
+  "id": "art.item.gold",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "gold": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/gold.png"
+ },
+ "art.item.potion": {
+  "id": "art.item.potion",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "potion": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/potion.png"
+ },
+ "art.prop.tear": {
+  "id": "art.prop.tear",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "tear": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/tear.png"
+ },
+ "art.town.bosque.bank": {
+  "id": "art.town.bosque.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/bank.png"
+ },
+ "art.town.bosque.cavern_entrance": {
+  "id": "art.town.bosque.cavern_entrance",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "cavern_entrance": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/cavern_entrance.png"
+ },
+ "art.town.bosque.filler1": {
+  "id": "art.town.bosque.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/filler1.png"
+ },
+ "art.town.bosque.filler2": {
+  "id": "art.town.bosque.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/filler2.png"
+ },
+ "art.town.bosque.inn": {
+  "id": "art.town.bosque.inn",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "inn": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/inn.png"
+ },
+ "art.town.bosque.magic_shop": {
+  "id": "art.town.bosque.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/magic_shop.png"
+ },
+ "art.town.bosque.sage": {
+  "id": "art.town.bosque.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/sage.png"
+ },
+ "art.town.bosque.weapons_and_armour_shop": {
+  "id": "art.town.bosque.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/bosque/weapons_and_armour_shop.png"
+ },
+ "art.town.dorado.bank": {
+  "id": "art.town.dorado.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/dorado/bank.png"
+ },
+ "art.town.dorado.filler1": {
+  "id": "art.town.dorado.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/dorado/filler1.png"
+ },
+ "art.town.dorado.filler2": {
+  "id": "art.town.dorado.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/dorado/filler2.png"
+ },
+ "art.town.dorado.inn": {
+  "id": "art.town.dorado.inn",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "inn": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/dorado/inn.png"
+ },
+ "art.town.dorado.magic_shop": {
+  "id": "art.town.dorado.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/dorado/magic_shop.png"
+ },
+ "art.town.dorado.sage": {
+  "id": "art.town.dorado.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/dorado/sage.png"
+ },
+ "art.town.dorado.weapons_and_armour_shop": {
+  "id": "art.town.dorado.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/dorado/weapons_and_armour_shop.png"
+ },
+ "art.town.esco.bank": {
+  "id": "art.town.esco.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/esco/bank.png"
+ },
+ "art.town.esco.cavern_entrance": {
+  "id": "art.town.esco.cavern_entrance",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "cavern_entrance": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/esco/cavern_entrance.png"
+ },
+ "art.town.esco.church": {
+  "id": "art.town.esco.church",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "church": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/esco/church.png"
+ },
+ "art.town.esco.filler1": {
+  "id": "art.town.esco.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/esco/filler1.png"
+ },
+ "art.town.esco.filler2": {
+  "id": "art.town.esco.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/esco/filler2.png"
+ },
+ "art.town.esco.magic_shop": {
+  "id": "art.town.esco.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/esco/magic_shop.png"
+ },
+ "art.town.esco.weapons_and_armour_shop": {
+  "id": "art.town.esco.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/esco/weapons_and_armour_shop.png"
+ },
+ "art.town.felishika_castle.filler1": {
+  "id": "art.town.felishika_castle.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/felishika_castle/filler1.png"
+ },
+ "art.town.felishika_castle.filler2": {
+  "id": "art.town.felishika_castle.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/felishika_castle/filler2.png"
+ },
+ "art.town.felishika_castle.king": {
+  "id": "art.town.felishika_castle.king",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "king": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/felishika_castle/king.png"
+ },
+ "art.town.felishika_castle.princess_chamber": {
+  "id": "art.town.felishika_castle.princess_chamber",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "princess_chamber": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/felishika_castle/princess_chamber.png"
+ },
+ "art.town.helada.bank": {
+  "id": "art.town.helada.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/helada/bank.png"
+ },
+ "art.town.helada.filler1": {
+  "id": "art.town.helada.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/helada/filler1.png"
+ },
+ "art.town.helada.filler2": {
+  "id": "art.town.helada.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/helada/filler2.png"
+ },
+ "art.town.helada.inn": {
+  "id": "art.town.helada.inn",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "inn": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/helada/inn.png"
+ },
+ "art.town.helada.magic_shop": {
+  "id": "art.town.helada.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/helada/magic_shop.png"
+ },
+ "art.town.helada.sage": {
+  "id": "art.town.helada.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/helada/sage.png"
+ },
+ "art.town.helada.weapons_and_armour_shop": {
+  "id": "art.town.helada.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/helada/weapons_and_armour_shop.png"
+ },
+ "art.town.llama.bank": {
+  "id": "art.town.llama.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/bank.png"
+ },
+ "art.town.llama.cavern_entrance": {
+  "id": "art.town.llama.cavern_entrance",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "cavern_entrance": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/cavern_entrance.png"
+ },
+ "art.town.llama.filler1": {
+  "id": "art.town.llama.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/filler1.png"
+ },
+ "art.town.llama.filler2": {
+  "id": "art.town.llama.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/filler2.png"
+ },
+ "art.town.llama.inn": {
+  "id": "art.town.llama.inn",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "inn": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/inn.png"
+ },
+ "art.town.llama.magic_shop": {
+  "id": "art.town.llama.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/magic_shop.png"
+ },
+ "art.town.llama.sage": {
+  "id": "art.town.llama.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/sage.png"
+ },
+ "art.town.llama.weapons_and_armour_shop": {
+  "id": "art.town.llama.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/llama/weapons_and_armour_shop.png"
+ },
+ "art.town.muralla.bank": {
+  "id": "art.town.muralla.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/bank.png"
+ },
+ "art.town.muralla.cavern_entrance": {
+  "id": "art.town.muralla.cavern_entrance",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "cavern_entrance": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/cavern_entrance.png"
+ },
+ "art.town.muralla.church": {
+  "id": "art.town.muralla.church",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "church": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/church.png"
+ },
+ "art.town.muralla.filler1": {
+  "id": "art.town.muralla.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/filler1.png"
+ },
+ "art.town.muralla.filler2": {
+  "id": "art.town.muralla.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/filler2.png"
+ },
+ "art.town.muralla.magic_shop": {
+  "id": "art.town.muralla.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/magic_shop.png"
+ },
+ "art.town.muralla.sage": {
+  "id": "art.town.muralla.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/sage.png"
+ },
+ "art.town.muralla.weapons_and_armour_shop": {
+  "id": "art.town.muralla.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/muralla/weapons_and_armour_shop.png"
+ },
+ "art.town.pureza.bank": {
+  "id": "art.town.pureza.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/bank.png"
+ },
+ "art.town.pureza.filler1": {
+  "id": "art.town.pureza.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/filler1.png"
+ },
+ "art.town.pureza.filler2": {
+  "id": "art.town.pureza.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/filler2.png"
+ },
+ "art.town.pureza.inn": {
+  "id": "art.town.pureza.inn",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "inn": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/inn.png"
+ },
+ "art.town.pureza.magic_shop": {
+  "id": "art.town.pureza.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/magic_shop.png"
+ },
+ "art.town.pureza.sage": {
+  "id": "art.town.pureza.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/sage.png"
+ },
+ "art.town.pureza.trap_warp_to_dorado": {
+  "id": "art.town.pureza.trap_warp_to_dorado",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "trap_warp_to_dorado": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/trap_warp_to_dorado.png"
+ },
+ "art.town.pureza.weapons_and_armour_shop": {
+  "id": "art.town.pureza.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/pureza/weapons_and_armour_shop.png"
+ },
+ "art.town.satono.bank": {
+  "id": "art.town.satono.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/satono/bank.png"
+ },
+ "art.town.satono.filler1": {
+  "id": "art.town.satono.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/satono/filler1.png"
+ },
+ "art.town.satono.filler2": {
+  "id": "art.town.satono.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/satono/filler2.png"
+ },
+ "art.town.satono.inn": {
+  "id": "art.town.satono.inn",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "inn": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/satono/inn.png"
+ },
+ "art.town.satono.magic_shop": {
+  "id": "art.town.satono.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/satono/magic_shop.png"
+ },
+ "art.town.satono.sage": {
+  "id": "art.town.satono.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/satono/sage.png"
+ },
+ "art.town.satono.weapons_and_armour_shop": {
+  "id": "art.town.satono.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/satono/weapons_and_armour_shop.png"
+ },
+ "art.town.tumba.bank": {
+  "id": "art.town.tumba.bank",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "bank": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/tumba/bank.png"
+ },
+ "art.town.tumba.filler1": {
+  "id": "art.town.tumba.filler1",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler1": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/tumba/filler1.png"
+ },
+ "art.town.tumba.filler2": {
+  "id": "art.town.tumba.filler2",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "filler2": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/tumba/filler2.png"
+ },
+ "art.town.tumba.inn": {
+  "id": "art.town.tumba.inn",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "inn": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/tumba/inn.png"
+ },
+ "art.town.tumba.magic_shop": {
+  "id": "art.town.tumba.magic_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "magic_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/tumba/magic_shop.png"
+ },
+ "art.town.tumba.sage": {
+  "id": "art.town.tumba.sage",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "sage": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/tumba/sage.png"
+ },
+ "art.town.tumba.weapons_and_armour_shop": {
+  "id": "art.town.tumba.weapons_and_armour_shop",
+  "fw": 700,
+  "fh": 320,
+  "frames": 1,
+  "ax": 350,
+  "ay": 318,
+  "fps": 10,
+  "anims": {
+   "weapons_and_armour_shop": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/towns/tumba/weapons_and_armour_shop.png"
+ },
+ "hero.idle": {
+  "id": "art.hero.idle",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 5,
+  "anims": {
+   "idle": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/idle.png",
+  "alias": "art.hero.idle"
+ },
+ "hero.walk": {
+  "id": "art.hero.walk",
+  "fw": 200,
+  "fh": 168,
+  "frames": 8,
+  "ax": 100,
+  "ay": 156,
+  "fps": 12,
+  "anims": {
+   "walk": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "src": "art/hero/sheets/walk.png",
+  "alias": "art.hero.walk"
+ },
+ "hero.jump": {
+  "id": "art.hero.jump",
+  "fw": 200,
+  "fh": 168,
+  "frames": 1,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "jump": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/hero/sheets/jump.png",
+  "alias": "art.hero.jump"
+ },
+ "hero.fall": {
+  "id": "art.hero.fall",
+  "fw": 200,
+  "fh": 168,
+  "frames": 1,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "fall": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/hero/sheets/fall.png",
+  "alias": "art.hero.fall"
+ },
+ "hero.attack": {
+  "id": "art.hero.attack",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 14,
+  "anims": {
+   "attack": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/attack.png",
+  "alias": "art.hero.attack"
+ },
+ "hero.overhead": {
+  "id": "art.hero.overhead",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 14,
+  "anims": {
+   "overhead": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/overhead.png",
+  "alias": "art.hero.overhead"
+ },
+ "hero.low": {
+  "id": "art.hero.low",
+  "fw": 200,
+  "fh": 168,
+  "frames": 3,
+  "ax": 100,
+  "ay": 156,
+  "fps": 14,
+  "anims": {
+   "low": [
+    0,
+    1,
+    2
+   ],
+   "default": [
+    0,
+    1,
+    2
+   ]
+  },
+  "src": "art/hero/sheets/low.png",
+  "alias": "art.hero.low"
+ },
+ "hero.thrust": {
+  "id": "art.hero.thrust",
+  "fw": 200,
+  "fh": 168,
+  "frames": 2,
+  "ax": 100,
+  "ay": 156,
+  "fps": 10,
+  "anims": {
+   "thrust": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ]
+  },
+  "src": "art/hero/sheets/thrust.png",
+  "alias": "art.hero.thrust"
+ },
+ "hero.crouch": {
+  "id": "art.hero.crouch",
+  "fw": 200,
+  "fh": 168,
+  "frames": 1,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "crouch": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/hero/sheets/crouch.png",
+  "alias": "art.hero.crouch"
+ },
+ "hero.climb": {
+  "id": "art.hero.climb",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "climb": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/climb.png",
+  "alias": "art.hero.climb"
+ },
+ "hero.hurt": {
+  "id": "art.hero.hurt",
+  "fw": 200,
+  "fh": 168,
+  "frames": 2,
+  "ax": 100,
+  "ay": 156,
+  "fps": 8,
+  "anims": {
+   "hurt": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ]
+  },
+  "src": "art/hero/sheets/hurt.png",
+  "alias": "art.hero.hurt"
+ },
+ "hero.dead": {
+  "id": "art.hero.dead",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 6,
+  "anims": {
+   "dead": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/dead.png",
+  "alias": "art.hero.dead"
+ },
+ "hero.cast": {
+  "id": "art.hero.cast",
+  "fw": 200,
+  "fh": 168,
+  "frames": 4,
+  "ax": 100,
+  "ay": 156,
+  "fps": 12,
+  "anims": {
+   "cast": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  "src": "art/hero/sheets/cast.png",
+  "alias": "art.hero.cast"
+ },
+ "hero.town": {
+  "id": "art.hero.walk",
+  "fw": 200,
+  "fh": 168,
+  "frames": 8,
+  "ax": 100,
+  "ay": 156,
+  "fps": 12,
+  "anims": {
+   "walk": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "src": "art/hero/sheets/walk.png",
+  "alias": "art.hero.walk"
+ },
+ "prop.chest": {
+  "id": "art.prop.chest",
+  "fw": 64,
+  "fh": 64,
+  "frames": 2,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "chest": [
+    0,
+    1
+   ],
+   "default": [
+    0,
+    1
+   ],
+   "open": [
+    1
+   ],
+   "closed": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/chest.png",
+  "alias": "art.prop.chest"
+ },
+ "prop.lantern": {
+  "src": "../assets/sprites/save_lantern/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.save_lantern"
+ },
+ "prop.crystal": {
+  "id": "art.prop.tear",
+  "fw": 64,
+  "fh": 64,
+  "frames": 1,
+  "ax": 32,
+  "ay": 60,
+  "fps": 10,
+  "anims": {
+   "tear": [
+    0
+   ],
+   "default": [
+    0
+   ]
+  },
+  "src": "art/props/sheets/tear.png",
+  "alias": "art.prop.tear"
+ },
+ "fx.espada": {
+  "src": "../assets/sprites/spectral_blade/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.spectral_blade"
+ },
+ "fx.saeta": {
+  "src": "../assets/sprites/amber_arrow/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.amber_arrow"
+ },
+ "fx.fuego": {
+  "src": "../assets/sprites/ghostflame/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.ghostflame"
+ },
+ "fx.lanzar": {
+  "src": "../assets/sprites/fire_lance/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.fire_lance"
+ },
+ "fx.rascar": {
+  "src": "../assets/sprites/stonefall/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.stonefall"
+ },
+ "fx.agua": {
+  "src": "../assets/sprites/tidal_surge/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.tidal_surge"
+ },
+ "fx.guerra": {
+  "src": "../assets/sprites/star_nova/atlas.png",
+  "fw": 128,
+  "fh": 128,
+  "frames": 8,
+  "fps": 8,
+  "ax": 64,
+  "ay": 122,
+  "anims": {
+   "default": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "alias": "old.star_nova"
+ }
+}

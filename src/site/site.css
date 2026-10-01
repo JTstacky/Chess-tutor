@@ -47,6 +47,7 @@ a.game-card:hover { transform: translateY(-4px) rotate(-1deg); }
 .arcane .art { background: linear-gradient(135deg, #2a0c06, #d0561a); border-radius: 16px; width: 100%; }
 .party .art { background: linear-gradient(135deg, #2f5a2a, #d8a834); border-radius: 16px; width: 100%; }
 .bots .art { background: linear-gradient(135deg, #1d3f8f, #5fc8ff); border-radius: 16px; width: 100%; }
+.beliards .art { background: linear-gradient(135deg, #2a1d10, #c99a4a); border-radius: 16px; width: 100%; }
 .game-card .badge { align-self: center; margin-top: 10px; padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; color: #8a4b00; background: #ffe2b0; }
 .soon { opacity: 0.7; }
 footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px; }

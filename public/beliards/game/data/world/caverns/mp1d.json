@@ -1,0 +1,365 @@
+{
+ "id": "mp1d",
+ "file": "mp1d.mdt",
+ "name": "Cavern of Malicia",
+ "width": 73,
+ "height": 64,
+ "bank": "mpp1",
+ "level": 1,
+ "boss": {
+  "ai": "crab",
+  "sprites": "crab",
+  "isJashiin": false,
+  "postBossInit": [
+   {
+    "addr": "0xc010",
+    "value": "0xc224",
+    "target": {
+     "header": "monsters_ptr"
+    }
+   },
+   {
+    "addr": "0xc00a",
+    "value": "0xc1b6",
+    "target": {
+     "header": "doors_ptr"
+    }
+   },
+   {
+    "addr": "0xc226",
+    "value": "0xff05",
+    "target": {
+     "table": "monsters@0xc224",
+     "index": 0,
+     "fieldOffset": 2
+    }
+   },
+   {
+    "addr": "0x0000",
+    "value": "0xffff",
+    "target": {
+     "save": "0x00",
+     "saveName": "Cangrejo_Defeated"
+    }
+   }
+  ],
+  "postBossDoorNote": "after the initializers, load_place_and_reinit sets door[0].x0 to the hero x (+9 when facing right), then process_doors",
+  "hp": 150,
+  "xp": 120,
+  "arenaX": 12,
+  "almas": 150,
+  "name": "Cangrejo",
+  "nameRenderInfo": "10bb00",
+  "source": "crab.bin boss_state @0xa7c3"
+ },
+ "tear": null,
+ "entryHeadRow": 12,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "BgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBQgIBwcIAwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYFCAgICAcHBwgKCgoKCggHBwgIAwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYFBwcICAgICAkJCQoKCgoKCgoKCgoKCgoKCggICAgIBwcIAwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYHCgkJCQkJCQkJAAAAAAAAAAAAAAAACgoKCgoKCgoKCgoKCgcHCAYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYHBwoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKCgoKCgoKAwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYFCgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJCQgGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGCAoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgkHBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgcKCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKBwMGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgUHCQoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgkDBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGCgoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoJBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgoJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACQgDBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgUJCQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoHBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYFCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKCQYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBQoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgoGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgUKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKAwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGCgoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKCgMGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgQEBAQEBAUEBAQFBQQEBAQEBQQEBAQEBAUGBAYEBAYEBAQEBAQEBgQEBAQGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBg==",
+ "monsters": [],
+ "doors": [],
+ "platforms": {
+  "vertical": [],
+  "collapsing": [],
+  "horizontal": []
+ },
+ "items": [],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x02",
+    "mask": "0x08",
+    "name": "malicia_items",
+    "description": "Key, Cangrejo's Lair"
+   },
+   "writes": [
+    {
+     "addr": "0xc224",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters@0xc224",
+      "index": 0,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xc22f",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters@0xc224",
+      "index": 0,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "02000824c200ff2fc2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x03",
+    "mask": "0x20",
+    "name": "malicia_items_1",
+    "description": "Collected a Tear of Esmesanti."
+   },
+   "writes": [
+    {
+     "addr": "0xc1be",
+     "value": "0xff00",
+     "target": {
+      "table": "doors@0xc1b6",
+      "index": 0,
+      "fieldOffset": 8
+     }
+    },
+    {
+     "addr": "0xc1c0",
+     "value": "0xffff",
+     "target": {
+      "table": "doors@0xc1b6",
+      "index": 0,
+      "fieldOffset": 10
+     }
+    }
+   ],
+   "raw": "030020bec100ffc0c1ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x00",
+    "mask": "0xff",
+    "name": "Cangrejo_Defeated",
+    "description": "0000 = No, FFFF = Yes"
+   },
+   "writes": [
+    {
+     "addr": "0xc010",
+     "value": "0xc224",
+     "target": {
+      "header": "monsters_ptr"
+     }
+    },
+    {
+     "addr": "0xc00a",
+     "value": "0xc1aa",
+     "target": {
+      "header": "doors_ptr"
+     }
+    },
+    {
+     "addr": "0xc20d",
+     "value": "0x0000",
+     "target": {
+      "descriptorOffset": 3
+     }
+    },
+    {
+     "addr": "0xc20a",
+     "value": "0x0009",
+     "target": {
+      "descriptorOffset": 0
+     }
+    }
+   ],
+   "raw": "0000ff10c024c20ac0aac10dc200000ac20900ffff"
+  }
+ ],
+ "alternateTables": [
+  {
+   "via": "postBossInit",
+   "pointer": "monsters",
+   "addr": "0xc224",
+   "entries": [
+    {
+     "index": 0,
+     "raw": "260010ff760000200000000200080000",
+     "x": 38,
+     "y": 16,
+     "flags": "0x76",
+     "solid": false,
+     "noContactDamage": true,
+     "cannotBeHit": true,
+     "inactiveAtLoad": false,
+     "category": "special",
+     "type": "key",
+     "saveFlag": {
+      "byte": "0x02",
+      "mask": "0x08",
+      "name": "malicia_items",
+      "description": "Key, Cangrejo's Lair"
+     },
+     "respawn": false
+    }
+   ],
+   "items": [
+    {
+     "entity": 0,
+     "x": 38,
+     "y": 16,
+     "type": "key",
+     "saveFlag": {
+      "byte": "0x02",
+      "mask": "0x08",
+      "name": "malicia_items",
+      "description": "Key, Cangrejo's Lair"
+     }
+    }
+   ]
+  },
+  {
+   "via": "postBossInit",
+   "pointer": "doors",
+   "addr": "0xc1b6",
+   "entries": [
+    {
+     "index": 0,
+     "raw": "2f000e82008d002080030020",
+     "x": 47,
+     "y": 14,
+     "frame": {
+      "x": 46,
+      "y": 14,
+      "w": 5,
+      "h": 4
+     },
+     "enter": {
+      "heroLeftColumn": 47,
+      "heroHeadRow": 15
+     },
+     "open": true,
+     "runLeftOnArrival": false,
+     "variant": 2,
+     "flags": "0x82",
+     "destination": {
+      "kind": "cavern",
+      "map": "mp10",
+      "place": "0x00",
+      "x": 141,
+      "headRow": 33,
+      "y1": 32
+     },
+     "lock": "none",
+     "features": "0x80",
+     "playsRokademo": true,
+     "saveFlag": {
+      "byte": "0x03",
+      "mask": "0x20",
+      "name": "malicia_items_1",
+      "description": "Collected a Tear of Esmesanti."
+     }
+    }
+   ]
+  },
+  {
+   "via": "accomplished[2]",
+   "pointer": "doors",
+   "addr": "0xc1aa",
+   "entries": [
+    {
+     "index": 0,
+     "raw": "1b000ec1001a000f00ffffff",
+     "x": 27,
+     "y": 14,
+     "frame": {
+      "x": 26,
+      "y": 14,
+      "w": 5,
+      "h": 4
+     },
+     "enter": {
+      "heroLeftColumn": 27,
+      "heroHeadRow": 15
+     },
+     "open": true,
+     "runLeftOnArrival": true,
+     "variant": 1,
+     "flags": "0xc1",
+     "destination": {
+      "kind": "cavern",
+      "map": "mp10",
+      "place": "0x00",
+      "x": 26,
+      "headRow": 16,
+      "y1": 15
+     },
+     "lock": "none",
+     "features": "0x00",
+     "playsRokademo": false,
+     "saveFlag": null
+    },
+    {
+     "index": 1,
+     "raw": "2f000e82008d002080030020",
+     "x": 47,
+     "y": 14,
+     "frame": {
+      "x": 46,
+      "y": 14,
+      "w": 5,
+      "h": 4
+     },
+     "enter": {
+      "heroLeftColumn": 47,
+      "heroHeadRow": 15
+     },
+     "open": true,
+     "runLeftOnArrival": false,
+     "variant": 2,
+     "flags": "0x82",
+     "destination": {
+      "kind": "cavern",
+      "map": "mp10",
+      "place": "0x00",
+      "x": 141,
+      "headRow": 33,
+      "y1": 32
+     },
+     "lock": "none",
+     "features": "0x80",
+     "playsRokademo": true,
+     "saveFlag": {
+      "byte": "0x03",
+      "mask": "0x20",
+      "name": "malicia_items_1",
+      "description": "Collected a Tear of Esmesanti."
+     }
+    }
+   ]
+  }
+ ],
+ "descriptor": {
+  "raw": "99000001ff010000",
+  "isBossCavern": true,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mbos",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp1",
+  "eai": "crab",
+  "enp": null,
+  "bossGrp": "crab",
+  "postBossEai": "eai1",
+  "postBossEnp": "enp1"
+ },
+ "nameInfo": {
+  "x": 22,
+  "y": 175,
+  "color": 0
+ },
+ "raw": {
+  "header": "0ac24900a4c1a6c1a8c1c2c1c4c1f5c136c201ffff000c0000a4c1",
+  "pointers": {
+   "descriptor": "0xc20a",
+   "width": "0x0049",
+   "vplat": "0xc1a4",
+   "cplat": "0xc1a6",
+   "hplat": "0xc1a8",
+   "doors": "0xc1c2",
+   "accomplished": "0xc1c4",
+   "name": "0xc1f5",
+   "monsters": "0xc236",
+   "signs": "0x0000",
+   "mapEnd": "0xc1a4"
+  }
+ }
+}

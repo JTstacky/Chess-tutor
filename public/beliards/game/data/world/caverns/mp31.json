@@ -1,0 +1,2143 @@
+{
+ "id": "mp31",
+ "file": "mp31.mdt",
+ "name": "Cavern of Riza",
+ "width": 204,
+ "height": 64,
+ "bank": "mpp3",
+ "level": 3,
+ "boss": false,
+ "tear": {
+  "x": 188,
+  "y": 21
+ },
+ "entryHeadRow": 10,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "Dw8QEQAAAAAIBAQEBAQEBAkEBAQEBAQEBAQECQQEBAQECgABAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAANEA8PDxARAAAAAQAAAAAAAAAAAAgLCAoLBAQEBQQLBBUVFRUVFQoVChUVFQQEBAQVFRUEBAQEChUVFQgFChUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAACAQEBAQEBAQFBAQEBAQGBAQEBAQEBQQKAAABAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBBUVFRYXDg8PDxARAAAAAQAAAAAAAAAAAAALAAALCAQKCwQLCgAAAAAAAAAAAAAAFBUIBAQVFRUEChUVFRULFRUFCRUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAACAQEBAoLCAQEBAQEBAQECgsIBQoAAAABAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQVFRUVFRUNDg8PDxARAAAAAQAAAAAAAAAAAAAAAAALAAoACwAAAAAAAAAAAAAAAAAAAAAFAAAAAAAIAAAAAAwAAAALBQAADAwADA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAALAAgEBAQEBAoAAAsACwAAAAABAAAAAAAAAAQEBAQEBAQEBAQVFRUVFRUVFRUVFRUNDg8PDxARAAAAAQAAAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAAAAALAgAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAA0OBAQEEQAAAAAACwAAAAABAAAAAAAAAAAABAQEBAQAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAA0ODw8QEQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAA0ODw8QEQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAA0ODw8QEQAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAA0ODw8QEQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PEhARAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMEBAQJBAQEBAQEBAYEBAQEBAkEBAQEBAkEBAQEBAQEChUWFw4PDw8QEQAAAAAAAAAAAAAAAAAAAAAADw8QEQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PExARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAA0ODw8SEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgEBAUEBAYEBAQEBAQEBAQVCAQEBAQGBAQEChUVFRUVDQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAADw8QEQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxAYGRUVFRUDBAQEBAkEBAQEBAQEBAQEBAQEBAQJBAQgBCAEIAQEBAQEBAkEBAQEBAQECQQEBAoAAQAAAAAAAA0ODw8TEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICgsIBAQEBAQVBAQGBAoVFQQECQQEChUVFRUVFRUVDQ4PDxIQEQAAAAAJBAQEBAkEBAQJBAQEBAQEBAkEBAQJBAQECgACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARFRUVFRUVFRUIBAQJBAQKFQQEBAYEBAQEBgQEBBoAAAAAAAoUCgQFBAQEBAoVCAQGBAQKAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsACAQEBAAACAQFBBQVFQQEBQoVFRUVFRUVFRUVDQ4PDxMQEQAAAAAACAQEBAQEBQQFBAQEBgQEBAQJBAQEBAoAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARFRUVBhUVFRUVFQgFBAQVFQgFBAQEChoEBAoAAAAAAAAAAAAACwoFBAQGCgAAAAQECgAAAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAACIjJCUmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAgLCgAAAAQKCwAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAICAQFBAQFBAUEBAUEBAQEBAoAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARFRUVBRUVFRoAAAALAAoAAAALCAQKDAAKAAIAAAAAAAAAAAAAAAALAAgEAAAAAAoAAAAAAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAALCgsEBQQECgsEBAoAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAgAAAAAAAAALAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAALAAsICgsICgsAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAsAAAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA0ODw8PEBgZFRUDBAQEBAQEBAkEBAQEBAQJBAQEBAQEBgQEBAQJBAQEBAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAQEBAkEBAQEBAQEBAQJBAQEBAQEBAQEBAQEBAkEBAQEBhUVFRYXDg8PDxARAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEVFRUVFQgEBAQJBAQEChUEBAYEBAQJBAQEBAQFCQQEBAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgEBAQEBAYEBAQVCAQEBAQEBAQEBAQECQQEBAQKFRUVFRUVFRUNDg8PDxARAAAAAQADBAQEBAQEBAQEBAQGBAQEBAQGAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEVFRUVFRUVFQgEBAQEFRUIBAQECQUEChUVFRoLBAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAChQEBAQEBBUVFQgECQQKCAoVCAQEBAQKFRUVFRUVFRUVFRUNDg8PDxARAAAAAQAABAQEBAYEBAQEBgQEBAQKAAAAAAEAAAAAAAAAAwQEBAQEBAQEBAQEBAkEBAQECQQEBAQEChUVFhcODw8PEBEVFRUVFRUVFRUaAAgKAAAAAAgECgUAAAAAAAALAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAQEAAAAAAAIBAQACBQVFQgEBQoVFRUVFRUVFRUVFRUNDg8PDxARAAAAAQAAABQIChUFBBoEBAoVFRoAAAAAAAEAAAAAAAAAAAAAAggEBAQJBAQEBgQEChUEBAQFChUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAKAAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAoAAAAAAAAIBQAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAAAAAAAAALCAQKCwsMAAAAAAAAAAIAAAAAAAAAAAAAAgAAAAgEBAQKBQgKFRUIBAoLFRUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAoAAAAAAAAACwAAAAAAAAAAAAAAAAANDhIPDxARAAAAAQAAAAAAAAALAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAgAAAAAACgAACwAADAAACgALAAAADAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAACwAAAAAAAAAAAAAAAAANDhMPDxARAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBAQEBAQEBAQEBAQECQQEBAQEBAQECQQEBAQKFRUWFw4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgKFAgEBAQJBAQEBAQEBAkEBAQEBAQKFRUVFRUVDQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAAAAAAAAAAAAB0dHR0dHR0dAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQVFQgECQQEBQoVFQgEChUVFRUVFRUVDQ4PDw8QGBkVFRUDBAQEBAQEBAkEBAQEBAQEBAQECQQEBAQECgABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxAYGRUDBAQEBAkEBAQECh8fHx8fHx8fBgQEBAQECQQEBAQEBAoAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAAAACAAAAAAAADQ4PDw8QERUVFRUVCAQJBAQEBAQEBgQKFQQEBgQEBAkEBAoAAAACAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARFRUVBAQEBAQEBAQEBAQEBAQEBAQECQQEBAYEBAQGBAQKAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8SEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAADQ4PDw8QERUVFRUVFQgEChUIBAUEBAoVFQgEBBUEBBoICgAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARFRUVCAQEBAoVCAQEBAkEBAYEBAQEBAQEBAQEBAQKAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8TEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAADQ4PDw8QERUVFRUVFRUIFRUaAAsICgAAAAAICgAICgAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARFRUVFQQKFRUVFRUVCAQEBQQEBAQEChUVCAoaAAAAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAADQ4PDw8QEQAMAAAADAAAAAAAAAsAAAAAAAAKAAAAAAAAAAAAAAACAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARFRUVFQoVFRULFRUVFRUIBgkEBQoVFRoAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEg8PEBgZFRUVFQMEBAQEBAQECQQEBAQEBAQGBAQEBAQEBAQEBAQJBAQEBAQEBAQEBAQEBRwAAAAAAAACAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAGBAQEBAQECQQEBAQEChUVFRYXDg8PDxARAAAAAAIAAAALAAAAAAAAAAsACwAAAAAAAAAAAAAAAAEAAAMEBAQEBAQEBgQEBAQEBAQEBAQJBAQEBAoVFhcOEw8PEBEVFRUVFRUVBQQECQQEBAQJBAQEBAQEBAQEBAQEBAYEBAQEBAQEBAQEBAQEBAQEBQUEBAoAAAABAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEABAQEBAQEBAkGBAQEChUVFRUVFRUNDg8PDxARAAAAAAIAAAAAAAAAAAAAAAAACwAAAAAAAAAAAAAAAAEACAQEBAoVCAQGBAQEBAQGBAQJBAQEBAQKFRUVFQ0ODw8PEBEVFRUVFRUVCxUVFQQKBAQEBAQEBAQEBAoVCAQEBAQEBAoVChUVCAQKFRUIChUKCwgEBAQECgABAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAACAQECgAKAAAADAAAAAANDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAICgAUFQgECgkEBQQEFQgFBAQKFRUVFRUVFQ0ODw8PEBEVFRUVFRUVCwAAABQVFRUEChUVCAQEChUVFRUIBAQEChUVFRUVFRUVFRUVFRoACwAAAAAAAAABAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAKAAAAAAAAAAAAAAANDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAKAAAABQgKAAAICgAAAAAAAAAAAA0ODw8PEBEAAAAAAAAACwAAAAAAAAAKAAAAAAgKAAAAAAAACgAAAAAAAAwAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAGBAQECQQEBAQECQQEBAQECQkJCgAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAACwAAAAALAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAADQ4PDw8QGBkVFQQEBAQEBAQECQQEBAQEBAQEBAQEBAQEBAQEBAoAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAACwAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAADQ4PDw8QERUVFRUVChUEBAQEBAkEBAUEBAQVCAUGBAQKAgAKAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QERUVFRUVFRUIChUIBAQECgUIBAoVGgUEBAoAAgAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAQEBAQEAwQEBAQECQQEBAQEBAQEBAoVFRUWFw4PDw8QEQAADAAAAAAAAAAAAAQKAAsACgAAAAsEBAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgEBAQEBAQEBgQEBAQEBAYEBAQEChUVFRUVDQ4PDxIQEQAAAAAAAAAAAAAAAAoAAAAAAAAAAAsACgAAAgAAAAAAAAAAAwQEBAQJBAQEBAQEBAQEBAkEBAQEBAoVFRYXDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAgEChQVFQgFBAQVCAQVCAoVFRUVFRUVDQ4PDxMQEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAwQEBAQJBAQEBAoVCAQECQQEBAQEBAoVFRUVFRUNDg8PDxARAAAAAAEAAwQEBAQJBAQEBAQEBAQKAAAAAAAAAAAAAwQEBAQEBAkEBAQEBAQEBAQGBAQEBAQEBhUVFRUVFhcODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAALCgAAAAoAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQADBAQEBAQEBBUEBAkEChUVFQgEBAQEBQQKFRUVFRUVFRUNDg8PDxARAAAAAAEABAQEFAQECQQECQQEBAQaAAAAAAAAAAAAAAgEBAYEBAQEBAQJBAQEBAQEBAQEBBUVFRUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAACwAACgAIBAQKAAAMAAAICwoACwoAAAAAAAAMAAANDg8PDxARAAAAAAEAAAUKAAgEBQQEBAQaCAoAAAAAAAAAAAAAAAACCAQEBAQEChUVCAQEBAQEBQQVFRUVFRUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAACwAAAAAACgAAAAAAAAAAAAAACwAAAAAAAAAAAAANDg8PDxARAAAAAAIAAAkAAAAACAoACAQKAAAAAAAAAAAAAAAAAAACAAAAAAgKAAAAAAgECgAABQAAABQVFRUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAIAAAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAsAAAAACwAAAAAAAAAAAAAAAA0ODxIPEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PEhARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAsAAAAACwAAAAAAAAAAAAAAAA0ODxMPEBgZFRUVAwQEBAQJBAQEBAQEBAQECQQEBAQEBAQcAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PExARAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEVFRUVFRUVFQgEBAQECQQEBAoVCAQGBAQECQQFHAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAEAAAAAAAAAAAAAAAAAAAAAHR0dHR0AAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEVFRUVFRUVFRUIBAQJChUEChYVFQQEChUIBAQEBQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAAAAAAAAAAAAAAAAAAAAAAAAHh4eHh4AAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEVFRUVFRUVGgAACAQKAAAKAAAAAAgKAAAABAsEBAQEBAQECgACAAMEBAQJBAQEBAQEBAQEBAQEBAoVFRUWFw4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8PDxAYGRUVAwQEBAQJBAQEBAQEBAQEBAQEHx8fHx8JBAQECgABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAACAsKCwgECQQKAAABAAgEBAYEBAQEBAQEBAUEChUKFRUVFRUVDQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8PDxARFRUVBhUECQQEBQQEFQQEBAkEBAQEBAUEBAQJBAoAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAAADAAAAAABAAAABAQEBAQEBQQFCgsKFRUVFRUVFRUVDQ4PEg8QGBkVCAQEBAQEBAQJBAQEBAQEBAQEBAQEBAQEBAkGBAQJBAQEBAQEBAYEBAQEBAQEBAYEBAQEBAQEBAQKFRYXDg8PDxARFRUVBRUVFRUECwQKFRUEBAUECQQEBQQEBAQECgAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAACAoABQkEBQQFCgAAAAAADAAADAwADQ4PEw8QERUVFRUIBAQEBAQEBAkEBAoVBAQEChUEBAQKBAQEBAYEFAQEBAQEBAQEBAYEBAQEBAQEBAQJBAQEFRUVFRUNDg8PDxARAAAAAgAAAAAACwoAAAAIBQQEBAQECwQLCgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAADAgKCwoLAAAAAAAAAAAAAAAADQ4PDw8QERUVFRUVFQgKFQgEBAQEChUVCAUEFRUVBAoaAAgEBAUECQoAFBUVFRUVBAQEFRUIBAkEChUVBAQFChUVFRUNDg8PDxARAAAAAgAAAAAAAAAAAAAACw0ODxARCwAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAsGCwALAAAAAAAAAAAAAAAADQ4PDw8QERUVFRUaAAAAAAwACAQKDAAAAAUKAAAACgAAAAAACAUECwAAAAAACAYEBBUVFRUVFQgKFRUVFQoFFRUVFRUNDg8PDxARAAAAAgAAAAAAAAAAAAAAAA0ODxARAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAwQKCwAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAwAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAAsKAAAAAAAAAAAAABQVFRUVFRUVFRUVFRUFFRUVFRUNDg8PDxARAAAAAQAAAAAAAAAAAAAAAA0ODxARAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAkEBAoAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAAsKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAAAAAAANDg8PDxARAAAAAQAAAAAAAAAAAAAAAA0ODxARAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBgZFRUVAwQEBAQEBAQEBAQEBgQEBAQEBAQEBAQGBAQEBAQEBAQEBgQEBAQEBAQFBAUKAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAAAAAAAAAAAAAAAAAADxARAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEVFRUVFRUVCAQEBAQGBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBQQLCgsAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAgAAAAAAAAAAAAAAAAAADxARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0ODw8PEBEVFRUVFRUVFQgEBAQEBAQEBAQEBAYEBAoVBAQGBAoVFQQECQQEBAQEBAQFCAoLAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAEBAQEBAQJBAQEBAQEBAQEBAQJBAQEBAQEBAYEBAQKBgQEBAQEBAQEBAYJBAQEBAQEBAQEChUVFhcODw8PEBEVFRUVFRUVFRUVFQgEBAUEBAoVCAQEChUVBAQEChUVFQgEBAQEChUVGgALAAoAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDg8PDxARAAAAAQAAAAAEBAQEBAQEBQQECQQFBAQECQQEFRUIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAYEBAoVFRUVFQ0ODw8PEBEADAAADAAAAAAAAAAAAAUECgAAAAAKAAAAAAQJAAAAAAAICgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4PDw8QEQAAAAAAAAAAAAMEBAQEBAQGCQQEBAQEBAQGAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARDg8PDxARAAAAAQAAAAAAAAAUFQQEBQQFBBUEBQQEBBUKFRUVCAQEBAoVCQQEBgQEFQQECQQEBBUIBAQEBBUVFRUVFQ0ODw8PEBEAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQ4P",
+ "monsters": [
+  {
+   "index": 0,
+   "raw": "040023ff730000200019001200020f00",
+   "x": 4,
+   "y": 35,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "blue_potion",
+    "code": "0x19"
+   },
+   "saveFlag": {
+    "byte": "0x12",
+    "mask": "0x02",
+    "name": "madera_items",
+    "description": "Blue Potion (In Riza)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 1,
+   "raw": "040033ff030000000000000400330300",
+   "x": 4,
+   "y": 51,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 4,
+    "y": 51,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 2,
+   "raw": "070023ff030000000000000700230300",
+   "x": 7,
+   "y": 35,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 7,
+    "y": 35,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 3,
+   "raw": "0d0009ff020000000000000d00090200",
+   "x": 13,
+   "y": 9,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 13,
+    "y": 9,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 4,
+   "raw": "130009ffd00000200018001200010000",
+   "x": 19,
+   "y": 9,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "red_potion",
+   "containsCode": "0x18",
+   "saveFlag": {
+    "byte": "0x12",
+    "mask": "0x01",
+    "name": "madera_items",
+    "description": "Red Potion (In Riza)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 5,
+   "raw": "13003dff0200000000000013003d0200",
+   "x": 19,
+   "y": 61,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 19,
+    "y": 61,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 6,
+   "raw": "210010ff020000000000002100100200",
+   "x": 33,
+   "y": 16,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 33,
+    "y": 16,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 7,
+   "raw": "2d0033ff010000000000002d00330100",
+   "x": 45,
+   "y": 51,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 45,
+    "y": 51,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 8,
+   "raw": "30001eff0100000000000030001e0100",
+   "x": 48,
+   "y": 30,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 48,
+    "y": 30,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 9,
+   "raw": "35001eff0200000000000035001e0200",
+   "x": 53,
+   "y": 30,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 53,
+    "y": 30,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 10,
+   "raw": "37003aff0000000000000037003a0000",
+   "x": 55,
+   "y": 58,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 55,
+    "y": 58,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 11,
+   "raw": "3e0033ff030000000000003e00330300",
+   "x": 62,
+   "y": 51,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 62,
+    "y": 51,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 12,
+   "raw": "3f0010ff030000000000003f00100300",
+   "x": 63,
+   "y": 16,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 63,
+    "y": 16,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 13,
+   "raw": "3f003fff030000000000003f003f0300",
+   "x": 63,
+   "y": 63,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 63,
+    "y": 63,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 14,
+   "raw": "410033ffd0000000000000ffffff0f00",
+   "x": 65,
+   "y": 51,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 15,
+   "raw": "480008ff030000000000004800080300",
+   "x": 72,
+   "y": 8,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 72,
+    "y": 8,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 16,
+   "raw": "480019ff030000000000004800190300",
+   "x": 72,
+   "y": 25,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 72,
+    "y": 25,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 17,
+   "raw": "520011ff020000000000005200110200",
+   "x": 82,
+   "y": 17,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 82,
+    "y": 17,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 18,
+   "raw": "520028ff020000000000005200280200",
+   "x": 82,
+   "y": 40,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 82,
+    "y": 40,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 19,
+   "raw": "53003bff0200000000000053003b0200",
+   "x": 83,
+   "y": 59,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 83,
+    "y": 59,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 20,
+   "raw": "58003bffd00000200018001300800000",
+   "x": 88,
+   "y": 59,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "red_potion",
+   "containsCode": "0x18",
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x80",
+    "name": "riza_items",
+    "description": "Red Potion"
+   },
+   "respawn": false
+  },
+  {
+   "index": 21,
+   "raw": "5d003bff730000200019001300400000",
+   "x": 93,
+   "y": 59,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "blue_potion",
+    "code": "0x19"
+   },
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x40",
+    "name": "riza_items",
+    "description": "Chest, Blue Potion"
+   },
+   "respawn": false
+  },
+  {
+   "index": 22,
+   "raw": "5f003bff030000000000005f003b0300",
+   "x": 95,
+   "y": 59,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 95,
+    "y": 59,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 23,
+   "raw": "670001ff000000000000006700010000",
+   "x": 103,
+   "y": 1,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 103,
+    "y": 1,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 24,
+   "raw": "670008ff020000000000006700080200",
+   "x": 103,
+   "y": 8,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 103,
+    "y": 8,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 25,
+   "raw": "6e0028ff020000000000006e00280200",
+   "x": 110,
+   "y": 40,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 110,
+    "y": 40,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 26,
+   "raw": "6f0012ff020000000000006f00120200",
+   "x": 111,
+   "y": 18,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 111,
+    "y": 18,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 27,
+   "raw": "76003bff0200000000000076003b0200",
+   "x": 118,
+   "y": 59,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 118,
+    "y": 59,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 28,
+   "raw": "7d003bff010000000000007d003b0100",
+   "x": 125,
+   "y": 59,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 125,
+    "y": 59,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 29,
+   "raw": "800023ff000000000000008000230000",
+   "x": 128,
+   "y": 35,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 128,
+    "y": 35,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 30,
+   "raw": "820017ff000000000000008200170000",
+   "x": 130,
+   "y": 23,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 130,
+    "y": 23,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 31,
+   "raw": "82002eff0000000000000082002e0000",
+   "x": 130,
+   "y": 46,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 130,
+    "y": 46,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 32,
+   "raw": "830002ff000000000000008300020000",
+   "x": 131,
+   "y": 2,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 131,
+    "y": 2,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 33,
+   "raw": "830012ff030000000000008300120300",
+   "x": 131,
+   "y": 18,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 131,
+    "y": 18,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 34,
+   "raw": "830028ff730003200000001300200000",
+   "x": 131,
+   "y": 40,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "empty"
+   },
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x20",
+    "name": "riza_items",
+    "description": "Empty Chest"
+   },
+   "respawn": false
+  },
+  {
+   "index": 35,
+   "raw": "85001effd0000000000000ffffff0000",
+   "x": 133,
+   "y": 30,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 36,
+   "raw": "8c001dff010000000000008c001d0100",
+   "x": 140,
+   "y": 29,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 140,
+    "y": 29,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 37,
+   "raw": "8c002dff030000000000008c002d0300",
+   "x": 140,
+   "y": 45,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 140,
+    "y": 45,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 38,
+   "raw": "8c0038ff730002200000001300100000",
+   "x": 140,
+   "y": 56,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "gold_100"
+   },
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x10",
+    "name": "riza_items",
+    "description": "100 Gold"
+   },
+   "respawn": false
+  },
+  {
+   "index": 39,
+   "raw": "8e0038ff030000000000008e00380300",
+   "x": 142,
+   "y": 56,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 142,
+    "y": 56,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 40,
+   "raw": "950038ff020000000000009500380200",
+   "x": 149,
+   "y": 56,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 149,
+    "y": 56,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 41,
+   "raw": "a0001dff02000000000000a0001d0200",
+   "x": 160,
+   "y": 29,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 160,
+    "y": 29,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 42,
+   "raw": "a10038ff01000000000000a100380100",
+   "x": 161,
+   "y": 56,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 161,
+    "y": 56,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 43,
+   "raw": "a4000fff02000000000000a4000f0200",
+   "x": 164,
+   "y": 15,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 164,
+    "y": 15,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 44,
+   "raw": "b30016ff02000000000000b300160200",
+   "x": 179,
+   "y": 22,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 179,
+    "y": 22,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 45,
+   "raw": "b30025ff02000000000000b300250200",
+   "x": 179,
+   "y": 37,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 179,
+    "y": 37,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 46,
+   "raw": "c30030ff02000000000000c300300200",
+   "x": 195,
+   "y": 48,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 16,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 195,
+    "y": 48,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 47,
+   "raw": "c70025ff03000000000000c700250300",
+   "x": 199,
+   "y": 37,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 40,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 199,
+    "y": 37,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  }
+ ],
+ "doors": [
+  {
+   "index": 0,
+   "raw": "130031c10513003100ffffff",
+   "x": 19,
+   "y": 49,
+   "frame": {
+    "x": 18,
+    "y": 49,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 19,
+    "heroHeadRow": 50
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 1,
+   "flags": "0xc1",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 19,
+    "headRow": 50,
+    "y1": 49
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 1,
+   "raw": "160017c30516001700ffffff",
+   "x": 22,
+   "y": 23,
+   "frame": {
+    "x": 21,
+    "y": 23,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 22,
+    "heroHeadRow": 24
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 22,
+    "headRow": 24,
+    "y1": 23
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 2,
+   "raw": "2f000ec1052f000e00ffffff",
+   "x": 47,
+   "y": 14,
+   "frame": {
+    "x": 46,
+    "y": 14,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 47,
+    "heroHeadRow": 15
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 1,
+   "flags": "0xc1",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 47,
+    "headRow": 15,
+    "y1": 14
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 3,
+   "raw": "340025c20534002500ffffff",
+   "x": 52,
+   "y": 37,
+   "frame": {
+    "x": 51,
+    "y": 37,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 52,
+    "heroHeadRow": 38
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 2,
+   "flags": "0xc2",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 52,
+    "headRow": 38,
+    "y1": 37
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 4,
+   "raw": "56002fc40556002f00ffffff",
+   "x": 86,
+   "y": 47,
+   "frame": {
+    "x": 85,
+    "y": 47,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 86,
+    "heroHeadRow": 48
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 4,
+   "flags": "0xc4",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 86,
+    "headRow": 48,
+    "y1": 47
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 5,
+   "raw": "580006c30558000600ffffff",
+   "x": 88,
+   "y": 6,
+   "frame": {
+    "x": 87,
+    "y": 6,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 88,
+    "heroHeadRow": 7
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 88,
+    "headRow": 7,
+    "y1": 6
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 6,
+   "raw": "720006c30572000600ffffff",
+   "x": 114,
+   "y": 6,
+   "frame": {
+    "x": 113,
+    "y": 6,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 114,
+    "heroHeadRow": 7
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 114,
+    "headRow": 7,
+    "y1": 6
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 7,
+   "raw": "76001cc40576001c00ffffff",
+   "x": 118,
+   "y": 28,
+   "frame": {
+    "x": 117,
+    "y": 28,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 118,
+    "heroHeadRow": 29
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 4,
+   "flags": "0xc4",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 118,
+    "headRow": 29,
+    "y1": 28
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 8,
+   "raw": "95000d80030700ff00ffffff",
+   "x": 149,
+   "y": 13,
+   "frame": {
+    "x": 148,
+    "y": 13,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 149,
+    "heroHeadRow": 14
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 0,
+   "flags": "0x80",
+   "destination": {
+    "kind": "town",
+    "map": "bsmp",
+    "place": "0x83",
+    "x": 7
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 9,
+   "raw": "99002bc20599002b00ffffff",
+   "x": 153,
+   "y": 43,
+   "frame": {
+    "x": 152,
+    "y": 43,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 153,
+    "heroHeadRow": 44
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 2,
+   "flags": "0xc2",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 153,
+    "headRow": 44,
+    "y1": 43
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 10,
+   "raw": "ae0004c20734001500ffffff",
+   "x": 174,
+   "y": 4,
+   "frame": {
+    "x": 173,
+    "y": 4,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 174,
+    "heroHeadRow": 5
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 2,
+   "flags": "0xc2",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp3d",
+    "place": "0x07",
+    "x": 52,
+    "headRow": 22,
+    "y1": 21
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 11,
+   "raw": "ba002ec205ba002e00ffffff",
+   "x": 186,
+   "y": 46,
+   "frame": {
+    "x": 185,
+    "y": 46,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 186,
+    "heroHeadRow": 47
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 2,
+   "flags": "0xc2",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp30",
+    "place": "0x05",
+    "x": 186,
+    "headRow": 47,
+    "y1": 46
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 12,
+   "raw": "bc0014010711001500130008",
+   "x": 188,
+   "y": 20,
+   "frame": {
+    "x": 187,
+    "y": 20,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 188,
+    "heroHeadRow": 21
+   },
+   "open": false,
+   "runLeftOnArrival": false,
+   "variant": 1,
+   "flags": "0x01",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp3d",
+    "place": "0x07",
+    "x": 17,
+    "headRow": 22,
+    "y1": 21
+   },
+   "lock": "key",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x08",
+    "name": "riza_items",
+    "description": "Open Locked Red Door"
+   }
+  },
+  {
+   "index": 13,
+   "raw": "c00004400963003500130001",
+   "x": 192,
+   "y": 4,
+   "frame": {
+    "x": 191,
+    "y": 4,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 192,
+    "heroHeadRow": 5
+   },
+   "open": false,
+   "runLeftOnArrival": true,
+   "variant": 0,
+   "flags": "0x40",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp41",
+    "place": "0x09",
+    "x": 99,
+    "headRow": 54,
+    "y1": 53
+   },
+   "lock": "key",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x01",
+    "name": "riza_items",
+    "description": "Open Locked Door to 4th Dungeon"
+   }
+  }
+ ],
+ "platforms": {
+  "vertical": [
+   {
+    "index": 0,
+    "raw": "05001a",
+    "x": 5,
+    "y": 26,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 1,
+    "raw": "a90031",
+    "x": 169,
+    "y": 49,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   }
+  ],
+  "collapsing": [],
+  "horizontal": [
+   {
+    "index": 0,
+    "raw": "6040aa5d006300",
+    "x": 96,
+    "y": 42,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 93,
+    "maxX": 99,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   }
+  ]
+ },
+ "items": [
+  {
+   "entity": 0,
+   "x": 4,
+   "y": 35,
+   "type": "chest",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x12",
+    "mask": "0x02",
+    "name": "madera_items",
+    "description": "Blue Potion (In Riza)"
+   }
+  },
+  {
+   "entity": 4,
+   "x": 19,
+   "y": 9,
+   "type": "breakable_block",
+   "contents": "red_potion",
+   "saveFlag": {
+    "byte": "0x12",
+    "mask": "0x01",
+    "name": "madera_items",
+    "description": "Red Potion (In Riza)"
+   }
+  },
+  {
+   "entity": 20,
+   "x": 88,
+   "y": 59,
+   "type": "breakable_block",
+   "contents": "red_potion",
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x80",
+    "name": "riza_items",
+    "description": "Red Potion"
+   }
+  },
+  {
+   "entity": 21,
+   "x": 93,
+   "y": 59,
+   "type": "chest",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x40",
+    "name": "riza_items",
+    "description": "Chest, Blue Potion"
+   }
+  },
+  {
+   "entity": 34,
+   "x": 131,
+   "y": 40,
+   "type": "chest",
+   "contents": "empty",
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x20",
+    "name": "riza_items",
+    "description": "Empty Chest"
+   }
+  },
+  {
+   "entity": 38,
+   "x": 140,
+   "y": 56,
+   "type": "chest",
+   "contents": "gold_100",
+   "saveFlag": {
+    "byte": "0x13",
+    "mask": "0x10",
+    "name": "riza_items",
+    "description": "100 Gold"
+   }
+  }
+ ],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x10",
+    "mask": "0xff",
+    "name": "Pollo_Defeated",
+    "description": "0000 = No, FFFF = Yes"
+   },
+   "writes": [
+    {
+     "addr": "0xc013",
+     "value": "0xffff",
+     "target": {
+      "header": "tear_x"
+     }
+    }
+   ],
+   "raw": "1000ff13c0ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x12",
+    "mask": "0x02",
+    "name": "madera_items",
+    "description": "Blue Potion (In Riza)"
+   },
+   "writes": [
+    {
+     "addr": "0xcea8",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 0,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xceb1",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 0,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "120002a8ce00ffb1ceffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x12",
+    "mask": "0x01",
+    "name": "madera_items",
+    "description": "Red Potion (In Riza)"
+   },
+   "writes": [
+    {
+     "addr": "0xcef1",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 4,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "120001f1ce0000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x13",
+    "mask": "0x80",
+    "name": "riza_items",
+    "description": "Red Potion"
+   },
+   "writes": [
+    {
+     "addr": "0xcff1",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 20,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "130080f1cf0000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x13",
+    "mask": "0x40",
+    "name": "riza_items",
+    "description": "Chest, Blue Potion"
+   },
+   "writes": [
+    {
+     "addr": "0xcff8",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 21,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd001",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 21,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "130040f8cf00ff01d0ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x13",
+    "mask": "0x20",
+    "name": "riza_items",
+    "description": "Empty Chest"
+   },
+   "writes": [
+    {
+     "addr": "0xd0c8",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 34,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd0d3",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 34,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "130020c8d000ffd3d0ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x13",
+    "mask": "0x10",
+    "name": "riza_items",
+    "description": "100 Gold"
+   },
+   "writes": [
+    {
+     "addr": "0xd108",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 38,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd113",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 38,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "13001008d100ff13d1ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x13",
+    "mask": "0x08",
+    "name": "riza_items",
+    "description": "Open Locked Red Door"
+   },
+   "writes": [
+    {
+     "addr": "0xce17",
+     "value": "0x0781",
+     "target": {
+      "table": "doors",
+      "index": 12,
+      "fieldOffset": 3
+     }
+    }
+   ],
+   "raw": "13000817ce8107ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x13",
+    "mask": "0x01",
+    "name": "riza_items",
+    "description": "Open Locked Door to 4th Dungeon"
+   },
+   "writes": [
+    {
+     "addr": "0xce23",
+     "value": "0x09c0",
+     "target": {
+      "table": "doors",
+      "index": 13,
+      "fieldOffset": 3
+     }
+    }
+   ],
+   "raw": "13000123cec009ffff"
+  }
+ ],
+ "alternateTables": [],
+ "descriptor": {
+  "raw": "0d00020404",
+  "isBossCavern": false,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mus3",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp3",
+  "eai": "eai3",
+  "enp": "enp3"
+ },
+ "nameInfo": {
+  "x": 24,
+  "y": 175,
+  "color": 0
+ },
+ "raw": {
+  "header": "a3cecc0071cd79cd7bcd84cd2ece91cea8ce03bc00150a000071cd",
+  "pointers": {
+   "descriptor": "0xcea3",
+   "width": "0x00cc",
+   "vplat": "0xcd71",
+   "cplat": "0xcd79",
+   "hplat": "0xcd7b",
+   "doors": "0xcd84",
+   "accomplished": "0xce2e",
+   "name": "0xce91",
+   "monsters": "0xcea8",
+   "signs": "0x0000",
+   "mapEnd": "0xcd71"
+  }
+ }
+}

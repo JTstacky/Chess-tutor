@@ -1,0 +1,1689 @@
+{
+ "id": "mp41",
+ "file": "mp41.mdt",
+ "name": "Cavern of Escarcha",
+ "width": 192,
+ "height": 64,
+ "bank": "mpp4",
+ "level": 4,
+ "boss": false,
+ "tear": null,
+ "entryHeadRow": 10,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "BwQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQGAAAAAAgHAAAAAAIAAAAAAAAAAAAAAAAHCAAHAAgAAAAAAgAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIACAcAAAEAAAAAAAAAAAAAAAgHCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAABwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEABwcAAAEAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAwQEBAQEBAYAAAAAAAAAAAAAAAADBAQEBAQEBAYAAQAABwcHBwcHBwcHBwcHBwcHBwcHCAcHBwcHBwgHBwgHBwcHBwcHBwcAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEABwcAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcIBwAAAAAAAAAAAAAAAAAABwcHBwcHBwAAAQAACAcHBwcHBwcHBwcHBwcIBwcIBwcHCAcHBwgICAcHBwcIBwgHBwgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEACAcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwcAAAAAAAAAAAAAAAAAAAAAAAAHBwgHCAAAAgAABwgHBwcHCAcHBwgHBwcHCAAACAcIAAgHBwgAAAAIBwcHBwAHBwAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAcHBAQEBAQGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwgAAAAAAAAAAAAAAAAAAAAAAAAIBwcIAAAAAQAABwcHBwgHBwcHBwgABwcIAAAAAAcAAAAHCAAAAAAACAcHCAAIBwAAAAAAAAAAAAAAAAEAAwQEBAQEBAQEBAQEBAQEBAQEBAYAAQADBAQEBAQEBAQEBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwQEBAQEBAQEBAQGAAEAAAAIBwcHBwcHBAYLCwsLCwsLCwsLCwsLCwsLCwsAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAACgAAAAAAAQAABwcHBwgHBwcICAAAAAcAAAAAAAAAAAAAAAAAAAAAAAgHAAAACAAAAAAAAAAAAAAAAAEAAAAHBwcHBwcHBwcHBwcHBwcIAAAAAQAAAAcHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHBwcHBwcAAAEAAAAICAcHBwcHBwcMDAwMDAwMDAwMDAwMDAwMDAwLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAQAABwcHCAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAABwgHCAcHBwcHCAcHBwgHAAAAAQAAAAAHBwcHCAcIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcIBwcHCAAAAAEAAAAAAAgHBwgHBwcEBAQEBAQEBAQEBAQEBAQEBAQEBAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAABwgHAAAACgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAABwgACAcICAcHBwcIBwgAAAAAAQAAAAAABwgIBwgAAAAACwsLCwsLCwsLCwsLCwsLCwsLCwsLCwAAAAAACAcHBwgHCAAAAAEAAAAAAAAHCgAHCAcHBwcHBwcHBwgHBwcHBwcHBwcHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAMEBwcHAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAHBwcHCAcIAAAAAAAAAgAAAAAAAAcIAAAAAAALDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAsAAAAAAAgHCAgIAAAAAAEAAAAAAAAAAQAABwgHBwcHBwcHCAcHBwcHCAcHCAcHCAAAAAAAAAAAAAAACwsLCwsLCwsLCwsLAAAAAQAAAAADBAcHBwcHAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAcIBwcIAAAAAAAAAQAAAAAAAAcAAAAAAAMFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEBgAAAAgHBwAAAAAAAAIAAAAAAAAAAgAAAAcHBwcIBwcIBwcHBwcIAAgAAAgAAAAAAAAAAAAAAAALDAwMDAwMDAwMDAwMCwAAAQAAAAAHBwcHBwcHAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAgAAAAAAAAAAAAAAAAAABwcHBwcHBwcHBwcHBwcHBwcHBwcHCAgAAAAAAAAHCAAAAAAAAAEAAAAAAAAAAQAAAAAHBwcHCAcHBwgHBwcHAAAAAAAAAAADBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAYAAQADBAQIBwcHBwcIAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAgIBwcIBwgHBwcIBwgIBwgHCAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAABwcHCAcIAAgHCAcIAAAAAAAAAAAAAAcHCAcHBwgHBwcHBwcHBwcIBwcHBwcAAQAACAcHBwcHBwcHBAYAAQADBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAYAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAACAAHCAgABwcHCAgAAAcIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAABwcHBwgAAAAHBwAAAAAAAAAAAAAAAAAIAAAHAAAHCAcHCAcHCAcHBwcIBwAAAQAAAAgHBwcHCAcHBwAAAQAAAAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAcIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAACAcHAAAAAAAACgAAAAAAAAAAAAAAAAAAAAAKAAAAAAgHBwgHBwgIBwgAAAAAAgAAAAAHBwgIBwcHBwAAAQAAAAAABwcHBwgHBwcHCAcHBwcHBwgHBwcHCAcIBwcHBwcHCAgHBwgHBwcHBwgHBwgHCAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANBAQEBAQEBAQEBAQEBAYAAQAAAAAABwcHAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAABAAAAAAAACAgHBwAIAAAAAAAAAQAAAAAIBwcIBwcHBwAAAQAAAAAAAAgIBwcIBwcHCAcIBwcHBwcHBwgHCAcHBwcHBwgHBwAIAAAKBwgHBwcACAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0HBwcHBwcHBwcHBwcHAAAAAQAAAAAABwcHAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAHAAAAAAAAAAAAAQAAAAAHBwcHBwcIBwAAAQAAAAAAAAAACAgACAcHAAgHBwcIBwcIBwgACAcIBwcHBwcIAAAAAAABBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQcHBwcIBwcHBwcIBwgAAAAAAQAAAAAABwcHAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAcHBwcHBwAAAQAAAAAAAAAACAAAAAAIAAAIBwcHBwgAAAAAAAAHBwcIBwgAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANBwcHBwcICAcIBwcHAAAAAAAAAQAAAAAABwcIAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgIBwgHBwAAAQAAAAAAAAAAAAAAAAAAAAAAAAAHCAAAAAAAAAAACAcHAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAwQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQHBwgHCAcIAAcIBwgIAAAAAAAAAQAAAAADBwcHAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAwQEBAQEBAQEBAQHBwcHCAcHBwAAAgAAAAAAAAAAAAAADxAREhMAAAAAAAAAAAAAAAAAAAcIAAAAAAAAAAABAAMEBAQEBAQEBAQEBAQEBAQEBA4AAAAAAQAAAAAAAAAAAAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHCAcAAAAABwgAAAAAAAAAAQAAAAAHBwcHAAAAAAAAAQADBAYAAAAAAAAAAAAAAAABAAMEBAQEBAQEBAQEBwcHBwcHBwcHBwcHBwcHBwcHBwAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAABwcHCAcHBwcHBwcHBwcHBwcOAAAAAQAAAAAAAAAAAAAIBwcHBwcHBwcHBwcHBwcHBwcHBwgHBwcHBwcHBwgHCggHAAAAAAAAAAAAAAAAAAAAAQAAAAMHBwcAAAAAAAAAAQAABwcEBgAAAAAAAAAAAAABAAAHBwcHBwcHBwgHBwcHBwcIBwcIBwcHCAcHBwgHBwAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAgIBwgHBwcHBwcHCAcHBwcHDgAAAAAAAAAAAAAAAAAHBwcHBwcHBwcHBwcHCAcHBwcHBwcHBwcHBwcHBwgHAgAAAAAAAAAAAAAAAAAAAAAAAgAAAwcHBwgAAAAAAAAAAQAAAAgHCAAAAAAAAAAAAAABAAAIBwcIBwcHBwcHBwgHBwgIBwgABwgAAAgHCAcHBwAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAIAAgHBwcICAcHBwcHBwcHBw4AAAAAAAAAAAAAAAAHBwgHBwcHBwcHBwcHBwcHCAcIBwcHBwgHCAcICAgAAQAAAAAAAAAAAAAAAAAAAAAAAQAABwcHBwcAAAAAAAAAAQAAAAcIAAAAAAAAAAAAAAAAAAAACAcHCAgHCAcHBwgIBwcACAAACAAAAAAICgAHBwAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAACAAIBwcHBwgHBwcHBwcEBAQEBAQEBAQEBAQHBwgIBwcHBwcIBwcICAAHBwgICAcHBwcICAcHAAAAAQAAAAAAAAAAAAAAAAAAAAAAAQAABwcHBwcAAAAAAAAAAQAAAAcHAAAAAAAAAAAAAAAAAAAAAAcAAAAACAcHBwcHCAAAAAAAAAAAAAAAAQAHBwAAAQAAAAAAAA0EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBgACAAAAAAAAAAAAAAAACAcIBwcHBwgHBwcHBwcHBwcIBwcHBwcHBwcHBwcIBwgIBwcIAAAABwAAAAgHBwAIAAcAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAABwcHBwgAAAAAAAAAAQAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcIBwcHAAAAAAAAAAAAAAAAAQAHBwAAAQAAAAAADQcHBwgHBwcHBwcHBwgHBwcHBwcHBwcHBwcHBwcHBwcAAAABAAAAAAAAAAAAAAAAAAAAAAcICAcHCAcICAcHCAcHBwgHBwgHCAcIBwcIBwgHAAAAAAAAAAAAAAAHAAAAAAAAAAAAAQADBAQEBAQEBAQEBAQEBAQEBAQEBwcIBwAAAAAAAAAAAQAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgHBwgAAAAAAAAAAAAAAAAAAgAHBwAAAAAAAAANBwcHBwcIBwcIBwcIBwgHBwcHBwcHBwcIBwcHBwcHCAcAAAACAAAAAAAAAAAAAAAAAAAAAAAIAAAACAAAAAgHAAgACAgIBwAIAAAAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAHBwcHBwcHBwcHBwcHBwcHBwcIAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcAAAAAAAAAAAAAAAAAAQAHBwQEBAQEBAQHBwgHBwgACAcHCAAIBwcIBwcIBwcHCAcIBwcHBwgHBwcAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAcHBwcHBwcHBwgHBwcIBwgAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwgAAAAAAAAAAAAAAAAAAQAHBwcHBwcHBwcHBwgIBwcAAAAHAAAABwgHCAcHCAcICAcIBwgHCAcHBwcGAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAgHBwcHBwcHBwcHCAcHAAAAAAAAAAAAAAAAAQAAAAAAAwQGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAHBwcHBwcHBwcHBwcHCAAAAAAAAAAAAAAHBwcIBwcHAAAABwcICAgHBwgHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAcHBwcHCAcHCAcIAAcIAAAAAAMEBAQEBAYAAAAAAAAAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMEBAQEBAYAAQAHCAcHBwcHBwcHCgcAAAAAAAAAAAAAAAAABwAAAAcAAAAABwAAAAcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcIBwcHBwcICAcAAAAAAAAAAAAABwgHBwAAAAAAAAAAAAAAAAAAAAAAAAMEBAQEBAQGAAAAAAAAAAAAAAAAAAAHBwgHAAAAAQAKAAcIBwcHBwgHAQAAAAAAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAcIBwcHBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAcHBwcHBwcHAAAAAAAAAAAAAAAAAAcIAAAAAAAAAAAAAAAAAAAAAAAAAAAABwgHCAAAAAAAAAAAAAAAAAAAAAAABwcAAAAAAQABAAcHCAcHCAcIAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgHBwgHBwcHBwcHBwcIBwcHBwcHBwcHBwgHBwcIBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcIBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAHAAAAAAAAAAAAAAAAAAAAAAAABwgAAAAAAQABAAcHBwcIBwcAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAcHCAcHBwgHBwcHBwcHCAcHBwgHBwcHBwcHCAcICAcHCAoHBwcHBwcHCAcHBwcHBwcHBwcIBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcIBwgACAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAcIBwcIBwcAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwcIBwgHBwcICAgHBwcIBwcHCAcIBwgHBwcABwcHCAIHBwgHBwcHBwcHBwgHBwcIBwcHBwcHBwcABwgHBwcHBwcHCAcHCAcHBwgHBwgHBwgAAAAAAAAAAAsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwAAAAAAAAAAAAAACwsLCwsLCwsLCwsLAAAAAAAAAAAAAgABAAAHBwcHBwcAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwgAAAAIBwgAAAgABwgAAAcAAAAAAAgABwgAAAgAAAEABwAIBwgHBwgHBwgABwcACAcHCAcHCAcACAcHBwcIBwgHBwgHCAcHBwcIAAAHAAAAAAAAAAAACwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAsAAAAAAAAAAAALDAwMDAwMDAwMDAwMCwAAAAAAAAAAAQABAAAHCAcHBwcAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEACAAAAAgAAAgACAAACAAAAAAIAAgAAAAAAAAIBwcHCAcIBwgAAAgHBwgAAAAAAAAAAAAAAAMEBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEBAYAAAAAAAMFBQUFBQUFBQUFBQUFBQYAAAAAAAAAAQABAAAABwcHBwgAAQADBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAABwcHCAcHBwcHBwgHBwgHBwcHBwgHBwcIBwcHBwcIAAAAAAAAAAAABwcHBwcIBwgHBwgHAAAAAAAAAAAAAAACAAAAAAcHBwcAAQAHBwcHBwcHBwcHBwgHBwcHCAcHBwcIBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAgHBwgHCAAAAAAIBwgHBwcIBwgHAAgHCAAAAAAAAAAAAAAAAAgHCAAAAAAIBwcIAAAAAAAAAAAAAAACAAAAAAcHBwcAAQAABwcHCAcHBwgHCAcHCAcHCAgHBwgHBwAAAAAAAAAAAAAAAAAAAAADBAQGAAAAAAAAAAAAAAAAAAMEBAQGAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwAIAAAAAAAACAcACAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAgHBwcAAQAACAcIBwcHCAcHCAcICAAHCAAIBwAAAAAAAAAAAAAAAAAAAAAAAAAABwcLCwsLCwsLCwAAAAAAAAAHBwcAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAcHBwcAAQAAAAAACAcIAAcIAAcAAAAAAAAAAAAAAAAAAAsLCwsLCwsLCwsLCwsDBwcMDAwMDAwMDAsLCwsLCwMHBwcAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAcHBwgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwwMDAwMDAwMDAwMDAUHBwcFBQwMDAwMDAwMBQUFBQcHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBAcHBwcAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMEBQUFBQUFBQUFBQUFBQcHBwcHBwUFBQUFBQUFBwcHBwcHBwcEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBwcHBwcHCAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHBwcHBwcHBwcHBwcHBwcIBwcHBwcIBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHCAcHBwcHBwcHBwcHBwcHCAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcIAAAAAgAAAAsLCwsLCwsLCwsLCwsLCwsLCwsLAAAHBwcHCAcHBwgHCAcIBwcHCAcIBwcHCAcHCAcIBwcIBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwgHCAgHBwcIBwgHBwcHBwcHBwcHBwcICAcHCAgHCAcHCAcHBwcHBwgIBwcHBwcHBwgHBwcIBwcHBwcHCAcHBwgHBwcHBwgHBwcIBwcHBwcHCAcHBwcHCAcHBwcHBwcHBwcHBwcHBwcIBwcIBwcHAAAAAQAACwwMDAwMDAwMDAwMDAwMDAwMDAwMCwAHBwgHBwcHBwcHBwcHBwcHBwcHCAcHBwgHBwcHBwcHBwcHBwcHBwcICAcHBwcHBwcHBwgHBwcIAAAICAcIAAAAAAcHBwcHBwcHBwcHBwcHBwcHBwcHBwgHBwcHBwcHBwcHCAcHBwcHBwgHBwcHCAcHCAcHBwcHCAcIBwcIBwgHBwcHBwcHBwgHBwcIBwcHBwcIBwcHCAcHBwcHBwcICAcHBwcAAAAAAQADBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQHBwcHBwcIBwcHBwcHBwcHBwcHBwcHBwcACAgHBwcIBwgHBwcICAgAAAAIBwcIBwcHBwcICAcIAAAAAAAAAAAAAAAAAAcHBwgHBwcHBwcHBwcHBwgHCAcHBwgHBwcICAcHBwgIAAoACAAABwgIAAAAAAgIBwgIAAAHCAgAAAgABwcHCAcHCAAACAAAAAAHBwcIBwcHBwgHBwgHBwcHBwcHBwcAAAAAAQAAAAcHBwgHBwcHBwcHBwcIBwcHBwcHBwcICAcHBwcHBwcHBwcHBwcHCAcHBwcHAAAAAAAAAAAAAAAACAgAAAAAAAAACAAHBwcICAcACAAAAAAAAAAAAAAAAAAAAAAABwcHCAgHBwcHBwcHBwcHBwcIBwgHBwcIAAgHCAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAcHBwgIAAAAAAAAAAAAAAcHBwgHBwcHBwgHBwcHBwcHBwcAAAAAAQAAAAAIBwcICAcHCAcIBwgIBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwgHBwcICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAcHBwcHBwcHBwcIBwcHBwcHBwAAAAEAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcIAAgAAAAAAAAAAAAAAAAACAcIBwcHCAcIBwcIBwcHBwcAAAAAAQAAAAAACAcAAAgHAAgHCAAHCAcIBwcHBwgHBwcHBwcIBwcHBwcHBwcHBwgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcIBwcHBwcIBwcHBwcIAAAAAAEAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcIAAAAAAAAAAAAAAAAAAAAAAAABwcHBwcHBwgHBwcIBwcAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAHCAcHBwcHBwcHBwcHBwgHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHCAcHBwcIBwcHBwgHAAAAAAEAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwgHBwcHBwcHCAcIBwcAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwgHBwcHBwcIBwcHCAcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHBwgHBwcHBwcHBwcIAAAAAAIAAAAAAAAAAAEAAwQEBAQEBAQEBAQEBAQEBAQEBAQEBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHBwcHBwcHBwcAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHBwcHBwgHBwcHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgHBwcHBwcHBwcHBwcHBwoAAAAAAAEAAwQEBAQGAAEAAAAIBwcHBwcHCAoHCAcHBwcIBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcIBwcHBwcHBwgAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcIBwcHCAcHBwcHBwcHBwcIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwgHBwcHBwcHBwcHBwcAAAAAAAEABwcHBwcHAAEAAAAACAcHCAcIAAEACAcIBwgHAAAAAAAAAAAAAAADBAQEBAQEBAQEBAQEBAQEBwcHCggAAAAICAAIBwAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHCAcHBwcHBwcHBwcIBwcIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwgHBwgHCAcHBwcHBwcAAAAAAAEACAcHBwcIAAEAAAAAAAAHCAAAAAIAAAAHCAcAAAAAAAAAAAAAAAAAAAcIBwcHBwcHBwcHBwcHBwcAAQAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHBwgHBwcHBwcHBwcHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQHBwcICAcHBwgHBwcHBwcAAAAAAAEAAAAHBwgAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAgHBwcHBwcICAcHBwcIBwgAAQAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHBwcIBwcHBwcHBwcHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwcHBwgIBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHCAcIBwcHBwcEBAQGAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwgHCAcHAAgHBwcIAAAAAgAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgIBwcHBwcHBwcHBwcHBwcEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBgAAAAAAAAAACAcHBwcICAcHBwcICAcHBwcHBwcHBwcHBwcHBwcHCAcHBwgHBwgAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcACAgAAAAIBwAAAAAAAQAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgHCAcHBwcHCAcHCAgHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwQEBAQEBAYAAAAACAcHBwcHBwcHBwcHBwgHBwcHBwAAAAAAAAcIAAgHBwcICAAAAAEAAAAAAAADBAQEBAQEBAQEBAQGAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwcHCAcIAAcAAAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwgHBwAAAAAAAAgHBwgHCAAHBwAACAcAAAAAAAAAAAAAAAgAAAAABwgHBwAAAAEAAAAAAAAABwgHBwcHBwcHBwcAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQADBA4AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAsLAAAAAAAACAcHBwgAAAoAAAAHBwcIBwcIBwcHCAcHBwcHBwgABwcHBwcIBwgACAgICAgHCAAAAAAAAAAABwgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwYAAAEAAAAAAAAAAAAIBwcHBwcHCAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAABwcODgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwwMCwAAAAAAAAcHAAAAAAEAAAAABwAACAcACAcHBwgHBwgHCAAACgAIBwgHCAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoABwcAAAIAAAAAAAAAAAAACAcIBwgHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAABwcH",
+ "monsters": [
+  {
+   "index": 0,
+   "raw": "0f003eff010000000000000f003e0100",
+   "x": 15,
+   "y": 62,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 4,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 15,
+    "y": 62,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 1,
+   "raw": "130034ff020000000000001300340200",
+   "x": 19,
+   "y": 52,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 19,
+    "y": 52,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 2,
+   "raw": "17003eff0100000000000017003e0100",
+   "x": 23,
+   "y": 62,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 4,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 23,
+    "y": 62,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 3,
+   "raw": "1d0024ff010000000000001d00240100",
+   "x": 29,
+   "y": 36,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 4,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 29,
+    "y": 36,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 4,
+   "raw": "2a001eff000000000000002a001e0000",
+   "x": 42,
+   "y": 30,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 42,
+    "y": 30,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 5,
+   "raw": "2a003fff030000000000002a003f0300",
+   "x": 42,
+   "y": 63,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 42,
+    "y": 63,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 6,
+   "raw": "330012ff730001200000001b00200000",
+   "x": 51,
+   "y": 18,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "gold_50"
+   },
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x20",
+    "name": "escarcha_items",
+    "description": "Chest, 50 Golds"
+   },
+   "respawn": false
+  },
+  {
+   "index": 7,
+   "raw": "480016ff730000200019001b00100000",
+   "x": 72,
+   "y": 22,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "blue_potion",
+    "code": "0x19"
+   },
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x10",
+    "name": "escarcha_items",
+    "description": "Chest, Blue Potion (By Helada Key)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 8,
+   "raw": "4b001eff000000000000004b001e0000",
+   "x": 75,
+   "y": 30,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 75,
+    "y": 30,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 9,
+   "raw": "4e0016ff760000200000001b00080000",
+   "x": 78,
+   "y": 22,
+   "flags": "0x76",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "key",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x08",
+    "name": "escarcha_items",
+    "description": "Key (To Helada)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 10,
+   "raw": "51002aff0000000000000051002a0000",
+   "x": 81,
+   "y": 42,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 81,
+    "y": 42,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 11,
+   "raw": "620019ff030000000000006200190300",
+   "x": 98,
+   "y": 25,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 98,
+    "y": 25,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 12,
+   "raw": "630011ff000000000000006300110000",
+   "x": 99,
+   "y": 17,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 99,
+    "y": 17,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 13,
+   "raw": "670026ff020000000000006700260200",
+   "x": 103,
+   "y": 38,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 103,
+    "y": 38,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 14,
+   "raw": "690026ff030000000000006900260300",
+   "x": 105,
+   "y": 38,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 105,
+    "y": 38,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 15,
+   "raw": "6b0026ff020000000000006b00260200",
+   "x": 107,
+   "y": 38,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 107,
+    "y": 38,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 16,
+   "raw": "74001eff730000200018001b00040000",
+   "x": 116,
+   "y": 30,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "red_potion",
+    "code": "0x18"
+   },
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x04",
+    "name": "escarcha_items",
+    "description": "Red Potion (Near Helada)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 17,
+   "raw": "74002aff0100000000000074002a0100",
+   "x": 116,
+   "y": 42,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 4,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 116,
+    "y": 42,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 18,
+   "raw": "7a0038ff730000200019001b00020000",
+   "x": 122,
+   "y": 56,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "blue_potion",
+    "code": "0x19"
+   },
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x02",
+    "name": "escarcha_items",
+    "description": "Blue Potion (Near Boss Key)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 19,
+   "raw": "830034ff040000000000008300340400",
+   "x": 131,
+   "y": 52,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 20,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 131,
+    "y": 52,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 20,
+   "raw": "8a000eff030000000000008a000e0300",
+   "x": 138,
+   "y": 14,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 138,
+    "y": 14,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 21,
+   "raw": "8e002aff010000000000008e002a0100",
+   "x": 142,
+   "y": 42,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 4,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 142,
+    "y": 42,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 22,
+   "raw": "95000aff0300000000000095000a0300",
+   "x": 149,
+   "y": 10,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 0,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 149,
+    "y": 10,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 23,
+   "raw": "9a0033ff760000200000001b00010000",
+   "x": 154,
+   "y": 51,
+   "flags": "0x76",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "key",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x01",
+    "name": "escarcha_items",
+    "description": "Key (To Boss Lair)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 24,
+   "raw": "b70035ffd00000200019001c00800000",
+   "x": 183,
+   "y": 53,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "blue_potion",
+   "containsCode": "0x19",
+   "saveFlag": {
+    "byte": "0x1c",
+    "mask": "0x80",
+    "name": "escarcha_items_1",
+    "description": "Wall, Blue Potion (Escarcha, beside Purple door, on the way to the boss lair)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 25,
+   "raw": "b8002aff00000000000000b8002a0000",
+   "x": 184,
+   "y": 42,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 184,
+    "y": 42,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 26,
+   "raw": "b90011ffd00000200018001c00400000",
+   "x": 185,
+   "y": 17,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "red_potion",
+   "containsCode": "0x18",
+   "saveFlag": {
+    "byte": "0x1c",
+    "mask": "0x40",
+    "name": "escarcha_items_1",
+    "description": "Wall, Red Potion (Escarcha, near Boss Key)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 27,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 28,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 29,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 30,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 31,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 32,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 33,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 34,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  },
+  {
+   "index": 35,
+   "raw": "00ff00ff00000000000000ffff000000",
+   "x": 65280,
+   "y": 0,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": true,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 10,
+   "contactDamage": 20,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": false
+  }
+ ],
+ "doors": [
+  {
+   "index": 0,
+   "raw": "100009c20856000900ffffff",
+   "x": 16,
+   "y": 9,
+   "frame": {
+    "x": 15,
+    "y": 9,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 16,
+    "heroHeadRow": 10
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 2,
+   "flags": "0xc2",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp40",
+    "place": "0x08",
+    "x": 86,
+    "headRow": 10,
+    "y1": 9
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 1,
+   "raw": "1000154004dd00ff001c0020",
+   "x": 16,
+   "y": 21,
+   "frame": {
+    "x": 15,
+    "y": 21,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 16,
+    "heroHeadRow": 22
+   },
+   "open": false,
+   "runLeftOnArrival": true,
+   "variant": 0,
+   "flags": "0x40",
+   "destination": {
+    "kind": "town",
+    "map": "hlmp",
+    "place": "0x84",
+    "x": 221
+   },
+   "lock": "key",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": {
+    "byte": "0x1c",
+    "mask": "0x20",
+    "name": "escarcha_items_1",
+    "description": "Open door to Helada"
+   }
+  },
+  {
+   "index": 2,
+   "raw": "100022c30877001500ffffff",
+   "x": 16,
+   "y": 34,
+   "frame": {
+    "x": 15,
+    "y": 34,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 16,
+    "heroHeadRow": 35
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp40",
+    "place": "0x08",
+    "x": 119,
+    "headRow": 22,
+    "y1": 21
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 3,
+   "raw": "380037c30816000900ffffff",
+   "x": 56,
+   "y": 55,
+   "frame": {
+    "x": 55,
+    "y": 55,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 56,
+    "heroHeadRow": 56
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp40",
+    "place": "0x08",
+    "x": 22,
+    "headRow": 10,
+    "y1": 9
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 4,
+   "raw": "6300358006c0000400ffffff",
+   "x": 99,
+   "y": 53,
+   "frame": {
+    "x": 98,
+    "y": 53,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 99,
+    "heroHeadRow": 54
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 0,
+   "flags": "0x80",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp31",
+    "place": "0x06",
+    "x": 192,
+    "headRow": 5,
+    "y1": 4
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 5,
+   "raw": "ae0033c408f5003500ffffff",
+   "x": 174,
+   "y": 51,
+   "frame": {
+    "x": 173,
+    "y": 51,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 174,
+    "heroHeadRow": 52
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 4,
+   "flags": "0xc4",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp40",
+    "place": "0x08",
+    "x": 245,
+    "headRow": 54,
+    "y1": 53
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  }
+ ],
+ "platforms": {
+  "vertical": [],
+  "collapsing": [],
+  "horizontal": [
+   {
+    "index": 0,
+    "raw": "2980a822002f00",
+    "x": 41,
+    "y": 40,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 34,
+    "maxX": 47,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 1,
+    "raw": "3b80a836004000",
+    "x": 59,
+    "y": 40,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 54,
+    "maxX": 64,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 2,
+    "raw": "57408552005c00",
+    "x": 87,
+    "y": 5,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 82,
+    "maxX": 92,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 3,
+    "raw": "6440055f006900",
+    "x": 100,
+    "y": 5,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 95,
+    "maxX": 105,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 4,
+    "raw": "9480818d009900",
+    "x": 148,
+    "y": 1,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 141,
+    "maxX": 153,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 5,
+    "raw": "97809f8e009d00",
+    "x": 151,
+    "y": 31,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 142,
+    "maxX": 157,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 6,
+    "raw": "9c80989600a300",
+    "x": 156,
+    "y": 24,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 150,
+    "maxX": 163,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 7,
+    "raw": "a080b79c00a400",
+    "x": 160,
+    "y": 55,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 156,
+    "maxX": 164,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 8,
+    "raw": "a34003a100a700",
+    "x": 163,
+    "y": 3,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 161,
+    "maxX": 167,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 9,
+    "raw": "ad401fa800b300",
+    "x": 173,
+    "y": 31,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 168,
+    "maxX": 179,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 10,
+    "raw": "ae4083aa00b000",
+    "x": 174,
+    "y": 3,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 170,
+    "maxX": 176,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   }
+  ]
+ },
+ "items": [
+  {
+   "entity": 6,
+   "x": 51,
+   "y": 18,
+   "type": "chest",
+   "contents": "gold_50",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x20",
+    "name": "escarcha_items",
+    "description": "Chest, 50 Golds"
+   }
+  },
+  {
+   "entity": 7,
+   "x": 72,
+   "y": 22,
+   "type": "chest",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x10",
+    "name": "escarcha_items",
+    "description": "Chest, Blue Potion (By Helada Key)"
+   }
+  },
+  {
+   "entity": 9,
+   "x": 78,
+   "y": 22,
+   "type": "key",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x08",
+    "name": "escarcha_items",
+    "description": "Key (To Helada)"
+   }
+  },
+  {
+   "entity": 16,
+   "x": 116,
+   "y": 30,
+   "type": "chest",
+   "contents": "red_potion",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x04",
+    "name": "escarcha_items",
+    "description": "Red Potion (Near Helada)"
+   }
+  },
+  {
+   "entity": 18,
+   "x": 122,
+   "y": 56,
+   "type": "chest",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x02",
+    "name": "escarcha_items",
+    "description": "Blue Potion (Near Boss Key)"
+   }
+  },
+  {
+   "entity": 23,
+   "x": 154,
+   "y": 51,
+   "type": "key",
+   "saveFlag": {
+    "byte": "0x1b",
+    "mask": "0x01",
+    "name": "escarcha_items",
+    "description": "Key (To Boss Lair)"
+   }
+  },
+  {
+   "entity": 24,
+   "x": 183,
+   "y": 53,
+   "type": "breakable_block",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x1c",
+    "mask": "0x80",
+    "name": "escarcha_items_1",
+    "description": "Wall, Blue Potion (Escarcha, beside Purple door, on the way to the boss lair)"
+   }
+  },
+  {
+   "entity": 26,
+   "x": 185,
+   "y": 17,
+   "type": "breakable_block",
+   "contents": "red_potion",
+   "saveFlag": {
+    "byte": "0x1c",
+    "mask": "0x40",
+    "name": "escarcha_items_1",
+    "description": "Wall, Red Potion (Escarcha, near Boss Key)"
+   }
+  }
+ ],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x1b",
+    "mask": "0x20",
+    "name": "escarcha_items",
+    "description": "Chest, 50 Golds"
+   },
+   "writes": [
+    {
+     "addr": "0xd21c",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 6,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd227",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 6,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "1b00201cd200ff27d2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1b",
+    "mask": "0x10",
+    "name": "escarcha_items",
+    "description": "Chest, Blue Potion (By Helada Key)"
+   },
+   "writes": [
+    {
+     "addr": "0xd22c",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 7,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd237",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 7,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "1b00102cd200ff37d2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1b",
+    "mask": "0x08",
+    "name": "escarcha_items",
+    "description": "Key (To Helada)"
+   },
+   "writes": [
+    {
+     "addr": "0xd24c",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 9,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd257",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 9,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "1b00084cd200ff57d2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1b",
+    "mask": "0x04",
+    "name": "escarcha_items",
+    "description": "Red Potion (Near Helada)"
+   },
+   "writes": [
+    {
+     "addr": "0xd2bc",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 16,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd2c7",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 16,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "1b0004bcd200ffc7d2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1b",
+    "mask": "0x02",
+    "name": "escarcha_items",
+    "description": "Blue Potion (Near Boss Key)"
+   },
+   "writes": [
+    {
+     "addr": "0xd2dc",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 18,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd2e7",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 18,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "1b0002dcd200ffe7d2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1b",
+    "mask": "0x01",
+    "name": "escarcha_items",
+    "description": "Key (To Boss Lair)"
+   },
+   "writes": [
+    {
+     "addr": "0xd32c",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 23,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd337",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 23,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "1b00012cd300ff37d3ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1c",
+    "mask": "0x80",
+    "name": "escarcha_items_1",
+    "description": "Wall, Blue Potion (Escarcha, beside Purple door, on the way to the boss lair)"
+   },
+   "writes": [
+    {
+     "addr": "0xd345",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 24,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "1c008045d30000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1c",
+    "mask": "0x40",
+    "name": "escarcha_items_1",
+    "description": "Wall, Red Potion (Escarcha, near Boss Key)"
+   },
+   "writes": [
+    {
+     "addr": "0xd365",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 26,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "1c004065d30000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x1c",
+    "mask": "0x20",
+    "name": "escarcha_items_1",
+    "description": "Open door to Helada"
+   },
+   "writes": [
+    {
+     "addr": "0xd0fb",
+     "value": "0x04c0",
+     "target": {
+      "table": "doors",
+      "index": 1,
+      "fieldOffset": 3
+     }
+    }
+   ],
+   "raw": "1c0020fbd0c004ffff"
+  }
+ ],
+ "alternateTables": [],
+ "descriptor": {
+  "raw": "0f00030606",
+  "isBossCavern": false,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mus4",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp4",
+  "eai": "eai4",
+  "enp": "enp4"
+ },
+ "nameInfo": {
+  "x": 22,
+  "y": 175,
+  "color": 0
+ },
+ "raw": {
+  "header": "b7d1c00099d09bd09dd0ecd036d1a1d1bcd104ffff000a000099d0",
+  "pointers": {
+   "descriptor": "0xd1b7",
+   "width": "0x00c0",
+   "vplat": "0xd099",
+   "cplat": "0xd09b",
+   "hplat": "0xd09d",
+   "doors": "0xd0ec",
+   "accomplished": "0xd136",
+   "name": "0xd1a1",
+   "monsters": "0xd1bc",
+   "signs": "0x0000",
+   "mapEnd": "0xd099"
+  }
+ }
+}

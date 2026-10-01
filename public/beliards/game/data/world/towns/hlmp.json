@@ -1,0 +1,399 @@
+{
+ "id": "hlmp",
+ "file": "hlmp.mdt",
+ "name": "Helada Town",
+ "place": "0x84",
+ "width": 227,
+ "height": 8,
+ "bank": "dpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "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",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "2c0002",
+   "x": 44,
+   "triggerX": [
+    43,
+    44,
+    45
+   ],
+   "dest": "0x02",
+   "kind": "sage"
+  },
+  {
+   "index": 1,
+   "raw": "5c0007",
+   "x": 92,
+   "triggerX": [
+    91,
+    92,
+    93
+   ],
+   "dest": "0x07",
+   "kind": "inn"
+  },
+  {
+   "index": 2,
+   "raw": "6f0003",
+   "x": 111,
+   "triggerX": [
+    110,
+    111,
+    112
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  },
+  {
+   "index": 3,
+   "raw": "800004",
+   "x": 128,
+   "triggerX": [
+    127,
+    128,
+    129
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  },
+  {
+   "index": 4,
+   "raw": "940006",
+   "x": 148,
+   "triggerX": [
+    147,
+    148,
+    149
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  }
+ ],
+ "transitions": [
+  {
+   "edge": "left",
+   "raw": "8100ffff",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp40",
+   "heroX": 86,
+   "heroHeadRow": 22
+  },
+  {
+   "edge": "right",
+   "raw": "8001ffff",
+   "kind": "cavern",
+   "entrance": 1,
+   "map": "mp41",
+   "heroX": 16,
+   "heroHeadRow": 22
+  }
+ ],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "5600160108",
+   "map": "mp40",
+   "heroX": 86,
+   "heroHeadRow": 22,
+   "runLeft": true
+  },
+  {
+   "index": 1,
+   "raw": "1000160009",
+   "map": "mp41",
+   "heroX": 16,
+   "heroHeadRow": 22,
+   "runLeft": false
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "b100811c01030000",
+   "x": 177,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x1c",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "Welcome. You must be cold. Helada used to be a warm, prosperous place, but Jashiin has turned it into a cold ruin."
+  },
+  {
+   "index": 1,
+   "raw": "8b00830000050004",
+   "x": 139,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 4,
+   "text": "I think you should know something: Percel the shoemaker said that without the Ruzeria shoes you could not go beyond the green door."
+  },
+  {
+   "index": 2,
+   "raw": "6900020001038003",
+   "x": 105,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x80",
+   "autoTalk": true,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "Are you the brave one? My lover, Percel, was killed by Jashiin's underlings just after the Spirits asked him to make the Ruzeria shoes for a brave man. Return my Percel to me! Oh, if only you had not come!"
+  },
+  {
+   "index": 3,
+   "raw": "a600830000050002",
+   "x": 166,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "Have you been in the ice caverns? The shoemaker in this town was trying to make special shoes out of Ruzeria bark, to help a hero walk on the ice. Just as he managed to do so, Jashiin's minions murdered him. I wonder what happened to those shoes."
+  },
+  {
+   "index": 4,
+   "raw": "4800831b00010005",
+   "x": 72,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x1b",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 5,
+   "text": "Ruzeria is the name of a tree that grows in the underground forest. The bark is very hard and is not slippery. Percel had good reason for choosing it."
+  },
+  {
+   "index": 5,
+   "raw": "9e00820000020006",
+   "x": 158,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 6,
+   "text": "Someone I know said he had seen a pair of unusual shoes in the caverns. I'm not sure whether those are the shoes that Percel made."
+  },
+  {
+   "index": 6,
+   "raw": "380081000103000a",
+   "x": 56,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 10,
+   "text": "I'll bet the green slime creatures have caused you a lot of trouble. Let me tell you a secret: they can't withstand heat. Burn them and they will vanish in a single burst of steam."
+  },
+  {
+   "index": 7,
+   "raw": "5000810001060001",
+   "x": 80,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "You may have noticed that there are two roads leading here. There is also a shortcut."
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Welcome. You must be cold. Helada used to be a warm, prosperous place, but Jashiin has turned it into a cold ruin.",
+   "controlCodes": [],
+   "raw": "57656c636f6d652e20596f75206d75737420626520636f6c642e2048656c616461207573656420746f2062652061207761726d2c2070726f737065726f757320706c6163652c20627574204a61736869696e20686173207475726e656420697420696e746f206120636f6c64207275696e2e"
+  },
+  {
+   "index": 1,
+   "text": "You may have noticed that there are two roads leading here. There is also a shortcut.",
+   "controlCodes": [],
+   "raw": "596f75206d61792068617665206e6f74696365642074686174207468657265206172652074776f20726f616473206c656164696e6720686572652e20546865726520697320616c736f20612073686f72746375742e"
+  },
+  {
+   "index": 2,
+   "text": "Have you been in the ice caverns? The shoemaker in this town was trying to make special shoes out of Ruzeria bark, to help a hero walk on the ice. Just as he managed to do so, Jashiin's minions murdered him. I wonder what happened to those shoes.",
+   "controlCodes": [],
+   "raw": "4861766520796f75206265656e20696e20746865206963652063617665726e733f205468652073686f656d616b657220696e207468697320746f776e2077617320747279696e6720746f206d616b65207370656369616c2073686f6573206f7574206f662052757a65726961206261726b2c20746f2068656c702061206865726f2077616c6b206f6e20746865206963652e204a757374206173206865206d616e6167656420746f20646f20736f2c204a61736869696e5c73206d696e696f6e73206d757264657265642068696d2e204920776f6e64657220776861742068617070656e656420746f2074686f73652073686f65732e"
+  },
+  {
+   "index": 3,
+   "text": "Are you the brave one? My lover, Percel, was killed by Jashiin's underlings just after the Spirits asked him to make the Ruzeria shoes for a brave man. Return my Percel to me! Oh, if only you had not come!",
+   "controlCodes": [],
+   "raw": "41726520796f7520746865206272617665206f6e653f204d79206c6f7665722c2050657263656c2c20776173206b696c6c6564206279204a61736869696e5c7320756e6465726c696e6773206a7573742061667465722074686520537069726974732061736b65642068696d20746f206d616b65207468652052757a657269612073686f657320666f722061206272617665206d616e2e2052657475726e206d792050657263656c20746f206d6521204f682c206966206f6e6c7920796f7520686164206e6f7420636f6d6521"
+  },
+  {
+   "index": 4,
+   "text": "I think you should know something: Percel the shoemaker said that without the Ruzeria shoes you could not go beyond the green door.",
+   "controlCodes": [],
+   "raw": "49207468696e6b20796f752073686f756c64206b6e6f7720736f6d657468696e673a2050657263656c207468652073686f656d616b65722073616964207468617420776974686f7574207468652052757a657269612073686f657320796f7520636f756c64206e6f7420676f206265796f6e642074686520677265656e20646f6f722e"
+  },
+  {
+   "index": 5,
+   "text": "Ruzeria is the name of a tree that grows in the underground forest. The bark is very hard and is not slippery. Percel had good reason for choosing it.",
+   "controlCodes": [],
+   "raw": "52757a6572696120697320746865206e616d65206f662061207472656520746861742067726f777320696e2074686520756e64657267726f756e6420666f726573742e20546865206261726b2069732076657279206861726420616e64206973206e6f7420736c6970706572792e2050657263656c2068616420676f6f6420726561736f6e20666f722063686f6f73696e672069742e"
+  },
+  {
+   "index": 6,
+   "text": "Someone I know said he had seen a pair of unusual shoes in the caverns. I'm not sure whether those are the shoes that Percel made.",
+   "controlCodes": [],
+   "raw": "536f6d656f6e652049206b6e6f77207361696420686520686164207365656e20612070616972206f6620756e757375616c2073686f657320696e207468652063617665726e732e20495c6d206e6f74207375726520776865746865722074686f736520617265207468652073686f657320746861742050657263656c206d6164652e"
+  },
+  {
+   "index": 7,
+   "text": "I'm sorry for what I said a short while ago. I don't know what came over me. Please defeat Jashiin and avenge the death of Percel.",
+   "controlCodes": [],
+   "raw": "495c6d20736f72727920666f7220776861742049207361696420612073686f7274207768696c652061676f2e204920646f6e5c74206b6e6f7720776861742063616d65206f766572206d652e20506c6561736520646566656174204a61736869696e20616e64206176656e676520746865206465617468206f662050657263656c2e"
+  },
+  {
+   "index": 8,
+   "text": "Ah, the shoes of Percel.... I see you are a brave man. I hope you will find Jashiin and defeat him quickly.",
+   "controlCodes": [],
+   "raw": "41682c207468652073686f6573206f662050657263656c2e2e2e2e20492073656520796f75206172652061206272617665206d616e2e204920686f706520796f752077696c6c2066696e64204a61736869696e20616e64206465666561742068696d20717569636b6c792e"
+  },
+  {
+   "index": 9,
+   "text": "This brave man with the Ruzeria shoes... With this the shoemaker's shop also floats up... ",
+   "controlCodes": [],
+   "raw": "54686973206272617665206d616e2077697468207468652052757a657269612073686f65732e2e2e20576974682074686973207468652073686f656d616b65725c732073686f7020616c736f20666c6f6174732075702e2e2e20"
+  },
+  {
+   "index": 10,
+   "text": "I'll bet the green slime creatures have caused you a lot of trouble. Let me tell you a secret: they can't withstand heat. Burn them and they will vanish in a single burst of steam.",
+   "controlCodes": [],
+   "raw": "495c6c6c206265742074686520677265656e20736c696d652063726561747572657320686176652063617573656420796f752061206c6f74206f662074726f75626c652e204c6574206d652074656c6c20796f752061207365637265743a20746865792063616e5c7420776974687374616e6420686561742e204275726e207468656d20616e6420746865792077696c6c2076616e69736820696e20612073696e676c65206275727374206f6620737465616d2e"
+  }
+ ],
+ "patches": [
+  {
+   "condition": {
+    "byte": "0x1a",
+    "mask": "0x10",
+    "name": "glacial_items",
+    "description": "Ruzeria Shoes (Changes what people say in Tumba Town; Also gets that woman to stop interrupting you.)"
+   },
+   "writes": [
+    {
+     "addr": "0xcdd5",
+     "value": "0x07",
+     "target": {
+      "npc": 2,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xcdd4",
+     "value": "0x00",
+     "target": {
+      "npc": 2,
+      "field": "n_flags"
+     }
+    },
+    {
+     "addr": "0xcded",
+     "value": "0x09",
+     "target": {
+      "npc": 5,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xcddd",
+     "value": "0x08",
+     "target": {
+      "npc": 3,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "1a0010d5cd07d4cd00edcd09ddcd08ffff"
+  }
+ ],
+ "patrolBounds": {
+  "min": 64,
+  "max": 180
+ },
+ "sageRespawnX": 44,
+ "townId": 4,
+ "descriptor": {
+  "raw": "0201ff0102",
+  "music": "ugm1",
+  "npcGroup": "cman",
+  "middleLayer": "ckpd (cave)",
+  "bank": "dpat"
+ },
+ "raw": {
+  "header": "33c7e30038c70447c74fc760c77dc7becd2fc72c006ac7",
+  "pointers": {
+   "descriptor": "0xc733",
+   "name": "0xc738",
+   "transitions": "0xc747",
+   "doors": "0xc74f",
+   "entrances": "0xc760",
+   "texts": "0xc77d",
+   "npcs": "0xcdbe",
+   "patrol": "0xc72f",
+   "c015": "0xc76a"
+  },
+  "nameInfo": "19af000b"
+ }
+}

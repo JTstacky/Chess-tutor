@@ -1,0 +1,329 @@
+{
+ "cavernGrids": [
+  {
+   "id": "mp10",
+   "match": true
+  },
+  {
+   "id": "mp1d",
+   "match": true
+  },
+  {
+   "id": "mp20",
+   "match": true
+  },
+  {
+   "id": "mp21",
+   "match": true
+  },
+  {
+   "id": "mp2d",
+   "match": true
+  },
+  {
+   "id": "mp30",
+   "match": true
+  },
+  {
+   "id": "mp31",
+   "match": true
+  },
+  {
+   "id": "mp3d",
+   "match": true
+  },
+  {
+   "id": "mp40",
+   "match": true
+  },
+  {
+   "id": "mp41",
+   "match": true
+  },
+  {
+   "id": "mp4d",
+   "match": true
+  },
+  {
+   "id": "mp50",
+   "match": true
+  },
+  {
+   "id": "mp51",
+   "match": true
+  },
+  {
+   "id": "mp5d",
+   "match": true
+  },
+  {
+   "id": "mp60",
+   "match": true
+  },
+  {
+   "id": "mp61",
+   "match": true
+  },
+  {
+   "id": "mp62",
+   "match": true
+  },
+  {
+   "id": "mp6d",
+   "match": true
+  },
+  {
+   "id": "mp70",
+   "match": true
+  },
+  {
+   "id": "mp71",
+   "match": true
+  },
+  {
+   "id": "mp72",
+   "match": true
+  },
+  {
+   "id": "mp73",
+   "match": true
+  },
+  {
+   "id": "mp7d",
+   "match": true
+  },
+  {
+   "id": "mp80",
+   "match": true
+  },
+  {
+   "id": "mp81",
+   "match": true
+  },
+  {
+   "id": "mp82",
+   "match": true
+  },
+  {
+   "id": "mp83",
+   "match": true
+  },
+  {
+   "id": "mp84",
+   "match": true
+  },
+  {
+   "id": "mp8d",
+   "match": true
+  },
+  {
+   "id": "mp90",
+   "match": true
+  },
+  {
+   "id": "mpa0",
+   "match": true
+  }
+ ],
+ "doorStamping": [
+  {
+   "id": "mp10",
+   "doors": 6,
+   "match": true
+  },
+  {
+   "id": "mp1d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp20",
+   "doors": 6,
+   "match": true
+  },
+  {
+   "id": "mp21",
+   "doors": 4,
+   "match": true
+  },
+  {
+   "id": "mp2d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp30",
+   "doors": 12,
+   "match": true
+  },
+  {
+   "id": "mp31",
+   "doors": 14,
+   "match": true
+  },
+  {
+   "id": "mp3d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp40",
+   "doors": 6,
+   "match": true
+  },
+  {
+   "id": "mp41",
+   "doors": 6,
+   "match": true
+  },
+  {
+   "id": "mp4d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp50",
+   "doors": 9,
+   "match": true
+  },
+  {
+   "id": "mp51",
+   "doors": 7,
+   "match": true
+  },
+  {
+   "id": "mp5d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp60",
+   "doors": 14,
+   "match": true
+  },
+  {
+   "id": "mp61",
+   "doors": 15,
+   "match": true
+  },
+  {
+   "id": "mp62",
+   "doors": 2,
+   "match": true
+  },
+  {
+   "id": "mp6d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp70",
+   "doors": 14,
+   "match": true
+  },
+  {
+   "id": "mp71",
+   "doors": 7,
+   "match": true
+  },
+  {
+   "id": "mp72",
+   "doors": 5,
+   "match": true
+  },
+  {
+   "id": "mp73",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp7d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp80",
+   "doors": 11,
+   "match": true
+  },
+  {
+   "id": "mp81",
+   "doors": 13,
+   "match": true
+  },
+  {
+   "id": "mp82",
+   "doors": 7,
+   "match": true
+  },
+  {
+   "id": "mp83",
+   "doors": 3,
+   "match": true
+  },
+  {
+   "id": "mp84",
+   "doors": 2,
+   "match": true
+  },
+  {
+   "id": "mp8d",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mp90",
+   "doors": 0,
+   "match": true
+  },
+  {
+   "id": "mpa0",
+   "doors": 0,
+   "match": true
+  }
+ ],
+ "townGrids": [
+  {
+   "id": "cmap",
+   "match": true
+  },
+  {
+   "id": "mrmp",
+   "match": true
+  },
+  {
+   "id": "stmp",
+   "match": true
+  },
+  {
+   "id": "bsmp",
+   "match": true
+  },
+  {
+   "id": "hlmp",
+   "match": true
+  },
+  {
+   "id": "tmmp",
+   "match": true
+  },
+  {
+   "id": "drmp",
+   "match": true
+  },
+  {
+   "id": "llmp",
+   "match": true
+  },
+  {
+   "id": "prmp",
+   "match": true
+  },
+  {
+   "id": "esmp",
+   "match": true
+  }
+ ],
+ "grpUnpack": "all 15 used GRPs compared with research/sprite-extraction/graphics-inputs/*.grp.unp",
+ "problems": []
+}

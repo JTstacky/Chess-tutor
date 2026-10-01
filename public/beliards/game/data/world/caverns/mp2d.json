@@ -1,0 +1,356 @@
+{
+ "id": "mp2d",
+ "file": "mp2d.mdt",
+ "name": "Cavern of Peligro",
+ "width": 52,
+ "height": 64,
+ "bank": "mpp2",
+ "level": 2,
+ "boss": {
+  "ai": "tako",
+  "sprites": "tako",
+  "isJashiin": false,
+  "postBossInit": [
+   {
+    "addr": "0xc010",
+    "value": "0xc346",
+    "target": {
+     "header": "monsters_ptr"
+    }
+   },
+   {
+    "addr": "0xc00a",
+    "value": "0xc2dc",
+    "target": {
+     "header": "doors_ptr"
+    }
+   },
+   {
+    "addr": "0xc348",
+    "value": "0xff0d",
+    "target": {
+     "table": "monsters@0xc346",
+     "index": 0,
+     "fieldOffset": 2
+    }
+   },
+   {
+    "addr": "0x0008",
+    "value": "0xffff",
+    "target": {
+     "save": "0x08",
+     "saveName": "Pulpo_Defeated"
+    }
+   }
+  ],
+  "postBossDoorNote": "after the initializers, load_place_and_reinit sets door[0].x0 to the hero x (+9 when facing right), then process_doors",
+  "hp": 250,
+  "xp": 200,
+  "arenaX": 65287,
+  "almas": 200,
+  "name": "Pulpo",
+  "nameRenderInfo": "12bb00",
+  "source": "tako.bin boss_state @0xaa80"
+ },
+ "tear": null,
+ "entryHeadRow": 12,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "CQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQgICQkJCQkICAkJCAgICQkJCQkJCAgICAkJCQgICQkICQkJCAgICQkJCQkJCQkICAgJCQkJCQkJCAgICQkJCQkJCAgJCQkICAgJCQkJCQkJCQkJCQkJCQkJCQgICAgICQkJCQkJCQkJCQkJCQkJCAgICQkJCQkICAgICQkJCAgICAgJCQkICAgJCQgICQkJCQkJCAgICQkJCAkICAkJCQkJCQkJCQkICAkJCQ0NDA0MDAkJCQkJCAkICAgICQkJCQkJCQgICAkJCQkICAkJCQkJCQkICAgJCQgKCgoJCg0ODw4PDw4NCQkJCQkJCQkJCAgICQkICQgICQkICQkJCQkJCQkICQkJCQkJCQoICAcJCQwPAAAAAA4PDwwNDQoICAoICQoJCQkJCQkICAkJCQkJCQgICAkJCQgICAkJCQkKCgoJDAwOAAAAAAAAAAAADg4NDQoKCgoJCQgICgkJCQkJCwkJCQkJCQkJCQkJCQkICAgJCgoKCQ4AAAAAAAAAAAAAAAAAAA4MDAwJCQkKCgkJCQoLCgoJCAkJCQgICQkJCQkJCQkJCQoKCAwPAAAAAAAAAAAAAAAAAAAAAA4PDQgICAgICggKCAoKCQkJCQkJCQkJCQgICAkJCAgICggPAAAAAAAAAAAAAAAAAAAAAAAAAA8MDAwMDAgICAgKCAgICQgICAkJCAkJCQkJCQkKCgoIDgAAAAAAAAAAAAAAAAAAAAAAAAAAAA4PDw4MDAwMCAoJCQkJCQkJCQkJCQgICQkJCQoIDA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw8PDwcICAkJCQkJCAkICQkJCQgICQkLCA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHCAoKCQkJCQkJCQkICAgJCQoJCwgPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwkICQkICQkJCQkJCQkJCQkJCAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcJCQkJCQkJCQgICAgJCAgICQkKCAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHCQkJCQkJCQkJCQkICAkJCQoJCQkEBAQFBQUFBQQEBAQEBAQEBAQEBAUFBQUFBQUFBQUFCQgJCQkICAgICQkJCQkJCQkJCQgICQkJCQkJCQkJCQgICQkJCQkJCQkJCQgJCQkJCQkICAkJCQgJCQkJCQkJCQkJCAgICAgJCQkICgkJCQgICQkJCQgJCQgJCAkJCAkJCQkICAgJCQkJCQkJCQgJCQkICQkJCQkJCQkJCQkJCQkICAkJCQkJCQkJCQkJCAgJCQkICQkJCQkJCQkJCAgJCQkJCQkJCQgJCQgJCAkJCQkICQkJCQkJCQkJCAkJCQgJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQ==",
+ "monsters": [],
+ "doors": [],
+ "platforms": {
+  "vertical": [],
+  "collapsing": [],
+  "horizontal": []
+ },
+ "items": [],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x0b",
+    "mask": "0x10",
+    "name": "peligro_items_1",
+    "description": "Key, Pulpo's Lair"
+   },
+   "writes": [
+    {
+     "addr": "0xc346",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters@0xc346",
+      "index": 0,
+      "fieldOffset": 0
+     }
+    }
+   ],
+   "raw": "0b001046c3ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x0b",
+    "mask": "0x08",
+    "name": "peligro_items_1",
+    "description": "Collected a Tear of Esmesanti."
+   },
+   "writes": [
+    {
+     "addr": "0xc2e4",
+     "value": "0xff00",
+     "target": {
+      "table": "doors@0xc2dc",
+      "index": 0,
+      "fieldOffset": 8
+     }
+    },
+    {
+     "addr": "0xc2e6",
+     "value": "0xffff",
+     "target": {
+      "table": "doors@0xc2dc",
+      "index": 0,
+      "fieldOffset": 10
+     }
+    }
+   ],
+   "raw": "0b0008e4c200ffe6c2ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x08",
+    "mask": "0xff",
+    "name": "Pulpo_Defeated",
+    "description": "0000 = No, FFFF = Yes"
+   },
+   "writes": [
+    {
+     "addr": "0xc010",
+     "value": "0xc346",
+     "target": {
+      "header": "monsters_ptr"
+     }
+    },
+    {
+     "addr": "0xc00a",
+     "value": "0xc2d0",
+     "target": {
+      "header": "doors_ptr"
+     }
+    },
+    {
+     "addr": "0xc32f",
+     "value": "0x0202",
+     "target": {
+      "descriptorOffset": 3
+     }
+    },
+    {
+     "addr": "0xc32c",
+     "value": "0x000b",
+     "target": {
+      "descriptorOffset": 0
+     }
+    }
+   ],
+   "raw": "0800ff10c046c30ac0d0c22fc302022cc30b00ffff"
+  }
+ ],
+ "alternateTables": [
+  {
+   "via": "postBossInit",
+   "pointer": "monsters",
+   "addr": "0xc346",
+   "entries": [
+    {
+     "index": 0,
+     "raw": "210014ff760000200000000b00100000",
+     "x": 33,
+     "y": 20,
+     "flags": "0x76",
+     "solid": false,
+     "noContactDamage": true,
+     "cannotBeHit": true,
+     "inactiveAtLoad": false,
+     "category": "special",
+     "type": "key",
+     "saveFlag": {
+      "byte": "0x0b",
+      "mask": "0x10",
+      "name": "peligro_items_1",
+      "description": "Key, Pulpo's Lair"
+     },
+     "respawn": false
+    }
+   ],
+   "items": [
+    {
+     "entity": 0,
+     "x": 33,
+     "y": 20,
+     "type": "key",
+     "saveFlag": {
+      "byte": "0x0b",
+      "mask": "0x10",
+      "name": "peligro_items_1",
+      "description": "Key, Pulpo's Lair"
+     }
+    }
+   ]
+  },
+  {
+   "via": "postBossInit",
+   "pointer": "doors",
+   "addr": "0xc2dc",
+   "entries": [
+    {
+     "index": 0,
+     "raw": "2900128202be002f800b0008",
+     "x": 41,
+     "y": 18,
+     "frame": {
+      "x": 40,
+      "y": 18,
+      "w": 5,
+      "h": 4
+     },
+     "enter": {
+      "heroLeftColumn": 41,
+      "heroHeadRow": 19
+     },
+     "open": true,
+     "runLeftOnArrival": false,
+     "variant": 2,
+     "flags": "0x82",
+     "destination": {
+      "kind": "cavern",
+      "map": "mp20",
+      "place": "0x02",
+      "x": 190,
+      "headRow": 48,
+      "y1": 47
+     },
+     "lock": "none",
+     "features": "0x80",
+     "playsRokademo": true,
+     "saveFlag": {
+      "byte": "0x0b",
+      "mask": "0x08",
+      "name": "peligro_items_1",
+      "description": "Collected a Tear of Esmesanti."
+     }
+    }
+   ]
+  },
+  {
+   "via": "accomplished[2]",
+   "pointer": "doors",
+   "addr": "0xc2d0",
+   "entries": [
+    {
+     "index": 0,
+     "raw": "180012c102ab003600ffffff",
+     "x": 24,
+     "y": 18,
+     "frame": {
+      "x": 23,
+      "y": 18,
+      "w": 5,
+      "h": 4
+     },
+     "enter": {
+      "heroLeftColumn": 24,
+      "heroHeadRow": 19
+     },
+     "open": true,
+     "runLeftOnArrival": true,
+     "variant": 1,
+     "flags": "0xc1",
+     "destination": {
+      "kind": "cavern",
+      "map": "mp20",
+      "place": "0x02",
+      "x": 171,
+      "headRow": 55,
+      "y1": 54
+     },
+     "lock": "none",
+     "features": "0x00",
+     "playsRokademo": false,
+     "saveFlag": null
+    },
+    {
+     "index": 1,
+     "raw": "2900128202be002f800b0008",
+     "x": 41,
+     "y": 18,
+     "frame": {
+      "x": 40,
+      "y": 18,
+      "w": 5,
+      "h": 4
+     },
+     "enter": {
+      "heroLeftColumn": 41,
+      "heroHeadRow": 19
+     },
+     "open": true,
+     "runLeftOnArrival": false,
+     "variant": 2,
+     "flags": "0x82",
+     "destination": {
+      "kind": "cavern",
+      "map": "mp20",
+      "place": "0x02",
+      "x": 190,
+      "headRow": 48,
+      "y1": 47
+     },
+     "lock": "none",
+     "features": "0x80",
+     "playsRokademo": true,
+     "saveFlag": {
+      "byte": "0x0b",
+      "mask": "0x08",
+      "name": "peligro_items_1",
+      "description": "Collected a Tear of Esmesanti."
+     }
+    }
+   ]
+  }
+ ],
+ "descriptor": {
+  "raw": "99000103ff030202",
+  "isBossCavern": true,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mbos",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp2",
+  "eai": "tako",
+  "enp": null,
+  "bossGrp": "tako",
+  "postBossEai": "eai2",
+  "postBossEnp": "enp2"
+ },
+ "nameInfo": {
+  "x": 22,
+  "y": 175,
+  "color": 2
+ },
+ "raw": {
+  "header": "2cc33400cac2ccc2cec2e8c2eac217c358c302ffff000c0000cac2",
+  "pointers": {
+   "descriptor": "0xc32c",
+   "width": "0x0034",
+   "vplat": "0xc2ca",
+   "cplat": "0xc2cc",
+   "hplat": "0xc2ce",
+   "doors": "0xc2e8",
+   "accomplished": "0xc2ea",
+   "name": "0xc317",
+   "monsters": "0xc358",
+   "signs": "0x0000",
+   "mapEnd": "0xc2ca"
+  }
+ }
+}

@@ -1,0 +1,113 @@
+{
+  "_meta": {
+    "file": "items.json",
+    "source_game": "Zeliard, MS-DOS English release (Sierra 1990). Japanese-version differences: japanese_balance.json.",
+    "source_root": "research/zeliard-expanded/extracted/zeliard-main/3_Assembly (tasm/bin release binaries; ida/*.asm annotations used for navigation only)",
+    "join_keys": {
+      "sword.id": "value of save byte 0x92 (1..6)",
+      "shield.id": "value of save byte 0x93 (0 = none, 1..6)",
+      "accessory.id": "value stored in the wearable list 0xA1..0xA5 and the equipped-wearable byte 0x9E (1..5)",
+      "consumable.id": "value stored in the 5 item slots 0xA6..0xAA (1..8); also the bit order of the magic-shop stock bytes 0xC9..0xD1 (bit 0x80 = id 1 ... 0x01 = id 8)",
+      "drop_code": "cavern object / monster drop code (enemies.json mechanics.drops)",
+      "town keys": "muralla, satono, bosque, helada, tumba, dorado, llama, pureza, esco (towns.json)",
+      "save_flag": "byte offset in the 256-byte save record (stdply) and bit mask"
+    },
+    "price_source": "212ARMRP.bin @0BAB9 (9 towns x 12 swords/shields, 24-bit prices) and 215DRUGP.bin @0B11E (9 towns x 8 magic items). Every item has a price in every town; the stock bitmask decides what is offered. Full tables and shop texts: towns.json.",
+    "evidence_levels": "'verified' = read from the release code/data; 'community' = walkthroughs, manual, TCRF, not traced in code."
+  },
+  "equipment_rules": {
+    "one_of_each": "The hero holds exactly one sword and at most one shield. Buying replaces the current one.",
+    "trade_in": "floor(this town's price of the OLD item / 2) is credited, and the old item's bit is set in this town's stock byte so it can be bought back. verified (212ARMRP).",
+    "sell_magic_items": "floor(this town's price / 2). verified (215DRUGP, per towns fork).",
+    "starting_equipment": {"sword": 1, "shield": 0, "gold": 0, "almas": 0, "note": "The King gives 1000 gold on the first audience (210KINGP). See progression.json starting_state."}
+  },
+  "swords": {
+    "damage_formula": "d = min(255, base + floor(level/2)); d = min(255, d * (sabre_oil + 1)); downward thrust in the air-to-ground stab (sword_hit_type 2) doubles d (cap 255) and forces the monster's first drop descriptor. Source: 200FIGHT Get_Stats (cs:6038). verified.",
+    "reach_note": "Sword hitbox/reach per sword type was not traced in this pass (treat as identical unless the fight code shows otherwise). Vista's gate is a damage multiplier (x32 for sword ids 4..6), not reach. See bosses.json vista.",
+    "overhead_swing": "Up+attack swings overhead; it also triggers automatically when a monster is in the 8x4 cell area above the hero.",
+    "list": [
+      {"id": 1, "key": "training_sword", "name": "Training Sword", "base_damage": 1, "stock_bit": "0x80", "prices": {"muralla": 400, "satono": 800, "bosque": 800, "helada": 400, "tumba": 400, "dorado": 200, "llama": 200, "pureza": 100, "esco": 10}, "sold_in": ["muralla", "satono", "bosque", "helada", "pureza", "esco"], "notes": "Starting sword."},
+      {"id": 2, "key": "wise_mans_sword", "name": "Wise Man's Sword", "base_damage": 2, "stock_bit": "0x40", "prices": {"muralla": 1500, "satono": 1500, "bosque": 1500, "helada": 3000, "tumba": 3000, "dorado": 1500, "llama": 1500, "pureza": 1000, "esco": 100}, "sold_in": ["muralla", "satono", "bosque", "helada", "tumba", "pureza", "esco"]},
+      {"id": 3, "key": "spirit_sword", "name": "Spirit Sword", "base_damage": 4, "stock_bit": "0x20", "prices": {"muralla": 6800, "satono": 6800, "bosque": 6800, "helada": 5440, "tumba": 4760, "dorado": 3400, "llama": 1360, "pureza": 1360, "esco": 680}, "sold_in": ["bosque", "helada", "tumba", "dorado", "llama", "pureza", "esco"]},
+      {"id": 4, "key": "knights_sword", "name": "Knight's Sword", "base_damage": 8, "stock_bit": "0x10", "prices": {"muralla": 9800, "satono": 9800, "bosque": 9800, "helada": 9800, "tumba": 4900, "dorado": 7840, "llama": 5880, "pureza": 3920, "esco": 1960}, "sold_in": ["tumba (only via Crest of Glory exchange)", "dorado", "llama", "pureza", "esco"], "notes": "Tumba lists it at 4900 but refuses to sell; carrying the Crest of Glory (0x9B) triggers a free exchange: sword := 4, old sword lost with no trade-in, crest cleared, Tumba stock bit 0x10 removed, flag 0x24 |= 0x02. First sword that can damage Vista."},
+      {"id": 5, "key": "illumination_sword", "name": "Illumination Sword", "base_damage": 32, "stock_bit": "0x08", "prices": {"muralla": 90000, "satono": 69800, "bosque": 69800, "helada": 69800, "tumba": 69800, "dorado": 69800, "llama": 34800, "pureza": 32800, "esco": 29800}, "sold_in": ["dorado", "llama", "pureza", "esco"]},
+      {"id": 6, "key": "enchantment_sword", "name": "Enchantment Sword", "base_damage": 127, "stock_bit": "0x04", "prices": {"all_towns": 4, "note": "placeholder price; never stocked by default. Trade-in value 2 gold. If traded in it appears in that shop for 4 gold (TCRF)."}, "sold_in": [], "found": "Cavern of Arrugia (world 6, behind the Lion's Head Key door). Map placement: game/data/world/.", "evidence": "community (location); verified (damage, price)"}
+    ],
+    "confidence": "high"
+  },
+  "shields": {
+    "capacity_source": "212ARMRP word table @0A6BF: 1E 00 50 00 B4 00 2C 01 2C 01 58 02. On purchase shield HP (0x94) and shield max HP (0x96) are both set to this value. verified.",
+    "contact_damage_rule": "Monster contact while the hero FACES the attacker and carries a shield: reduced = (d >> 1) >> ((tier + 1) >> 1). The reduced value is subtracted from the hero's HP AND from shield HP. Shield HP <= 0: shield type and HP set to 0, message 'Shield broken.'. Contact from behind, or with no shield: full d to HP. verified (200FIGHT apply_hit_from_left/right).",
+    "projectile_rule": "Enemy projectile (13-byte record, +6 = damage) is blocked with no damage to hero or shield when: a shield is carried, the sword is not mid-swing, the hero is not on a rope, the projectile is horizontal/diagonal, and the hero faces it. Honor/Light/Titanium (ids 4..6) block at any height; Clay/Wise/Stone only at the covered height. Otherwise full damage to HP. verified (200FIGHT sub_846F, ida/fight.asm 5600-5690).",
+    "repair": "Weapon shop 'Repair shield': ceil((max - current) / 2) gold. Not free (community sources say free; code wins).",
+    "holy_water": "Item 6 adds [80, 90, 100, 110, 115, 120][tier-1] shield HP, capped at max. No effect without a shield.",
+    "list": [
+      {"id": 1, "key": "clay_shield", "name": "Clay Shield", "capacity": 30, "contact_divisor": 4, "projectile_block": "covered height only", "stock_bit": "0x80", "prices": {"muralla": 50, "satono": 50, "bosque": 5, "helada": 5, "tumba": 5, "dorado": 5, "llama": 5, "pureza": 5, "esco": 2}, "sold_in": ["muralla", "satono", "bosque", "esco"]},
+      {"id": 2, "key": "wise_mans_shield", "name": "Wise Man's Shield", "capacity": 80, "contact_divisor": 4, "projectile_block": "covered height only", "stock_bit": "0x40", "prices": {"muralla": 150, "satono": 150, "bosque": 150, "helada": 50, "tumba": 50, "dorado": 20, "llama": 20, "pureza": 20, "esco": 10}, "sold_in": ["muralla", "satono", "bosque", "helada", "esco"]},
+      {"id": 3, "key": "stone_shield", "name": "Stone Shield", "capacity": 180, "contact_divisor": 8, "projectile_block": "covered height only", "stock_bit": "0x20", "prices": {"muralla": 2980, "satono": 2980, "bosque": 2380, "helada": 1780, "tumba": 1780, "dorado": 890, "llama": 890, "pureza": 890, "esco": 298}, "sold_in": ["satono", "bosque", "helada", "tumba", "dorado", "esco"]},
+      {"id": 4, "key": "honor_shield", "name": "Honor Shield", "capacity": 300, "contact_divisor": 8, "projectile_block": "any height", "stock_bit": "0x10", "prices": {"muralla": 9800, "satono": 9800, "bosque": 9800, "helada": 9800, "tumba": 7840, "dorado": 5880, "llama": 5880, "pureza": 3920, "esco": 1960}, "sold_in": ["helada", "tumba", "dorado", "llama", "pureza", "esco"]},
+      {"id": 5, "key": "light_shield", "name": "Light Shield", "capacity": 300, "contact_divisor": 16, "projectile_block": "any height", "stock_bit": "0x08", "prices": {"muralla": 14800, "satono": 14800, "bosque": 14800, "helada": 14800, "tumba": 14800, "dorado": 14800, "llama": 10360, "pureza": 7400, "esco": 5920}, "sold_in": ["dorado", "llama", "pureza", "esco"], "notes": "Same capacity as Honor but halves the damage again."},
+      {"id": 6, "key": "titanium_shield", "name": "Titanium Shield", "capacity": 600, "contact_divisor": 16, "projectile_block": "any height", "stock_bit": "0x04", "prices": {"muralla": 39800, "satono": 39800, "bosque": 39800, "helada": 39800, "tumba": 39800, "dorado": 39800, "llama": 39800, "pureza": 31800, "esco": 23800}, "sold_in": ["llama", "pureza", "esco"]}
+    ],
+    "confidence": "high"
+  },
+  "accessories": {
+    "rules": "Wearables are collected into the list 0xA1..0xA5 (ids in acquisition order). Only one is worn at a time (0x9E), chosen in the inventory screen (201SELCT). Effects only apply while worn.",
+    "list": [
+      {"id": 1, "key": "feruza_shoes", "name": "Feruza Shoes", "effect": "jump height 4 instead of 2 (200FIGHT jump table). verified", "found": "Cavern of Arrugia (world 6, behind the Lion's Head Key door; community). Map: game/data/world/.", "needed_for": "high jumps in world 8 (Falter etc.)"},
+      {"id": 2, "key": "pirika_shoes", "name": "Pirika Shoes", "effect": "immune to hazard tiles (Gelroid, thorns, fire tiles) that otherwise do [1,1,4,8,20,20,20,20,20][cavern_level-1] per frame. verified", "found": "chest in the Corroer cavern (world 5), save flag 0x22 bit 0x02 (towns.json condition table)."},
+      {"id": 3, "key": "silkarn_shoes", "name": "Silkarn Shoes", "effect": "no sliding down slopes. verified", "found": "world 6 (gold caverns) per community and Dorado dialogue. Map: game/data/world/."},
+      {"id": 4, "key": "ruzeria_shoes", "name": "Ruzeria Shoes", "effect": "no slipping on level-4 ice. verified", "found": "Glacial cavern (world 4), save flag 0x1A bit 0x10."},
+      {"id": 5, "key": "asbestos_cape", "name": "Asbestos Cape", "effect": "prevents world-7 heat damage (15 HP every 64 frames, 'It's too hot !!'). verified", "found": "bought from Llama NPC 1 for 2500 ALMAS (not gold); save flag 0x34 |= 0x40. verified (town MDT script)."}
+    ],
+    "confidence": "high for effects, medium for community locations"
+  },
+  "crests_and_keys": [
+    {"key": "elf_crest", "name": "Elf Crest", "save": "0x9A (0xFF = have)", "found": "given by the Llama girl after Paguro is defeated (flag 0x30); sets 0x34 |= 0x80. verified (towns.json).", "use": "Llama villagers talk to you; story gate toward Pureza (community)."},
+    {"key": "crest_of_glory", "name": "Crest of Glory", "save": "0x9B", "found": "Cavern of Cementar (world 5) (community).", "use": "exchanged at the Tumba weapon shop for the Knight's Sword; consumed. Optional (Knight's Sword can also be bought in Dorado)."},
+    {"key": "heros_crest", "name": "Hero's Crest", "save": "0x9C", "found": "slash the large trunk in the Cavern of Riza (world 3); 200FIGHT entity handler sets 0x9C. verified.", "use": "Bosque sentry lets you pass toward Pollo."},
+    {"key": "key", "name": "Key", "save": "0x98 count", "found": "cavern chests and objects (map data).", "use": "one consumed per ordinary locked door, including boss lair doors."},
+    {"key": "lions_head_key", "name": "Lion's Head Key", "save": "0x99 count", "found": "Cavern of Absor (world 8) (community).", "use": "opens the special doors in Tesoro (Arrugia) and Final."},
+    {"key": "tear_of_esmesanti", "name": "Tear of Esmesanti", "save": "0xA0 count (0..9)", "found": "one per main boss, collected through the post-victory exit door (cut-scene 300ROKAD). Paguro gives none.", "use": "all nine end the game (story.json)."}
+  ],
+  "consumables": {
+    "rules": "5 inventory slots (0xA6..0xAA); the same item may fill several slots. Used from the inventory screen (201SELCT) while in a cavern. Prices by town and stock below; shopkeeper texts in towns.json.",
+    "list": [
+      {"id": 1, "key": "kenko_potion", "name": "Ken'ko Potion", "effect": "+80 HP (heal pulse: +8 HP per frame for 10 frames), capped at max.", "stock_bit": "0x80", "prices": {"muralla": 50, "satono": 50, "bosque": 50, "helada": 50, "tumba": 5, "dorado": 5, "llama": 5, "pureza": 5, "esco": 2}, "sold_in": ["muralla", "satono", "esco"]},
+      {"id": 2, "key": "juuen_fruit", "name": "Juu-en Fruit", "effect": "restores HP to full.", "stock_bit": "0x40", "prices": {"muralla": 240, "satono": 240, "bosque": 240, "helada": 300, "tumba": 600, "dorado": 600, "llama": 900, "pureza": 900, "esco": 200}, "sold_in": ["bosque", "helada", "tumba", "dorado", "llama", "esco"]},
+      {"id": 3, "key": "elixir_of_kashi", "name": "Elixir of Kashi", "effect": "refills the charges of the currently selected spell to its max.", "stock_bit": "0x20", "prices": {"muralla": 60, "satono": 60, "bosque": 60, "helada": 120, "tumba": 240, "dorado": 240, "llama": 360, "pureza": 360, "esco": 40}, "sold_in": ["satono", "bosque", "helada", "esco"]},
+      {"id": 4, "key": "chikara_powder", "name": "Chikara Powder", "effect": "refills all spell charges (0xAB..0xB1 := 0xB4..0xBA).", "stock_bit": "0x10", "prices": {"muralla": 320, "satono": 320, "bosque": 320, "helada": 320, "tumba": 480, "dorado": 480, "llama": 960, "pureza": 960, "esco": 280}, "sold_in": ["helada", "esco"]},
+      {"id": 5, "key": "magia_stone", "name": "Magia Stone", "effect": "summons 4 spirits orbiting the hero; each has 80 hits; damage per hit (level+1)*4, cap 255 (Get_Stats source 9).", "stock_bit": "0x08", "prices": {"muralla": 1000, "satono": 1000, "bosque": 1500, "helada": 1500, "tumba": 2000, "dorado": 2000, "llama": 2500, "pureza": 2500, "esco": 800}, "sold_in": ["muralla", "bosque", "dorado", "llama", "esco"]},
+      {"id": 6, "key": "holy_water_of_acero", "name": "Holy Water of Acero", "effect": "shield HP += [80,90,100,110,115,120][shield tier-1], capped at shield max.", "stock_bit": "0x04", "prices": {"muralla": 100, "satono": 100, "bosque": 100, "helada": 100, "tumba": 200, "dorado": 200, "llama": 400, "pureza": 400, "esco": 80}, "sold_in": ["satono", "helada", "dorado", "esco"]},
+      {"id": 7, "key": "sabre_oil", "name": "Sabre Oil", "effect": "0xE4 += 1; sword damage multiplied by (0xE4 + 1), cap 255. Stacks. Cleared on entering any town.", "stock_bit": "0x02", "prices": {"muralla": 1200, "satono": 1200, "bosque": 1200, "helada": 1200, "tumba": 2000, "dorado": 2000, "llama": 2400, "pureza": 2400, "esco": 1000}, "sold_in": ["muralla", "satono", "bosque", "tumba", "llama", "esco"]},
+      {"id": 8, "key": "kioku_feather", "name": "Kioku Feather", "effect": "warps to the town in 0xC5 (last sage) without a death penalty. In DOS 0xC5 is never updated, so it always returns to Muralla.", "stock_bit": "0x01", "prices": {"muralla": 350, "satono": 350, "bosque": 350, "helada": 350, "tumba": 350, "dorado": 350, "llama": 350, "pureza": 350, "esco": 150}, "sold_in": ["bosque", "helada", "llama", "pureza", "esco"]}
+    ],
+    "evidence": "effects: 201SELCT item handlers (use_holy_water clamp to 0x96, E4 increment) and 200FIGHT heal pulse (0xC6, +8/frame). Stock: stdply 0xC9..0xD1 defaults 8A A6 6B 75 42 4C 4B 01 FF.",
+    "confidence": "high"
+  },
+  "cavern_pickups": {
+    "drop_codes": [
+      {"code": 0, "effect": "nothing; monster record respawns later"},
+      {"code": 1, "effect": "nothing; record removed"},
+      {"code": 4, "effect": "1 alma"},
+      {"code": 5, "effect": "10 almas"},
+      {"code": 8, "effect": "red potion: +80 HP (heal pulse 10 x 8)"},
+      {"code": 9, "effect": "blue potion: heals to full (heal pulse maxHP/8 + 1 frames of +8)"},
+      {"code": 11, "effect": "100 almas (red orb)"}
+    ],
+    "drop_selection": "On death: the record's preset code (MDT byte +7 low nibble) if non-zero, else descriptor[rng & 3]; downward thrust forces descriptor[0]. Pickups fall and are collected by touch. See enemies.json mechanics.drops.",
+    "fixed_objects": "Chests, wall stashes, keys, shoes, crests and Tears are placed in the map data; their placements and save flags are in game/data/world/ (owned by the map agent).",
+    "confidence": "high for codes; placements not in this file"
+  },
+  "conflicts": [
+    {"topic": "shield repair cost", "code": "ceil(missing/2) gold", "community": "free", "picked": "code"},
+    {"topic": "Esco Chikara Powder", "code": "280", "community": "200", "picked": "code"},
+    {"topic": "Knight's Sword in Tumba", "code": "only via Crest of Glory exchange (listed at 4900 but refused)", "community": "sometimes listed as buyable / Elf Crest", "picked": "code"},
+    {"topic": "sword reach", "code": "reach not traced; the known sword gate (Vista) is a damage multiplier", "community/manual": "longer swords reach further", "picked": "open question"}
+  ],
+  "gaps": [
+    "Exact chest/key placements are map data (game/data/world/), not listed here.",
+    "Whether selling a magic item adds it to the shop's stock was not checked.",
+    "Silkarn, Feruza, Crest of Glory and Lion's Head Key locations are from community sources."
+  ]
+}

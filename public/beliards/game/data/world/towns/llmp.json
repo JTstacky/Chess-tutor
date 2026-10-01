@@ -1,0 +1,674 @@
+{
+ "id": "llmp",
+ "file": "llmp.mdt",
+ "name": "Llama Town",
+ "place": "0x87",
+ "width": 280,
+ "height": 8,
+ "bank": "mpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "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",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "080009",
+   "x": 8,
+   "triggerX": [
+    7,
+    8,
+    9
+   ],
+   "dest": "0x09",
+   "kind": "cavern",
+   "entrance": 1,
+   "map": "mp70",
+   "heroX": 152,
+   "heroHeadRow": 7,
+   "runLeft": true
+  },
+  {
+   "index": 1,
+   "raw": "270003",
+   "x": 39,
+   "triggerX": [
+    38,
+    39,
+    40
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  },
+  {
+   "index": 2,
+   "raw": "470002",
+   "x": 71,
+   "triggerX": [
+    70,
+    71,
+    72
+   ],
+   "dest": "0x02",
+   "kind": "sage"
+  },
+  {
+   "index": 3,
+   "raw": "680004",
+   "x": 104,
+   "triggerX": [
+    103,
+    104,
+    105
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  },
+  {
+   "index": 4,
+   "raw": "8e0006",
+   "x": 142,
+   "triggerX": [
+    141,
+    142,
+    143
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  },
+  {
+   "index": 5,
+   "raw": "b00007",
+   "x": 176,
+   "triggerX": [
+    175,
+    176,
+    177
+   ],
+   "dest": "0x07",
+   "kind": "inn"
+  },
+  {
+   "index": 6,
+   "raw": "0d0108",
+   "x": 269,
+   "triggerX": [
+    268,
+    269,
+    270
+   ],
+   "dest": "0x08",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp70",
+   "heroX": 1,
+   "heroHeadRow": 22,
+   "runLeft": false
+  },
+  {
+   "index": 7,
+   "raw": "de000a",
+   "x": 222,
+   "triggerX": [
+    221,
+    222,
+    223
+   ],
+   "dest": "0x0a",
+   "kind": "cavern",
+   "entrance": 2,
+   "map": "mp73",
+   "heroX": 27,
+   "heroHeadRow": 13,
+   "runLeft": false
+  }
+ ],
+ "transitions": [],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "0100160012",
+   "map": "mp70",
+   "heroX": 1,
+   "heroHeadRow": 22,
+   "runLeft": false
+  },
+  {
+   "index": 1,
+   "raw": "9800070112",
+   "map": "mp70",
+   "heroX": 152,
+   "heroHeadRow": 7,
+   "runLeft": true
+  },
+  {
+   "index": 2,
+   "raw": "1b000d0015",
+   "map": "mp73",
+   "heroX": 27,
+   "heroHeadRow": 13,
+   "runLeft": false
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "dc00020001038000",
+   "x": 220,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x80",
+   "autoTalk": true,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "Help! A terrible creature is in our hut! Please get rid of it for us."
+  },
+  {
+   "index": 1,
+   "raw": "ff00030001030003",
+   "x": 255,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "{0x01}\n{0x85}The caverns in this region are burning hot; you won't be able to stand it long. I've got something that will help you. It's an Asbestos cape that will protect you from the heat.{0x87}It's not free though. It will cost you 2500&almas.\n\n\n{0x89}Oh, I&see... well, maybe next time. "
+  },
+  {
+   "index": 2,
+   "raw": "1800810001030012",
+   "x": 24,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 18,
+   "text": "Sir, I can see that you don't have the Elf Crest. Recently some henchmen of Jashiin have been posing as heroes and wreaking havoc on this town. You're not one of them by any chance, are you? Without the Elf Crest, no one here will speak to you."
+  },
+  {
+   "index": 3,
+   "raw": "0e0080000106000a",
+   "x": 14,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 10,
+   "text": "My name is Michael. No one here listens to a word I say. I wonder why that is?"
+  },
+  {
+   "index": 4,
+   "raw": "3200020000060013",
+   "x": 50,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 19,
+   "text": ". . . . . . . . . . . . "
+  },
+  {
+   "index": 5,
+   "raw": "7c00830001030013",
+   "x": 124,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 19,
+   "text": ". . . . . . . . . . . . "
+  },
+  {
+   "index": 6,
+   "raw": "5b00820000010013",
+   "x": 91,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 19,
+   "text": ". . . . . . . . . . . . "
+  },
+  {
+   "index": 7,
+   "raw": "c000830001050013",
+   "x": 192,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 5,
+   "aiName": "bounce_1bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 19,
+   "text": ". . . . . . . . . . . . "
+  },
+  {
+   "index": 8,
+   "raw": "9f00810001060013",
+   "x": 159,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 6,
+   "aiName": "bounce_2bit",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 19,
+   "text": ". . . . . . . . . . . . "
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Help! A terrible creature is in our hut! Please get rid of it for us.",
+   "controlCodes": [],
+   "raw": "48656c70212041207465727269626c6520637265617475726520697320696e206f7572206875742120506c656173652067657420726964206f6620697420666f722075732e"
+  },
+  {
+   "index": 1,
+   "text": "Oh, thank you, sir. As a token of my gratitude I will give you the Elf Crest. I think you'll find it useful; without it, no one in town will help you.{0x83}",
+   "controlCodes": [
+    "0x83"
+   ],
+   "raw": "4f682c207468616e6b20796f752c207369722e204173206120746f6b656e206f66206d792067726174697475646520492077696c6c206769766520796f752074686520456c662043726573742e2049207468696e6b20796f755c6c6c2066696e642069742075736566756c3b20776974686f75742069742c206e6f206f6e6520696e20746f776e2077696c6c2068656c7020796f752e83"
+  },
+  {
+   "index": 2,
+   "text": "Thanks again. Really. ",
+   "controlCodes": [],
+   "raw": "5468616e6b7320616761696e2e205265616c6c792e20"
+  },
+  {
+   "index": 3,
+   "text": "{0x01}\n{0x85}The caverns in this region are burning hot; you won't be able to stand it long. I've got something that will help you. It's an Asbestos cape that will protect you from the heat.{0x87}It's not free though. It will cost you 2500&almas.\n\n\n{0x89}Oh, I&see... well, maybe next time. ",
+   "controlCodes": [
+    "0x85",
+    "0x87",
+    "0x89"
+   ],
+   "raw": "012f855468652063617665726e7320696e207468697320726567696f6e20617265206275726e696e6720686f743b20796f7520776f6e5c742062652061626c6520746f207374616e64206974206c6f6e672e20495c766520676f7420736f6d657468696e6720746861742077696c6c2068656c7020796f752e2049745c7320616e204173626573746f73206361706520746861742077696c6c2070726f7465637420796f752066726f6d2074686520686561742e8749745c73206e6f7420667265652074686f7567682e2049742077696c6c20636f737420796f75203235303026616c6d61732e2f2f2f894f682c2049267365652e2e2e2077656c6c2c206d61796265206e6578742074696d652e20"
+  },
+  {
+   "index": 4,
+   "text": "The caverns in this region are burning hot; you won't be able to stand it long. I've got something that will help you. It's an Asbestos cape that will protect you from the heat.{0x87}It's not free though. It will cost you 2500&almas.\n\n\n{0x89}Oh, I&see... well, maybe next time. ",
+   "controlCodes": [
+    "0x87",
+    "0x89"
+   ],
+   "raw": "5468652063617665726e7320696e207468697320726567696f6e20617265206275726e696e6720686f743b20796f7520776f6e5c742062652061626c6520746f207374616e64206974206c6f6e672e20495c766520676f7420736f6d657468696e6720746861742077696c6c2068656c7020796f752e2049745c7320616e204173626573746f73206361706520746861742077696c6c2070726f7465637420796f752066726f6d2074686520686561742e8749745c73206e6f7420667265652074686f7567682e2049742077696c6c20636f737420796f75203235303026616c6d61732e2f2f2f894f682c2049267365652e2e2e2077656c6c2c206d61796265206e6578742074696d652e20"
+  },
+  {
+   "index": 5,
+   "text": "It's not free though. It will cost you 2500&almas.\n\n\n{0x89}Oh, I&see... well, maybe next time. ",
+   "controlCodes": [
+    "0x89"
+   ],
+   "raw": "49745c73206e6f7420667265652074686f7567682e2049742077696c6c20636f737420796f75203235303026616c6d61732e2f2f2f894f682c2049267365652e2e2e2077656c6c2c206d61796265206e6578742074696d652e20"
+  },
+  {
+   "index": 6,
+   "text": "Oh, I&see... well, maybe next time. ",
+   "controlCodes": [],
+   "raw": "4f682c2049267365652e2e2e2077656c6c2c206d61796265206e6578742074696d652e20"
+  },
+  {
+   "index": 7,
+   "text": "You say you don't have 2500&almas to give? Don't try to fool me. ",
+   "controlCodes": [],
+   "raw": "596f752073617920796f7520646f6e5c742068617665203235303026616c6d617320746f20676976653f20446f6e5c742074727920746f20666f6f6c206d652e20"
+  },
+  {
+   "index": 8,
+   "text": "Here you are. That will be 2500&almas. Take good care of it. ",
+   "controlCodes": [],
+   "raw": "4865726520796f75206172652e20546861742077696c6c206265203235303026616c6d61732e2054616b6520676f6f642063617265206f662069742e20"
+  },
+  {
+   "index": 9,
+   "text": "Are you taking good care of the Asbestos cape? It was my prized possession so I hope you'll treat it well.",
+   "controlCodes": [],
+   "raw": "41726520796f752074616b696e6720676f6f642063617265206f6620746865204173626573746f7320636170653f20497420776173206d79207072697a656420706f7373657373696f6e20736f204920686f706520796f755c6c6c2074726561742069742077656c6c2e"
+  },
+  {
+   "index": 10,
+   "text": "My name is Michael. No one here listens to a word I say. I wonder why that is?",
+   "controlCodes": [],
+   "raw": "4d79206e616d65206973204d69636861656c2e204e6f206f6e652068657265206c697374656e7320746f206120776f72642049207361792e204920776f6e6465722077687920746861742069733f"
+  },
+  {
+   "index": 11,
+   "text": "Oh! You've got the Elf Crest. Great! ",
+   "controlCodes": [],
+   "raw": "4f682120596f755c766520676f742074686520456c662043726573742e2047726561742120"
+  },
+  {
+   "index": 12,
+   "text": "Jashiin filled the caverns with a flaming inferno. Please help us, brave lad!",
+   "controlCodes": [],
+   "raw": "4a61736869696e2066696c6c6564207468652063617665726e732077697468206120666c616d696e6720696e6665726e6f2e20506c656173652068656c702075732c206272617665206c616421"
+  },
+  {
+   "index": 13,
+   "text": "Beware of the great heat currents. There are many whirlpools in the caverns, and once you get caught in one you'll never get out.",
+   "controlCodes": [],
+   "raw": "426577617265206f662074686520677265617420686561742063757272656e74732e20546865726520617265206d616e7920776869726c706f6f6c7320696e207468652063617665726e732c20616e64206f6e636520796f75206765742063617567687420696e206f6e6520796f755c6c6c206e6576657220676574206f75742e"
+  },
+  {
+   "index": 14,
+   "text": "There are countless one-way, invisible walls in Correr Cave. To find out more about them, ask Yozeras or Myuuza the elder.",
+   "controlCodes": [],
+   "raw": "54686572652061726520636f756e746c657373206f6e652d7761792c20696e76697369626c652077616c6c7320696e20436f7272657220436176652e20546f2066696e64206f7574206d6f72652061626f7574207468656d2c2061736b20596f7a65726173206f72204d7975757a612074686520656c6465722e"
+  },
+  {
+   "index": 15,
+   "text": "I am Yozeras. When you go into Correr Cave, watch out for an opening with no ivy. You'll fall if you go through there.",
+   "controlCodes": [],
+   "raw": "4920616d20596f7a657261732e205768656e20796f7520676f20696e746f20436f7272657220436176652c207761746368206f757420666f7220616e206f70656e696e672077697468206e6f206976792e20596f755c6c6c2066616c6c20696620796f7520676f207468726f7567682074686572652e"
+  },
+  {
+   "index": 16,
+   "text": "I'm  Myuuza, the town elder. If you go into the Correr Cave be sure to remember the color of the entrance door. The exit door is the same color.",
+   "controlCodes": [],
+   "raw": "495c6d20204d7975757a612c2074686520746f776e20656c6465722e20496620796f7520676f20696e746f2074686520436f727265722043617665206265207375726520746f2072656d656d6265722074686520636f6c6f72206f662074686520656e7472616e636520646f6f722e20546865206578697420646f6f72206973207468652073616d6520636f6c6f722e"
+  },
+  {
+   "index": 17,
+   "text": "If you can't find your way, find an air current near the ceiling of the cave. You can transport yourself on those currents.",
+   "controlCodes": [],
+   "raw": "496620796f752063616e5c742066696e6420796f7572207761792c2066696e6420616e206169722063757272656e74206e65617220746865206365696c696e67206f662074686520636176652e20596f752063616e207472616e73706f727420796f757273656c66206f6e2074686f73652063757272656e74732e"
+  },
+  {
+   "index": 18,
+   "text": "Sir, I can see that you don't have the Elf Crest. Recently some henchmen of Jashiin have been posing as heroes and wreaking havoc on this town. You're not one of them by any chance, are you? Without the Elf Crest, no one here will speak to you.",
+   "controlCodes": [],
+   "raw": "5369722c20492063616e20736565207468617420796f7520646f6e5c7420686176652074686520456c662043726573742e20526563656e746c7920736f6d652068656e63686d656e206f66204a61736869696e2068617665206265656e20706f73696e67206173206865726f657320616e6420777265616b696e67206861766f63206f6e207468697320746f776e2e20596f755c7265206e6f74206f6e65206f66207468656d20627920616e79206368616e63652c2061726520796f753f20576974686f75742074686520456c662043726573742c206e6f206f6e6520686572652077696c6c20737065616b20746f20796f752e"
+  },
+  {
+   "index": 19,
+   "text": ". . . . . . . . . . . . ",
+   "controlCodes": [],
+   "raw": "2e202e202e202e202e202e202e202e202e202e202e202e20"
+  }
+ ],
+ "patches": [
+  {
+   "condition": {
+    "byte": "0x30",
+    "mask": "0xff",
+    "name": "Paguro_Defeated",
+    "description": "0000 = No, FFFF = Yes"
+   },
+   "writes": [
+    {
+     "addr": "0xc903",
+     "value": "0xff",
+     "target": {
+      "fileOffset": "0x0903"
+     }
+    },
+    {
+     "addr": "0xc904",
+     "value": "0xff",
+     "target": {
+      "fileOffset": "0x0904"
+     }
+    },
+    {
+     "addr": "0xc70c",
+     "value": "0xf0",
+     "target": {
+      "tile": {
+       "x": 222,
+       "y": 5
+      }
+     }
+    },
+    {
+     "addr": "0xc70d",
+     "value": "0xf1",
+     "target": {
+      "tile": {
+       "x": 222,
+       "y": 6
+      }
+     }
+    },
+    {
+     "addr": "0xc70e",
+     "value": "0xf0",
+     "target": {
+      "tile": {
+       "x": 222,
+       "y": 7
+      }
+     }
+    },
+    {
+     "addr": "0xc714",
+     "value": "0xf0",
+     "target": {
+      "tile": {
+       "x": 223,
+       "y": 5
+      }
+     }
+    },
+    {
+     "addr": "0xc715",
+     "value": "0xf0",
+     "target": {
+      "tile": {
+       "x": 223,
+       "y": 6
+      }
+     }
+    },
+    {
+     "addr": "0xc716",
+     "value": "0xf0",
+     "target": {
+      "tile": {
+       "x": 223,
+       "y": 7
+      }
+     }
+    },
+    {
+     "addr": "0xd0d2",
+     "value": "0x01",
+     "target": {
+      "npc": 0,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd0e2",
+     "value": "0x10",
+     "target": {
+      "npc": 2,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd0ea",
+     "value": "0x0b",
+     "target": {
+      "npc": 3,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd0f2",
+     "value": "0x0c",
+     "target": {
+      "npc": 4,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd0fa",
+     "value": "0x0d",
+     "target": {
+      "npc": 5,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd102",
+     "value": "0x0e",
+     "target": {
+      "npc": 6,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd10a",
+     "value": "0x0f",
+     "target": {
+      "npc": 7,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd112",
+     "value": "0x11",
+     "target": {
+      "npc": 8,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "3000ff03c9ff04c9ff0cc7f00dc7f10ec7f014c7f015c7f016c7f0d2d001e2d010ead00bf2d00cfad00d02d10e0ad10f12d111ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x34",
+    "mask": "0x80",
+    "name": "caliente_items",
+    "description": "Spoke to the girl after defeating Paguro"
+   },
+   "writes": [
+    {
+     "addr": "0xd0d2",
+     "value": "0x02",
+     "target": {
+      "npc": 0,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xd0d1",
+     "value": "0x00",
+     "target": {
+      "npc": 0,
+      "field": "n_flags"
+     }
+    }
+   ],
+   "raw": "340080d2d002d1d000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x34",
+    "mask": "0x40",
+    "name": "caliente_items",
+    "description": "Purchased the Asbestos Cape"
+   },
+   "writes": [
+    {
+     "addr": "0xd0da",
+     "value": "0x09",
+     "target": {
+      "npc": 1,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "340040dad009ffff"
+  }
+ ],
+ "patrolBounds": {
+  "min": 31,
+  "max": 200
+ },
+ "sageRespawnX": 71,
+ "townId": 7,
+ "descriptor": {
+  "raw": "0401ff0001",
+  "music": "mgt2",
+  "npcGroup": "cman",
+  "middleLayer": "ympd (surface)",
+  "bank": "mpat"
+ },
+ "raw": {
+  "header": "dbc81801e0c807eec8eec808c961c9cbd0d7c8470017c9",
+  "pointers": {
+   "descriptor": "0xc8db",
+   "name": "0xc8e0",
+   "transitions": "0xc8ee",
+   "doors": "0xc8ee",
+   "entrances": "0xc908",
+   "texts": "0xc961",
+   "npcs": "0xd0cb",
+   "patrol": "0xc8d7",
+   "c015": "0xc917"
+  },
+  "nameInfo": "19af030a"
+ }
+}

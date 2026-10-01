@@ -1,0 +1,4583 @@
+{
+ "schema_version": 1,
+ "source_game": "Zeliard, Sierra On-Line DOS English release (1990); data read from the bit-perfect reconstructed release binaries",
+ "key": "Towns are keyed by MDT file (e.g. 237MRMP = MRMP.MDT, resource index 33 in the STICK.BIN MDT table) and by place_map_id (stdply byte 0xC4: 0x80 Castle ... 0x89 Esco). town_index is the MDT header byte at C006 (1=Muralla ... 9=Esco; the Castle also stores 1): every building program (shop, bank, inn, sage) indexes its per-town tables with town_index-1. npcs[] follow the MDT NPC array order exactly: npc_index = 0-based position of the 8-byte record in the array pointed to by the MDT word at C00F (the Castle has one extra ending-only record at index -1). NPC record = x (word, tile column in town map), facing byte (+2, bit7 = facing), head tile (+3), animation phase (+4), ai_type (+5, index into npc_ai_jump_table), flags (+6: bit7 = walks up to / stops the hero and talks automatically, bit6 = blocks the path, 0xC0 together = no Spacebar talk), text_id (+7). text_id is a direct 0-based index into the MDT's text pointer array (MDT word at C00D); the same number is used in unreferenced_or_script_texts. lines[] = the text shown under each condition. Conditions are the MDT 'C015' table (conditions_in_order): at town entry and after building visits, for each entry in order, if (stdply[addr] & mask) != 0 the listed bytes are poked into the loaded MDT, so a later matching entry overrides an earlier one. Door x positions match the MDT door array (C009) order: door_index. Door type 0..7 selects the building program, 8+ = cavern entrance (index type-8 into the 5-byte entrance table at C00B), 0xFF = the Pureza trap building.",
+ "text_encoding": {
+  "charset": "ASCII glyphs 0x20..0x7E via the game font; strings end with 0xFF",
+  "0x5C '\\\\'": "apostrophe (rendered as ')",
+  "0x26 '&'": "non-breaking space (renders as a space; the word-wrapper does not break there)",
+  "0x2F '/'": "forced line break (rendered here as \\n)",
+  "word_wrap": "automatic at spaces when the line would exceed 0xA8 (168) pixels; box holds 7 visible lines, then a blinking cursor waits for Spacebar and the box scrolls",
+  "opcodes": {
+   "0x81": "Yes/No box; the text continues with text 12 or 13 (0x0C when show_yes_no_dialog returns NC, 0x0D when CF) - only used by the Bosque sentry",
+   "0x83": "give Elf Crest: stdply[0x9A]=0xFF, stdply[0x34]|=0x80, re-apply conditions, wait for key",
+   "0x85": "set dialog-exit flag and continue with text 4",
+   "0x87": "wait for key, then continue with text 5",
+   "0x89": "Asbestos Cape purchase (Yes/No): No -> text 6; almas < 2500 -> text 7; else almas -= 2500, cape added to first free accessory slot (id 5), stdply[0x34]|=0x40, text 8",
+   "0x8B": "stdply[0x04] |= 0x80 and re-apply conditions (not used by any town text)"
+  },
+  "rendering_in_this_file": "text fields are plain English with apostrophes restored, '&' -> space, '/' -> newline, opcodes shown as {NAME}; unknown bytes as {XX}. Spelling, spacing and punctuation are otherwise verbatim (e.g. 'Herada', 'Shirukaano', 'Esko', 'Algaien', 'armor.Duke' are in the data)."
+ },
+ "building_programs": {
+  "0": "210KINGP KINGPRO.BIN - King of Felishika",
+  "1": "211OMOYP OMOYPRO.BIN - Princess Felicia's chamber (also triggers the end demo)",
+  "2": "217KENJP KENJPRO.BIN - Sage",
+  "3": "212ARMRP ARMRPRO.BIN - Weapon and Armour Shop",
+  "4": "215DRUGP DRUGPRO.BIN - Witchcraft Implement shop (magic items)",
+  "5": "214CHURP CHURPRO.BIN - Church",
+  "6": "213BANKP BANKPRO.BIN - The Bank",
+  "7": "216INNAP INNAPRO.BIN - The Inn",
+  "8+": "cavern entrance",
+  "0xFF": "Pureza trap -> Dorado"
+ },
+ "npc_ai_types": {
+  "0": "look_at_hero_and_bob",
+  "1": "patrol_1bit_phase",
+  "2": "patrol_2bit_phase",
+  "3": "face_hero",
+  "4": "bob_in_place",
+  "5": "patrol_bounce_1bit",
+  "6": "patrol_bounce_2bit",
+  "7": "static"
+ },
+ "shop_rules": {
+  "weapons_and_armour": {
+   "menu": [
+    "Go outside",
+    "Repair shield",
+    "Buy weapon",
+    "Buy shield",
+    "Explain goods"
+   ],
+   "stock": "per-town bitmask bytes in the save record (swords stdply 0xD2+town_index-1, shields 0xDB+..; bit 0x80 = first item ... 0x04 = sixth). Prices are fixed per town (price table covers every item even when not stocked).",
+   "buy": "price deducted from carried gold (24-bit). If you already hold a sword/shield, the shopkeeper gives a trade-in of HALF of THIS town's price for the old item (shr/rcr of the 24-bit price) and the old item's bit is set in this town's stock byte so it can be bought back. Buying a shield sets shield HP and max HP to the new shield's value (30/80/180/300/300/600).",
+   "repair": "cost = ceil((shield_max_HP - shield_HP) / 2) gold (212ARMRP: sub; shr ax,1; adc ax,0). No shield -> refusal text; undamaged -> \"not in need of repair\". NOT free (community sources say free).",
+   "knights_sword_in_tumba": "Tumba (town 5) lists the Knight's sword at 4900 but refuses to sell it (\"Uh....../I do not sell that weapon...\") until the Crest of Glory exchange flag stdply[0x24]&2 is set. Entering the Tumba shop while carrying the Crest of Glory (stdply[0x9B]) and before the exchange runs the crest script: Yes -> sword := Knight's sword (old sword discarded, no trade-in), crest cleared, Tumba stock bit 0x10 removed, stdply[0x24]|=2.",
+   "texts": {
+    "greeting": "May I be of service, sir?",
+    "again": "Is there something I can do for you, sir?",
+    "again2": "Will there be something else for you, sir?",
+    "no_shield": "Sir, you aren't carrying a shield -- however, I do have a fine selection, if you'd like to buy one.",
+    "no_repair_needed": "Sir, your shield is not in need of repair. How else can I help you?",
+    "repair_offer": "I'll be glad to repair your shield, sir, for the low price of {N} golds. Shall I proceed?",
+    "not_enough_gold": "I'm sorry sir, you aren't carrying enough gold. Perhaps after you've visited the bank...",
+    "repair_wait": "Please wait here, I'll only be a moment.",
+    "repair_done": "The repairs to your armour are complete. It is now as good as new.",
+    "trade_in_weapon": "I'll give you {N} golds on your old weapon as a trade-in.",
+    "trade_in_shield": "I'll give you {N} golds on your old shield as a trade-in.",
+    "confirm": "Oh, the {ITEM}? Will that be all right?",
+    "price": "That will be {N} golds.",
+    "explain_prompt": "All of my goods are of the highest quality. Which item would you like me to tell you about?",
+    "explain_again": "Is there another item you would like to know about?",
+    "leave_after_purchase": "Thank you, please come again.",
+    "leave_without_purchase": "If you're going to waste my time, please be on your way.",
+    "not_sold": "Uh......\nI do not sell that weapon. I haven't a single one in stock. Please choose another.",
+    "crest_offer": "Well I'll be... Isn't that the crest of honor you bear? Please come in... I mean...uh... \nMight I trade you a knight's sword for it?",
+    "crest_declined": "Oh, I see. Well, if you change your mind, please come back.",
+    "crest_accepted": "Oh, thank you, sir! As promised, here is your knight's sword.\nThank you, and please come back soon."
+   },
+   "explain_texts": {
+    "training_sword": "Well, I'd say this sword is all right for a beginner.\nYou get what you pay for.\nIt's your standard, maintenance-free sword. If money's a problem, this one's for you.",
+    "wise_mans_sword": "This one is just a bit better than the Training Sword. Once you get the hang of it, it's an easy one to wield. The price is a bit higher, but you can't lose on this one.\nWhy not take it with you?",
+    "spirit_sword": "You like this one?\nA wise choice.\nThis is a high grade product. It's one of my biggest sellers.",
+    "knights_sword": "Oh, I'd be more than happy to tell you about this one.\nThis is a real man's sword. It'll topple monsters in the wink of an eye.",
+    "illumination_sword": "You've got a lot of grit I'd say. This one really packs a punch. A top-of-the-line sword for a top-of-the-line-swordsman. Will you take it?",
+    "enchantment_sword": "Isn't that the sword you brought in with you?",
+    "clay_shield": "This shield is small and has limited defense capability. It's not very durable -- unless it's used with great skill, it won't last long. It's better than nothing, I guess.",
+    "wise_mans_shield": "Well, it's slightly better than the Clay Shield. Long ago, a well-known hero used it for a short time. You could do a lot worse.",
+    "stone_shield": "This one is more of a general-use shield. It's not the best one I carry. I can't really recommend it, I think it will soon be obsolete.",
+    "honor_shield": "This shield is in a class by itself. It is strong and light and easy to use. This is a superior shield, the least a brave man should have.",
+    "light_shield": "Ho! You've got quite an eye for these things, I see. This shield is not made of common iron. It is made of a magic metal called Magane. Against ordinary weapons, it's unbreakable.",
+    "titanium_shield": "This shield makes the mightiest swords seem like paper. It's light as a feather and hard as a diamond. Used well, this one will last you a lifetime."
+   }
+  },
+  "magic": {
+   "title": "Witchcraft Implement shop",
+   "menu": [
+    "Go outside",
+    "Buy item",
+    "Sell item",
+    "Description of item"
+   ],
+   "stock": "bitmask stdply 0xC9+town_index-1 (0x80 Ken'ko ... 0x01 Kioku Feather)",
+   "capacity": "5 magic-item slots (stdply 0xA6..0xAA); buying with all 5 full -> \"You can't possibly carry any more.\"",
+   "sell": "any carried magic item can be sold for HALF of THIS town's price for it (215DRUGP shr/rcr), even if the town does not stock it",
+   "texts": {
+    "greeting": "Oh... hello, can I help you?",
+    "buy_prompt": "What are you looking for?",
+    "confirm": "You'd like a {ITEM}?",
+    "price": "That will be {N} golds.",
+    "more": "Will there be something else?",
+    "no_money": "You have no money, sir.",
+    "full": "You can't possibly carry any more.",
+    "again": "Is there something I can do for you?",
+    "sell_prompt": "What would you like to sell?",
+    "sell_confirm": "You'd like to sell a {ITEM}?",
+    "thanks": "Thank you very much.",
+    "sell_offer": "I'll give you {N} golds for that.\nWill that be all right?",
+    "sell_declined": "Oh, I see. Well, that's the best I can do. I'm sorry it is't satisfactory.",
+    "sell_more": "Do you have anything else you'd like to sell?",
+    "nothing_to_sell": "You aren't carrying any magic items, sir.",
+    "describe_prompt": "Which item can I tell you about?",
+    "describe_confirm": "You're interested in the {ITEM}?",
+    "describe_more": "Can I tell you about anything else?",
+    "bye": "Thank you, sir. Please come again."
+   },
+   "descriptions": {
+    "kenko_potion": "Well, it's a special blend of yunkel fruit and ripodi leaf.\nIt's low in price and as a mild health tonic, it's perfect.",
+    "juuen_fruit": "This is the fruit of the Juu-en tree which bears only once every ten years.\nThe price is a bit high, but it provides excellent relief from wounds and exhaustion -- it's quite a bit better than the Ken'ko potion.",
+    "elixir_of_kashi": "This potion is made from the broth of mistletoe simmered on the night of a full moon.\nIt restores magical powers. It's very bitter, but the price is low.",
+    "chikara_powder": "This is made from a mixture of the powdered dragon scales and crushed Wise Man's Stone steamed for one hundred days.\nIt will fully restore your magical powers. The price, however..... is high.",
+    "magia_stone": "This stone protects the aura that living beings exude.\nIt surrounds the aura to prevent interference from other auras and acts as a protection against enemy attacks.",
+    "holy_water_of_acero": "This is a liquified metal made from mercury and iron.\nIf you paint it on a shield weakened by battle, the shield will regain its original strength.",
+    "sabre_oil": "Hmm... I don't know much about this one, but I do know that it increases the offensive power of a sword.\nDon't worry, it hasn't killed anyone yet.",
+    "kioku_feather": "This feather remembers the voice of the last wise man who spoke to you.\nIf you hold it in your right hand and swing it once, you'll return to him. It's never failed anyone I know."
+   }
+  },
+  "bank": {
+   "title": "The Bank",
+   "menu": [
+    "Go outside",
+    "Exchange almas",
+    "Deposit money",
+    "Withdraw money",
+    "Check balance"
+   ],
+   "exchange": "converts ALL carried almas in one go: while almas >= almas_in: almas -= almas_in; gold += gold_out. Remainder (< almas_in) stays. No almas -> refusal text.",
+   "deposit_withdraw": "amount chosen with arrows (Left/Right +-1, Up/Down +-10 per manual); gold carried and bank balance are 24-bit values (stdply 0x85-0x87 carried, 0x88-0x8A bank). A deposit of 1000 gold or more (or any 24-bit amount with the high byte set) plays the pleased banner / \"Thank you. Come again to make a deposit for a large sum in savings.\"; smaller deposits get \"Next time please deposit a large sum in savings.\"; leaving without business gets \"Unless you have business, don't come in here. I'm a busy man.\"",
+   "death": "bank gold is untouched by death (200FIGHT process_hero_death zeroes carried gold and halves almas only)",
+   "texts": {
+    "greeting": "Oh, excuse me. Can I help you?",
+    "no_almas": "Sir, you aren't carrying any almas. ",
+    "rate": "Our exchange rate is {IN} almas to {OUT} golds.\nWill that be all right?",
+    "not_enough_almas": "I'm sorry, you do not have enough almas.",
+    "confused": "I don't understand. Please state your business clearly.",
+    "more": "Will there be anything else?",
+    "no_gold": "You aren't carrying any gold, are you?",
+    "deposit_prompt": "How much gold would you like to deposit?",
+    "balance": "Your balance is {N} golds.",
+    "bye": "Thank you. Please come again.",
+    "empty_account": "I'm afraid we have a problem here. You don't have any gold in your account.",
+    "withdraw_prompt": "How much do you wish to withdraw?",
+    "withdraw_done": "Here you are, sir. {N} golds.",
+    "withdraw_one": "Here you are, sir. One gold.",
+    "account_empty": "Your account is empty.",
+    "check": "You have {N} golds in your account.",
+    "check_one": "You have one gold in your account.",
+    "no_business": "Unless you have business, don't come in here. I'm a busy man.",
+    "small_deposit": "Next time please deposit a large sum in savings. ",
+    "large_deposit": "Thank you. Come again to make a deposit for a large sum in savings. "
+   }
+  },
+  "inn": {
+   "effect": "pay the town price (216INNAP table @0A2D1, indexed by town_index-1): hero HP := max HP and all spell charges refilled (copies the 7 max-charge bytes stdply 0xB4..0xBA to the current bytes 0xAB..0xB1)",
+   "texts": {
+    "offer": "Welcome, sir!\nYou look like you've come a long way.\nOne night of rest in my inn is all you need to recover your strength. You can have the best room in the house for only {N} golds. Will you stay? ",
+    "declined": "Oh, I'm sorry to hear that.\nWell, if you should ever need a place to rest, do come back. ",
+    "no_money": "I'm sorry sir, but I can't accommodate you without funds.\nPlease come back when you can afford it. ",
+    "accepted": "Thank you, sir. Enjoy your stay. ",
+    "morning": "I trust you had a good night's sleep. We'll be looking forward to seeing you again."
+   }
+  },
+  "church": {
+   "towns": [
+    "muralla",
+    "esco"
+   ],
+   "price": 0,
+   "effect": "free: HP refilled in +8 steps to max HP, then all spell charges refilled (0xB4..0xBA copied to 0xAB..0xB1)",
+   "texts": {
+    "first_visit": "Brave Knight, whenever you're tired come to this church.",
+    "visit_when_healthy": "Brave Knight, whenever you're weary, come here to rest. The Holy Spirit will help you to regain your strength.",
+    "visit_when_hurt": "Brave Knight, you look fatigued from battle. Why not rest awhile and let the Spirit heal you. \nMay God go with you."
+   },
+   "text_selection_note": "214CHURP pick_welcome_text chooses between the texts by comparing current HP with max HP; exact sequence of the three sermon pages is approximate (medium confidence)"
+  },
+  "sage": {
+   "menu": [
+    "Go outside",
+    "See Power",
+    "Listen Knowledge",
+    "Record Experience"
+   ],
+   "greeting": "How can I help you, Brave One?",
+   "again": "Is there anything else I can do for you?",
+   "bye": "The Spirits are with you.",
+   "see_power": {
+    "prayer": "I shall call upon the Spirits and their powers..... ",
+    "prayer2": "Oh, Holy Spirits, purify my thoughts and grant me strength. ",
+    "rule": "need = XP_TABLE[min(level,15)]; tier 0 if XP < need/2; tier 1 if XP < need - need/4; tier 2 if XP < need; else tier 3 (level up) if level < this sage's cap, otherwise tier 4",
+    "xp_table_level_0_to_15plus": [
+     50,
+     150,
+     300,
+     420,
+     1000,
+     1500,
+     3000,
+     5000,
+     6000,
+     8000,
+     10000,
+     15000,
+     20000,
+     40000,
+     50000,
+     60000
+    ],
+    "tier_texts": [
+     "Your experience is lacking. Persevere in your quest.",
+     "You must accumulate more experience.",
+     "I can see the faint light of the Spirits in you. You must endure a little longer.",
+     "The light of the Spirits is bursting forth within you. \nIndeed, your power has grown.",
+     "I can no longer impart the power of the Spirits to you. Continue on your quest. You will soon find others to help you. "
+    ],
+    "other_texts": [
+     "I fear the spirits are no longer with you. No matter how many times I try, it comes out the same. ",
+     "You are brave, but your experience is lacking. Come back when you have accomplished more."
+    ]
+   },
+   "record_experience": {
+    "prompt": "I shall record your experiences.\nInput name:",
+    "done": "Place is saved on user disk. Will you continue your quest?",
+    "disk_error": "      Disk error.\nPlease check your disk\n  and press spacebar."
+   },
+   "after_death": [
+    "While you were unconscious, the spirits brought you here.",
+    "Be careful not to exhaust yourself in battle.",
+    "Now be on your way. ",
+    "The spirits are looking after you. "
+   ],
+   "level_caps": {
+    "Marid": 3,
+    "Yasmin": 6,
+    "Hajjar": 9,
+    "Chiriga": 11,
+    "Hisham": 13,
+    "Maryam": 15,
+    "Saied": 18,
+    "Indihar": 255
+   }
+  }
+ },
+ "towns": [
+  {
+   "id": "felishika_castle",
+   "name": "Felishika's Castle",
+   "name_in_data": "Felishika's Castle",
+   "mdt": "236CMAP",
+   "place_map_id": "0x80",
+   "town_index": null,
+   "map_width_tiles": 114,
+   "descriptor_bytes": [
+    0,
+    0,
+    255,
+    0,
+    0
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 95,
+     "door_type": 1,
+     "program": "211OMOYP",
+     "program_file": "OMOYPRO.BIN",
+     "service": "princess_chamber"
+    },
+    {
+     "door_index": 1,
+     "x": 52,
+     "door_type": 0,
+     "program": "210KINGP",
+     "program_file": "KINGPRO.BIN",
+     "service": "king"
+    }
+   ],
+   "edge_exits": [
+    {
+     "edge": "right",
+     "leads_to": "town",
+     "place_map_id": "0x81",
+     "raw": "00 01 00 01"
+    }
+   ],
+   "npcs": [
+    {
+     "npc_index": -1,
+     "x": 36,
+     "record_raw": "24 00 82 00 03 03 80 04",
+     "text_id": 4,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x80",
+     "auto_talk": true,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "stdply[0x49] != 0 (only exists in the ending state)",
+       "text_id": 4,
+       "text": "Brave knight, you have awakened. When you fell at the hand of Jashiin, the Spirits brought you here. Now make haste to the aid of the Princess Felicia."
+      },
+      {
+       "condition": "stdply[0x04] & 0xFF",
+       "condition_meaning": "stdply[0x04] != 0 - set by town dialogue opcode 0x8B (town.asm loc_664D: or byte[4],80h); no town text uses 0x8B, so the setter in the ending flow is unverified",
+       "text_id": 5,
+       "text": "Quickly, go to the Princess!"
+      }
+     ],
+     "note": "Extra NPC record at C894 (x=36) that only exists in the ending state: the stdply[0x49] condition re-points the NPC array to start 8 bytes earlier. flags=0x80, so he stops the hero and talks automatically."
+    },
+    {
+     "npc_index": 0,
+     "x": 48,
+     "record_raw": "30 00 81 18 00 00 00 00",
+     "text_id": 0,
+     "facing_byte": "0x81",
+     "head_tile": 24,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "If you are the brave warrior we have awaited, we have something to tell you: throughout the ages, many young men have entered the caverns, but few have returned."
+      },
+      {
+       "condition": "stdply[0x49] & 0xFF",
+       "condition_meaning": "stdply[0x49] != 0 - post-Jashiin/ending state (the hero has been brought back to Felishika Castle after the final battle; IDA names this byte is_death_already_processed, 200FIGHT uses it to send the hero to place 0x80 instead of normal death handling)",
+       "text_id": 6,
+       "text": "Ah, the Nine Tears of Esmesanti. Jashiin exists no more and the light of peace shines once again on our land... "
+      }
+     ]
+    },
+    {
+     "npc_index": 1,
+     "x": 56,
+     "record_raw": "38 00 81 18 00 00 00 01",
+     "text_id": 1,
+     "facing_byte": "0x81",
+     "head_tile": 24,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "According to legend, there may still be underground places that have not been destroyed by Jashiin. People may still be living there, and will surely lend you a hand."
+      },
+      {
+       "condition": "stdply[0x49] & 0xFF",
+       "condition_meaning": "stdply[0x49] != 0 - post-Jashiin/ending state (the hero has been brought back to Felishika Castle after the final battle; IDA names this byte is_death_already_processed, 200FIGHT uses it to send the hero to place 0x80 instead of normal death handling)",
+       "text_id": 7,
+       "text": "This will benefit the people living underground, as well. Hurry to the Princess Felicia."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 84,
+     "record_raw": "54 00 80 00 01 03 00 02",
+     "text_id": 2,
+     "facing_byte": "0x80",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "I have been in the underground town. After I fled, they put a lock on the door. If the town is still there.... "
+      },
+      {
+       "condition": "stdply[0x49] & 0xFF",
+       "condition_meaning": "stdply[0x49] != 0 - post-Jashiin/ending state (the hero has been brought back to Felishika Castle after the final battle; IDA names this byte is_death_already_processed, 200FIGHT uses it to send the hero to place 0x80 instead of normal death handling)",
+       "text_id": 8,
+       "text": "The peace we dared not hope for has come. I'll get my things together and be on my way. I've a family to attend to."
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 92,
+     "record_raw": "5c 00 81 18 00 00 00 03",
+     "text_id": 3,
+     "facing_byte": "0x81",
+     "head_tile": 24,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "This is the chamber of poor Princess Felicia, who has been turned to stone. You may enter, Duke Garland."
+      },
+      {
+       "condition": "stdply[0x49] & 0xFF",
+       "condition_meaning": "stdply[0x49] != 0 - post-Jashiin/ending state (the hero has been brought back to Felishika Castle after the final battle; IDA names this byte is_death_already_processed, 200FIGHT uses it to send the hero to place 0x80 instead of normal death handling)",
+       "text_id": 9,
+       "text": "Quickly, enter this chamber. The holy crystals will break the evil spell which has turned Princess Felicia to stone."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [
+    {
+     "test": "stdply[0x49] & 0xFF",
+     "meaning": "stdply[0x49] != 0 - post-Jashiin/ending state (the hero has been brought back to Felishika Castle after the final battle; IDA names this byte is_death_already_processed, 200FIGHT uses it to send the hero to place 0x80 instead of normal death handling)",
+     "pokes": [
+      {
+       "addr": "0xC00F",
+       "value": "0x94"
+      },
+      {
+       "addr": "0xC010",
+       "value": "0xC8"
+      },
+      {
+       "addr": "0xC38E",
+       "value": "0x3D"
+      },
+      {
+       "addr": "0xC8A3",
+       "npc_index": 0,
+       "field": "text_id",
+       "value": "0x06"
+      },
+      {
+       "addr": "0xC8AB",
+       "npc_index": 1,
+       "field": "text_id",
+       "value": "0x07"
+      },
+      {
+       "addr": "0xC8B3",
+       "npc_index": 2,
+       "field": "text_id",
+       "value": "0x08"
+      },
+      {
+       "addr": "0xC8BB",
+       "npc_index": 3,
+       "field": "text_id",
+       "value": "0x09"
+      }
+     ]
+    },
+    {
+     "test": "stdply[0x04] & 0xFF",
+     "meaning": "stdply[0x04] != 0 - set by town dialogue opcode 0x8B (town.asm loc_664D: or byte[4],80h); no town text uses 0x8B, so the setter in the ending flow is unverified",
+     "pokes": [
+      {
+       "addr": "0xC89B",
+       "npc_index": -1,
+       "field": "text_id",
+       "value": "0x05"
+      }
+     ]
+    }
+   ],
+   "unreferenced_or_script_texts": [],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/236CMAP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "muralla",
+   "name": "Muralla Town",
+   "name_in_data": "Muralla Town",
+   "mdt": "237MRMP",
+   "place_map_id": "0x81",
+   "town_index": 1,
+   "map_width_tiles": 215,
+   "descriptor_bytes": [
+    0,
+    0,
+    255,
+    0,
+    1
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 39,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 1,
+     "x": 59,
+     "door_type": 5,
+     "program": "214CHURP",
+     "program_file": "CHURPRO.BIN",
+     "service": "church"
+    },
+    {
+     "door_index": 2,
+     "x": 111,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    },
+    {
+     "door_index": 3,
+     "x": 138,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 4,
+     "x": 172,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 5,
+     "x": 205,
+     "door_type": 8,
+     "service": "cavern_entrance",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 0,
+      "mdt": "MP10",
+      "hero_x": 61,
+      "hero_head_y": 7,
+      "face_left": false
+     }
+    }
+   ],
+   "edge_exits": [
+    {
+     "edge": "left",
+     "leads_to": "town",
+     "place_map_id": "0x80",
+     "raw": "01 00 00 00"
+    }
+   ],
+   "services": [
+    "bank",
+    "cavern_entrance",
+    "church",
+    "magic_shop",
+    "sage",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Marid",
+    "id": 1,
+    "max_level_granted": 3,
+    "spell_taught_on_first_visit": null,
+    "intro_text": "I am the Sage Marid.\nYou are very brave to embark on such a dangerous journey. I shall assist you in your travels.",
+    "knowledge_hint": "My master, the Sage Yasmin, resides in the underground town. She is a person you can turn to if you are in need. "
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "training_sword",
+      "name": "Training sword",
+      "price": 400
+     },
+     {
+      "item": "wise_mans_sword",
+      "name": "Wise man's sword",
+      "price": 1500
+     }
+    ],
+    "shields": [
+     {
+      "item": "clay_shield",
+      "name": "Clay shield",
+      "price": 50
+     },
+     {
+      "item": "wise_mans_shield",
+      "name": "Wise man's shield",
+      "price": 150
+     }
+    ],
+    "magic": [
+     {
+      "item": "kenko_potion",
+      "name": "Ken'ko Potion",
+      "price": 50
+     },
+     {
+      "item": "magia_stone",
+      "name": "Magia Stone",
+      "price": 1000
+     },
+     {
+      "item": "sabre_oil",
+      "name": "Sabre Oil",
+      "price": 1200
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0xC0 (stdply 0xD2)",
+     "shields": "0xC0 (stdply 0xDB)",
+     "magic": "0x8A (stdply 0xC9)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 400,
+      "wise_mans_sword": 1500,
+      "spirit_sword": 6800,
+      "knights_sword": 9800,
+      "illumination_sword": 90000,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 50,
+      "wise_mans_shield": 150,
+      "stone_shield": 2980,
+      "honor_shield": 9800,
+      "light_shield": 14800,
+      "titanium_shield": 39800
+     },
+     "magic": {
+      "kenko_potion": 50,
+      "juuen_fruit": 240,
+      "elixir_of_kashi": 60,
+      "chikara_powder": 320,
+      "magia_stone": 1000,
+      "holy_water_of_acero": 100,
+      "sabre_oil": 1200,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": null,
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 6
+   },
+   "church": {
+    "price": 0
+   },
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 130,
+     "record_raw": "82 00 02 25 03 03 00 06",
+     "text_id": 6,
+     "facing_byte": "0x02",
+     "head_tile": 37,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 6,
+       "text": "A moment, Duke Garland. If you listen closely in front of the underground door, you will hear a terrifying sound. That's the entrance to the inferno that is home to the demons. Beware that place, young man."
+      }
+     ],
+     "note": "Shares x=130 with npc_index 5; they are patrollers (ai_type 3/2) so their positions change at runtime."
+    },
+    {
+     "npc_index": 1,
+     "x": 9,
+     "record_raw": "09 00 02 46 00 02 00 00",
+     "text_id": 0,
+     "facing_byte": "0x02",
+     "head_tile": 70,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Ah, you are the warrior I've heard about. My son Michael was a courageous warrior. He went into the caverns and was never seen again. Please be careful."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 21,
+     "record_raw": "15 00 83 45 00 01 00 01",
+     "text_id": 1,
+     "facing_byte": "0x83",
+     "head_tile": 69,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "Sir, I dreamed that a demon created the underground caverns and filled them with monsters. Then the Spirits brought you to here to make things right again. Before you go, visit the magic shop -- you'll find many useful things there. Good luck on your quest."
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 49,
+     "record_raw": "31 00 00 00 00 02 00 02",
+     "text_id": 2,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "You're on your way to the caverns, aren't you? I recently went in search of a powerful potion said to be hidden there. I didn't stay long enough to find it, but perhaps you will. Be sure to stop at the weapons shop -- you'll need some strong armor.Duke Garland, they say that a potion is hidden in a wall near a platform that raises and lowers. I wish you luck."
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 188,
+     "record_raw": "bc 00 00 00 01 03 00 03",
+     "text_id": 3,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "You're going into the caverns? You are a brave man. They say there are many doors underground, but many are locked and the keys are scattered throughout the labyrinths. I hope you can find them."
+      }
+     ]
+    },
+    {
+     "npc_index": 5,
+     "x": 130,
+     "record_raw": "82 00 02 00 00 02 00 04",
+     "text_id": 4,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "Duke Garland, someone I know survived a journey to the underground town, Satono. According to him, the road back is short but the road out is long. It will be very dangerous."
+      }
+     ]
+    },
+    {
+     "npc_index": 6,
+     "x": 144,
+     "record_raw": "90 00 84 1d 00 01 00 05",
+     "text_id": 5,
+     "facing_byte": "0x84",
+     "head_tile": 29,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "According to the legends, the name of the underground town is Satono. "
+      }
+     ]
+    },
+    {
+     "npc_index": 7,
+     "x": 160,
+     "record_raw": "a0 00 01 8a 00 00 00 07",
+     "text_id": 7,
+     "facing_byte": "0x01",
+     "head_tile": 138,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 7,
+       "text": "Alas, I fear there is no hope. You and I and all who inhabit this town will surely perish. Don't run off to some terrible place, stay and have a drink with me. Ah, I know you must go, and I salute you -- you're a braver man than I. God be with you."
+      }
+     ]
+    },
+    {
+     "npc_index": 8,
+     "x": 86,
+     "record_raw": "56 00 00 46 00 02 00 08",
+     "text_id": 8,
+     "facing_byte": "0x00",
+     "head_tile": 70,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 8,
+       "text": "When you kill a monster you get a thing called 'almas'. It's worth a lot of money. I'd like to get some myself but I don't want to go down there. "
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [],
+   "unreferenced_or_script_texts": [],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/237MRMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "satono",
+   "name": "Satono Town",
+   "name_in_data": "Satono Town",
+   "mdt": "238STMP",
+   "place_map_id": "0x82",
+   "town_index": 2,
+   "map_width_tiles": 215,
+   "descriptor_bytes": [
+    2,
+    1,
+    255,
+    1,
+    2
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 44,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    },
+    {
+     "door_index": 1,
+     "x": 92,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 2,
+     "x": 128,
+     "door_type": 7,
+     "program": "216INNAP",
+     "program_file": "INNAPRO.BIN",
+     "service": "inn"
+    },
+    {
+     "door_index": 3,
+     "x": 148,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 4,
+     "x": 185,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    }
+   ],
+   "edge_exits": [
+    {
+     "edge": "left",
+     "leads_to": "cavern",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 0,
+      "mdt": "MP10",
+      "hero_x": 128,
+      "hero_head_y": 33,
+      "face_left": true
+     },
+     "raw": "81 00 ff ff"
+    },
+    {
+     "edge": "right",
+     "leads_to": "cavern",
+     "entrance_index": 1,
+     "destination": {
+      "mdt_index": 2,
+      "mdt": "MP20",
+      "hero_x": 6,
+      "hero_head_y": 62,
+      "face_left": false
+     },
+     "raw": "80 01 ff ff"
+    }
+   ],
+   "services": [
+    "bank",
+    "inn",
+    "magic_shop",
+    "sage",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Yasmin",
+    "id": 2,
+    "max_level_granted": 6,
+    "spell_taught_on_first_visit": "Espada",
+    "intro_text": "I am the Sage Yasmin.\nI have been expecting you. I shall teach you the Magic Spell of Throwing Swords: Espada.",
+    "knowledge_hint": "When you leave the city, climb to the plateau on the left. You'll see a door that looks like the exit from this world. "
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "training_sword",
+      "name": "Training sword",
+      "price": 800
+     },
+     {
+      "item": "wise_mans_sword",
+      "name": "Wise man's sword",
+      "price": 1500
+     }
+    ],
+    "shields": [
+     {
+      "item": "clay_shield",
+      "name": "Clay shield",
+      "price": 50
+     },
+     {
+      "item": "wise_mans_shield",
+      "name": "Wise man's shield",
+      "price": 150
+     },
+     {
+      "item": "stone_shield",
+      "name": "Stone shield",
+      "price": 2980
+     }
+    ],
+    "magic": [
+     {
+      "item": "kenko_potion",
+      "name": "Ken'ko Potion",
+      "price": 50
+     },
+     {
+      "item": "elixir_of_kashi",
+      "name": "Elixir of Kashi",
+      "price": 60
+     },
+     {
+      "item": "holy_water_of_acero",
+      "name": "Holy Water of Acero",
+      "price": 100
+     },
+     {
+      "item": "sabre_oil",
+      "name": "Sabre Oil",
+      "price": 1200
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0xC0 (stdply 0xD3)",
+     "shields": "0xE0 (stdply 0xDC)",
+     "magic": "0xA6 (stdply 0xCA)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 800,
+      "wise_mans_sword": 1500,
+      "spirit_sword": 6800,
+      "knights_sword": 9800,
+      "illumination_sword": 69800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 50,
+      "wise_mans_shield": 150,
+      "stone_shield": 2980,
+      "honor_shield": 9800,
+      "light_shield": 14800,
+      "titanium_shield": 39800
+     },
+     "magic": {
+      "kenko_potion": 50,
+      "juuen_fruit": 240,
+      "elixir_of_kashi": 60,
+      "chikara_powder": 320,
+      "magia_stone": 1000,
+      "holy_water_of_acero": 100,
+      "sabre_oil": 1200,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": {
+    "price": 30
+   },
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 6
+   },
+   "church": null,
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 37,
+     "record_raw": "25 00 03 1c 00 01 00 02",
+     "text_id": 2,
+     "facing_byte": "0x03",
+     "head_tile": 28,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "Are you Duke Garland? Thank the Spirits you've come. We escaped from Jashiin through the power of the Spirits. However, if his power should become so strong that the Spirits' can't protect us, this town is doomed."
+      }
+     ]
+    },
+    {
+     "npc_index": 1,
+     "x": 196,
+     "record_raw": "c4 00 00 00 03 03 00 04",
+     "text_id": 4,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "Beware! I went into the caverns and saw an awful creature -- a giant demon octopus. It was terrifying, but I escaped. I hope you will be as lucky."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 22,
+     "record_raw": "16 00 01 00 03 03 00 00",
+     "text_id": 0,
+     "facing_byte": "0x01",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Welcome, stranger. You must have come through the labyrinths from the outside world. We have not encountered such a brave person in a very long time. You should visit the great sage Yasmin -- she will be anxious to meet you."
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 86,
+     "record_raw": "56 00 04 00 00 01 00 01",
+     "text_id": 1,
+     "facing_byte": "0x04",
+     "head_tile": 0,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "So you're the brave one I've heard about. Well, if you're going to go on from here, I'll give you a tip.  When you come to a stopping place, dig a hole. The demons have hidden jewels in many places."
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 121,
+     "record_raw": "79 00 82 00 00 02 00 03",
+     "text_id": 3,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "Let me give you some advice, stranger. If you fall down the stone slab in front of the blue door, you will see a green door nearby. Don't go through that door under any circumstances -- it is a doorway to the past."
+      }
+     ]
+    },
+    {
+     "npc_index": 5,
+     "x": 157,
+     "record_raw": "9d 00 02 00 00 01 00 05",
+     "text_id": 5,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "Are you the brave one? I hope you have brought almas for us. The almas are part of Jashiin's power. We use them to make medicine, and other useful things."
+      }
+     ]
+    },
+    {
+     "npc_index": 6,
+     "x": 163,
+     "record_raw": "a3 00 83 1c 00 02 00 06",
+     "text_id": 6,
+     "facing_byte": "0x83",
+     "head_tile": 28,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 6,
+       "text": "Duke Garland, when you go into the caverns again, please try to bring back more almas. To supplement the protective power of the Spirits we must build a wall of almas. Unless we get more, Satono Town is in peril."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [],
+   "unreferenced_or_script_texts": [],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/238STMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "bosque",
+   "name": "Bosque Village",
+   "name_in_data": "Bosque village",
+   "mdt": "239BSMP",
+   "place_map_id": "0x83",
+   "town_index": 3,
+   "map_width_tiles": 152,
+   "descriptor_bytes": [
+    4,
+    0,
+    255,
+    0,
+    1
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 7,
+     "door_type": 9,
+     "service": "cavern_entrance",
+     "entrance_index": 1,
+     "destination": {
+      "mdt_index": 6,
+      "mdt": "MP31",
+      "hero_x": 149,
+      "hero_head_y": 14,
+      "face_left": true
+     }
+    },
+    {
+     "door_index": 1,
+     "x": 36,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 2,
+     "x": 61,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 3,
+     "x": 81,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    },
+    {
+     "door_index": 4,
+     "x": 96,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 5,
+     "x": 114,
+     "door_type": 7,
+     "program": "216INNAP",
+     "program_file": "INNAPRO.BIN",
+     "service": "inn"
+    },
+    {
+     "door_index": 6,
+     "x": 142,
+     "door_type": 8,
+     "service": "cavern_entrance",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 5,
+      "mdt": "MP30",
+      "hero_x": 185,
+      "hero_head_y": 19,
+      "face_left": false
+     }
+    }
+   ],
+   "edge_exits": [],
+   "services": [
+    "bank",
+    "cavern_entrance",
+    "inn",
+    "magic_shop",
+    "sage",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Hajjar",
+    "id": 3,
+    "max_level_granted": 9,
+    "spell_taught_on_first_visit": "Saeta",
+    "intro_text": "I am the Sage Hajjar.\nI am happy to see you've made it this far. I shall teach you the Magic Spell of Arrows: Saeta.",
+    "knowledge_hint": "The exit from this world is very near the exit from the village. However, before you go there you must have the Hero's Crest. "
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "training_sword",
+      "name": "Training sword",
+      "price": 800
+     },
+     {
+      "item": "wise_mans_sword",
+      "name": "Wise man's sword",
+      "price": 1500
+     },
+     {
+      "item": "spirit_sword",
+      "name": "Spirit sword",
+      "price": 6800
+     }
+    ],
+    "shields": [
+     {
+      "item": "clay_shield",
+      "name": "Clay shield",
+      "price": 5
+     },
+     {
+      "item": "wise_mans_shield",
+      "name": "Wise man's shield",
+      "price": 150
+     },
+     {
+      "item": "stone_shield",
+      "name": "Stone shield",
+      "price": 2380
+     }
+    ],
+    "magic": [
+     {
+      "item": "juuen_fruit",
+      "name": "Juu-en Fruit",
+      "price": 240
+     },
+     {
+      "item": "elixir_of_kashi",
+      "name": "Elixir of Kashi",
+      "price": 60
+     },
+     {
+      "item": "magia_stone",
+      "name": "Magia Stone",
+      "price": 1500
+     },
+     {
+      "item": "sabre_oil",
+      "name": "Sabre Oil",
+      "price": 1200
+     },
+     {
+      "item": "kioku_feather",
+      "name": "Kioku Feather",
+      "price": 350
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0xE0 (stdply 0xD4)",
+     "shields": "0xE0 (stdply 0xDD)",
+     "magic": "0x6B (stdply 0xCB)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 800,
+      "wise_mans_sword": 1500,
+      "spirit_sword": 6800,
+      "knights_sword": 9800,
+      "illumination_sword": 69800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 5,
+      "wise_mans_shield": 150,
+      "stone_shield": 2380,
+      "honor_shield": 9800,
+      "light_shield": 14800,
+      "titanium_shield": 39800
+     },
+     "magic": {
+      "kenko_potion": 50,
+      "juuen_fruit": 240,
+      "elixir_of_kashi": 60,
+      "chikara_powder": 320,
+      "magia_stone": 1500,
+      "holy_water_of_acero": 100,
+      "sabre_oil": 1200,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": {
+    "price": 50
+   },
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 8
+   },
+   "church": null,
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 9,
+     "record_raw": "09 00 01 cc 00 04 c0 0b",
+     "text_id": 11,
+     "facing_byte": "0x01",
+     "head_tile": 204,
+     "ai_type": 4,
+     "ai_behaviour": "bob_in_place",
+     "flags": "0xC0",
+     "auto_talk": true,
+     "blocks_path": true,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 11,
+       "text": "Hold on there! Do you have the Hero's Crest? {YESNO}Don't lie, it won't do any good. Get out of here!"
+      },
+      {
+       "condition": "stdply[0x12] & 0x08",
+       "condition_meaning": "stdply[0x12] & 0x08 - Hero's Crest picked up (Madera cavern)",
+       "text_id": 14,
+       "text": "Hold on there! You have the Hero's Crest, I see. You may pass."
+      }
+     ],
+     "other_condition_changes": [
+      {
+       "condition": "stdply[0x12] & 0x08",
+       "field": "flags",
+       "value": "0x80"
+      }
+     ],
+     "note": "The sentry. flags=0xC0: bit6 = blocks the path (hero cannot walk past), bit7 = stops the hero and talks when he walks into him. Text 11 asks 'Do you have the Hero's Crest?' with a Yes/No box (opcode 0x81): the code renders text 12 on one answer and 13 on the other (CF from show_yes_no_dialog; most likely Yes -> 12 'Don't lie...', No -> 13). With the Hero's Crest flag set, flags become 0x80 (no longer blocks) and the text becomes 14."
+    },
+    {
+     "npc_index": 1,
+     "x": 101,
+     "record_raw": "65 00 81 19 00 00 00 02",
+     "text_id": 2,
+     "facing_byte": "0x81",
+     "head_tile": 25,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "The temple that once stood here had the crest of the Warrior God carved into it. Winners of the martial arts competitions held in front of the temple were awarded with such crests. Thus the crest, the symbol of a true hero, became known as the Hero's Crest."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 21,
+     "record_raw": "15 00 04 8e 00 05 00 0a",
+     "text_id": 10,
+     "facing_byte": "0x04",
+     "head_tile": 142,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 10,
+       "text": "That sentry must have sold his soul to Jashiin. Why else would he interfere with brave men such as yourself?"
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 107,
+     "record_raw": "6b 00 04 6f 00 05 00 06",
+     "text_id": 6,
+     "facing_byte": "0x04",
+     "head_tile": 111,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 6,
+       "text": "A spirit appeared and told me to say this if I met a brave man: \"If you go through the door to the right of the tree that forms a cross, you will be able to go up.\"\nI hope it helps you."
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 87,
+     "record_raw": "57 00 84 25 00 06 00 04",
+     "text_id": 4,
+     "facing_byte": "0x84",
+     "head_tile": 37,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "The crest must be hidden somewhere in the forest, but I couldn't say where."
+      }
+     ]
+    },
+    {
+     "npc_index": 5,
+     "x": 131,
+     "record_raw": "83 00 00 00 03 03 00 00",
+     "text_id": 0,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Welcome to Bosque Village, brave warrior. This once was a forest surrounding a temple, but the temple was destroyed by Jashiin. Now the village of Bosque is desolate. I hope you are here to help us."
+      }
+     ]
+    },
+    {
+     "npc_index": 6,
+     "x": 79,
+     "record_raw": "4f 00 00 22 00 01 00 01",
+     "text_id": 1,
+     "facing_byte": "0x00",
+     "head_tile": 34,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "Listen, stranger, a sentry is posted on the outskirts of the city. I'm telling you this for your own good; it's best to stay away from there."
+      }
+     ]
+    },
+    {
+     "npc_index": 7,
+     "x": 90,
+     "record_raw": "5a 00 00 89 00 02 00 07",
+     "text_id": 7,
+     "facing_byte": "0x00",
+     "head_tile": 137,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 7,
+       "text": "I have some advice for you: Be careful if you come to a place where the leaves of the trees are thin. The ground there is not very strong."
+      }
+     ]
+    },
+    {
+     "npc_index": 8,
+     "x": 44,
+     "record_raw": "2c 00 00 1b 03 03 00 08",
+     "text_id": 8,
+     "facing_byte": "0x00",
+     "head_tile": 27,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 8,
+       "text": "The sentry at the edge of town says the Spirits came to him in a dream, and told him not to allow anyone to pass unless they bear the Hero's Crest. I wonder if the Spirits really ordered such a thing? Perhaps he's mad."
+      }
+     ]
+    },
+    {
+     "npc_index": 9,
+     "x": 68,
+     "record_raw": "44 00 00 00 00 05 00 05",
+     "text_id": 5,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "When the temple was destroyed I heard Jashiin ordering his underlings to hide the crest in the trunk of the biggest tree. That must be where it is hidden. I hope you can find it."
+      }
+     ]
+    },
+    {
+     "npc_index": 10,
+     "x": 89,
+     "record_raw": "59 00 02 8b 03 03 00 03",
+     "text_id": 3,
+     "facing_byte": "0x02",
+     "head_tile": 139,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "When he destroyed the temple, Jashiin stole the Hero's Crest.  No one has any idea where to find it."
+      }
+     ]
+    },
+    {
+     "npc_index": 11,
+     "x": 32,
+     "record_raw": "20 00 02 15 00 06 00 09",
+     "text_id": 9,
+     "facing_byte": "0x02",
+     "head_tile": 21,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 9,
+       "text": "A few have slipped by the sentry undetected, but none have returned. There must be some terrible monster out there."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [
+    {
+     "test": "stdply[0x12] & 0x08",
+     "meaning": "stdply[0x12] & 0x08 - Hero's Crest picked up (Madera cavern)",
+     "pokes": [
+      {
+       "addr": "0xCCFA",
+       "npc_index": 0,
+       "field": "flags",
+       "value": "0x80"
+      },
+      {
+       "addr": "0xCCFB",
+       "npc_index": 0,
+       "field": "text_id",
+       "value": "0x0E"
+      }
+     ]
+    }
+   ],
+   "unreferenced_or_script_texts": [
+    {
+     "text_id": 12,
+     "text": "Don't lie, it won't do any good. Get out of here!",
+     "used_by": "shown by opcode 0x81 yes/no in text 11"
+    },
+    {
+     "text_id": 13,
+     "text": "You cannot pass here without the Hero's Crest. My orders are from the Spirits themselves! ",
+     "used_by": "shown by opcode 0x81 yes/no in text 11"
+    }
+   ],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/239BSMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "helada",
+   "name": "Helada Town",
+   "name_in_data": "Helada Town",
+   "mdt": "240HLMP",
+   "place_map_id": "0x84",
+   "town_index": 4,
+   "map_width_tiles": 227,
+   "descriptor_bytes": [
+    2,
+    1,
+    255,
+    1,
+    2
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 44,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 1,
+     "x": 92,
+     "door_type": 7,
+     "program": "216INNAP",
+     "program_file": "INNAPRO.BIN",
+     "service": "inn"
+    },
+    {
+     "door_index": 2,
+     "x": 111,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 3,
+     "x": 128,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    },
+    {
+     "door_index": 4,
+     "x": 148,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    }
+   ],
+   "edge_exits": [
+    {
+     "edge": "left",
+     "leads_to": "cavern",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 8,
+      "mdt": "MP40",
+      "hero_x": 86,
+      "hero_head_y": 22,
+      "face_left": true
+     },
+     "raw": "81 00 ff ff"
+    },
+    {
+     "edge": "right",
+     "leads_to": "cavern",
+     "entrance_index": 1,
+     "destination": {
+      "mdt_index": 9,
+      "mdt": "MP41",
+      "hero_x": 16,
+      "hero_head_y": 22,
+      "face_left": false
+     },
+     "raw": "80 01 ff ff"
+    }
+   ],
+   "services": [
+    "bank",
+    "inn",
+    "magic_shop",
+    "sage",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Chiriga",
+    "id": 4,
+    "max_level_granted": 11,
+    "spell_taught_on_first_visit": "Fuego",
+    "intro_text": "I am the Sage Chiriga.\nYou have come far, and you must be cold. I shall teach you the Magic Spell of Fire: Fuego.",
+    "knowledge_hint": "This is a message from the Spirits: Bend when you walk a low road. Walk not on the steep path with the needles of ice, choose another path instead. Heed well these words. "
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "training_sword",
+      "name": "Training sword",
+      "price": 400
+     },
+     {
+      "item": "wise_mans_sword",
+      "name": "Wise man's sword",
+      "price": 3000
+     },
+     {
+      "item": "spirit_sword",
+      "name": "Spirit sword",
+      "price": 5440
+     }
+    ],
+    "shields": [
+     {
+      "item": "wise_mans_shield",
+      "name": "Wise man's shield",
+      "price": 50
+     },
+     {
+      "item": "stone_shield",
+      "name": "Stone shield",
+      "price": 1780
+     },
+     {
+      "item": "honor_shield",
+      "name": "Honor shield",
+      "price": 9800
+     }
+    ],
+    "magic": [
+     {
+      "item": "juuen_fruit",
+      "name": "Juu-en Fruit",
+      "price": 300
+     },
+     {
+      "item": "elixir_of_kashi",
+      "name": "Elixir of Kashi",
+      "price": 120
+     },
+     {
+      "item": "chikara_powder",
+      "name": "Chikara Powder",
+      "price": 320
+     },
+     {
+      "item": "holy_water_of_acero",
+      "name": "Holy Water of Acero",
+      "price": 100
+     },
+     {
+      "item": "kioku_feather",
+      "name": "Kioku Feather",
+      "price": 350
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0xE0 (stdply 0xD5)",
+     "shields": "0x70 (stdply 0xDE)",
+     "magic": "0x75 (stdply 0xCC)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 400,
+      "wise_mans_sword": 3000,
+      "spirit_sword": 5440,
+      "knights_sword": 9800,
+      "illumination_sword": 69800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 5,
+      "wise_mans_shield": 50,
+      "stone_shield": 1780,
+      "honor_shield": 9800,
+      "light_shield": 14800,
+      "titanium_shield": 39800
+     },
+     "magic": {
+      "kenko_potion": 50,
+      "juuen_fruit": 300,
+      "elixir_of_kashi": 120,
+      "chikara_powder": 320,
+      "magia_stone": 1500,
+      "holy_water_of_acero": 100,
+      "sabre_oil": 1200,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": {
+    "price": 70
+   },
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 4
+   },
+   "church": null,
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 177,
+     "record_raw": "b1 00 81 1c 01 03 00 00",
+     "text_id": 0,
+     "facing_byte": "0x81",
+     "head_tile": 28,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Welcome. You must be cold. Helada used to be a warm, prosperous place, but Jashiin has turned it into a cold ruin."
+      }
+     ]
+    },
+    {
+     "npc_index": 1,
+     "x": 139,
+     "record_raw": "8b 00 83 00 00 05 00 04",
+     "text_id": 4,
+     "facing_byte": "0x83",
+     "head_tile": 0,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "I think you should know something: Percel the shoemaker said that without the Ruzeria shoes you could not go beyond the green door."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 105,
+     "record_raw": "69 00 02 00 01 03 80 03",
+     "text_id": 3,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x80",
+     "auto_talk": true,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "Are you the brave one? My lover, Percel, was killed by Jashiin's underlings just after the Spirits asked him to make the Ruzeria shoes for a brave man. Return my Percel to me! Oh, if only you had not come!"
+      },
+      {
+       "condition": "stdply[0x1A] & 0x10",
+       "condition_meaning": "stdply[0x1A] & 0x10 - Ruzeria Shoes picked up (Glacial cavern)",
+       "text_id": 7,
+       "text": "I'm sorry for what I said a short while ago. I don't know what came over me. Please defeat Jashiin and avenge the death of Percel."
+      }
+     ],
+     "other_condition_changes": [
+      {
+       "condition": "stdply[0x1A] & 0x10",
+       "field": "flags",
+       "value": "0x00"
+      }
+     ],
+     "note": "Percel's lover. flags=0x80: she stops the hero and talks when he walks up (the 'interrupting woman'); the Ruzeria Shoes flag clears flags to 0 and changes her text to 7."
+    },
+    {
+     "npc_index": 3,
+     "x": 166,
+     "record_raw": "a6 00 83 00 00 05 00 02",
+     "text_id": 2,
+     "facing_byte": "0x83",
+     "head_tile": 0,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "Have you been in the ice caverns? The shoemaker in this town was trying to make special shoes out of Ruzeria bark, to help a hero walk on the ice. Just as he managed to do so, Jashiin's minions murdered him. I wonder what happened to those shoes."
+      },
+      {
+       "condition": "stdply[0x1A] & 0x10",
+       "condition_meaning": "stdply[0x1A] & 0x10 - Ruzeria Shoes picked up (Glacial cavern)",
+       "text_id": 8,
+       "text": "Ah, the shoes of Percel.... I see you are a brave man. I hope you will find Jashiin and defeat him quickly."
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 72,
+     "record_raw": "48 00 83 1b 00 01 00 05",
+     "text_id": 5,
+     "facing_byte": "0x83",
+     "head_tile": 27,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "Ruzeria is the name of a tree that grows in the underground forest. The bark is very hard and is not slippery. Percel had good reason for choosing it."
+      }
+     ]
+    },
+    {
+     "npc_index": 5,
+     "x": 158,
+     "record_raw": "9e 00 82 00 00 02 00 06",
+     "text_id": 6,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 6,
+       "text": "Someone I know said he had seen a pair of unusual shoes in the caverns. I'm not sure whether those are the shoes that Percel made."
+      },
+      {
+       "condition": "stdply[0x1A] & 0x10",
+       "condition_meaning": "stdply[0x1A] & 0x10 - Ruzeria Shoes picked up (Glacial cavern)",
+       "text_id": 9,
+       "text": "This brave man with the Ruzeria shoes... With this the shoemaker's shop also floats up... "
+      }
+     ]
+    },
+    {
+     "npc_index": 6,
+     "x": 56,
+     "record_raw": "38 00 81 00 01 03 00 0a",
+     "text_id": 10,
+     "facing_byte": "0x81",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 10,
+       "text": "I'll bet the green slime creatures have caused you a lot of trouble. Let me tell you a secret: they can't withstand heat. Burn them and they will vanish in a single burst of steam."
+      }
+     ]
+    },
+    {
+     "npc_index": 7,
+     "x": 80,
+     "record_raw": "50 00 81 00 01 06 00 01",
+     "text_id": 1,
+     "facing_byte": "0x81",
+     "head_tile": 0,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "You may have noticed that there are two roads leading here. There is also a shortcut."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [
+    {
+     "test": "stdply[0x1A] & 0x10",
+     "meaning": "stdply[0x1A] & 0x10 - Ruzeria Shoes picked up (Glacial cavern)",
+     "pokes": [
+      {
+       "addr": "0xCDD5",
+       "npc_index": 2,
+       "field": "text_id",
+       "value": "0x07"
+      },
+      {
+       "addr": "0xCDD4",
+       "npc_index": 2,
+       "field": "flags",
+       "value": "0x00"
+      },
+      {
+       "addr": "0xCDED",
+       "npc_index": 5,
+       "field": "text_id",
+       "value": "0x09"
+      },
+      {
+       "addr": "0xCDDD",
+       "npc_index": 3,
+       "field": "text_id",
+       "value": "0x08"
+      }
+     ]
+    }
+   ],
+   "unreferenced_or_script_texts": [],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/240HLMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "tumba",
+   "name": "Tumba Town",
+   "name_in_data": "Tumba Town",
+   "mdt": "241TMMP",
+   "place_map_id": "0x85",
+   "town_index": 5,
+   "map_width_tiles": 270,
+   "descriptor_bytes": [
+    6,
+    1,
+    255,
+    1,
+    2
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 44,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 1,
+     "x": 93,
+     "door_type": 7,
+     "program": "216INNAP",
+     "program_file": "INNAPRO.BIN",
+     "service": "inn"
+    },
+    {
+     "door_index": 2,
+     "x": 128,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 3,
+     "x": 181,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 4,
+     "x": 231,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    }
+   ],
+   "edge_exits": [
+    {
+     "edge": "left",
+     "leads_to": "cavern",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 11,
+      "mdt": "MP50",
+      "hero_x": 94,
+      "hero_head_y": 11,
+      "face_left": true
+     },
+     "raw": "81 00 ff ff"
+    },
+    {
+     "edge": "right",
+     "leads_to": "cavern",
+     "entrance_index": 1,
+     "destination": {
+      "mdt_index": 11,
+      "mdt": "MP50",
+      "hero_x": 131,
+      "hero_head_y": 10,
+      "face_left": false
+     },
+     "raw": "80 01 ff ff"
+    }
+   ],
+   "services": [
+    "bank",
+    "inn",
+    "magic_shop",
+    "sage",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Hisham",
+    "id": 5,
+    "max_level_granted": 13,
+    "spell_taught_on_first_visit": "Lanzar",
+    "intro_text": "I am the Sage Hisham.\nYou are doing well to stand before me. I shall teach you the Magic Spell of Flame: Lanzar.",
+    "knowledge_hint": "You can't defeat the demons at the edge of the badlands without the Knight's Sword. Until you get that sword, do not open the door of the demons. "
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "wise_mans_sword",
+      "name": "Wise man's sword",
+      "price": 3000
+     },
+     {
+      "item": "spirit_sword",
+      "name": "Spirit sword",
+      "price": 4760
+     },
+     {
+      "item": "knights_sword",
+      "name": "Knight's sword",
+      "price": 4900
+     }
+    ],
+    "shields": [
+     {
+      "item": "stone_shield",
+      "name": "Stone shield",
+      "price": 1780
+     },
+     {
+      "item": "honor_shield",
+      "name": "Honor shield",
+      "price": 7840
+     }
+    ],
+    "magic": [
+     {
+      "item": "juuen_fruit",
+      "name": "Juu-en Fruit",
+      "price": 600
+     },
+     {
+      "item": "sabre_oil",
+      "name": "Sabre Oil",
+      "price": 2000
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0x70 (stdply 0xD6)",
+     "shields": "0x30 (stdply 0xDF)",
+     "magic": "0x42 (stdply 0xCD)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 400,
+      "wise_mans_sword": 3000,
+      "spirit_sword": 4760,
+      "knights_sword": 4900,
+      "illumination_sword": 69800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 5,
+      "wise_mans_shield": 50,
+      "stone_shield": 1780,
+      "honor_shield": 7840,
+      "light_shield": 14800,
+      "titanium_shield": 39800
+     },
+     "magic": {
+      "kenko_potion": 5,
+      "juuen_fruit": 600,
+      "elixir_of_kashi": 240,
+      "chikara_powder": 480,
+      "magia_stone": 2000,
+      "holy_water_of_acero": 200,
+      "sabre_oil": 2000,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": {
+    "price": 100
+   },
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 2
+   },
+   "church": null,
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 26,
+     "record_raw": "1a 00 81 a7 01 03 00 00",
+     "text_id": 0,
+     "facing_byte": "0x81",
+     "head_tile": 167,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Brave sir, I hope you've come to help this pitiful town. It was the site of a quiet graveyard before it was decimated by Jashiin."
+      }
+     ]
+    },
+    {
+     "npc_index": 1,
+     "x": 206,
+     "record_raw": "ce 00 81 ab 01 06 00 06",
+     "text_id": 6,
+     "facing_byte": "0x81",
+     "head_tile": 171,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 6,
+       "text": "Have you seen the strange, bluish-white people in the caverns? They were infected by the Gelroid and now they wander the land like the living dead. To kill them, aim for the head."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 53,
+     "record_raw": "35 00 82 00 00 01 00 01",
+     "text_id": 1,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "If you're going back into the caverns, beware the Gelroid. It's a blue gelatinous substance which will suck the life out of you."
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 71,
+     "record_raw": "47 00 83 ab 00 02 00 04",
+     "text_id": 4,
+     "facing_byte": "0x83",
+     "head_tile": 171,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "One third of this region is covered with deadly Gelroid. If you're going to continue through the labyrinths, ordinary shoes will not protect you."
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 86,
+     "record_raw": "56 00 82 00 01 03 00 02",
+     "text_id": 2,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "Have you heard of Percel the shoemaker from Herada Town? He made Ruzeria shoes for walking on ice and Pirika shoes for getting by Gelroid, thorns and fire. Those are the only two I know of, but there may have been more."
+      },
+      {
+       "condition": "stdply[0x22] & 0x02",
+       "condition_meaning": "stdply[0x22] & 0x02 - Pirika Shoes chest opened (Corroer cavern)",
+       "text_id": 8,
+       "text": "Those are the Pirika shoes. Go quickly to the abode of Jashiin and finish him off. We will pray for your success and swift return."
+      }
+     ]
+    },
+    {
+     "npc_index": 5,
+     "x": 122,
+     "record_raw": "7a 00 83 00 01 05 00 03",
+     "text_id": 3,
+     "facing_byte": "0x83",
+     "head_tile": 0,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "May I confide in you? I was once a spy for Jashiin. I can tell you that the Pirika shoes were put into a box and thrown away somewhere in the Rotten land. You may never find them."
+      },
+      {
+       "condition": "stdply[0x22] & 0x02",
+       "condition_meaning": "stdply[0x22] & 0x02 - Pirika Shoes chest opened (Corroer cavern)",
+       "text_id": 9,
+       "text": "Ah, the Pirika shoes! Forgive me, brave sir. I had no choice. I won't do that kind of thing again."
+      }
+     ],
+     "note": "The former spy of Jashiin (text 3). Apologises (text 9) once the Pirika Shoes are found."
+    },
+    {
+     "npc_index": 6,
+     "x": 164,
+     "record_raw": "a4 00 84 ab 00 02 00 05",
+     "text_id": 5,
+     "facing_byte": "0x84",
+     "head_tile": 171,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "There is a certain place in the caverns where you can pass through a wall, but only in one direction. My grandfather told me the place is near a green stone slab. There may be other places, but I couldn't say where."
+      }
+     ]
+    },
+    {
+     "npc_index": 7,
+     "x": 200,
+     "record_raw": "c8 00 03 ab 00 01 00 07",
+     "text_id": 7,
+     "facing_byte": "0x03",
+     "head_tile": 171,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 7,
+       "text": "It seems that Jashiin has stolen many things. The weapon maker is searching for his family crest, the Crest of Glory. If you find it in the caverns, he'll be most happy to have it back."
+      },
+      {
+       "condition": "stdply[0x24] & 0x80",
+       "condition_meaning": "stdply[0x24] & 0x80 - Crest of Glory picked up (Cementar cavern)",
+       "text_id": 10,
+       "text": "Isn't that the Crest of Glory? Please take it quickly to the owner of the weapons store."
+      },
+      {
+       "condition": "stdply[0x24] & 0x02",
+       "condition_meaning": "stdply[0x24] & 0x02 - Crest of Glory handed to the Tumba weapon master (Knight's Sword received)",
+       "text_id": 11,
+       "text": ". . . . . ."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [
+    {
+     "test": "stdply[0x22] & 0x02",
+     "meaning": "stdply[0x22] & 0x02 - Pirika Shoes chest opened (Corroer cavern)",
+     "pokes": [
+      {
+       "addr": "0xCFD3",
+       "npc_index": 4,
+       "field": "text_id",
+       "value": "0x08"
+      },
+      {
+       "addr": "0xCFDB",
+       "npc_index": 5,
+       "field": "text_id",
+       "value": "0x09"
+      }
+     ]
+    },
+    {
+     "test": "stdply[0x24] & 0x80",
+     "meaning": "stdply[0x24] & 0x80 - Crest of Glory picked up (Cementar cavern)",
+     "pokes": [
+      {
+       "addr": "0xCFEB",
+       "npc_index": 7,
+       "field": "text_id",
+       "value": "0x0A"
+      }
+     ]
+    },
+    {
+     "test": "stdply[0x24] & 0x02",
+     "meaning": "stdply[0x24] & 0x02 - Crest of Glory handed to the Tumba weapon master (Knight's Sword received)",
+     "pokes": [
+      {
+       "addr": "0xCFEB",
+       "npc_index": 7,
+       "field": "text_id",
+       "value": "0x0B"
+      }
+     ]
+    }
+   ],
+   "unreferenced_or_script_texts": [],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/241TMMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "dorado",
+   "name": "Dorado Town",
+   "name_in_data": "Dorado Town",
+   "mdt": "242DRMP",
+   "place_map_id": "0x86",
+   "town_index": 6,
+   "map_width_tiles": 215,
+   "descriptor_bytes": [
+    6,
+    0,
+    255,
+    1,
+    2
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 47,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 1,
+     "x": 70,
+     "door_type": 7,
+     "program": "216INNAP",
+     "program_file": "INNAPRO.BIN",
+     "service": "inn"
+    },
+    {
+     "door_index": 2,
+     "x": 92,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 3,
+     "x": 128,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 4,
+     "x": 184,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    }
+   ],
+   "edge_exits": [
+    {
+     "edge": "left",
+     "leads_to": "cavern",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 15,
+      "mdt": "MP61",
+      "hero_x": 31,
+      "hero_head_y": 6,
+      "face_left": true
+     },
+     "raw": "81 00 ff ff"
+    },
+    {
+     "edge": "right",
+     "leads_to": "cavern",
+     "entrance_index": 1,
+     "destination": {
+      "mdt_index": 14,
+      "mdt": "MP60",
+      "hero_x": 315,
+      "hero_head_y": 49,
+      "face_left": false
+     },
+     "raw": "80 01 ff ff"
+    }
+   ],
+   "services": [
+    "bank",
+    "inn",
+    "magic_shop",
+    "sage",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Maryam",
+    "id": 6,
+    "max_level_granted": 15,
+    "spell_taught_on_first_visit": "Rascar",
+    "intro_text": "I am the Sage Maryam.\nYou have made the Spirits proud with your bravery. I shall teach you the Magic Spell of Falling Rocks: Rascar.",
+    "knowledge_hint": "Once you leave this world, get the Silkarn shoes made by the spirits at the behest of Percel. If you do not get those, you cannot travel far from this world. "
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "spirit_sword",
+      "name": "Spirit sword",
+      "price": 3400
+     },
+     {
+      "item": "knights_sword",
+      "name": "Knight's sword",
+      "price": 7840
+     },
+     {
+      "item": "illumination_sword",
+      "name": "Illumination sword",
+      "price": 69800
+     }
+    ],
+    "shields": [
+     {
+      "item": "stone_shield",
+      "name": "Stone shield",
+      "price": 890
+     },
+     {
+      "item": "honor_shield",
+      "name": "Honor shield",
+      "price": 5880
+     },
+     {
+      "item": "light_shield",
+      "name": "Light shield",
+      "price": 14800
+     }
+    ],
+    "magic": [
+     {
+      "item": "juuen_fruit",
+      "name": "Juu-en Fruit",
+      "price": 600
+     },
+     {
+      "item": "magia_stone",
+      "name": "Magia Stone",
+      "price": 2000
+     },
+     {
+      "item": "holy_water_of_acero",
+      "name": "Holy Water of Acero",
+      "price": 200
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0x38 (stdply 0xD7)",
+     "shields": "0x38 (stdply 0xE0)",
+     "magic": "0x4C (stdply 0xCE)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 200,
+      "wise_mans_sword": 1500,
+      "spirit_sword": 3400,
+      "knights_sword": 7840,
+      "illumination_sword": 69800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 5,
+      "wise_mans_shield": 20,
+      "stone_shield": 890,
+      "honor_shield": 5880,
+      "light_shield": 14800,
+      "titanium_shield": 39800
+     },
+     "magic": {
+      "kenko_potion": 5,
+      "juuen_fruit": 600,
+      "elixir_of_kashi": 240,
+      "chikara_powder": 480,
+      "magia_stone": 2000,
+      "holy_water_of_acero": 200,
+      "sabre_oil": 2000,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": {
+    "price": 150
+   },
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 4
+   },
+   "church": null,
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 190,
+     "record_raw": "be 00 81 b1 01 00 00 00",
+     "text_id": 0,
+     "facing_byte": "0x81",
+     "head_tile": 177,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Welcome to Dorado.\nThis was once a thriving merchant town where everyone lived a peaceful life. Jashiin has reduced it to a sad, desolate place."
+      }
+     ]
+    },
+    {
+     "npc_index": 1,
+     "x": 180,
+     "record_raw": "b4 00 84 bb 01 06 00 01",
+     "text_id": 1,
+     "facing_byte": "0x84",
+     "head_tile": 187,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "The Spirits say that Jashiin returned because the people, made soft by peace and prosperity, sank into corruption."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 139,
+     "record_raw": "8b 00 80 00 01 02 00 02",
+     "text_id": 2,
+     "facing_byte": "0x80",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "Using the money and treasures of Dorado and other places, Jashiin built a place of his own. The Tesoro and Burata Caverns are his domain."
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 105,
+     "record_raw": "69 00 02 00 01 02 00 03",
+     "text_id": 3,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "A word to the wise: The door bearing the green symbol cannot be opened. There's no use trying to force it, it absolutely cannot be opened."
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 136,
+     "record_raw": "88 00 00 29 01 05 00 04",
+     "text_id": 4,
+     "facing_byte": "0x00",
+     "head_tile": 41,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "Somewhere in the caverns are the Shirukaano shoes made by the shoemaker Percel. Try to find them; when you wear those shoes you can climb any slope."
+      },
+      {
+       "condition": "stdply[0x2A] & 0x04",
+       "condition_meaning": "stdply[0x2A] & 0x04 - Silkarn Shoes picked up (Tesoro cavern)",
+       "text_id": 12,
+       "text": "Ah! You found the Shirukaano shoes! Now you can scale any slope."
+      }
+     ]
+    },
+    {
+     "npc_index": 5,
+     "x": 102,
+     "record_raw": "66 00 80 60 01 03 00 05",
+     "text_id": 5,
+     "facing_byte": "0x80",
+     "head_tile": 96,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "Someone who went into the caverns told me the Shirukaano shoes are hidden in Tesoro. Of the four rooms in the center, they are in the far right room."
+      },
+      {
+       "condition": "stdply[0x2A] & 0x04",
+       "condition_meaning": "stdply[0x2A] & 0x04 - Silkarn Shoes picked up (Tesoro cavern)",
+       "text_id": 13,
+       "text": "Brave lad! A message from the Spirits: Take great care when you enter the next world."
+      }
+     ]
+    },
+    {
+     "npc_index": 6,
+     "x": 85,
+     "record_raw": "55 00 80 00 01 05 00 06",
+     "text_id": 6,
+     "facing_byte": "0x80",
+     "head_tile": 0,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 6,
+       "text": "Of the four doors in Tesoro, three bear a blue symbol. What was the other one? For the life of me I can't remember."
+      }
+     ]
+    },
+    {
+     "npc_index": 7,
+     "x": 154,
+     "record_raw": "9a 00 82 4f 01 07 00 07",
+     "text_id": 7,
+     "facing_byte": "0x82",
+     "head_tile": 79,
+     "ai_type": 7,
+     "ai_behaviour": "static",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 7,
+       "text": "This building wasn't here before, was it? You can't put up a building like this overnight -- how did it get here?"
+      }
+     ]
+    },
+    {
+     "npc_index": 8,
+     "x": 56,
+     "record_raw": "38 00 80 a0 01 05 00 08",
+     "text_id": 8,
+     "facing_byte": "0x80",
+     "head_tile": 160,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 8,
+       "text": "A peace statue called 'Taruso' stood here, but one night it disappeared. Where in the world can it have gone? The evil Jashiin must have taken a liking to it."
+      }
+     ]
+    },
+    {
+     "npc_index": 9,
+     "x": 36,
+     "record_raw": "24 00 04 bb 01 02 00 09",
+     "text_id": 9,
+     "facing_byte": "0x04",
+     "head_tile": 187,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 9,
+       "text": "I have a message from the Spirits: wait for the moving edge of the platform made of shining blocks."
+      }
+     ]
+    },
+    {
+     "npc_index": 10,
+     "x": 122,
+     "record_raw": "7a 00 82 00 01 03 00 0a",
+     "text_id": 10,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 10,
+       "text": "When you find green stone slabs that can be moved up and down, arrange them like a staircase so you can go up easily."
+      }
+     ]
+    },
+    {
+     "npc_index": 11,
+     "x": 21,
+     "record_raw": "15 00 83 45 01 01 00 0b",
+     "text_id": 11,
+     "facing_byte": "0x83",
+     "head_tile": 69,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 11,
+       "text": "The middle of the caverns is made of pure gold! But there is one fake gold wall that can be destroyed."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [
+    {
+     "test": "stdply[0x2A] & 0x04",
+     "meaning": "stdply[0x2A] & 0x04 - Silkarn Shoes picked up (Tesoro cavern)",
+     "pokes": [
+      {
+       "addr": "0xCDFB",
+       "npc_index": 4,
+       "field": "text_id",
+       "value": "0x0C"
+      },
+      {
+       "addr": "0xCE03",
+       "npc_index": 5,
+       "field": "text_id",
+       "value": "0x0D"
+      }
+     ]
+    }
+   ],
+   "unreferenced_or_script_texts": [],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/242DRMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "llama",
+   "name": "Llama Town",
+   "name_in_data": "Llama Town",
+   "mdt": "243LLMP",
+   "place_map_id": "0x87",
+   "town_index": 7,
+   "map_width_tiles": 280,
+   "descriptor_bytes": [
+    4,
+    1,
+    255,
+    0,
+    1
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 8,
+     "door_type": 9,
+     "service": "cavern_entrance",
+     "entrance_index": 1,
+     "destination": {
+      "mdt_index": 18,
+      "mdt": "MP70",
+      "hero_x": 152,
+      "hero_head_y": 7,
+      "face_left": true
+     }
+    },
+    {
+     "door_index": 1,
+     "x": 39,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 2,
+     "x": 71,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 3,
+     "x": 104,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    },
+    {
+     "door_index": 4,
+     "x": 142,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 5,
+     "x": 176,
+     "door_type": 7,
+     "program": "216INNAP",
+     "program_file": "INNAPRO.BIN",
+     "service": "inn"
+    },
+    {
+     "door_index": 6,
+     "x": 269,
+     "door_type": 8,
+     "service": "cavern_entrance",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 18,
+      "mdt": "MP70",
+      "hero_x": 1,
+      "hero_head_y": 22,
+      "face_left": false
+     }
+    },
+    {
+     "door_index": 7,
+     "x": 222,
+     "door_type": 10,
+     "service": "cavern_entrance",
+     "entrance_index": 2,
+     "destination": {
+      "mdt_index": 21,
+      "mdt": "MP73",
+      "hero_x": 27,
+      "hero_head_y": 13,
+      "face_left": false
+     }
+    }
+   ],
+   "edge_exits": [],
+   "services": [
+    "bank",
+    "cavern_entrance",
+    "inn",
+    "magic_shop",
+    "sage",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Saied",
+    "id": 7,
+    "max_level_granted": 18,
+    "spell_taught_on_first_visit": "Agua",
+    "intro_text": "I am the Sage Saied.\nYou have lived through much, but your journey is not over. You must be hot. I shall teach you the Magic Spell of Water: Agua.",
+    "knowledge_hint": "That world is controlled by dragons. To get there, you have to open three closed doors."
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "spirit_sword",
+      "name": "Spirit sword",
+      "price": 1360
+     },
+     {
+      "item": "knights_sword",
+      "name": "Knight's sword",
+      "price": 5880
+     },
+     {
+      "item": "illumination_sword",
+      "name": "Illumination sword",
+      "price": 34800
+     }
+    ],
+    "shields": [
+     {
+      "item": "honor_shield",
+      "name": "Honor shield",
+      "price": 5880
+     },
+     {
+      "item": "light_shield",
+      "name": "Light shield",
+      "price": 10360
+     },
+     {
+      "item": "titanium_shield",
+      "name": "Titanium Shield",
+      "price": 39800
+     }
+    ],
+    "magic": [
+     {
+      "item": "juuen_fruit",
+      "name": "Juu-en Fruit",
+      "price": 900
+     },
+     {
+      "item": "magia_stone",
+      "name": "Magia Stone",
+      "price": 2500
+     },
+     {
+      "item": "sabre_oil",
+      "name": "Sabre Oil",
+      "price": 2400
+     },
+     {
+      "item": "kioku_feather",
+      "name": "Kioku Feather",
+      "price": 350
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0x38 (stdply 0xD8)",
+     "shields": "0x1C (stdply 0xE1)",
+     "magic": "0x4B (stdply 0xCF)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 200,
+      "wise_mans_sword": 1500,
+      "spirit_sword": 1360,
+      "knights_sword": 5880,
+      "illumination_sword": 34800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 5,
+      "wise_mans_shield": 20,
+      "stone_shield": 890,
+      "honor_shield": 5880,
+      "light_shield": 10360,
+      "titanium_shield": 39800
+     },
+     "magic": {
+      "kenko_potion": 5,
+      "juuen_fruit": 900,
+      "elixir_of_kashi": 360,
+      "chikara_powder": 960,
+      "magia_stone": 2500,
+      "holy_water_of_acero": 400,
+      "sabre_oil": 2400,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": {
+    "price": 200
+   },
+   "bank": {
+    "almas_in": 4,
+    "gold_out": 2
+   },
+   "church": null,
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 220,
+     "record_raw": "dc 00 02 00 01 03 80 00",
+     "text_id": 0,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x80",
+     "auto_talk": true,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Help! A terrible creature is in our hut! Please get rid of it for us."
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 1,
+       "text": "Oh, thank you, sir. As a token of my gratitude I will give you the Elf Crest. I think you'll find it useful; without it, no one in town will help you.{GIVE_ELF_CREST}"
+      },
+      {
+       "condition": "stdply[0x34] & 0x80",
+       "condition_meaning": "stdply[0x34] & 0x80 - spoke to the Llama lady after Paguro (Elf Crest received; set by text opcode 0x83)",
+       "text_id": 2,
+       "text": "Thanks again. Really. "
+      }
+     ],
+     "other_condition_changes": [
+      {
+       "condition": "stdply[0x34] & 0x80",
+       "field": "flags",
+       "value": "0x00"
+      }
+     ],
+     "note": "Lady of the hut where Paguro lives. flags=0x80 (auto-talk). Text 1 contains opcode 0x83 which gives the Elf Crest (stdply[0x9A]=FF) and sets stdply[0x34]|=0x80."
+    },
+    {
+     "npc_index": 1,
+     "x": 255,
+     "record_raw": "ff 00 03 00 01 03 00 03",
+     "text_id": 3,
+     "facing_byte": "0x03",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "{01}\n{EXIT_TO_TEXT4}The caverns in this region are burning hot; you won't be able to stand it long. I've got something that will help you. It's an Asbestos cape that will protect you from the heat.{WAIT_THEN_TEXT5}It's not free though. It will cost you 2500 almas.\n\n\n{BUY_ASBESTOS_CAPE}Oh, I see... well, maybe next time. "
+      },
+      {
+       "condition": "stdply[0x34] & 0x40",
+       "condition_meaning": "stdply[0x34] & 0x40 - Asbestos Cape purchased (set by text opcode 0x89)",
+       "text_id": 9,
+       "text": "Are you taking good care of the Asbestos cape? It was my prized possession so I hope you'll treat it well."
+      }
+     ],
+     "note": "Asbestos Cape seller. Text 3 = [byte 01]/[0x85]: 0x85 sets the dialog-exit flag and continues with text 4; text 4 ends with 0x87 (wait for key, then text 5); text 5 ends with 0x89 = purchase prompt: cancel -> text 6, fewer than 2500 almas -> text 7, success -> 2500 almas deducted, Asbestos Cape (accessory id 5) put in the first free accessory slot (stdply 0xA1..), stdply[0x34]|=0x40, text 8. Afterwards the NPC uses text 9."
+    },
+    {
+     "npc_index": 2,
+     "x": 24,
+     "record_raw": "18 00 81 00 01 03 00 12",
+     "text_id": 18,
+     "facing_byte": "0x81",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 18,
+       "text": "Sir, I can see that you don't have the Elf Crest. Recently some henchmen of Jashiin have been posing as heroes and wreaking havoc on this town. You're not one of them by any chance, are you? Without the Elf Crest, no one here will speak to you."
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 16,
+       "text": "I'm  Myuuza, the town elder. If you go into the Correr Cave be sure to remember the color of the entrance door. The exit door is the same color."
+      }
+     ],
+     "note": "Before Paguro is defeated this NPC refuses to talk (text 18, the Elf Crest warning). Note: every Llama NPC is switched by the Paguro-defeated flag (stdply[0x30]), not by the Elf Crest byte itself."
+    },
+    {
+     "npc_index": 3,
+     "x": 14,
+     "record_raw": "0e 00 80 00 01 06 00 0a",
+     "text_id": 10,
+     "facing_byte": "0x80",
+     "head_tile": 0,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 10,
+       "text": "My name is Michael. No one here listens to a word I say. I wonder why that is?"
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 11,
+       "text": "Oh! You've got the Elf Crest. Great! "
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 50,
+     "record_raw": "32 00 02 00 00 06 00 13",
+     "text_id": 19,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 19,
+       "text": ". . . . . . . . . . . . "
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 12,
+       "text": "Jashiin filled the caverns with a flaming inferno. Please help us, brave lad!"
+      }
+     ]
+    },
+    {
+     "npc_index": 5,
+     "x": 124,
+     "record_raw": "7c 00 83 00 01 03 00 13",
+     "text_id": 19,
+     "facing_byte": "0x83",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 19,
+       "text": ". . . . . . . . . . . . "
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 13,
+       "text": "Beware of the great heat currents. There are many whirlpools in the caverns, and once you get caught in one you'll never get out."
+      }
+     ]
+    },
+    {
+     "npc_index": 6,
+     "x": 91,
+     "record_raw": "5b 00 82 00 00 01 00 13",
+     "text_id": 19,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 19,
+       "text": ". . . . . . . . . . . . "
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 14,
+       "text": "There are countless one-way, invisible walls in Correr Cave. To find out more about them, ask Yozeras or Myuuza the elder."
+      }
+     ]
+    },
+    {
+     "npc_index": 7,
+     "x": 192,
+     "record_raw": "c0 00 83 00 01 05 00 13",
+     "text_id": 19,
+     "facing_byte": "0x83",
+     "head_tile": 0,
+     "ai_type": 5,
+     "ai_behaviour": "patrol_bounce_1bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 19,
+       "text": ". . . . . . . . . . . . "
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 15,
+       "text": "I am Yozeras. When you go into Correr Cave, watch out for an opening with no ivy. You'll fall if you go through there."
+      }
+     ]
+    },
+    {
+     "npc_index": 8,
+     "x": 159,
+     "record_raw": "9f 00 81 00 01 06 00 13",
+     "text_id": 19,
+     "facing_byte": "0x81",
+     "head_tile": 0,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 19,
+       "text": ". . . . . . . . . . . . "
+      },
+      {
+       "condition": "stdply[0x30] & 0xFF",
+       "condition_meaning": "stdply[0x30] != 0 - Paguro defeated",
+       "text_id": 17,
+       "text": "If you can't find your way, find an air current near the ceiling of the cave. You can transport yourself on those currents."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [
+    {
+     "test": "stdply[0x30] & 0xFF",
+     "meaning": "stdply[0x30] != 0 - Paguro defeated",
+     "pokes": [
+      {
+       "addr": "0xC903",
+       "value": "0xFF"
+      },
+      {
+       "addr": "0xC904",
+       "value": "0xFF"
+      },
+      {
+       "addr": "0xC70C",
+       "value": "0xF0"
+      },
+      {
+       "addr": "0xC70D",
+       "value": "0xF1"
+      },
+      {
+       "addr": "0xC70E",
+       "value": "0xF0"
+      },
+      {
+       "addr": "0xC714",
+       "value": "0xF0"
+      },
+      {
+       "addr": "0xC715",
+       "value": "0xF0"
+      },
+      {
+       "addr": "0xC716",
+       "value": "0xF0"
+      },
+      {
+       "addr": "0xD0D2",
+       "npc_index": 0,
+       "field": "text_id",
+       "value": "0x01"
+      },
+      {
+       "addr": "0xD0E2",
+       "npc_index": 2,
+       "field": "text_id",
+       "value": "0x10"
+      },
+      {
+       "addr": "0xD0EA",
+       "npc_index": 3,
+       "field": "text_id",
+       "value": "0x0B"
+      },
+      {
+       "addr": "0xD0F2",
+       "npc_index": 4,
+       "field": "text_id",
+       "value": "0x0C"
+      },
+      {
+       "addr": "0xD0FA",
+       "npc_index": 5,
+       "field": "text_id",
+       "value": "0x0D"
+      },
+      {
+       "addr": "0xD102",
+       "npc_index": 6,
+       "field": "text_id",
+       "value": "0x0E"
+      },
+      {
+       "addr": "0xD10A",
+       "npc_index": 7,
+       "field": "text_id",
+       "value": "0x0F"
+      },
+      {
+       "addr": "0xD112",
+       "npc_index": 8,
+       "field": "text_id",
+       "value": "0x11"
+      }
+     ]
+    },
+    {
+     "test": "stdply[0x34] & 0x80",
+     "meaning": "stdply[0x34] & 0x80 - spoke to the Llama lady after Paguro (Elf Crest received; set by text opcode 0x83)",
+     "pokes": [
+      {
+       "addr": "0xD0D2",
+       "npc_index": 0,
+       "field": "text_id",
+       "value": "0x02"
+      },
+      {
+       "addr": "0xD0D1",
+       "npc_index": 0,
+       "field": "flags",
+       "value": "0x00"
+      }
+     ]
+    },
+    {
+     "test": "stdply[0x34] & 0x40",
+     "meaning": "stdply[0x34] & 0x40 - Asbestos Cape purchased (set by text opcode 0x89)",
+     "pokes": [
+      {
+       "addr": "0xD0DA",
+       "npc_index": 1,
+       "field": "text_id",
+       "value": "0x09"
+      }
+     ]
+    }
+   ],
+   "unreferenced_or_script_texts": [
+    {
+     "text_id": 4,
+     "text": "The caverns in this region are burning hot; you won't be able to stand it long. I've got something that will help you. It's an Asbestos cape that will protect you from the heat.{WAIT_THEN_TEXT5}It's not free though. It will cost you 2500 almas.\n\n\n{BUY_ASBESTOS_CAPE}Oh, I see... well, maybe next time. ",
+     "used_by": "reached from text 3 via opcode 0x85"
+    },
+    {
+     "text_id": 5,
+     "text": "It's not free though. It will cost you 2500 almas.\n\n\n{BUY_ASBESTOS_CAPE}Oh, I see... well, maybe next time. ",
+     "used_by": "reached from text 4 via opcode 0x87"
+    },
+    {
+     "text_id": 6,
+     "text": "Oh, I see... well, maybe next time. ",
+     "used_by": "Asbestos Cape purchase declined (0x89)"
+    },
+    {
+     "text_id": 7,
+     "text": "You say you don't have 2500 almas to give? Don't try to fool me. ",
+     "used_by": "not enough almas (0x89)"
+    },
+    {
+     "text_id": 8,
+     "text": "Here you are. That will be 2500 almas. Take good care of it. ",
+     "used_by": "cape bought (0x89)"
+    }
+   ],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/243LLMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "pureza",
+   "name": "Pureza Town",
+   "name_in_data": "Pureza Town",
+   "mdt": "244PRMP",
+   "place_map_id": "0x88",
+   "town_index": 8,
+   "map_width_tiles": 320,
+   "descriptor_bytes": [
+    2,
+    1,
+    255,
+    1,
+    2
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 49,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    },
+    {
+     "door_index": 1,
+     "x": 93,
+     "door_type": 7,
+     "program": "216INNAP",
+     "program_file": "INNAPRO.BIN",
+     "service": "inn"
+    },
+    {
+     "door_index": 2,
+     "x": 128,
+     "door_type": 2,
+     "program": "217KENJP",
+     "program_file": "KENJPRO.BIN",
+     "service": "sage"
+    },
+    {
+     "door_index": 3,
+     "x": 181,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 4,
+     "x": 231,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 5,
+     "x": 294,
+     "door_type": 255,
+     "service": "trap_warp_to_dorado",
+     "program": "town.asm loc_6F77 (inline)",
+     "note": "First entry shows text 0 then loads place 0x86 (Dorado) at x=0x84 with UGM2.MSD; sets stdply[0x45]|=0x80."
+    }
+   ],
+   "edge_exits": [
+    {
+     "edge": "left",
+     "leads_to": "cavern",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 23,
+      "mdt": "MP80",
+      "hero_x": 111,
+      "hero_head_y": 21,
+      "face_left": true
+     },
+     "raw": "81 00 ff ff"
+    }
+   ],
+   "services": [
+    "bank",
+    "inn",
+    "magic_shop",
+    "sage",
+    "trap_warp_to_dorado",
+    "weapons_and_armour_shop"
+   ],
+   "sage": {
+    "name": "Indihar",
+    "id": 8,
+    "max_level_granted": 255,
+    "spell_taught_on_first_visit": "Guerra",
+    "intro_text": "I am the Sage of All Sages, Indihar.\nBrave lad, you've done well to get this far.\nI shall teach you the Magic Spell of Lightning: Guerra.",
+    "knowledge_hint": "At the edge of this world is the final foe, Jashiin.\nTo fight Jashiin, you must have the Sword of the Fairy Flame. And to get there, you must topple the invincible monster Alguien."
+   },
+   "shops": {
+    "weapons": [
+     {
+      "item": "training_sword",
+      "name": "Training sword",
+      "price": 100
+     },
+     {
+      "item": "wise_mans_sword",
+      "name": "Wise man's sword",
+      "price": 1000
+     },
+     {
+      "item": "spirit_sword",
+      "name": "Spirit sword",
+      "price": 1360
+     },
+     {
+      "item": "knights_sword",
+      "name": "Knight's sword",
+      "price": 3920
+     },
+     {
+      "item": "illumination_sword",
+      "name": "Illumination sword",
+      "price": 32800
+     }
+    ],
+    "shields": [
+     {
+      "item": "honor_shield",
+      "name": "Honor shield",
+      "price": 3920
+     },
+     {
+      "item": "light_shield",
+      "name": "Light shield",
+      "price": 7400
+     },
+     {
+      "item": "titanium_shield",
+      "name": "Titanium Shield",
+      "price": 31800
+     }
+    ],
+    "magic": [
+     {
+      "item": "kioku_feather",
+      "name": "Kioku Feather",
+      "price": 350
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0xF8 (stdply 0xD9)",
+     "shields": "0x1C (stdply 0xE2)",
+     "magic": "0x01 (stdply 0xD0)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 100,
+      "wise_mans_sword": 1000,
+      "spirit_sword": 1360,
+      "knights_sword": 3920,
+      "illumination_sword": 32800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 5,
+      "wise_mans_shield": 20,
+      "stone_shield": 890,
+      "honor_shield": 3920,
+      "light_shield": 7400,
+      "titanium_shield": 31800
+     },
+     "magic": {
+      "kenko_potion": 5,
+      "juuen_fruit": 900,
+      "elixir_of_kashi": 360,
+      "chikara_powder": 960,
+      "magia_stone": 2500,
+      "holy_water_of_acero": 400,
+      "sabre_oil": 2400,
+      "kioku_feather": 350
+     }
+    }
+   },
+   "inn": {
+    "price": 400
+   },
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 6
+   },
+   "church": null,
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 22,
+     "record_raw": "16 00 81 00 03 03 00 01",
+     "text_id": 1,
+     "facing_byte": "0x81",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "Are you from the outside world? Welcome. You are certainly a courageous man guided by the Spirits. "
+      }
+     ]
+    },
+    {
+     "npc_index": 1,
+     "x": 44,
+     "record_raw": "2c 00 82 00 00 06 00 03",
+     "text_id": 3,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "I think you should know that this town is very close to the fortress of Jashiin, and his henchmen are sure to be around. Be careful."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 68,
+     "record_raw": "44 00 80 00 03 02 00 02",
+     "text_id": 2,
+     "facing_byte": "0x80",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "A moment, sir. I have seen the fortress of Jashiin. It is at the edge of this world. The Spirits guided me back from there alive so I could tell you about it."
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 84,
+     "record_raw": "54 00 03 00 03 03 00 04",
+     "text_id": 4,
+     "facing_byte": "0x03",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "YOU! The princess you struggle to rescue will lead you to your doom! The Spirits are just demons in disguise. What does this mean? You do the devil's work, you must be the devil!  WA, HA, HA, HA, HA... "
+      }
+     ],
+     "note": "Liar under Jashiin's spell (text 4)."
+    },
+    {
+     "npc_index": 4,
+     "x": 121,
+     "record_raw": "79 00 82 00 03 03 00 05",
+     "text_id": 5,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "The Spirits gave me a lion's head key but it was stolen by one of Jashiin's underlings. I hope you will find it on your travels."
+      },
+      {
+       "condition": "stdply[0x42] & 0x08",
+       "condition_meaning": "stdply[0x42] & 0x08 - Lion's Head Key picked up (Absor cavern)",
+       "text_id": 6,
+       "text": "Ah, yes -- that's the key that was entrusted to me by the Spirits. Make good use of it. "
+      },
+      {
+       "condition": "stdply[0x2B] & 0x10",
+       "condition_meaning": "stdply[0x2B] & 0x10 - locked door to the Cavern of Arrugia opened with the Lion's Head Key",
+       "text_id": 7,
+       "text": "I pray for your safe return. "
+      }
+     ],
+     "note": "The woman who lost the Lion's Head Key."
+    },
+    {
+     "npc_index": 5,
+     "x": 154,
+     "record_raw": "9a 00 03 00 03 02 00 0c",
+     "text_id": 12,
+     "facing_byte": "0x03",
+     "head_tile": 0,
+     "ai_type": 2,
+     "ai_behaviour": "patrol_2bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 12,
+       "text": "Beware of Jashiin's last henchman, Algaien. It is said that Jashiin used his power to give him eternal life."
+      }
+     ]
+    },
+    {
+     "npc_index": 6,
+     "x": 173,
+     "record_raw": "ad 00 00 00 03 01 00 08",
+     "text_id": 8,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 1,
+     "ai_behaviour": "patrol_1bit_phase",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 8,
+       "text": "The one weapon you'll need to defeat Jashiin is the Fairy Flame Sword. According to legend it gives off a peculiar light and can vanquish any foe with only one blow. However, where it is to be found is another matter... "
+      }
+     ]
+    },
+    {
+     "npc_index": 7,
+     "x": 199,
+     "record_raw": "c7 00 81 00 03 03 00 09",
+     "text_id": 9,
+     "facing_byte": "0x81",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 9,
+       "text": "Nearby is a village called Esko, but I don't know what has happened to it recently. I once knew many people there."
+      }
+     ]
+    },
+    {
+     "npc_index": 8,
+     "x": 247,
+     "record_raw": "f7 00 03 00 03 06 00 0a",
+     "text_id": 10,
+     "facing_byte": "0x03",
+     "head_tile": 0,
+     "ai_type": 6,
+     "ai_behaviour": "patrol_bounce_2bit",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 10,
+       "text": "I've heard that the lion's head key fell between two towers under a stone slab. It is supposedly near this town."
+      }
+     ]
+    },
+    {
+     "npc_index": 9,
+     "x": 292,
+     "record_raw": "24 01 82 00 03 03 80 0b",
+     "text_id": 11,
+     "facing_byte": "0x82",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x80",
+     "auto_talk": true,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 11,
+       "text": "Help! . . . ."
+      }
+     ],
+     "other_condition_changes": [
+      {
+       "condition": "stdply[0x42] & 0x08",
+       "field": "x_lo",
+       "value": "0xFF"
+      },
+      {
+       "condition": "stdply[0x42] & 0x08",
+       "field": "x_hi",
+       "value": "0xFF"
+      }
+     ],
+     "note": "flags=0x80 auto-talk 'Help! . . . .' standing by the building at the far right (door type 0xFF). The building is a trap: the first time the hero enters it, text 0 ('Fooled again!...') is shown and he is sent back to Dorado Town (stdply[0x45]|=0x80; later entries warp without the text). The NPC is removed (x=0xFFFF) once the Lion's Head Key has been found."
+    }
+   ],
+   "conditions_in_order": [
+    {
+     "test": "stdply[0x42] & 0x08",
+     "meaning": "stdply[0x42] & 0x08 - Lion's Head Key picked up (Absor cavern)",
+     "pokes": [
+      {
+       "addr": "0xD0B1",
+       "npc_index": 9,
+       "field": "x_lo",
+       "value": "0xFF"
+      },
+      {
+       "addr": "0xD0B2",
+       "npc_index": 9,
+       "field": "x_hi",
+       "value": "0xFF"
+      }
+     ]
+    },
+    {
+     "test": "stdply[0x42] & 0x08",
+     "meaning": "stdply[0x42] & 0x08 - Lion's Head Key picked up (Absor cavern)",
+     "pokes": [
+      {
+       "addr": "0xD090",
+       "npc_index": 4,
+       "field": "text_id",
+       "value": "0x06"
+      }
+     ]
+    },
+    {
+     "test": "stdply[0x2B] & 0x10",
+     "meaning": "stdply[0x2B] & 0x10 - locked door to the Cavern of Arrugia opened with the Lion's Head Key",
+     "pokes": [
+      {
+       "addr": "0xD090",
+       "npc_index": 4,
+       "field": "text_id",
+       "value": "0x07"
+      }
+     ]
+    }
+   ],
+   "unreferenced_or_script_texts": [
+    {
+     "text_id": 0,
+     "text": "Fooled again! Meddlesome fool! Taste the past and never return here again. \nHA, HA, HA, HA... ",
+     "used_by": "shown by the trap building (door type 0xFF) the first time: warps the hero back to Dorado Town (town.asm loc_6F77)"
+    }
+   ],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/244PRMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  },
+  {
+   "id": "esco",
+   "name": "Esco Village",
+   "name_in_data": "Esco village",
+   "mdt": "245ESMP",
+   "place_map_id": "0x89",
+   "town_index": 9,
+   "map_width_tiles": 215,
+   "descriptor_bytes": [
+    4,
+    0,
+    255,
+    0,
+    1
+   ],
+   "buildings": [
+    {
+     "door_index": 0,
+     "x": 57,
+     "door_type": 3,
+     "program": "212ARMRP",
+     "program_file": "ARMRPRO.BIN",
+     "service": "weapons_and_armour_shop"
+    },
+    {
+     "door_index": 1,
+     "x": 111,
+     "door_type": 4,
+     "program": "215DRUGP",
+     "program_file": "DRUGPRO.BIN",
+     "service": "magic_shop"
+    },
+    {
+     "door_index": 2,
+     "x": 138,
+     "door_type": 6,
+     "program": "213BANKP",
+     "program_file": "BANKPRO.BIN",
+     "service": "bank"
+    },
+    {
+     "door_index": 3,
+     "x": 171,
+     "door_type": 5,
+     "program": "214CHURP",
+     "program_file": "CHURPRO.BIN",
+     "service": "church"
+    },
+    {
+     "door_index": 4,
+     "x": 205,
+     "door_type": 8,
+     "service": "cavern_entrance",
+     "entrance_index": 0,
+     "destination": {
+      "mdt_index": 24,
+      "mdt": "MP81",
+      "hero_x": 123,
+      "hero_head_y": 6,
+      "face_left": false
+     }
+    }
+   ],
+   "edge_exits": [],
+   "services": [
+    "bank",
+    "cavern_entrance",
+    "church",
+    "magic_shop",
+    "weapons_and_armour_shop"
+   ],
+   "sage": null,
+   "shops": {
+    "weapons": [
+     {
+      "item": "training_sword",
+      "name": "Training sword",
+      "price": 10
+     },
+     {
+      "item": "wise_mans_sword",
+      "name": "Wise man's sword",
+      "price": 100
+     },
+     {
+      "item": "spirit_sword",
+      "name": "Spirit sword",
+      "price": 680
+     },
+     {
+      "item": "knights_sword",
+      "name": "Knight's sword",
+      "price": 1960
+     },
+     {
+      "item": "illumination_sword",
+      "name": "Illumination sword",
+      "price": 29800
+     }
+    ],
+    "shields": [
+     {
+      "item": "clay_shield",
+      "name": "Clay shield",
+      "price": 2
+     },
+     {
+      "item": "wise_mans_shield",
+      "name": "Wise man's shield",
+      "price": 10
+     },
+     {
+      "item": "stone_shield",
+      "name": "Stone shield",
+      "price": 298
+     },
+     {
+      "item": "honor_shield",
+      "name": "Honor shield",
+      "price": 1960
+     },
+     {
+      "item": "light_shield",
+      "name": "Light shield",
+      "price": 5920
+     },
+     {
+      "item": "titanium_shield",
+      "name": "Titanium Shield",
+      "price": 23800
+     }
+    ],
+    "magic": [
+     {
+      "item": "kenko_potion",
+      "name": "Ken'ko Potion",
+      "price": 2
+     },
+     {
+      "item": "juuen_fruit",
+      "name": "Juu-en Fruit",
+      "price": 200
+     },
+     {
+      "item": "elixir_of_kashi",
+      "name": "Elixir of Kashi",
+      "price": 40
+     },
+     {
+      "item": "chikara_powder",
+      "name": "Chikara Powder",
+      "price": 280
+     },
+     {
+      "item": "magia_stone",
+      "name": "Magia Stone",
+      "price": 800
+     },
+     {
+      "item": "holy_water_of_acero",
+      "name": "Holy Water of Acero",
+      "price": 80
+     },
+     {
+      "item": "sabre_oil",
+      "name": "Sabre Oil",
+      "price": 1000
+     },
+     {
+      "item": "kioku_feather",
+      "name": "Kioku Feather",
+      "price": 150
+     }
+    ],
+    "stock_bytes": {
+     "swords": "0xF8 (stdply 0xDA)",
+     "shields": "0xFC (stdply 0xE3)",
+     "magic": "0xFF (stdply 0xD1)"
+    },
+    "all_prices_this_town": {
+     "swords": {
+      "training_sword": 10,
+      "wise_mans_sword": 100,
+      "spirit_sword": 680,
+      "knights_sword": 1960,
+      "illumination_sword": 29800,
+      "enchantment_sword": 4
+     },
+     "shields": {
+      "clay_shield": 2,
+      "wise_mans_shield": 10,
+      "stone_shield": 298,
+      "honor_shield": 1960,
+      "light_shield": 5920,
+      "titanium_shield": 23800
+     },
+     "magic": {
+      "kenko_potion": 2,
+      "juuen_fruit": 200,
+      "elixir_of_kashi": 40,
+      "chikara_powder": 280,
+      "magia_stone": 800,
+      "holy_water_of_acero": 80,
+      "sabre_oil": 1000,
+      "kioku_feather": 150
+     }
+    }
+   },
+   "inn": null,
+   "bank": {
+    "almas_in": 1,
+    "gold_out": 8
+   },
+   "church": {
+    "price": 0
+   },
+   "npcs": [
+    {
+     "npc_index": 0,
+     "x": 8,
+     "record_raw": "08 00 00 00 01 03 00 01",
+     "text_id": 1,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 1,
+       "text": "If you fall from a stone and are blocked by a wall, thrust through it with your sword. If the wall crumbles away you'll be on the road leading to the abode of Jashiin."
+      }
+     ]
+    },
+    {
+     "npc_index": 1,
+     "x": 38,
+     "record_raw": "26 00 02 00 01 03 00 03",
+     "text_id": 3,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 3,
+       "text": "Look for another door with a blue symbol. If you see it, turn to the right."
+      }
+     ]
+    },
+    {
+     "npc_index": 2,
+     "x": 82,
+     "record_raw": "52 00 00 00 01 03 00 02",
+     "text_id": 2,
+     "facing_byte": "0x00",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 2,
+       "text": "By jumping in front of the ivy rather than going down it, you can open a new road."
+      }
+     ]
+    },
+    {
+     "npc_index": 3,
+     "x": 126,
+     "record_raw": "7e 00 02 00 01 03 00 00",
+     "text_id": 0,
+     "facing_byte": "0x02",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 0,
+       "text": "Pay attention to the door with the blue symbol. It has turned three colors."
+      }
+     ]
+    },
+    {
+     "npc_index": 4,
+     "x": 169,
+     "record_raw": "a9 00 01 00 00 00 00 04",
+     "text_id": 4,
+     "facing_byte": "0x01",
+     "head_tile": 0,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 4,
+       "text": "Do you have doubts? Here there is only slaughter and destruction. What do you expect to accomplish?"
+      }
+     ],
+     "note": "Liar (text 4); npc_index 6 warns the hero about npc 4 and 5."
+    },
+    {
+     "npc_index": 5,
+     "x": 173,
+     "record_raw": "ad 00 01 00 00 00 00 05",
+     "text_id": 5,
+     "facing_byte": "0x01",
+     "head_tile": 0,
+     "ai_type": 0,
+     "ai_behaviour": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 5,
+       "text": "Why have the Spirits sent you on this journey of slaughter? Why does Jashiin await you in silence?"
+      }
+     ],
+     "note": "Liar (text 5)."
+    },
+    {
+     "npc_index": 6,
+     "x": 159,
+     "record_raw": "9f 00 04 00 01 03 00 06",
+     "text_id": 6,
+     "facing_byte": "0x04",
+     "head_tile": 0,
+     "ai_type": 3,
+     "ai_behaviour": "face_hero",
+     "flags": "0x00",
+     "auto_talk": false,
+     "blocks_path": false,
+     "lines": [
+      {
+       "condition": "default",
+       "text_id": 6,
+       "text": "Pay no heed to those two, they are in league with Jashiin. They are trying to weaken your will."
+      }
+     ]
+    }
+   ],
+   "conditions_in_order": [],
+   "unreferenced_or_script_texts": [],
+   "evidence": [
+    "research/zeliard-expanded/extracted/zeliard-main/3_Assembly/tasm/bin/zelres2/245ESMP.mdt (parsed directly; header layout from 4_Resources/MdtViewer/decoder.py and 3_Assembly/ida/town.inc)",
+    "3_Assembly/ida/town.asm: start_npc_conversation / render_dialog_text (control codes), init_c015_obj_if_exists (conditions), hero_spacebar_interaction / hero_building_entry_check (NPC flags), door dispatch at loc_6E29 (door types), handle_edge_screen_transition (edge exits)",
+    "3_Assembly/tasm/bin/stdply.bin default shop stock bytes 0xC9-0xE3",
+    "212ARMRP.bin price table @0BAB9 (36 bytes/town), 215DRUGP.bin @0B11E (24 bytes/town), 216INNAP.bin @0A2D1, 213BANKP.asm exch_rate_pairs",
+    "217KENJP.bin strings + sage_cmp_thresh @0A2AC"
+   ],
+   "confidence": "high for texts, prices, stock, doors and flag conditions (read from the release binaries); medium for NPC flag-bit semantics and the Yes/No branch direction"
+  }
+ ],
+ "conflicts": [
+  {
+   "topic": "Shield repair cost",
+   "community": "free (TOWNS_AND_NPCS.md, GAME_DATA_REFERENCE.md)",
+   "code": "ceil(damage/2) gold, with a price prompt",
+   "picked": "code"
+  },
+  {
+   "topic": "Esco Chikara Powder price",
+   "community": "200 (Towns.txt chart, GAME_DATA_REFERENCE.md)",
+   "code": "280 (215DRUGP price record 8)",
+   "picked": "code"
+  },
+  {
+   "topic": "Knight's Sword in Tumba",
+   "community": "'Elf Crest' (chart) / Helada 'Elf Crest required' (GAME_DATA_REFERENCE)",
+   "code": "Tumba stock lists it (price 4900) but it is only obtainable by trading the Crest of Glory at the Tumba shop; Helada does not stock it",
+   "picked": "code"
+  },
+  {
+   "topic": "Llama NPCs and the Elf Crest",
+   "community": "NPCs will not talk without the Elf Crest",
+   "code": "switched by the Paguro-defeated flag stdply[0x30]; the lady gives the crest right after, so in normal play these coincide",
+   "picked": "code"
+  },
+  {
+   "topic": "Weapon/magic trade-in and sell prices",
+   "community": "not documented",
+   "code": "half of the current town price",
+   "picked": "code"
+  },
+  {
+   "topic": "Asbestos Cape",
+   "community": "2500 almas",
+   "code": "2500 almas (0x9C4) confirmed",
+   "picked": "agree"
+  },
+  {
+   "topic": "Inn and exchange rates",
+   "community": "Satono 30 ... Pureza 400; 1:6,1:6,1:8,1:4,1:2,1:4,4:2,1:6,1:8",
+   "code": "identical",
+   "picked": "agree"
+  }
+ ],
+ "gaps": [
+  "Setter of stdply[0x04] (castle ending NPC switching to \"Quickly, go to the Princess!\") not located; opcode 0x8B exists but no town text uses it.",
+  "Yes/No direction for the Bosque sentry (0x81) inferred from carry convention, not traced into show_yes_no_dialog.",
+  "Whether selling a magic item adds it to the town stock was not traced (weapon trade-ins do add the old item).",
+  "Exact ordering of church sermon pages is approximate."
+ ]
+}

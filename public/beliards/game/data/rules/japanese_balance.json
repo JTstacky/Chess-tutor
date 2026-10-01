@@ -1,0 +1,207 @@
+{
+  "_meta": {
+    "file": "japanese_balance.json",
+    "purpose": "Optional 'Japanese difficulty' mode: every known balance difference between the original 1987 Japanese releases (PC-8801 Dec 1987, Sharp X1 May 1988; MSX2 1988 is believed to follow the same design) and the MS-DOS English release (Sierra 1990) whose values are the defaults in the other rules files. Apply these as overrides on top of the DOS data.",
+    "how_to_use": "Each entry has dos (default), japanese (override), source, confidence. 'estimate: true' marks values that are NOT documented numbers but suggested multipliers inferred from qualitative statements; treat them as tuning knobs.",
+    "sources": {
+      "tcrf": "The Cutting Room Floor, 'Zeliard (DOS)' page, section 'Revisional Differences' (PC-88 vs DOS tables). Fetched via web.archive.org snapshot 20250825105225 (live site is behind a bot check). Local copy of the extracted text: session scratchpad tcrf_dos.txt.",
+      "tcrf_notes": "TCRF 'Notes:Zeliard' (snapshot 20250110): the save record layout is identical on PC-88/X1 (user disk offset 0xB40) and DOS (offset 0).",
+      "hg101": "Hardcore Gaming 101, 'Zeliard' article (research/zeliard-expanded/pages/hg101.html): DOS 'tunes down' the Japanese difficulty: more XP and collectibles from enemies, better Alma:Gold rates, HP regeneration by standing still, smaller death penalty (lose fewer almas, gain a little XP); but DOS respawns in the first town instead of the last visited one.",
+      "jp_fansite": "rip_gamer's Japanese Zeliard site (geocities.jp/rip_gamer/zeliard/, archived 2013 at web.archive.org), PC-88 version walkthrough with per-town shop price tables and exchange rates, item and weapon notes (pages zel_item, zel_weapon, zel_area1..9).",
+      "dos_code": "DOS values are from the release binaries (see progression.json, items.json, towns.json, enemies.json, bosses.json)."
+    },
+    "overall_confidence": "Death, level-up, exchange-rate, Kioku, Asbestos Cape, Magia Stone, Holy Water, regen, heat, orb and boss-almas differences: medium-high (two independent sources or one detailed table). Per-enemy numbers: only the six TCRF rows are known. Everything marked estimate is low confidence.",
+    "search_notes": "Searches for PC-88/X1/MSX2 version comparisons (English and Japanese: 'ゼリアード 難易度', 'PC-88 版 違い', 'MSX2 版') found no other numeric comparison beyond TCRF and the rip_gamer site. No MSX2-specific balance data was found; MSX2 is assumed to match PC-88 (unverified)."
+  },
+  "character": {
+    "death": {
+      "dos": {"gold_carried": "lost", "almas": "halved", "xp": "+ (127 - 2*level) mod 256", "respawn": "always Muralla (last-sage byte 0xC5 never updated)"},
+      "japanese": {"gold_carried": "lost", "almas": "all lost", "xp": "halved (floor)", "respawn": "Sage of the last town whose Sage you spoke to (0xC5 updated on each Sage visit)"},
+      "implementation": "On Sage interaction set last_sage = this town's 0x80|index. On death: gold=0, almas=0, xp=floor(xp/2), HP=max, warp to last_sage.",
+      "source": ["tcrf", "hg101", "jp_fansite (zel_cha: the Spirits carry your body back to the Sage)"],
+      "confidence": "high"
+    },
+    "level_up": {
+      "dos": "Max HP raised AND HP fully restored; spell caps raised AND charges refilled; only the level cost is deducted from XP, with the 'next level - 1' overflow cap; sword damage bonus floor(level/2).",
+      "japanese": "Max HP raised but current HP NOT restored; spell caps may rise but charges NOT refilled; XP reset to 0 (all surplus lost); NO level bonus to sword damage (sword damage = sword base only).",
+      "source": ["tcrf", "jp_fansite zel_area8 column 6 (surplus XP discarded, one level per visit)"],
+      "confidence": "high"
+    },
+    "hp_per_level_and_xp_table": {
+      "dos": "progression.json levels.table",
+      "japanese": "Unknown; the JP fansite says max LIFE is reached at level 16 (same as DOS) and later levels still add spell uses. Keep the DOS tables.",
+      "source": ["jp_fansite zel_area8 column 6"],
+      "confidence": "medium (no contradicting data)"
+    },
+    "hp_regeneration_in_caverns": {
+      "dos": "+2 HP every 16 frames",
+      "japanese": "none (only potions/items)",
+      "source": ["tcrf", "hg101"],
+      "confidence": "high"
+    },
+    "shield_damage_model": {
+      "dos": "Frontal hit with shield: damage >> ((tier+1)/2 + 1) taken by both shield and hero (Clay/Wise 1/4, Stone/Honor 1/8, Light/Titanium 1/16).",
+      "japanese": "Frontal hit with shield: hero takes 50% of the damage regardless of which shield. The shield-point loss rule is not documented; suggested: shield loses the same 50% (estimate).",
+      "estimate": true,
+      "source": ["tcrf"],
+      "confidence": "medium for hero damage, low for shield-point loss"
+    },
+    "shield_capacity": {
+      "dos": "items.json (Clay 30, Wise Man's 80, Stone 180, Honor 300, Light 300, Titanium 600 shield points)",
+      "japanese": "Same numbers are given on the JP fansite (焼物30, 賢者80, 防石180, 栄光300, 光300, 甲虫600).",
+      "notes": "JP fansite says large shields (Honor and above) also guard low attacks while standing and near-head attacks; this matches the DOS projectile rule (Honor+ blocks at any height).",
+      "source": ["jp_fansite zel_weapon"],
+      "confidence": "high"
+    },
+    "sword_damage": {
+      "dos": "base + floor(level/2)",
+      "japanese": "base only (no level bonus)",
+      "source": ["tcrf"],
+      "confidence": "high"
+    }
+  },
+  "economy": {
+    "exchange_rates_gold_per_alma": {
+      "dos": {"muralla": 6, "satono": 6, "bosque": 8, "helada": 4, "tumba": 2, "dorado": 4, "llama": 0.5, "pureza": 6, "esco": 8},
+      "japanese": {"muralla": 4, "satono": 4, "bosque": 6, "helada": 2, "tumba": 1, "dorado": 2, "llama": 0.25, "pureza": 4, "esco": 6},
+      "notes": "Llama is 4 almas : 1 gold in JP (4:2 in DOS).",
+      "source": ["tcrf", "jp_fansite (every town page)"],
+      "confidence": "high (two sources agree)"
+    },
+    "asbestos_cape_price_almas": {"dos": 2500, "japanese": 5000, "source": ["tcrf", "jp_fansite zel_item, zel_area7"], "confidence": "high"},
+    "kioku_feather": {
+      "dos": {"price": "350 gold (150 in Esco)", "destination": "first Sage (Muralla) because the last-sage byte is never updated"},
+      "japanese": {"price": "700 gold (300 in Esco)", "destination": "last Sage visited / last town where you saved"},
+      "source": ["tcrf", "jp_fansite (all town tables)"],
+      "confidence": "high"
+    },
+    "shop_prices_other": {
+      "summary": "Checked item by item against the DOS binary price tables (towns.json / 212ARMRP + 215DRUGP). Every stocked JP price equals the DOS price except: Kioku Feather 700/300 (DOS 350/150), Esco Training Sword 100 (DOS 10), Dorado Stone Shield 1780 (DOS 890), Dorado Honor Shield 7840 (DOS 5880). The two Dorado values equal the DOS Tumba prices, so they may be a fansite copy error; confidence low for those three, high for Kioku.",
+      "overrides_to_apply": {"kioku_feather": {"all_towns_except_esco": 700, "esco": 300}, "esco.training_sword": 100, "dorado.stone_shield": 1780, "dorado.honor_shield": 7840},
+      "japanese_price_tables": {
+        "muralla": {"training_sword": 400, "wise_mans_sword": 1500, "clay_shield": 50, "wise_mans_shield": 150, "kenko_potion": 50, "magia_stone": 1000, "sabre_oil": 1200, "church": 0},
+        "satono": {"training_sword": 800, "wise_mans_sword": 1500, "clay_shield": 50, "wise_mans_shield": 150, "stone_shield": 2980, "kenko_potion": 50, "elixir_of_kashi": 60, "sabre_oil": 1200, "holy_water_of_acero": 100, "inn": 30},
+        "bosque": {"training_sword": 800, "wise_mans_sword": 1500, "spirit_sword": 6800, "clay_shield": 5, "wise_mans_shield": 150, "stone_shield": 2380, "juuen_fruit": 240, "elixir_of_kashi": 60, "magia_stone": 1500, "sabre_oil": 1200, "kioku_feather": 700, "inn": 50},
+        "helada": {"training_sword": 400, "wise_mans_sword": 3000, "spirit_sword": 5440, "wise_mans_shield": 50, "stone_shield": 1780, "honor_shield": 9800, "juuen_fruit": 300, "elixir_of_kashi": 120, "chikara_powder": 320, "holy_water_of_acero": 100, "kioku_feather": 700, "inn": 70},
+        "tumba": {"wise_mans_sword": 3000, "spirit_sword": 4760, "knights_sword": "Crest of Glory", "stone_shield": 1780, "honor_shield": 7840, "juuen_fruit": 600, "sabre_oil": 2000, "inn": 100},
+        "dorado": {"spirit_sword": 3400, "knights_sword": 7840, "illumination_sword": 69800, "stone_shield": 1780, "honor_shield": 7840, "light_shield": 14800, "juuen_fruit": 600, "magia_stone": 2000, "holy_water_of_acero": 200, "inn": 150},
+        "llama": {"spirit_sword": 1360, "knights_sword": 5880, "illumination_sword": 34800, "honor_shield": 5880, "light_shield": 10360, "titanium_shield": 39800, "juuen_fruit": 900, "magia_stone": 2500, "sabre_oil": 2400, "kioku_feather": 700, "inn": 200, "asbestos_cape_almas": 5000},
+        "pureza": {"training_sword": 100, "wise_mans_sword": 1000, "spirit_sword": 1360, "knights_sword": 3920, "illumination_sword": 32800, "honor_shield": 3920, "light_shield": 7400, "titanium_shield": 31800, "kioku_feather": 700, "inn": 400},
+        "esco": {"training_sword": 100, "wise_mans_sword": 100, "spirit_sword": 680, "knights_sword": 1960, "illumination_sword": 29800, "honor_shield": 1960, "light_shield": 5920, "titanium_shield": 23800, "kenko_potion": 2, "juuen_fruit": 200, "elixir_of_kashi": 40, "chikara_powder": 280, "magia_stone": 800, "sabre_oil": 1000, "holy_water_of_acero": 80, "kioku_feather": 300, "church": 0}
+      },
+      "notes": "JP Muralla/Satono Stone Shield: Satono 2980 in both. Dorado Stone Shield listed 1780 in JP vs 890 in the DOS community list - also a candidate difference. JP item names differ (セルドの薬 Ken'ko Potion, ハンブルの実 Juu-en Fruit, リコブラーの薬 Elixir of Kashi, ローザの魔法薬 Chikara Powder, マギアの石 Magia Stone, アクロの聖水 Holy Water, サブルリング 'Saber Ring' = Sabre Oil, メモリアの羽 'Memoria feather' = Kioku Feather); mapping by effect description.",
+      "source": ["jp_fansite zel_area1..9"],
+      "confidence": "medium"
+    },
+    "selling": {
+      "japanese": "JP fansite: shops buy items back; sold equipment appears in the shop (PC-88 only after you leave, DOS immediately). The Enchantment Sword can be sold for 2 gold and bought back for 4 without losing it.",
+      "source": ["tcrf (In-Town/Stores)", "jp_fansite zel_weapon"],
+      "confidence": "medium"
+    }
+  },
+  "items": {
+    "magia_stone": {
+      "dos": "4 orbiting stones, each hits a target once per pass, damage (level*4)+4 capped 255, 80 hits per stone",
+      "japanese": "damage 17 per hit (fixed), each stone hits a target twice when possible",
+      "source": ["tcrf"],
+      "confidence": "high"
+    },
+    "holy_water_of_acero": {
+      "dos": "+80/90/100/110/115/120 shield points by shield tier (Clay..Titanium), capped at max",
+      "japanese": "restores the shield to full",
+      "source": ["tcrf"],
+      "confidence": "high"
+    },
+    "sabre_oil": {
+      "dos": "damage x (uses+1), the level bonus is included in the multiplied value; resets on entering a town",
+      "japanese": "damage multiplier (no level bonus exists to include); JP fansite: effect stacks and lasts until you return to town",
+      "source": ["tcrf", "jp_fansite zel_item"],
+      "confidence": "medium"
+    },
+    "blue_potion": {
+      "dos": "heals up to 8000 HP worth (effectively full; timer maxHP/8+1 at +8 HP/frame)",
+      "japanese": "heals up to 800 HP (also full, HP max is 800)",
+      "source": ["tcrf"],
+      "confidence": "high (no practical difference)"
+    },
+    "red_almas_orb": {
+      "dos": "drop code 11 = 100 almas",
+      "japanese": "50 almas",
+      "source": ["tcrf", "jp_fansite zel_item (50アルマス item)"],
+      "confidence": "high"
+    }
+  },
+  "caverns": {
+    "heat_damage_world_7": {
+      "dos": "15 damage every 64 frames while in a hot cavern without the Asbestos Cape; timer starts when you enter unprotected",
+      "japanese": "10 damage every 'few seconds' on a global timer that keeps running all game (damage can land immediately on entry). Suggested implementation: 10 damage every 64 frames using a timer that never resets.",
+      "estimate": "interval is an estimate",
+      "source": ["tcrf"],
+      "confidence": "medium"
+    },
+    "falter_extra_rope": {
+      "dos": "an extra rope tile in the Cavern of Falter lets Feruza Shoes skip the final platforming",
+      "japanese": "no extra rope (harder platforming)",
+      "source": ["tcrf"],
+      "confidence": "high (map data; owned by world/)"
+    },
+    "game_speed": {
+      "dos": "F9 speed 0-9, default 5",
+      "japanese": "single fixed speed, slightly slower than DOS default 5 (suggest speed 4, estimate)",
+      "estimate": true,
+      "source": ["tcrf"],
+      "confidence": "medium"
+    }
+  },
+  "enemies": {
+    "general": {
+      "japanese": "Enemies give less XP and drop almas less often / in smaller denominations (hg101: DOS 'enemies in general give more XP and collectibles'). Exact per-enemy JP tables are only known for the six enemies below.",
+      "suggested_multipliers": {
+        "xp": 0.5,
+        "almas_drop_chance": 0.5,
+        "note": "ESTIMATES. For world 8 the known JP XP is 30 vs DOS 255 (x0.12); for the Magical Bat 100 vs 255 (x0.39). Suggest: world 8 XP = 30 exactly, other worlds x0.5 rounded down (min 1). For drops, replace each non-zero descriptor code with 0 with 50% probability, and replace code 11 (100 almas) by a 50-alma orb."
+      },
+      "source": ["hg101", "tcrf"],
+      "confidence": "low (estimate)"
+    },
+    "known_rows": [
+      {"tcrf_image": "Zeliard_dos_Ebat.png", "dos_enemy": "world 2 type 5 Magical Bat (one-time chest bat)", "dos": {"xp": 255}, "japanese": {"xp": 100}, "confidence": "high for numbers, medium for identification"},
+      {"tcrf_image": "Zeliard_dos_Ediamond.png", "dos_enemy": "most likely world 4 type 4 'Arrow' (diamond-shaped, HP 2 in DOS)", "dos": {"hp": 2}, "japanese": {"hp": 12}, "confidence": "high for numbers, low for identification"},
+      {"tcrf_image": "Zeliard_dos_Ejelly.png", "dos_enemy": "world 8 type 4 Blue Flying Creature (XP 255, 10/100-alma drops in DOS)", "dos": {"xp": 255, "almas": "10/100"}, "japanese": {"xp": 30, "almas": 1}, "confidence": "high for numbers, medium for identification"},
+      {"tcrf_image": "Zeliard_dos_Egrub.png", "dos_enemy": "world 8 type 2 Lobster (contact damage 60 in DOS)", "dos": {"xp": 255, "contact_damage": 60}, "japanese": {"xp": 30, "contact_damage": 160}, "confidence": "high for numbers, medium for identification"},
+      {"tcrf_image": "Zeliard_dos_Eamoeba.png", "dos_enemy": "world 8 type 3 Slime Monster", "dos": {"xp": 255, "almas": "frequent"}, "japanese": {"xp": 30, "almas": "rare"}, "confidence": "high for XP, medium for identification"},
+      {"tcrf_image": "Zeliard_dos_Egrell.png", "dos_enemy": "world 8 type 0/1 Flying Jellyfish (Grell)", "dos": {"hp": 100, "xp": 255}, "japanese": {"hp": 127, "xp": 30}, "confidence": "high (DOS HP 100 matches the EAI8 code)"}
+    ],
+    "jp_fansite_drop_notes": {
+      "text": "PC-88: forest spiders and gold-cavern octopi always drop 10 almas; graveyard zombies always drop 10 or 50 almas; the gold-cavern witch (Kiss of Death woman) always drops 50; the cave bat rarely drops 10.",
+      "source": "jp_fansite zel_item, zel_area2/3/5/6",
+      "confidence": "medium"
+    }
+  },
+  "bosses": {
+    "general": {
+      "japanese": "Bosses give NO almas (all boss almas = 0). Boss damage multipliers differ (below); at higher levels bosses divide sword damage, making weak swords useless without the Saber item.",
+      "source": ["tcrf"],
+      "confidence": "high"
+    },
+    "almas": {"dos": {"cangrejo": 150, "pulpo": 200, "pollo": 500, "agar": 600, "vista": 800, "tarso": 1500, "paguro": 1600, "dragon": 2500, "alguien": 3800, "jashiin": 0}, "japanese": "0 for every boss", "source": ["tcrf"], "confidence": "high"},
+    "names": {"japanese": {"cangrejo": "CANGREO", "jashiin": "ARCHFIEND (unnamed Maou 魔王 in JP text)", "alguien": "アルガイエン"}, "source": ["tcrf", "jp_fansite"], "confidence": "high"},
+    "multipliers": [
+      {"boss": "pollo", "dos": {"sword": "x2", "spell": "x2", "head": "x8", "body_contact": 18, "beak_contact": 56}, "japanese": {"sword": "x1", "spell": "x1", "head": "x8", "body_contact": 20, "beak_contact": 64}},
+      {"boss": "tarso", "dos": {"body_contact": 800}, "japanese": {"body_contact": 192}, "note": "TCRF lists DOS Tarso body damage 800 while the code table at LEGA A010 has 160 per part (x5 pixels?); treat as TCRF's own unit. Japanese/DOS ratio = 0.24."},
+      {"boss": "paguro", "dos": {"sword": "x1 per TCRF; the DOS code (ZEL2) actually halves all damage, see bosses.json", "spell": "/2"}, "japanese": {"sword": "/2", "spell": "/2", "fuego": "x2"}, "note": "JP Paguro therefore behaves like DOS Agar (which takes x4 from Fuego). Suggested JP override: sword /2, spells /2, Fuego x2."},
+      {"boss": "dragon", "dos": {"sword": "/2", "head": "x1", "spell": "/4", "weak_point": "head", "horizontal_fire": 120}, "japanese": {"sword": "/8", "tail": "/2", "spell": "/8", "weak_point": "tail", "horizontal_fire": 80}},
+      {"boss": "alguien", "dos": {"sword": "x1", "spell": "x1", "contact": {"tongue": 80, "tail": 40, "body": 160}}, "japanese": {"sword": "/8", "tail": "/4", "spell": "/8", "contact": {"tongue": 160, "tail": 80, "body": 40}}},
+      {"boss": "jashiin", "dos": {"sword": "/2", "spell": "/4", "hp_recovery": 80}, "japanese": {"sword": "/4", "spell": "/16", "hp_recovery": 120}}
+    ],
+    "multipliers_source": ["tcrf"],
+    "multipliers_confidence": "medium-high (single detailed source; DOS side cross-checked against bosses.json where possible)",
+    "unknown": "Cangrejo, Pulpo, Agar, Vista, Tarso multipliers and all boss HP/XP in the JP versions are not documented; keep DOS values."
+  },
+  "presentation_only_differences": [
+    "PC-88/X1 have digitized speech in the intro and some shops; DOS removed it.",
+    "PC-88 townsfolk text types out character by character; DOS shows it instantly.",
+    "PC-88 has no pause key (inventory only), one save per disk, auto-boots the save; DOS adds ESC pause, F7 restore, multiple .USR files.",
+    "Sage is male in PC-88, female in DOS; JP Sage names differ (e.g. Tumba's sage グロデア, Pureza's マエスト)."
+  ]
+}

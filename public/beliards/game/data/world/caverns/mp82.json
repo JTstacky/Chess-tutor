@@ -1,0 +1,1757 @@
+{
+ "id": "mp82",
+ "file": "mp82.mdt",
+ "name": "Cavern of Desleal",
+ "width": 192,
+ "height": 64,
+ "bank": "mpp8",
+ "level": 8,
+ "boss": false,
+ "tear": null,
+ "entryHeadRow": 10,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "DAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALCgcMCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcMDAcHDAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHDAcHBwcEBAUEBAQEBQUEBAQEBAQEBQQEBQQEBAQEBAQEBQUEBAQEBAQFBAQEBgABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwUEBAQEBAQEBQUEBAQEBAQEBAQFBAQEBAQFBAQEBAQEBAQEBAQFBAUEBAQEBAQEBAQFBAQEBAQEBAQEBAUFBQQFBAQEBAQEBAQFBAQEBAQEBAQEBQQFBAQEBAUEBAQEBAQEBQUEBAcHBwcHBwcHBwcHBwcKBwcJBwcHCQcHBwcHBwcHCgcHBwcHBwcHBwcHBwoHBwcHBwACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHBwcHCQcHBwcHBwcHBwcHCgkHBwcHCQcHBwcHCgkHBwoHBwcHBwcHCgcHCQcHBwcHBwcHBwcHBwoHBwcHBwcHBwcHBwcHCgcHBwcHBwkHBwcHBwoHBwcHBwcHBwcHCQoHBwcHBwcHCgcHBwcHBwkHBwcMBwcMBwcHCgcHBwcHCgcHDAcHBwcJBwcHCgcHBwkHBwcHAAABAAMEBAUEBAQEBAQEBQQEBAQEBQUEBAQEBAQEBQQEBgAAAAAAAAAABwcKBwwMCgcHBwcHBwoHBwcHDAwHBwcKBwcHBwcKDAoHBwwJBwoHBwcHDAcHCgcHBwcHBwkHBwcHBwwKCQcHCgcHCgkHBwcHDAoMCgcHBwoKBwcHBwwJBwcKBwcHBwcHCgwKDAcHBwcHCgwJCgcHBwcHBwcMCgcHBwcHDAcHBwkHBwwHCQcKBwcHBwcHBwwHBwcHCgcHBwABAAcJBwcHBwcHBwwJBwcHBwcKBwcKDAcHBwcHBwoHBwAAAAAAAAAABwwJBwcHCwcMCgcHCgwHCQcHBwsHBwcHDAcHAAAKDAwHBwoMBwcHBwkHBwwHDAwHCgcHBwwHBwcJBwcHDAsHDAcHBwcHBwcHCQwJCwwHBwcMBwcHBwcMBwwMCQcHCgcHBwcMCQcHBwcHBwwHDAsHBwcHAAcHDAsHCAcHBwsHBwcHCAgHDAcMBwcHBwcHBwwMCgcHDAcHBwABAAcMBwoHBwkHBwwKBwcHDAkLBwcMBwwHCQcHBwwHBwQEBgAAAAAAAAcMBwcHBwcHDAcHBwcACAcHBwcMBwcHBwAIAAAHBwgIBwwJCwcHBwcHBwcHBwwHDAcHBwcHBwAICAcHBwsHDAcABwcHCAgHBwcLBwwHBwcHBwgHCAcHBwcMCwcHBwgIBwcHDAwLBwcIBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICwcHBwcHCQcHCwcHBwcHAAACAAAIBwwLCgcABwcMCwcABwwHBwgHBwcLBwsHBwcMCwcKCAAAAAAAAAAMCgcKBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAcHBwcLBwcHBwgAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcKBwcHBwcHAQAAAAACAAAAAAgACAgAAAAAAAAAAAAAAAAAAAAAAAAICAAAAAAAAAAAAAAAAAAHBwwHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEhISCAcHAAEAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcMBwcKBwkHAgAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEhISAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwwHBwcAAgAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEhISAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHBwcAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwoHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABMTExMSAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAUFBAQEBQQEBAQEBAQFBAQEBQUEBAQEBQcHBwwMCwAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwwJBwAAAAMEBQQEBAQEBAQFBAQEBAQFBQQEBAUEBAQEBAQEBhMTExMSAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAADBAQEBAUEBAQEBQUEBAQEBAUEBQQEBgAAAAAAAAAAAAAAAAAHBwcHBwwKBwcHBwoHBwcHBwcHBwoHBwcHBwcKBwcHBwcAAQADBQQEBAQEBAQEBAUEBAUEBAQEBAQEBAQEBQQEBAQEBAQEBAUEBAQEBAQFBAQHDAcHBwAAAAcHBwcHBwcJBwcHBwcHBwkHBwcHBwcHCgcMBwcHBxMTExMSAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAACgcMCgcMBwoHBwcHBwoMCQcHDAkHAAAAAAAAAAAAAAAAAAAJBwcHBwcMCQcMBwwJBwcHBwkHBwwMCgcJBwcMBwcHBwAAAgAHBwcKBwcKDAcJBwcHBwcHBwcHBwcKBwoHBwcHBwcHBwkHDAcHBwkHBwcHBwcHBwwHBwAAAAAHBwcHBwcHBwcHBwwHBwcHBwcHBwcMDAcMDAcHERMTExMSAAAAAAIAAwQFBQQEBAQEBAQEBQQEBgABAAAAAAAAAAAHCwcHCwcHDAcHBwkHBwcMDAcHCgwHBwAAAAAAAAAAAAAAAAAHBwcHBwcHBwcMBwcMBwcIAAcHCQcHDAcHBwcHDAcHBwAAAgAHCQcMCQcHDAcHCgcHDAcKBwkHBwwHBwwHCQcKBwcHDAcKDAcHBwcHCgwHBwcHBwcLAAAAAAcKBwcHDAoHBwcKBwcMBwoHBwwHBwoHBwwHBwoHERMTExMSAAAAAAIABwcHBwcHBwcKCQcHBwcHBwABAAAAAAAAAAAACQcHBwAAAAAAAAAAAAAHBwAHAAcHBwAAAAAAAAAAAAAAAAAAAAAAAgAAAAcABwcAAAAAAAAABwcIBwcACAgHBwkHCgcAAQAABwcHCwcHBwcHDAwLBwwHCAAHCgwMBwcHBwcMCQcHBwcHBwsHCgwHBwcMCgcHBwcIAAAAAAcKBwcHBwwMBwcHBwcMBwwHBwoMBwwHBwcLBwwHBxMTExMSAAAAAAIAAAoHBwcHCQcMBwcKBwkHBwACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhERERERERERERERAAAAAAAAAAAAAAAABwwHDAcAAgAAAAAAAAAAAAAAAAAAAAAAAAAIBwcHCwcHBwcMCwcHBwAICAAHDAcHBwgHDAsHCgAAAAAAAAcMBwcJBwcHCgcHBwcHCwcHBwcHDAsHBwAHBwcHERMTExMSAAAAAAEABwwJBwcHBwcKDAcMBwcHAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARERERERERERERERAAAAAAAAAAAAAAAABwcHCwkAAQAAAAAAAAAAAAAAAAAAAAAAAAAIBwcHCQcHBwcHBwAAAAAAAAAAAAAAAAcHBwcHBwAAAAAABwcHDAcIBwcHDAcHBwkHBwwHBwcHBwAAAAAAAAAAERMTExMSAAAAAAEABwcMCwcHBwcLBwcHDAcLAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARERERERERERERERAAAAAAAAAAAAAAAABwcHBwAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHCgcIAAAAAAAAAAAAAAAAAAAABwcHBwAAAAAAAAcHCgcKBwkHCwcHBwcHBwcHBwcHBwAAAAAAAAAAAAAAAAAAAAAAAAEABwcHBwwHBwcHCQcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAwQEBQQGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARERERERERERERERAAAAAAAAAAAAAAAABwcHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcJBwcHBwgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHCQcMBwcHBwcHBwcHBwcHBwkHAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAHBwAHBwcHBwcHBwcHBAUEBAQEBAUEBAQEBQUEBAQECgcHCgoJBAQFBAQEBAQEBgAAAAAAAAAAAAAAAAAAAAAAAhMTExMTExMTExMTAwQEBAQFBAQEBAUEBwcKBwcEBAQFBAUEBAQEBAQFBAQEBgAAAAAAAAcMBwoHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHBwcHCwAHBwcHCgcHCgcHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAHBwcKBwcHBwcHCgcHBwcKBwwHBwcMCgcJBwAHAAsHBwoHBwwHCQcHAAAAAAAAAAAAAAAAAAAAAAAAARMTExMTExMTExMTBwoMCQcHCgcHBwcHBwcMCwcHBwcHCQcHCgwHBwcHCgcHBwAAAAAAAAcHBwwHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHBwcHAAAABwcHBwcHDAwHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAABwcMCgcHCgcJBwwHCwcMDAoHBwkHCwcHAAACAAAABwwHBwcMBwsHBwAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAABwcMCwcMCQcHBwgHAAcHCQcHCAgHBwcHCwkHCAcHDAkAAAAAAAAAAAcHBwcMDAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcAAAAAAAAAAAAHCQcHCgcMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAABwcHDAcMDAcHBwoMBwcJBwwMBwcHDAwHAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAHAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcJBwcLBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHDAwJCwcAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAABwoLBwcMBwcHBwcHCwcHBwcHCwcHAAcLAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwcHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHBwcLBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwHBwcHDAcAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcKBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwkKBwcHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcMBwcJBwsAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBAQFBAYAAQAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcMCQcKBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcMCgcHBwQEBAUEBAQEBAUEBQQEBAQEBAQFBAQEBAQEBAQGAAAABwcHCwcHAAAAAAAAAAAAAAAAAAAAAAAAAAACAAMEBAQEBAUFBAQEBAQFBAQEBAQFBwcMCgcHBwAAAQAAAAAAAAAAAAAAAAAAAAAAAQADBAQEBQQEBAQFBAQEBAQEBQUEBAQEBAQEBQQEBAQHBwcHDAwHBwcHBAQEBQQFBAQEBAQEBQQEBAQEBAUEBAQEBAUEBAQGAAAAAAAAAAAHCQwHBwoHBwcHBwoKCQcKBwcHDAoHBwcKBwcHDAkHCgcHAAAAAAcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAHBwoMBwcKBwcHDAcHCgcJBwcHBwkHDAwHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAgAHBwwHBwcHBwcHBwcMBwcHBwcHBwcHCQcHBwcKBwcHBwcHBwsMBwcMBwkHBwcHBwcKBwcHBwcJCgcJBwcHBwoHCQcHBwcHAAAAAAAAAAAHCQsHBwwJBwcHBwwMDAkHCwAAAAsJBwcLDAcKCwwHDAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAABwkMCwcMBwkHBwcHDAcMCgcHAgAIBwwJBwQEBQQEBAQFBQQGAAAAAAAAAAAAAgAHBwcJBwsHCQcHCgcMCQoHBwcKCwcHDAwAAAcMDAkHBwkHBwcHBwwHCgwHBwcHCQcHDAcHBwsHDAwHBwcHBwwHBwcHBwcHAAAAAAAAAAAHBwAABwcLBwcHBwAHCwcHBwAABwcMBwcHBwwHBwcHBwsHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAHBwcHBwwHDAsHBwcCAAAMDAsIAQAAAAgLBwcKBwcKBwwHBwcHAAAAAAAAAAAAAgAHBwcHBwcHBwoHCwwHBwwJBwcHBwcKBwAAAAAAAAsHAAcHBwAHBwcABwcHAAcHAAAHBwwMBwcHBwcMAAAHBwcMDAcHCgcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAABwgABwcHCAcHAAACAAAAAAAAAQAAAAAABwcMBwkMBwcMBwcAAAAAAAAAAAAAAgAABwcKCwcABwcHCQcLAAcHAAcHAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAcAAAAAAAABAAAAAAAAAgAAAAAABwkHDAcMBwcHAAAAAAAAAAAAAAAAAQAAAAAHBwwHBwcABwcAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKDAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAACAAAAAAAAAgAAAAAAAAwHBwcLAAIAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHCQwHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAACAAAAAAAAAQAAAAAAAAsHBwcAAAEAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwsHAAADBAUEBAQEBAQFBQQEBAQEBAUEBAQEBAQEBAUEBAQFBAUEBAQEBAQEBQQFBQQEBAQEBAUEBAQEBAQFBQQEBAYAAAAAAAACAAAAAAAAAAAAAAAAAAABAAMFBAYAAQAAAAAABwwHCgcAAAEAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHAAAHBwcMCgkHBwcHCgkHDAcJBwcHCgcHBwcHBwcKBwkHBwcHBwcKBwoHBwcHBwcHBwcKBwcHCgcJDAcHCgwJBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAcKBwkAAQAAAAAAAAcHDAkHAAIAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQADBAQFBAQEBAUEBAQFBAQEBAQEBAQFBQQEBAQFBAQHBwcAAAAHBwcMDAcHBwcJDAcHBwcHBwcHDAcMCgcJBwcMBwcKDAcHBwcMCQwHBwcHCgcJBwcMDAkHDAwHCgcMCwcHAAAAAAAAAAAAAAAAAAAAAAMEBQQGAAABAAAHCAAAAgAAAAAABwcHDAwHAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAHBwcHBwcHBwcHBwcHBwcHBwcHBwkHBwcHBwoHBwcMCgcAAAAAAAcKBwsAAAcHAAwLBwAABwcJBwcMCwsHBwcHDAcMBwcHBwcHDAcHCgkHBwcHBwcHCwwHBwALBwcCAAAAAAAAAAAAAAAAAAAAAAAAAAAHCQcKAAABAAAAAAAAAAAAAAAAAAcHCgcLAAIAAwQEBAQEBAUEBAQEBAQEBAQFBAUEBAQEBAQFBAQEBgACAAAAAAAAAAAAAAAAAAAAAQAHBwcHBwwKBwcHBwcHCQcLCgwHBwcHBwcKBwcMCQcHDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwAHBwwLBwcHBwcMCwcHCQcHBwwHDAcMBwcHBwcAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAACAAAAAAAABAQEBAUEBwkHCgcHAAEABwcJCgcKBwcHBwcHBwsHCgcHBwcHBwoHBwcHCgcHBwACAAAAAAAAAAAAAAAAAAAAAgAHBwkHBwwHBwkHCwcHBwwHDAoMBwcHBwsMBwcHDAwHCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAHBwcHBwcLBwwLBwcHAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAMFBwoHBwcHBwcHDAcHAAEABwcHDAcHBwcHBwkHBwcHDAcLBwcMBwcLDAcMBwAHBwABAAAAAAAAAAAAAAAAAAAAAgAHDAcKBwcHDAcHBwAHBwcHAAcHBwcABwcHDAcHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAcHBwcHBwcAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcKBwcHBwoHDAoHAAEAAAcMBwcHBwwHBwcJBwkHBwwHBwcHBwkHCgcHDAkHAAABAAAAAAAAAAAAAAAAAAAAAgAABwsABwcHBwcKBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAASEhISEgAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcMDAkHBwwHBwwHAAIABwcHDAwHBwcABwcHAAcABwcLBwcHBwwHBwcJBwcHBwABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAABwcLBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAASEhISEgAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcJBwcHCgcHDAwHAAIAAAAABwcHAAAAAAAAAAAAAAAAAQAHBwcMBwcMBwwHBwACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAABwkHDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAASEhISEgAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwoHBwoHBwcJBwcMAAEAAAAAAAAAAAAAAAAAAAAAAAAAAQAHBwcHBwcHCgcHBwACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAwHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAASEhISEgAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwwHBwwLBwcHBwcLAAIAAAAAAAAAAAAAAAAAAAAAAAAAAgAABwcHCQcHCQwHAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAcHCAAAAwUEBAQEBAQEBQQEBAQEBQQEBAUEBAQEBAUEBQQEBAQEBAQEBQQGAAEAAwQEBQQEBAQFBAQEBAQEBAUEBAQFBAQEBAQEBAQEBQQFBAQEBgACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcHDAoHBwkHBwcAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAgAHBwcHBwcHBwcLAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAHBwAABwcJBwcKBwcHBwcHBwoHBwcHBwcHBwcHBwcHBwcHDAcHCQcHBwcHAAIACgcHCgcHBwcHBwcHCQcHBwcHBwcHBwkHBwcHBwcHBwoHBwcHBwABAAAAAAAAAAAAAAMEBAQFBQQEBAQEBAUEBAQFBAUFBAQJBwcHCAwLBwcHBwcAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAgAHBwkHBwcHAAAAAAABAAAAAAAAAAAAAAAAAAAAAgADBAQFBAYAAAAIAAAACgcMBwcMDAcJCwcHBwsHCgcMCgcHBwcJBwwHBwwJBwcHBwoMBwcHAAIABwcJDAcMBwcHBwcHCgwKBwcHBwcHDAoHDAcHBwcLBwkHBwwHBwACAAMEBQQEBAUEBAcHCgoHBwkHAAcKDAcHCQkHBwcHBwoHAAAAAAAAAAcHBwcAAAIAAAAAAAAAAAMEBQQFBAQEBAYAAQAHBwcHBwcIAAAAAAABAAAAAAAAAAAAAAAAAAAAAgAKBwoHBwcAAAAHAAAAAAsHBwcHBwwHBwwHBwcHBwkMCwkMBwwHBwcMBwcLBwoHBwwLDAcAAAEAAAcLBwwMCQcHBwcHDAkHDAcKBwcJBwwLBwcHAAAKDAcHBwcKBwABAAAHBwcMBwcKBwcHDAcHBwwHBwcHAAAAAAgACAgAAAAIAAAAAAAAAAcHBwAAAAAAAAAAAAAAAAcHBwcHBwcJBwcAAgAABwcHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwwMCgcAAAAAAAAABwcHAAAHBwcABwcABwcABwcHBwwHBwcKBwcHAAcAAAAHBwcHBwsHAAEABwAHBwcHDAsABwcHBwwHAAAAAAcHBwcHCwAHAAAJBwcKBwcHAAABAAAABwkHDAwHBwcHBwkKBwcLBwcIAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwAAAAAAAAAAAAAAAAAHBwcJBwcHCgcAAQAABwcHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcJBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHDAcJCgcJBwABAAAABwcHCAsHCAAHBwwJBwcIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBwAAAAAAAAAAAAAAAAAMBwcHDAcIBwAAAQAABwcIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwwHDAgHBwACAAAAAAAAAAAAAAAHBwcMDAcAAAAAAAAAAAAAAAAAAAAABAQGAAAAAAAAAAAAAAAAAAAAAAAAAAcJDAwHBwgAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwsHAAACAAAAAAAAAAAAAAAABwcHCwAAAAAAAAMFBgAAAAMEBQQFBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcLBwAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwsHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHCwcHAAACAAAAAAAAAAAAAAAAAAcHCAAAAAAAAAcKBwAAAAcKBwcJBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAABwgAAAAAAAAAAgAAAAAAAAAlKSUpJSklKSUpJSklKSUpJSklKSUpJSklBwkLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcHBwcABwAAAAAAAAAAAAAAAAAAAAAHAAAAAAMEBAcLBwAAAAcHBwcMDAcMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACUpJQclByUpJQclKSUpJQolByUpJSklCCUpBwcHAAAAAAAAAAAAAAAAAAADBAQEBAQFBAQEBAQFBQQEBAQEBAUEBAUFBAQEBAQFBAQEBAQEBAQEBQQEBAQFBQQEBAQEBAQFBAUEBAQEBAQEBQQEBwcJCQcHBwQFBAYAAAAAAAAAAAAAAAAAAAAAAAAHBwoHCQAAAAAHBwkHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBAQFBAQEBAUFBAclCSUHBwclCSUHJQclCSUHBwclByUJBwsKBwcAAAAAAAAAAAAAAAAAAAAHDAcHCgcHBwcKBwcHBwcHCgkHBwcHBwcHDAcKBwcHBwsHBwcHBwcHBwoHBwcHBwcHBwoHBwcHBwcHCgcHBwcHBwcHBwcHBwcLCgcHBwAAAAAAAAAAAAAAAAAAAAAAAAAHBwwHBwAAAAcKBwcHBwcHBAQFBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcJCgcHBwcMBwcHCwwKBwcMCgcHBwcHDAoLBwcJBwwMBwcMCQAAAAAAAAAAAAAAAAAAAAAACgsJBwgHCQwHBwcHDAcJBwcHBwsHBwkKBwcHBwwHCgcHBwkHBwcHBwwJBwcHBwcHCQsHBwcHCgcHBwcHCQcHBwcMBwcHBwkHDAcHBwcAAAAAAAAAAAAAAAAAAAAAAAAHCQcMCwAAAAcMBwcHBwcHBwkHBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwcLDAcHBwkMCgcHBwcMBwcHCwcHBwkHBwwHBwcHBwcMBwcHCgAAAAAAAAAAAAAAAAAAAAAHCQcMBwcHBwcMBwcHBwwLBwcHBwkMBwcMBwsHBwcMCwcHBwwHBwcHBwcMCQwHBwcHBwcMBwAHDAcHBwcHDAcJBwcHCwcHCQoHBwcHBwAAAAAAAAAAAAAAAAAAAAAAAAAABwcIAAAAAAgHCwwJBwcHBwwHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwwHAAcHDAcHBwcHBwcHAAcABwcHBwcAAAcHBwcHDAcHBwAAAAAAAAAAAAAAAAAAAAAHAAAHAAcHBwAHBwcHBwcLBwcABwcHBwcHDAAHBwcHBwcABwcMBwAAAAcHBwcLBwcHBwcHAAAHAAcHBwcHBwsHBwcHBwcHBwAHBwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAcIAAAAAAAHBwwHBwoHCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcHBwkHBwwHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBwcK",
+ "monsters": [
+  {
+   "index": 0,
+   "raw": "050001ff020000000000000500010200",
+   "x": 5,
+   "y": 1,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 5,
+    "y": 1,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 1,
+   "raw": "160026ff030000000000001600260300",
+   "x": 22,
+   "y": 38,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 22,
+    "y": 38,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 2,
+   "raw": "190001ff030000000000001900010300",
+   "x": 25,
+   "y": 1,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 25,
+    "y": 1,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 3,
+   "raw": "1a0030ff760000200000004400080000",
+   "x": 26,
+   "y": 48,
+   "flags": "0x76",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "key",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x08",
+    "name": "desleal_items",
+    "description": "Key"
+   },
+   "respawn": false
+  },
+  {
+   "index": 4,
+   "raw": "220026ff030000000000002200260300",
+   "x": 34,
+   "y": 38,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 34,
+    "y": 38,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 5,
+   "raw": "29001bff0200000000000029001b0200",
+   "x": 41,
+   "y": 27,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 41,
+    "y": 27,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 6,
+   "raw": "2e0014ff020000000000002e00140200",
+   "x": 46,
+   "y": 20,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 46,
+    "y": 20,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 7,
+   "raw": "32001bff0200000000000032001b0200",
+   "x": 50,
+   "y": 27,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 50,
+    "y": 27,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 8,
+   "raw": "3c0003ff030000000000003c00030300",
+   "x": 60,
+   "y": 3,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 60,
+    "y": 3,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 9,
+   "raw": "3c000aff000000100000003c000a0000",
+   "x": 60,
+   "y": 10,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 160,
+   "bigMonster": true,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 60,
+    "y": 10,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 10,
+   "raw": "3c000cff010000100000003c000c0100",
+   "x": 60,
+   "y": 12,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 160,
+   "bigMonster": true,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 60,
+    "y": 12,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 11,
+   "raw": "470014ff040000000000004700140400",
+   "x": 71,
+   "y": 20,
+   "flags": "0x04",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 4,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 71,
+    "y": 20,
+    "flags": "0x04",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 12,
+   "raw": "490035ff000000100000004900350000",
+   "x": 73,
+   "y": 53,
+   "flags": "0x00",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 0,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 160,
+   "bigMonster": true,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 73,
+    "y": 53,
+    "flags": "0x00",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 13,
+   "raw": "490037ff010000100000004900370100",
+   "x": 73,
+   "y": 55,
+   "flags": "0x01",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 1,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 160,
+   "bigMonster": true,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 73,
+    "y": 55,
+    "flags": "0x01",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 14,
+   "raw": "4d0024ff030000000000004d00240300",
+   "x": 77,
+   "y": 36,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 77,
+    "y": 36,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 15,
+   "raw": "56001bff0300000000000056001b0300",
+   "x": 86,
+   "y": 27,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 86,
+    "y": 27,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 16,
+   "raw": "5e002dff030000000000005e002d0300",
+   "x": 94,
+   "y": 45,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 94,
+    "y": 45,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 17,
+   "raw": "6a002dff030000000000006a002d0300",
+   "x": 106,
+   "y": 45,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 106,
+    "y": 45,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 18,
+   "raw": "6c000bff030000000000006c000b0300",
+   "x": 108,
+   "y": 11,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 108,
+    "y": 11,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 19,
+   "raw": "6f0006ffd00000200019004400040000",
+   "x": 111,
+   "y": 6,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "blue_potion",
+   "containsCode": "0x19",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x04",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (After Crazy Current)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 20,
+   "raw": "700022ff030000000000007000220300",
+   "x": 112,
+   "y": 34,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 112,
+    "y": 34,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 21,
+   "raw": "74000bff0300000000000074000b0300",
+   "x": 116,
+   "y": 11,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 116,
+    "y": 11,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 22,
+   "raw": "750001ff020000000000007500010200",
+   "x": 117,
+   "y": 1,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 117,
+    "y": 1,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 23,
+   "raw": "760022ff030000000000007600220300",
+   "x": 118,
+   "y": 34,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 118,
+    "y": 34,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 24,
+   "raw": "7c001effd00000200019004400020000",
+   "x": 124,
+   "y": 30,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "blue_potion",
+   "containsCode": "0x19",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x02",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (Above Air Current)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 25,
+   "raw": "80001aff0200000000000080001a0200",
+   "x": 128,
+   "y": 26,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 128,
+    "y": 26,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 26,
+   "raw": "890001ff020000000000008900010200",
+   "x": 137,
+   "y": 1,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 137,
+    "y": 1,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 27,
+   "raw": "8a001aff020000000000008a001a0200",
+   "x": 138,
+   "y": 26,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 138,
+    "y": 26,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 28,
+   "raw": "8c000dff030000000000008c000d0300",
+   "x": 140,
+   "y": 13,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 140,
+    "y": 13,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 29,
+   "raw": "8d0037ff030000000000008d00370300",
+   "x": 141,
+   "y": 55,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 141,
+    "y": 55,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 30,
+   "raw": "90000dff0300000000000090000d0300",
+   "x": 144,
+   "y": 13,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 144,
+    "y": 13,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 31,
+   "raw": "910022ff030000000000009100220300",
+   "x": 145,
+   "y": 34,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 145,
+    "y": 34,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 32,
+   "raw": "930032ffd00000200019004400010000",
+   "x": 147,
+   "y": 50,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "blue_potion",
+   "containsCode": "0x19",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x01",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (Below Air Current)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 33,
+   "raw": "9d0001ff020000000000009d00010200",
+   "x": 157,
+   "y": 1,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 157,
+    "y": 1,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 34,
+   "raw": "9d0013ff020000000000009d00130200",
+   "x": 157,
+   "y": 19,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 157,
+    "y": 19,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 35,
+   "raw": "af002eff03000000000000af002e0300",
+   "x": 175,
+   "y": 46,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 175,
+    "y": 46,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 36,
+   "raw": "b10001ff02000000000000b100010200",
+   "x": 177,
+   "y": 1,
+   "flags": "0x02",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 2,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 60,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 177,
+    "y": 1,
+    "flags": "0x02",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 37,
+   "raw": "b7002eff03000000000000b7002e0300",
+   "x": 183,
+   "y": 46,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 183,
+    "y": 46,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  },
+  {
+   "index": 38,
+   "raw": "ba001aff03000000000000ba001a0300",
+   "x": 186,
+   "y": 26,
+   "flags": "0x03",
+   "solid": false,
+   "noContactDamage": false,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "monster",
+   "kind": 3,
+   "hp": 0,
+   "xp": 255,
+   "contactDamage": 80,
+   "bigMonster": false,
+   "dropOnDeath": null,
+   "aiState": 0,
+   "aiTimer": 0,
+   "aiFlags": 0,
+   "respawn": {
+    "x": 186,
+    "y": 26,
+    "flags": "0x03",
+    "counter": 0,
+    "framesUntilActive": 255
+   }
+  }
+ ],
+ "doors": [
+  {
+   "index": 0,
+   "raw": "140009c017fa001f00ffffff",
+   "x": 20,
+   "y": 9,
+   "frame": {
+    "x": 19,
+    "y": 9,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 20,
+    "heroHeadRow": 10
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 0,
+   "flags": "0xc0",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp80",
+    "place": "0x17",
+    "x": 250,
+    "headRow": 32,
+    "y1": 31
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 1,
+   "raw": "1a0012c417a6001e00ffffff",
+   "x": 26,
+   "y": 18,
+   "frame": {
+    "x": 25,
+    "y": 18,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 26,
+    "heroHeadRow": 19
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 4,
+   "flags": "0xc4",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp80",
+    "place": "0x17",
+    "x": 166,
+    "headRow": 31,
+    "y1": 30
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 2,
+   "raw": "490019c31835001100ffffff",
+   "x": 73,
+   "y": 25,
+   "frame": {
+    "x": 72,
+    "y": 25,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 73,
+    "heroHeadRow": 26
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp81",
+    "place": "0x18",
+    "x": 53,
+    "headRow": 18,
+    "y1": 17
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 3,
+   "raw": "580022c418fa002600ffffff",
+   "x": 88,
+   "y": 34,
+   "frame": {
+    "x": 87,
+    "y": 34,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 88,
+    "heroHeadRow": 35
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 4,
+   "flags": "0xc4",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp81",
+    "place": "0x18",
+    "x": 250,
+    "headRow": 39,
+    "y1": 38
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 4,
+   "raw": "660035c31739000f00ffffff",
+   "x": 102,
+   "y": 53,
+   "frame": {
+    "x": 101,
+    "y": 53,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 102,
+    "heroHeadRow": 54
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp80",
+    "place": "0x17",
+    "x": 57,
+    "headRow": 16,
+    "y1": 15
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 5,
+   "raw": "770018c3185f003100ffffff",
+   "x": 119,
+   "y": 24,
+   "frame": {
+    "x": 118,
+    "y": 24,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 119,
+    "heroHeadRow": 25
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 3,
+   "flags": "0xc3",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp81",
+    "place": "0x18",
+    "x": 95,
+    "headRow": 50,
+    "y1": 49
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 6,
+   "raw": "ae0009c218e3003b00ffffff",
+   "x": 174,
+   "y": 9,
+   "frame": {
+    "x": 173,
+    "y": 9,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 174,
+    "heroHeadRow": 10
+   },
+   "open": true,
+   "runLeftOnArrival": true,
+   "variant": 2,
+   "flags": "0xc2",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp81",
+    "place": "0x18",
+    "x": 227,
+    "headRow": 60,
+    "y1": 59
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  }
+ ],
+ "platforms": {
+  "vertical": [
+   {
+    "index": 0,
+    "raw": "030036",
+    "x": 3,
+    "y": 54,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 1,
+    "raw": "370016",
+    "x": 55,
+    "y": 22,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 2,
+    "raw": "500039",
+    "x": 80,
+    "y": 57,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 3,
+    "raw": "8d001c",
+    "x": 141,
+    "y": 28,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 4,
+    "raw": "9e000d",
+    "x": 158,
+    "y": 13,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 5,
+    "raw": "b80002",
+    "x": 184,
+    "y": 2,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "index": 6,
+    "raw": "b8000d",
+    "x": 184,
+    "y": 13,
+    "tiles": [
+     64,
+     65,
+     66
+    ]
+   }
+  ],
+  "collapsing": [],
+  "horizontal": [
+   {
+    "index": 0,
+    "raw": "0b803b07000f00",
+    "x": 11,
+    "y": 59,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 7,
+    "maxX": 15,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 1,
+    "raw": "0f40340a001400",
+    "x": 15,
+    "y": 52,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 10,
+    "maxX": 20,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 2,
+    "raw": "1680bb12001a00",
+    "x": 22,
+    "y": 59,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 18,
+    "maxX": 26,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 3,
+    "raw": "2d803428003200",
+    "x": 45,
+    "y": 52,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 40,
+    "maxX": 50,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 4,
+    "raw": "3a80b435003f00",
+    "x": 58,
+    "y": 52,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 53,
+    "maxX": 63,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 5,
+    "raw": "a3802b9f00a700",
+    "x": 163,
+    "y": 43,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 159,
+    "maxX": 167,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 6,
+    "raw": "a4803ba100a700",
+    "x": 164,
+    "y": 59,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 161,
+    "maxX": 167,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 7,
+    "raw": "a940a6a200af00",
+    "x": 169,
+    "y": 38,
+    "speedCode": 1,
+    "speed": "slow (1 tile every 2nd frame)",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 162,
+    "maxX": 175,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 8,
+    "raw": "ad80bbaa00b000",
+    "x": 173,
+    "y": 59,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 170,
+    "maxX": 176,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 9,
+    "raw": "ae80abaa00b200",
+    "x": 174,
+    "y": 43,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": true,
+    "paused": false,
+    "minX": 170,
+    "maxX": 178,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "index": 10,
+    "raw": "b9802bb500bd00",
+    "x": 185,
+    "y": 43,
+    "speedCode": 2,
+    "speed": "1 tile per frame",
+    "movingLeft": false,
+    "paused": false,
+    "minX": 181,
+    "maxX": 189,
+    "tiles": [
+     70,
+     71,
+     72
+    ]
+   }
+  ]
+ },
+ "items": [
+  {
+   "entity": 3,
+   "x": 26,
+   "y": 48,
+   "type": "key",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x08",
+    "name": "desleal_items",
+    "description": "Key"
+   }
+  },
+  {
+   "entity": 19,
+   "x": 111,
+   "y": 6,
+   "type": "breakable_block",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x04",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (After Crazy Current)"
+   }
+  },
+  {
+   "entity": 24,
+   "x": 124,
+   "y": 30,
+   "type": "breakable_block",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x02",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (Above Air Current)"
+   }
+  },
+  {
+   "entity": 32,
+   "x": 147,
+   "y": 50,
+   "type": "breakable_block",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x44",
+    "mask": "0x01",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (Below Air Current)"
+   }
+  }
+ ],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x44",
+    "mask": "0x08",
+    "name": "desleal_items",
+    "description": "Key"
+   },
+   "writes": [
+    {
+     "addr": "0xd383",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 3,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xd38e",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 3,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "44000883d300ff8ed3ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x44",
+    "mask": "0x04",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (After Crazy Current)"
+   },
+   "writes": [
+    {
+     "addr": "0xd48c",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 19,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "4400048cd40000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x44",
+    "mask": "0x02",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (Above Air Current)"
+   },
+   "writes": [
+    {
+     "addr": "0xd4dc",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 24,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "440002dcd40000ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x44",
+    "mask": "0x01",
+    "name": "desleal_items",
+    "description": "Ceiling, Blue Potion (Below Air Current)"
+   },
+   "writes": [
+    {
+     "addr": "0xd55c",
+     "value": "0x0000",
+     "target": {
+      "table": "monsters",
+      "index": 32,
+      "fieldOffset": 9
+     }
+    }
+   ],
+   "raw": "4400015cd50000ffff"
+  }
+ ],
+ "alternateTables": [],
+ "descriptor": {
+  "raw": "1700070e0e",
+  "isBossCavern": false,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mus8",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp8",
+  "eai": "eai8",
+  "enp": "enp8"
+ },
+ "nameInfo": {
+  "x": 21,
+  "y": 175,
+  "color": 4
+ },
+ "raw": {
+  "header": "4ed3c00051d268d26ad2b9d20fd339d353d308ffffff0a000051d2",
+  "pointers": {
+   "descriptor": "0xd34e",
+   "width": "0x00c0",
+   "vplat": "0xd251",
+   "cplat": "0xd268",
+   "hplat": "0xd26a",
+   "doors": "0xd2b9",
+   "accomplished": "0xd30f",
+   "name": "0xd339",
+   "monsters": "0xd353",
+   "signs": "0x0000",
+   "mapEnd": "0xd251"
+  }
+ }
+}

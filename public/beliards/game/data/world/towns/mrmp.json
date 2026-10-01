@@ -1,0 +1,362 @@
+{
+ "id": "mrmp",
+ "file": "mrmp.mdt",
+ "name": "Muralla Town",
+ "place": "0x81",
+ "width": 215,
+ "height": 8,
+ "bank": "mpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "fHl6e3xkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAGNkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABjeXp7fAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAeXp7fHl6e3x5ent8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAGNkAAAAAAAAAAAAAAAAAKIApQAAAAAAAACIfX5/gGcAQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBAAADBAUGBgYGBwgJCgAAAABlZmcAAAAAACYnKCgoKCgoKCkAAAAAAGN5ent8ZEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEEAAAAAAAAAAAAAAAAAAgAAZWZ9fn+AZAAAAAAAAwQFBgYGBgYGBwgJCgAAAAAAY3l6e3x9fn+AfX5/gH1+f4hkAAAAAAAAAAAAAABleXp6e3xkAABlZmcAAAAAAAAAAAAAAACjpKanqKmqqwAAAIWBgoOEamtCQ0RDRENEQ0RDRENEQ0RDRENEQ0RDRENEQ0IACwwNDQ0NDQ4PEBESEwAAAGhpamsAACorLC0uLygoKCgoKCgpAABlZn1+f4CBQkNEQ0RDRENEQ0RDRENEQ0RDRENEQ0RDQmQAAAADBAUGBgYHCAkKAABoaYGCg4RqawAAAAsMDQ0NDQ0NDQ4PEBESEwAAAGhpfX5/iIGCg4SBgoOEgYKDhH3X2NjY2NjZ2tvb3Gl9fX5/gGcAAGhpamsAAAAAAAAAAJ+gocbHwcLIycHCAAAAhIWGh4hub0JGR0ZHRkdGR0ZFR0VGRkZFR0VHRUdFR0VHQgAUFRYWFhYWGBkZGRkbAAAAbG1ubwAAMDEyMzQ1NjY2NjY2NjYAAGxtgYKDhIVCRkdGSEZHRkVGSEZHRkhGR0ZHRkVIRUhCbm8AX2INDQ0NDg8QERJhAGxthYaHboxuAAAAFB4fHh8eHh8fGBkZGRkbAAAAbG2BgoOEhYaHiIWGh4iFhoeIgd3e397f3uDi4eLjiX2BgoOEi3IAbG1ubwAAm5yys5ucnby9yMnDxMrLw5YAAACFjYuMjYVyQkZGRkZGRkZGRUVFRUVGRUVFRUVFRUVFRUVCABQVFk1OT1AYGRkZGRsAAABwcW5yAAAwODk6NDU2Njc2NzY3NgAAcHGFhoeIiUJGRkZGRkZFRUVGRkZGRkZGRkZFRUVFRUJxcgAjIlVWV1gkJCQkJCUAcIiIiYp9iYxyAAAUHh8fH1FSU1QYGRodGBsAAABwcYWGkYiJiImMiZGLjImKiImFb+bk5eTl6u7s7XOLhYaHiItubwBwcW5yAACdnrS1nZ68vr/MzMzMvL3FlwAAAIuNi4yNhW9CRkZGRkZGRkZGRUVFRUVFRUVFRUVFRUVFRUIAFBUWFxwBFhgZGh0YGwAAAHNxbm8AADAxOwE0NTY2NjY2NjY2AABzbomKi4yNQkZGRkZGRUVFRUVGRkZGRkZGRUVFRUVFQnFvACMcIhwBIiQkJB0kJQBzbYuMjY6Hbm8AABQeHB4eHhwBHhgZGh0YGwAAAHOIiYuMjYmLjI2Ki4yNi4yNjoly5ufoHOnq7+/ucIiJiouMjW5vAHNtbm+bnJrDxMDBxsfAwczNz8y+v8eXAAAAkY6NjpF2ckJGRkZGRkZGRkVFRUVFRUVFRUVFRUVFRUVFQgAUFRYXHAEWGBkaHRgbAAAAdHV2cgAAMDE8ATQ1NjY3Njc2NzYAAHR1jo+QkY5CRkZGRkVFRUVFRUVGRkZGRkVFRUVFRUVCdnIAIyIiHAEiJCQkHSQlAAB0dY6Rjot2cgAAFB4eHh4eHAEeGBkZGRkbAAAAdHWOkZCRjo+RjY6PjpGOhY6RjnLn5ugc6evs7O9skZGOj46RdnIAdHV2cpi8vcDBwsPIycLDzM7QzL/AyJcAAACTkpOUlXgAQkZIRkhGSEZFR0VHRUhFR0VHRUhFSEVHRUdCABQVFhccARYYGRkZGRsAAAAAd3gAAAA9PT4/PT1AQEBAQEBAQEAAAHeSk5SVkkJGR0ZFSEVIRUhFR0VGR0ZFR0VIRUdFSEJ4AAAjIiIcASIkJCQkJCUAAAB3kpOUk3gAAAAUICAgICAcASAYGRkZGRsAAAAAd5KVlJWSk5SSkpOUlZKTlJV4AOTl6Bzp6uzs7AB3lJSVkpN4AAAAd3iZmr6/wsPExcrLxMXMztDMwcLKlwAAAA==",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "270003",
+   "x": 39,
+   "triggerX": [
+    38,
+    39,
+    40
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  },
+  {
+   "index": 1,
+   "raw": "3b0005",
+   "x": 59,
+   "triggerX": [
+    58,
+    59,
+    60
+   ],
+   "dest": "0x05",
+   "kind": "church"
+  },
+  {
+   "index": 2,
+   "raw": "6f0004",
+   "x": 111,
+   "triggerX": [
+    110,
+    111,
+    112
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  },
+  {
+   "index": 3,
+   "raw": "8a0006",
+   "x": 138,
+   "triggerX": [
+    137,
+    138,
+    139
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  },
+  {
+   "index": 4,
+   "raw": "ac0002",
+   "x": 172,
+   "triggerX": [
+    171,
+    172,
+    173
+   ],
+   "dest": "0x02",
+   "kind": "sage"
+  },
+  {
+   "index": 5,
+   "raw": "cd0008",
+   "x": 205,
+   "triggerX": [
+    204,
+    205,
+    206
+   ],
+   "dest": "0x08",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp10",
+   "heroX": 61,
+   "heroHeadRow": 7,
+   "runLeft": false
+  }
+ ],
+ "transitions": [
+  {
+   "edge": "left",
+   "raw": "01000000",
+   "kind": "town",
+   "map": "cmap",
+   "place": "0x80",
+   "npcGroup": "mman",
+   "bank": "cpat",
+   "arrivalHeroX": "destWidth-6"
+  }
+ ],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "3d00070000",
+   "map": "mp10",
+   "heroX": 61,
+   "heroHeadRow": 7,
+   "runLeft": false
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "8200022503030006",
+   "x": 130,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x25",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 6,
+   "text": "A moment, Duke Garland. If you listen closely in front of the underground door, you will hear a terrifying sound. That's the entrance to the inferno that is home to the demons. Beware that place, young man."
+  },
+  {
+   "index": 1,
+   "raw": "0900024600020000",
+   "x": 9,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x46",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "Ah, you are the warrior I've heard about. My son Michael was a courageous warrior. He went into the caverns and was never seen again. Please be careful."
+  },
+  {
+   "index": 2,
+   "raw": "1500834500010001",
+   "x": 21,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x45",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "Sir, I dreamed that a demon created the underground caverns and filled them with monsters. Then the Spirits brought you to here to make things right again. Before you go, visit the magic shop -- you'll find many useful things there. Good luck on your quest."
+  },
+  {
+   "index": 3,
+   "raw": "3100000000020002",
+   "x": 49,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "You're on your way to the caverns, aren't you? I recently went in search of a powerful potion said to be hidden there. I didn't stay long enough to find it, but perhaps you will. Be sure to stop at the weapons shop -- you'll need some strong armor.Duke Garland, they say that a potion is hidden in a wall near a platform that raises and lowers. I&wish you luck."
+  },
+  {
+   "index": 4,
+   "raw": "bc00000001030003",
+   "x": 188,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "You're going into the caverns? You are a brave man. They say there are many doors underground, but many are locked and the keys are scattered throughout the labyrinths. I hope you can find them."
+  },
+  {
+   "index": 5,
+   "raw": "8200020000020004",
+   "x": 130,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 4,
+   "text": "Duke Garland, someone I know survived a journey to the underground town, Satono. According to him, the road back is short but the road out is long. It will be very dangerous."
+  },
+  {
+   "index": 6,
+   "raw": "9000841d00010005",
+   "x": 144,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 4,
+   "headTile": "0x1d",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 5,
+   "text": "According to the legends, the name of the underground town is Satono. "
+  },
+  {
+   "index": 7,
+   "raw": "a000018a00000007",
+   "x": 160,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 1,
+   "headTile": "0x8a",
+   "animPhase": 0,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 7,
+   "text": "Alas, I fear there is no hope. You and I and all who inhabit this town will surely perish. Don't run off to some terrible place, stay and have a drink with me. Ah, I know you must go, and I salute you -- you're a braver man than I. God be with you."
+  },
+  {
+   "index": 8,
+   "raw": "5600004600020008",
+   "x": 86,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x46",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 8,
+   "text": "When you kill a&monster you get a&thing called 'almas'. It's worth a&lot of money. I'd like to get some myself but I don't want to go down there. "
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Ah, you are the warrior I've heard about. My son Michael was a courageous warrior. He went into the caverns and was never seen again. Please be careful.",
+   "controlCodes": [],
+   "raw": "41682c20796f7520617265207468652077617272696f7220495c76652068656172642061626f75742e204d7920736f6e204d69636861656c20776173206120636f75726167656f75732077617272696f722e2048652077656e7420696e746f207468652063617665726e7320616e6420776173206e65766572207365656e20616761696e2e20506c65617365206265206361726566756c2e"
+  },
+  {
+   "index": 1,
+   "text": "Sir, I dreamed that a demon created the underground caverns and filled them with monsters. Then the Spirits brought you to here to make things right again. Before you go, visit the magic shop -- you'll find many useful things there. Good luck on your quest.",
+   "controlCodes": [],
+   "raw": "5369722c204920647265616d6564207468617420612064656d6f6e20637265617465642074686520756e64657267726f756e642063617665726e7320616e642066696c6c6564207468656d2077697468206d6f6e73746572732e205468656e2074686520537069726974732062726f7567687420796f7520746f206865726520746f206d616b65207468696e677320726967687420616761696e2e204265666f726520796f7520676f2c20766973697420746865206d616769632073686f70202d2d20796f755c6c6c2066696e64206d616e792075736566756c207468696e67732074686572652e20476f6f64206c75636b206f6e20796f75722071756573742e"
+  },
+  {
+   "index": 2,
+   "text": "You're on your way to the caverns, aren't you? I recently went in search of a powerful potion said to be hidden there. I didn't stay long enough to find it, but perhaps you will. Be sure to stop at the weapons shop -- you'll need some strong armor.Duke Garland, they say that a potion is hidden in a wall near a platform that raises and lowers. I&wish you luck.",
+   "controlCodes": [],
+   "raw": "596f755c7265206f6e20796f75722077617920746f207468652063617665726e732c206172656e5c7420796f753f204920726563656e746c792077656e7420696e20736561726368206f66206120706f77657266756c20706f74696f6e207361696420746f2062652068696464656e2074686572652e2049206469646e5c742073746179206c6f6e6720656e6f75676820746f2066696e642069742c20627574207065726861707320796f752077696c6c2e204265207375726520746f2073746f702061742074686520776561706f6e732073686f70202d2d20796f755c6c6c206e65656420736f6d65207374726f6e672061726d6f722e44756b65204761726c616e642c2074686579207361792074686174206120706f74696f6e2069732068696464656e20696e20612077616c6c206e656172206120706c6174666f726d20746861742072616973657320616e64206c6f776572732e2049267769736820796f75206c75636b2e"
+  },
+  {
+   "index": 3,
+   "text": "You're going into the caverns? You are a brave man. They say there are many doors underground, but many are locked and the keys are scattered throughout the labyrinths. I hope you can find them.",
+   "controlCodes": [],
+   "raw": "596f755c726520676f696e6720696e746f207468652063617665726e733f20596f75206172652061206272617665206d616e2e20546865792073617920746865726520617265206d616e7920646f6f727320756e64657267726f756e642c20627574206d616e7920617265206c6f636b656420616e6420746865206b6579732061726520736361747465726564207468726f7567686f757420746865206c61627972696e7468732e204920686f706520796f752063616e2066696e64207468656d2e"
+  },
+  {
+   "index": 4,
+   "text": "Duke Garland, someone I know survived a journey to the underground town, Satono. According to him, the road back is short but the road out is long. It will be very dangerous.",
+   "controlCodes": [],
+   "raw": "44756b65204761726c616e642c20736f6d656f6e652049206b6e6f772073757276697665642061206a6f75726e657920746f2074686520756e64657267726f756e6420746f776e2c205361746f6e6f2e204163636f7264696e6720746f2068696d2c2074686520726f6164206261636b2069732073686f7274206275742074686520726f6164206f7574206973206c6f6e672e2049742077696c6c20626520766572792064616e6765726f75732e"
+  },
+  {
+   "index": 5,
+   "text": "According to the legends, the name of the underground town is Satono. ",
+   "controlCodes": [],
+   "raw": "4163636f7264696e6720746f20746865206c6567656e64732c20746865206e616d65206f662074686520756e64657267726f756e6420746f776e206973205361746f6e6f2e20"
+  },
+  {
+   "index": 6,
+   "text": "A moment, Duke Garland. If you listen closely in front of the underground door, you will hear a terrifying sound. That's the entrance to the inferno that is home to the demons. Beware that place, young man.",
+   "controlCodes": [],
+   "raw": "41206d6f6d656e742c2044756b65204761726c616e642e20496620796f75206c697374656e20636c6f73656c7920696e2066726f6e74206f662074686520756e64657267726f756e6420646f6f722c20796f752077696c6c206865617220612074657272696679696e6720736f756e642e20546861745c732074686520656e7472616e636520746f2074686520696e6665726e6f207468617420697320686f6d6520746f207468652064656d6f6e732e20426577617265207468617420706c6163652c20796f756e67206d616e2e"
+  },
+  {
+   "index": 7,
+   "text": "Alas, I fear there is no hope. You and I and all who inhabit this town will surely perish. Don't run off to some terrible place, stay and have a drink with me. Ah, I know you must go, and I salute you -- you're a braver man than I. God be with you.",
+   "controlCodes": [],
+   "raw": "416c61732c20492066656172207468657265206973206e6f20686f70652e20596f7520616e64204920616e6420616c6c2077686f20696e6861626974207468697320746f776e2077696c6c20737572656c79207065726973682e20446f6e5c742072756e206f666620746f20736f6d65207465727269626c6520706c6163652c207374617920616e6420686176652061206472696e6b2077697468206d652e2041682c2049206b6e6f7720796f75206d75737420676f2c20616e6420492073616c75746520796f75202d2d20796f755c7265206120627261766572206d616e207468616e20492e20476f64206265207769746820796f752e"
+  },
+  {
+   "index": 8,
+   "text": "When you kill a&monster you get a&thing called 'almas'. It's worth a&lot of money. I'd like to get some myself but I don't want to go down there. ",
+   "controlCodes": [],
+   "raw": "5768656e20796f75206b696c6c2061266d6f6e7374657220796f75206765742061267468696e672063616c6c6564205c616c6d61735c2e2049745c7320776f7274682061266c6f74206f66206d6f6e65792e20495c64206c696b6520746f2067657420736f6d65206d7973656c6620627574204920646f6e5c742077616e7420746f20676f20646f776e2074686572652e20"
+  }
+ ],
+ "patches": [],
+ "patrolBounds": {
+  "min": 5,
+  "max": 150
+ },
+ "sageRespawnX": 172,
+ "townId": 1,
+ "descriptor": {
+  "raw": "0000ff0001",
+  "music": "mgt1",
+  "npcGroup": "mman",
+  "middleLayer": "ympd (surface)",
+  "bank": "mpat"
+ },
+ "raw": {
+  "header": "d3c6d700d8c601e8c6ecc600c707c7afcecfc6ac0005c7",
+  "pointers": {
+   "descriptor": "0xc6d3",
+   "name": "0xc6d8",
+   "transitions": "0xc6e8",
+   "doors": "0xc6ec",
+   "entrances": "0xc700",
+   "texts": "0xc707",
+   "npcs": "0xceaf",
+   "patrol": "0xc6cf",
+   "c015": "0xc705"
+  },
+  "nameInfo": "19af000c"
+ }
+}

@@ -1,0 +1,313 @@
+{
+ "id": "stmp",
+ "file": "stmp.mdt",
+ "name": "Satono Town",
+ "place": "0x82",
+ "width": 215,
+ "height": 8,
+ "bank": "dpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "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",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "2c0004",
+   "x": 44,
+   "triggerX": [
+    43,
+    44,
+    45
+   ],
+   "dest": "0x04",
+   "kind": "magic_drug_shop"
+  },
+  {
+   "index": 1,
+   "raw": "5c0002",
+   "x": 92,
+   "triggerX": [
+    91,
+    92,
+    93
+   ],
+   "dest": "0x02",
+   "kind": "sage"
+  },
+  {
+   "index": 2,
+   "raw": "800007",
+   "x": 128,
+   "triggerX": [
+    127,
+    128,
+    129
+   ],
+   "dest": "0x07",
+   "kind": "inn"
+  },
+  {
+   "index": 3,
+   "raw": "940006",
+   "x": 148,
+   "triggerX": [
+    147,
+    148,
+    149
+   ],
+   "dest": "0x06",
+   "kind": "bank"
+  },
+  {
+   "index": 4,
+   "raw": "b90003",
+   "x": 185,
+   "triggerX": [
+    184,
+    185,
+    186
+   ],
+   "dest": "0x03",
+   "kind": "weapon_armor"
+  }
+ ],
+ "transitions": [
+  {
+   "edge": "left",
+   "raw": "8100ffff",
+   "kind": "cavern",
+   "entrance": 0,
+   "map": "mp10",
+   "heroX": 128,
+   "heroHeadRow": 33
+  },
+  {
+   "edge": "right",
+   "raw": "8001ffff",
+   "kind": "cavern",
+   "entrance": 1,
+   "map": "mp20",
+   "heroX": 6,
+   "heroHeadRow": 62
+  }
+ ],
+ "entrances": [
+  {
+   "index": 0,
+   "raw": "8000210100",
+   "map": "mp10",
+   "heroX": 128,
+   "heroHeadRow": 33,
+   "runLeft": true
+  },
+  {
+   "index": 1,
+   "raw": "06003e0002",
+   "map": "mp20",
+   "heroX": 6,
+   "heroHeadRow": 62,
+   "runLeft": false
+  }
+ ],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "2500031c00010002",
+   "x": 37,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 3,
+   "headTile": "0x1c",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "Are you Duke Garland? Thank the Spirits you've come. We escaped from Jashiin through the power of the Spirits. However, if his power should become so strong that the Spirits' can't protect us, this town is doomed."
+  },
+  {
+   "index": 1,
+   "raw": "c400000003030004",
+   "x": 196,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 4,
+   "text": "Beware! I went into the caverns and saw an awful creature -- a giant demon octopus. It was terrifying, but I escaped. I hope you will be as lucky."
+  },
+  {
+   "index": 2,
+   "raw": "1600010003030000",
+   "x": 22,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 1,
+   "headTile": "0x00",
+   "animPhase": 3,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "Welcome, stranger. You must have come through the labyrinths from the outside world. We have not encountered such a brave person in a very long time. You should visit the great sage Yasmin -- she will be anxious to meet you."
+  },
+  {
+   "index": 3,
+   "raw": "5600040000010001",
+   "x": 86,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 4,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "So you're the brave one I've heard about. Well, if you're going to go on from here, I'll give you a tip.  When you come to a stopping place, dig a hole. The demons have hidden jewels in many places."
+  },
+  {
+   "index": 4,
+   "raw": "7900820000020003",
+   "x": 121,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "Let me give you some advice, stranger. If you fall down the stone slab in front of the blue door, you will see a green door nearby. Don't go through that door under any circumstances -- it is a doorway to the past."
+  },
+  {
+   "index": 5,
+   "raw": "9d00020000010005",
+   "x": 157,
+   "headRow": 5,
+   "facingLeft": false,
+   "sprite": 2,
+   "headTile": "0x00",
+   "animPhase": 0,
+   "ai": 1,
+   "aiName": "patrol_every_2nd_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 5,
+   "text": "Are you the brave one? I&hope you have brought almas for us. The almas are part of Jashiin's power. We use them to make medicine, and other useful things."
+  },
+  {
+   "index": 6,
+   "raw": "a300831c00020006",
+   "x": 163,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 3,
+   "headTile": "0x1c",
+   "animPhase": 0,
+   "ai": 2,
+   "aiName": "patrol_every_4th_tick",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 6,
+   "text": "Duke Garland, when you go into the caverns again, please try to bring back more almas. To supplement the protective power of the Spirits we must build a wall of almas. Unless we get more, Satono Town is in peril."
+  }
+ ],
+ "altNpcArrays": [],
+ "texts": [
+  {
+   "index": 0,
+   "text": "Welcome, stranger. You must have come through the labyrinths from the outside world. We have not encountered such a brave person in a very long time. You should visit the great sage Yasmin -- she will be anxious to meet you.",
+   "controlCodes": [],
+   "raw": "57656c636f6d652c20737472616e6765722e20596f75206d757374206861766520636f6d65207468726f75676820746865206c61627972696e7468732066726f6d20746865206f75747369646520776f726c642e2057652068617665206e6f7420656e636f756e74657265642073756368206120627261766520706572736f6e20696e20612076657279206c6f6e672074696d652e20596f752073686f756c64207669736974207468652067726561742073616765205961736d696e202d2d207368652077696c6c20626520616e78696f757320746f206d65657420796f752e"
+  },
+  {
+   "index": 1,
+   "text": "So you're the brave one I've heard about. Well, if you're going to go on from here, I'll give you a tip.  When you come to a stopping place, dig a hole. The demons have hidden jewels in many places.",
+   "controlCodes": [],
+   "raw": "536f20796f755c726520746865206272617665206f6e6520495c76652068656172642061626f75742e2057656c6c2c20696620796f755c726520676f696e6720746f20676f206f6e2066726f6d20686572652c20495c6c6c206769766520796f752061207469702e20205768656e20796f7520636f6d6520746f20612073746f7070696e6720706c6163652c20646967206120686f6c652e205468652064656d6f6e7320686176652068696464656e206a6577656c7320696e206d616e7920706c616365732e"
+  },
+  {
+   "index": 2,
+   "text": "Are you Duke Garland? Thank the Spirits you've come. We escaped from Jashiin through the power of the Spirits. However, if his power should become so strong that the Spirits' can't protect us, this town is doomed.",
+   "controlCodes": [],
+   "raw": "41726520796f752044756b65204761726c616e643f205468616e6b20746865205370697269747320796f755c766520636f6d652e20576520657363617065642066726f6d204a61736869696e207468726f7567682074686520706f776572206f662074686520537069726974732e20486f77657665722c2069662068697320706f7765722073686f756c64206265636f6d6520736f207374726f6e6720746861742074686520537069726974735c2063616e5c742070726f746563742075732c207468697320746f776e20697320646f6f6d65642e"
+  },
+  {
+   "index": 3,
+   "text": "Let me give you some advice, stranger. If you fall down the stone slab in front of the blue door, you will see a green door nearby. Don't go through that door under any circumstances -- it is a doorway to the past.",
+   "controlCodes": [],
+   "raw": "4c6574206d65206769766520796f7520736f6d65206164766963652c20737472616e6765722e20496620796f752066616c6c20646f776e207468652073746f6e6520736c616220696e2066726f6e74206f662074686520626c756520646f6f722c20796f752077696c6c20736565206120677265656e20646f6f72206e65617262792e20446f6e5c7420676f207468726f756768207468617420646f6f7220756e64657220616e792063697263756d7374616e636573202d2d206974206973206120646f6f7277617920746f2074686520706173742e"
+  },
+  {
+   "index": 4,
+   "text": "Beware! I went into the caverns and saw an awful creature -- a giant demon octopus. It was terrifying, but I escaped. I hope you will be as lucky.",
+   "controlCodes": [],
+   "raw": "4265776172652120492077656e7420696e746f207468652063617665726e7320616e642073617720616e20617766756c206372656174757265202d2d2061206769616e742064656d6f6e206f63746f7075732e204974207761732074657272696679696e672c20627574204920657363617065642e204920686f706520796f752077696c6c206265206173206c75636b792e"
+  },
+  {
+   "index": 5,
+   "text": "Are you the brave one? I&hope you have brought almas for us. The almas are part of Jashiin's power. We use them to make medicine, and other useful things.",
+   "controlCodes": [],
+   "raw": "41726520796f7520746865206272617665206f6e653f204926686f706520796f7520686176652062726f7567687420616c6d617320666f722075732e2054686520616c6d6173206172652070617274206f66204a61736869696e5c7320706f7765722e20576520757365207468656d20746f206d616b65206d65646963696e652c20616e64206f746865722075736566756c207468696e67732e"
+  },
+  {
+   "index": 6,
+   "text": "Duke Garland, when you go into the caverns again, please try to bring back more almas. To supplement the protective power of the Spirits we must build a wall of almas. Unless we get more, Satono Town is in peril.",
+   "controlCodes": [],
+   "raw": "44756b65204761726c616e642c207768656e20796f7520676f20696e746f207468652063617665726e7320616761696e2c20706c656173652074727920746f206272696e67206261636b206d6f726520616c6d61732e20546f20737570706c656d656e74207468652070726f7465637469766520706f776572206f66207468652053706972697473207765206d757374206275696c6420612077616c6c206f6620616c6d61732e20556e6c65737320776520676574206d6f72652c205361746f6e6f20546f776e20697320696e20706572696c2e"
+  }
+ ],
+ "patches": [],
+ "patrolBounds": {
+  "min": 36,
+  "max": 180
+ },
+ "sageRespawnX": 92,
+ "townId": 2,
+ "descriptor": {
+  "raw": "0201ff0102",
+  "music": "ugm1",
+  "npcGroup": "cman",
+  "middleLayer": "ckpd (cave)",
+  "bank": "dpat"
+ },
+ "raw": {
+  "header": "d3c6d700d8c602e7c6efc600c70cc772cccfc65c000ac7",
+  "pointers": {
+   "descriptor": "0xc6d3",
+   "name": "0xc6d8",
+   "transitions": "0xc6e7",
+   "doors": "0xc6ef",
+   "entrances": "0xc700",
+   "texts": "0xc70c",
+   "npcs": "0xcc72",
+   "patrol": "0xc6cf",
+   "c015": "0xc70a"
+  },
+  "nameInfo": "19af030b"
+ }
+}

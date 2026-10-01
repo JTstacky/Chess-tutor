@@ -1,0 +1,845 @@
+{
+ "id": "mp62",
+ "file": "mp62.mdt",
+ "name": "Cavern of Arrugia",
+ "width": 73,
+ "height": 64,
+ "bank": "mpp6",
+ "level": 6,
+ "boss": false,
+ "tear": null,
+ "entryHeadRow": 10,
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x. Values are tile ids of this map's bank. Door frames are NOT stamped (see doors[].frame); platforms are NOT stamped (see platforms).",
+ "grid": "ICAgICAgICAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAQEBAQEBAQEBCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEICAgICAgICAgICAgICAgICAgICAgICAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAgADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAIAICAEBCAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAABACAgBAQgIAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAEBCAgBAQgIAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAQgIAQEICAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABACAgBAQgIAQEICAEBCAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAgIAQEICAEBCAgBAQgIAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAABAQgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAEABAQgIAQEICAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAQgICAgIAAAAAAAAAAAAAAAAAAAAAAAAAACAAQEICAEBCAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAEICAgICAAAAAAAAAAAAAAAAAAAAAAAAAAAgAgIAQEICAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAABAQgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAEBCAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAQEBAQEBAMDAwMDAwMDAwMDAwMDAwMDAwMDAwQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQgICAgICAgICAgICAgICAgICAgBAQEBAQEBAQEBAQEBAQEAAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEIAAAAAAAAAAAAAAAAAAAAAAAIAQEBAQEBAQEBAQEBAQEBAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBCAAAAAAAAAAAAAAAAAAAAAAACAEBAQEBAQEBAQEBAQEBCAAAAAAIAQEBAQEBAQEBAQEBAQgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAgICAgICAgIAQEBAQEBAQgAAAAACAEBAQEBAQEBAQEBAQEIAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAEBAQEBAQEIAAAAAAgBAQEBAQEBAQEBAQEBCAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBAQEBAQEBCAAAAAAIAQEBAQEBAQEBAQEBAQgAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAQEBAQEBAQgAAAAACAEBAQEBAQEBAQEBAQEIAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAEBAQEBAQEIAAAAAAgBAQEBAQEBAQEBAQEBCAAAgAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAAAAAgBAQEBAQEBCAAAAAAIAQEBAQEBAQEBAQEBAQgAAEAIAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQgAAAAIAQEBAQEBAQgAAAAACAEBAQEBAQEBAQEBAQEIAABACAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEIAAAACAEBAQEBAQEIAAAAAAgBAQEBAQEBAQEBAQEBCAAAgAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBCAAAAAgBAQEBAQEBCAAAAAAIAQEBAQEBAQEBAQEBAQgAAEAIAQEBAQEBCAgICAgICAgICAgICAgICAgICAgBAQEBAQEBAQEBAQgAAAAIAQEBAQEBAQgAAAAACAEBAQEBAQEBAQEBAQEIAACACAEBAQEBAQgAAAAAAAAAAAAAAAAAAAAAAAAIAQEBAQEBAQEBAQEIAAAACAEBAQEBAQEIAAAAAAgBAQEBAQEBAQEBAQEBCAAAQAgBAQEBAQEIAAAAAAAAAAAAAAAAAAAAAAAACAEBAQEBAQEBAQEBCAAAAAgBAQEBAQEBCAAAAAAICAgICAgICAgICAgICAgAAIAIAQEBAQEBCAAAAAAAAAAAAAAAAAAAAAAAAAgBAQEBAQEBAQEBAQgAAAAICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAACACAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgIAQEIAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABACAEBCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAgBAQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAIAQEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACACAEBCAAAAAAICAgICAgICAgICAgICAgICAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAAAQAgBAQgICAgIAQEBAQEBAQEBAQEBAQEBAQgAAAAAAAAACAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQgAAIAIAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEIAAAAAAAAAAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEIAACACAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBCAAAAAAAAAAIAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBCAAAQAgBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQgAAAAAAAAACAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQgAAIAIAQEBAQEBAQgICAgICAgICAgICAgIAQEIAAAAAAAAAAgBAQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAACACAgICAgICAgAAAAAAAAAAAAAAAAACAEBCAAAAAAAAAAIAQEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBAQgAAAAAAAAACAEBCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgIAAAAAAAAAAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+ "monsters": [
+  {
+   "index": 0,
+   "raw": "080014ffd0000000000000ffff000000",
+   "x": 8,
+   "y": 20,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 1,
+   "raw": "080016ffd0000000000000ffff000000",
+   "x": 8,
+   "y": 22,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 2,
+   "raw": "080018fff1000000000000ffff000000",
+   "x": 8,
+   "y": 24,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 3,
+   "raw": "08001afff1000000000000ffff000000",
+   "x": 8,
+   "y": 26,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 4,
+   "raw": "08001cfff1000000000000ffff000000",
+   "x": 8,
+   "y": 28,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 5,
+   "raw": "08001efff1000000000000ffff000000",
+   "x": 8,
+   "y": 30,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 6,
+   "raw": "080020fff1000000000000ffff000000",
+   "x": 8,
+   "y": 32,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 7,
+   "raw": "080022fff1000000000000ffff000000",
+   "x": 8,
+   "y": 34,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 8,
+   "raw": "0a0014ffd0000000000000ffff000000",
+   "x": 10,
+   "y": 20,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 9,
+   "raw": "0a0016ffd0000000000000ffff000000",
+   "x": 10,
+   "y": 22,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 10,
+   "raw": "0a0018fff1000000000000ffff000000",
+   "x": 10,
+   "y": 24,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 11,
+   "raw": "0a001afff1000000000000ffff000000",
+   "x": 10,
+   "y": 26,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 12,
+   "raw": "0a001cfff1000000000000ffff000000",
+   "x": 10,
+   "y": 28,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 13,
+   "raw": "0a001efff1000000000000ffff000000",
+   "x": 10,
+   "y": 30,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 14,
+   "raw": "0a0020fff1000000000000ffff000000",
+   "x": 10,
+   "y": 32,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 15,
+   "raw": "0a0022fff1000000000000ffff000000",
+   "x": 10,
+   "y": 34,
+   "flags": "0xf1",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "falling_floor_block",
+   "respawn": false
+  },
+  {
+   "index": 16,
+   "raw": "0c0014ffd0000000000000ffff000000",
+   "x": 12,
+   "y": 20,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 17,
+   "raw": "0c0016ffd0000000000000ffff000000",
+   "x": 12,
+   "y": 22,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 18,
+   "raw": "0e0014ffd0000000000000ffff000000",
+   "x": 14,
+   "y": 20,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 19,
+   "raw": "0e0016ffd0000000000000ffff000000",
+   "x": 14,
+   "y": 22,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 20,
+   "raw": "100014ffd0000000000000ffff000000",
+   "x": 16,
+   "y": 20,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 21,
+   "raw": "100016ffd0000000000000ffff000000",
+   "x": 16,
+   "y": 22,
+   "flags": "0xd0",
+   "solid": true,
+   "noContactDamage": true,
+   "cannotBeHit": false,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "breakable_block",
+   "contains": "nothing",
+   "containsCode": "0x00",
+   "respawn": false
+  },
+  {
+   "index": 22,
+   "raw": "12001aff730007200000002c00080000",
+   "x": 18,
+   "y": 26,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "enchantment_sword"
+   },
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x08",
+    "name": "plata_items_1",
+    "description": "Enchantment Sword (Arrugia)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 23,
+   "raw": "1b001aff73000020001e002c00040000",
+   "x": 27,
+   "y": 26,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "feruza_shoes",
+    "code": "0x1e"
+   },
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x04",
+    "name": "plata_items_1",
+    "description": "Feruza Shoes (Arrugia)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 24,
+   "raw": "2c0034ff730005200000002c00020000",
+   "x": 44,
+   "y": 52,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "gold_1000"
+   },
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x02",
+    "name": "plata_items_1",
+    "description": "1000 Golds (Arrugia, 3rd one)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 25,
+   "raw": "2e0034ff730005200000002c00010000",
+   "x": 46,
+   "y": 52,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "gold_1000"
+   },
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x01",
+    "name": "plata_items_1",
+    "description": "1000 Golds (Arrugia, 2nd one)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 26,
+   "raw": "300034ff730005200000002d00800000",
+   "x": 48,
+   "y": 52,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "gold_1000"
+   },
+   "saveFlag": {
+    "byte": "0x2d",
+    "mask": "0x80",
+    "name": "plata_items_2",
+    "description": "1000 Golds (Arrugia, 1st one)"
+   },
+   "respawn": false
+  },
+  {
+   "index": 27,
+   "raw": "370027ff730000200019002d00400000",
+   "x": 55,
+   "y": 39,
+   "flags": "0x73",
+   "solid": false,
+   "noContactDamage": true,
+   "cannotBeHit": true,
+   "inactiveAtLoad": false,
+   "category": "special",
+   "type": "chest",
+   "chest": {
+    "contains": "blue_potion",
+    "code": "0x19"
+   },
+   "saveFlag": {
+    "byte": "0x2d",
+    "mask": "0x40",
+    "name": "plata_items_2",
+    "description": "Blue Potion (Arrugia)"
+   },
+   "respawn": false
+  }
+ ],
+ "doors": [
+  {
+   "index": 0,
+   "raw": "280025801739003900ffffff",
+   "x": 40,
+   "y": 37,
+   "frame": {
+    "x": 39,
+    "y": 37,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 40,
+    "heroHeadRow": 38
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 0,
+   "flags": "0x80",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp80",
+    "place": "0x17",
+    "x": 57,
+    "headRow": 58,
+    "y1": 57
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  },
+  {
+   "index": 1,
+   "raw": "3e000d830e1f000500ffffff",
+   "x": 62,
+   "y": 13,
+   "frame": {
+    "x": 61,
+    "y": 13,
+    "w": 5,
+    "h": 4
+   },
+   "enter": {
+    "heroLeftColumn": 62,
+    "heroHeadRow": 14
+   },
+   "open": true,
+   "runLeftOnArrival": false,
+   "variant": 3,
+   "flags": "0x83",
+   "destination": {
+    "kind": "cavern",
+    "map": "mp60",
+    "place": "0x0e",
+    "x": 31,
+    "headRow": 6,
+    "y1": 5
+   },
+   "lock": "none",
+   "features": "0x00",
+   "playsRokademo": false,
+   "saveFlag": null
+  }
+ ],
+ "platforms": {
+  "vertical": [],
+  "collapsing": [],
+  "horizontal": []
+ },
+ "items": [
+  {
+   "entity": 22,
+   "x": 18,
+   "y": 26,
+   "type": "chest",
+   "contents": "enchantment_sword",
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x08",
+    "name": "plata_items_1",
+    "description": "Enchantment Sword (Arrugia)"
+   }
+  },
+  {
+   "entity": 23,
+   "x": 27,
+   "y": 26,
+   "type": "chest",
+   "contents": "feruza_shoes",
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x04",
+    "name": "plata_items_1",
+    "description": "Feruza Shoes (Arrugia)"
+   }
+  },
+  {
+   "entity": 24,
+   "x": 44,
+   "y": 52,
+   "type": "chest",
+   "contents": "gold_1000",
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x02",
+    "name": "plata_items_1",
+    "description": "1000 Golds (Arrugia, 3rd one)"
+   }
+  },
+  {
+   "entity": 25,
+   "x": 46,
+   "y": 52,
+   "type": "chest",
+   "contents": "gold_1000",
+   "saveFlag": {
+    "byte": "0x2c",
+    "mask": "0x01",
+    "name": "plata_items_1",
+    "description": "1000 Golds (Arrugia, 2nd one)"
+   }
+  },
+  {
+   "entity": 26,
+   "x": 48,
+   "y": 52,
+   "type": "chest",
+   "contents": "gold_1000",
+   "saveFlag": {
+    "byte": "0x2d",
+    "mask": "0x80",
+    "name": "plata_items_2",
+    "description": "1000 Golds (Arrugia, 1st one)"
+   }
+  },
+  {
+   "entity": 27,
+   "x": 55,
+   "y": 39,
+   "type": "chest",
+   "contents": "blue_potion",
+   "saveFlag": {
+    "byte": "0x2d",
+    "mask": "0x40",
+    "name": "plata_items_2",
+    "description": "Blue Potion (Arrugia)"
+   }
+  }
+ ],
+ "signs": [],
+ "accomplished": [
+  {
+   "condition": {
+    "byte": "0x2c",
+    "mask": "0x08",
+    "name": "plata_items_1",
+    "description": "Enchantment Sword (Arrugia)"
+   },
+   "writes": [
+    {
+     "addr": "0xc674",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 22,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xc67f",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 22,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "2c000874c600ff7fc6ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x2c",
+    "mask": "0x04",
+    "name": "plata_items_1",
+    "description": "Feruza Shoes (Arrugia)"
+   },
+   "writes": [
+    {
+     "addr": "0xc684",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 23,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xc68f",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 23,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "2c000484c600ff8fc6ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x2c",
+    "mask": "0x02",
+    "name": "plata_items_1",
+    "description": "1000 Golds (Arrugia, 3rd one)"
+   },
+   "writes": [
+    {
+     "addr": "0xc694",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 24,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xc69f",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 24,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "2c000294c600ff9fc6ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x2c",
+    "mask": "0x01",
+    "name": "plata_items_1",
+    "description": "1000 Golds (Arrugia, 2nd one)"
+   },
+   "writes": [
+    {
+     "addr": "0xc6a4",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 25,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xc6af",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 25,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "2c0001a4c600ffafc6ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x2d",
+    "mask": "0x80",
+    "name": "plata_items_2",
+    "description": "1000 Golds (Arrugia, 1st one)"
+   },
+   "writes": [
+    {
+     "addr": "0xc6b4",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 26,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xc6bf",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 26,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "2d0080b4c600ffbfc6ffffffff"
+  },
+  {
+   "condition": {
+    "byte": "0x2d",
+    "mask": "0x40",
+    "name": "plata_items_2",
+    "description": "Blue Potion (Arrugia)"
+   },
+   "writes": [
+    {
+     "addr": "0xc6c4",
+     "value": "0xff00",
+     "target": {
+      "table": "monsters",
+      "index": 27,
+      "fieldOffset": 0
+     }
+    },
+    {
+     "addr": "0xc6cf",
+     "value": "0xffff",
+     "target": {
+      "table": "monsters",
+      "index": 27,
+      "fieldOffset": 11
+     }
+    }
+   ],
+   "raw": "2d0040c4c600ffcfc6ffffffff"
+  }
+ ],
+ "alternateTables": [],
+ "descriptor": {
+  "raw": "1300050a0a",
+  "isBossCavern": false,
+  "isJashiinCavern": false,
+  "isDungeon": true,
+  "music": "mus6",
+  "mmanGrpIdx": 0,
+  "tileBank": "mpp6",
+  "eai": "eai6",
+  "enp": "enp6"
+ },
+ "nameInfo": {
+  "x": 22,
+  "y": 175,
+  "color": 0
+ },
+ "raw": {
+  "header": "0fc549008ac48cc48ec490c4aac4fac414c506ffff000a00008ac4",
+  "pointers": {
+   "descriptor": "0xc50f",
+   "width": "0x0049",
+   "vplat": "0xc48a",
+   "cplat": "0xc48c",
+   "hplat": "0xc48e",
+   "doors": "0xc490",
+   "accomplished": "0xc4aa",
+   "name": "0xc4fa",
+   "monsters": "0xc514",
+   "signs": "0x0000",
+   "mapEnd": "0xc48a"
+  }
+ }
+}

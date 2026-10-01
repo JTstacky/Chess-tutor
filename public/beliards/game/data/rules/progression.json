@@ -1,0 +1,203 @@
+{
+  "_meta": {
+    "file": "progression.json",
+    "game": "Zeliard, MS-DOS English (Sierra 1990) balance. Japanese-version differences are in japanese_balance.json.",
+    "units": {
+      "frame": "One cavern main-loop iteration: speed_const*4 PIT ticks at 236.70 Hz. Default speed_const 5 => 84.5 ms (11.83 frames/s). F9 digit d => speed_const = 10-d (digit 9 = 4 ticks = 59 fps, digit 0 = 40 ticks = 5.9 fps).",
+      "hp": "Internal 16-bit hit points. The LIFE bar draws 8 HP per pixel; 800 HP = full bar."
+    },
+    "sources": [
+      "3_Assembly/tasm/bin/zelres2/217KENJP.bin + masm/working/zelres2/code/217KENJP.asm (Sage program: XP table DS:A28C, per-sage level cap DS:A2AC, level-up table DS:A380, tier logic check_hp_exp_tier, level-up at palette_* labels which are misnamed)",
+      "3_Assembly/ida/fight.asm (process_hero_death, update_hero_XP, Get_Stats, HP regen in game_loop_render_and_timing, healing_potion_timer)",
+      "3_Assembly/tasm/bin/stdply.bin (starting record) and masm/working/drivers/stdply.inc, ida/common.inc (save layout)",
+      "TCRF 'Zeliard (DOS)' revisional-differences page (fetched 2026-10-01 via web.archive.org snapshot 20250825) for PC-88 vs DOS notes",
+      "Community: 4_Resources/GameData/GAME_DATA_REFERENCE.md, manuals/text/Zeliard_ Game Internals.txt (Crystal's findings)"
+    ]
+  },
+  "starting_state": {
+    "level": 0,
+    "hp": 80,
+    "max_hp": 80,
+    "xp": 0,
+    "gold_carried": 0,
+    "gold_bank": 0,
+    "almas": 0,
+    "sword": "training_sword",
+    "shield": null,
+    "spell_charges": {"espada": 12, "saeta": 6, "fuego": 8, "lanzar": 4, "rascar": 3, "agua": 4, "guerra": 3},
+    "spells_learned": [],
+    "place": "0x80 Felishika's Castle (save byte 0xC4)",
+    "last_sage_visited": "0x81 Muralla (save byte 0xC5)",
+    "note": "King Felishika gives 1000 gold on the first audience (see story.json/towns.json). Evidence: stdply.bin bytes 0x85..0xE8."
+  },
+  "levels": {
+    "max_level": 255,
+    "xp_storage": "16-bit unsigned; update_hero_XP saturates at 65535 (excess lost).",
+    "table": [
+      {"level": 0, "max_hp": 80, "xp_to_next": 50},
+      {"level": 1, "max_hp": 120, "xp_to_next": 150},
+      {"level": 2, "max_hp": 160, "xp_to_next": 300},
+      {"level": 3, "max_hp": 200, "xp_to_next": 420},
+      {"level": 4, "max_hp": 240, "xp_to_next": 1000},
+      {"level": 5, "max_hp": 280, "xp_to_next": 1500},
+      {"level": 6, "max_hp": 320, "xp_to_next": 3000},
+      {"level": 7, "max_hp": 380, "xp_to_next": 5000},
+      {"level": 8, "max_hp": 460, "xp_to_next": 6000},
+      {"level": 9, "max_hp": 540, "xp_to_next": 8000},
+      {"level": 10, "max_hp": 600, "xp_to_next": 10000},
+      {"level": 11, "max_hp": 640, "xp_to_next": 15000},
+      {"level": 12, "max_hp": 680, "xp_to_next": 20000},
+      {"level": 13, "max_hp": 720, "xp_to_next": 40000},
+      {"level": 14, "max_hp": 760, "xp_to_next": 50000},
+      {"level": 15, "max_hp": 780, "xp_to_next": 60000},
+      {"level": 16, "max_hp": 800, "xp_to_next": 60000},
+      {"level": "17..255", "max_hp": 800, "xp_to_next": 60000}
+    ],
+    "xp_to_next_rule": "xp_table[min(level, 15)] with xp_table = [50,150,300,420,1000,1500,3000,5000,6000,8000,10000,15000,20000,40000,50000,60000] (217KENJP DS:A28C).",
+    "max_hp_rule": "On level-up from level L (<16) max HP = word from row L of DS:A380 (120,160,200,240,280,320,380,460,540,600,640,680,720,760,780,800). From L >= 16 max HP stays 800.",
+    "level_up_effects": [
+      "hero_level += 1 (saturates at 255)",
+      "max HP set from the table and current HP = max HP (full heal)",
+      "spell max charges set from the per-level table (spells.json) or +2 each when L >= 16; current charges = max (full refill)",
+      "XP -= xp_table[min(new_level-1, 15)]",
+      "XP overflow cap: if remaining XP >= xp_table[min(new_level, 15)] then XP = that value - 1 (you can never bank a second level-up)",
+      "sword damage bonus rises (floor(level/2), see items.json damage formula)"
+    ],
+    "overflow_cap_example": "Level 0 with 400 XP -> level 1, 400-50 = 350 >= 150 -> XP = 149.",
+    "only_one_level_per_visit": true,
+    "evidence": ["217KENJP.asm lines 470-560 (labels palette_* are misnamed; they implement the level-up)", "217KENJP.bin DS:A28C xp table, DS:A380 level rows"]
+  },
+  "sage": {
+    "names_by_town": [
+      {"sage_id": 1, "name": "Marid", "town": "Muralla", "teaches": null, "max_level_grantable": 3},
+      {"sage_id": 2, "name": "Yasmin", "town": "Satono", "teaches": "espada", "max_level_grantable": 6},
+      {"sage_id": 3, "name": "Hajjar", "town": "Bosque", "teaches": "saeta", "max_level_grantable": 9},
+      {"sage_id": 4, "name": "Chiriga", "town": "Helada", "teaches": "fuego", "max_level_grantable": 11},
+      {"sage_id": 5, "name": "Hisham", "town": "Tumba", "teaches": "lanzar", "max_level_grantable": 13},
+      {"sage_id": 6, "name": "Maryam", "town": "Dorado", "teaches": "rascar", "max_level_grantable": 15},
+      {"sage_id": 7, "name": "Saied", "town": "Llama", "teaches": "agua", "max_level_grantable": 18},
+      {"sage_id": 8, "name": "Indihar", "town": "Pureza", "teaches": "guerra", "max_level_grantable": 255}
+    ],
+    "level_cap_rule": "A Sage only levels you up while hero_level < cap[sage_id-1], cap table DS:A2AC = [3,6,9,11,13,15,18,255]. At or above the cap he answers with tier 4.",
+    "menu": ["Go outside", "See Power", "Listen Knowledge", "Record Experience"],
+    "first_visit": "One-time introduction speech (bitmask 0xE5: +128 Muralla ... +1 Pureza). Sages 2..8 teach their spell in it (sets learned flag, selects the spell). Text verbatim in towns.json.",
+    "see_power": {
+      "preamble": "I shall call upon the Spirits and their powers..... ",
+      "tiers": [
+        {"tier": 0, "condition": "xp < need/2", "text": "Your experience is lacking. Persevere in your quest."},
+        {"tier": 1, "condition": "need/2 <= xp < need - need/4 (integer shifts)", "text": "You must accumulate more experience."},
+        {"tier": 2, "condition": "75% <= xp < need", "text": "I can see the faint light of the Spirits in you. You must endure a little longer."},
+        {"tier": 3, "condition": "xp >= need and level < sage cap", "text": "The light of the Spirits is bursting forth within you. / Indeed, your power has grown.", "effect": "level-up (see levels.level_up_effects)"},
+        {"tier": 4, "condition": "xp >= need and level >= sage cap", "text": "I can no longer impart the power of the Spirits to you. Continue on your quest. You will soon find others to help you."}
+      ],
+      "need": "xp_table[min(level,15)]",
+      "evidence": "217KENJP.asm check_hp_exp_tier (lines 380-430) and blessing texts at kenjp_blessing_text_ptrs",
+      "community_wording_note": "Community quotes ('You must persevere') paraphrase tier 0; the verbatim DOS strings are above."
+    },
+    "listen_knowledge": "Per-sage hint text (verbatim in towns.json).",
+    "record_experience": {
+      "text": "I shall record your experiences./ ... Place is saved on user disk. Will you continue your quest?",
+      "effect": "Asks for an up-to-8-character name and writes the 256-byte player record to NAME.USR (INT 21h create/write/close). Save byte 0xC4 records the town. The DOS build never updates 0xC5 (last sage), see death rules.",
+      "evidence": "217KENJP.asm log_experience_entry / save_name_* (lines 645-1220)"
+    },
+    "other_lines": {
+      "greeting": "How can I help you, Brave One?",
+      "again": "Is there anything else I can do for you?",
+      "blessing_success": "The Spirits are with you.",
+      "prayer": "Oh, Holy Spirits, purify my thoughts and grant me strength. "
+    }
+  },
+  "xp_sources": {
+    "monsters": "Per-type XP byte from the world's EAI header (enemies.json), added on kill.",
+    "bosses": "Word at boss descriptor +5 (bosses.json).",
+    "death": "Dying ADDS (127 - 2*level) mod 256 XP (8-bit arithmetic: level 0 -> +127, level 63 -> +1, level 64 -> +255, level 100 -> +183)."
+  },
+  "death_and_resurrection": {
+    "dos_rule": {
+      "trigger": "hero_HP == 0 at the end of a cavern frame and hero_invincibility (0x7F) not set",
+      "animation": "Hero collapses, blinks (~30 frames), screen fades.",
+      "penalties": ["gold carried = 0 (bank balance is safe)", "almas = floor(almas / 2)", "XP += (127 - 2*level) mod 256 (a gain, not a loss)"],
+      "keep": ["level", "equipment", "items", "spells and charges", "keys", "all world flags"],
+      "restore": "HP = max HP",
+      "respawn": "Sage hut of the town in save byte 0xC5 'last sage visited'. The DOS build NEVER writes 0xC5 (initial 0x81), so you always respawn at Muralla (Sage Marid). Kioku Feather uses the same byte and therefore always returns to Muralla.",
+      "special_case": "If save byte 0x49 is non-zero at death, there is no penalty and 0xC5 is set to 0x80 so you wake in Felishika Castle ('Brave knight, you have awakened. When you fell at the hand of Jashiin, the Spirits brought you here...'). This is the scripted Jashiin encounter path; see story.json.",
+      "evidence": ["ida/fight.asm process_hero_death (lines ~9170-9240)", "binary search of all chunks: the only write to [00C5] is 'mov byte [00C5],80h' in 200FIGHT at file offset 0x39B8", "TCRF DOS page: 'Never updates last sage the player visited'"]
+    },
+    "japanese_rule": {
+      "penalties": ["lose all gold carried", "lose ALL almas", "experience cut in half"],
+      "respawn": "last Sage spoken to (0xC5 is updated in the PC-88/X1 version)",
+      "source": "TCRF Zeliard (DOS) revisional differences; HG101 Zeliard article",
+      "confidence": "medium (secondary sources, consistent with each other)"
+    }
+  },
+  "recovery": {
+    "cavern_regen": "+2 HP every 16 frames while HP < max (about 1.35 s at default speed). Runs every frame in caverns, standing still or not; can overshoot max by 1 when HP is odd. Counter resets on damage/scene changes. Not in the Japanese versions.",
+    "red_potion": "Cavern pickup (drop code 8 / hidden in walls/chests): healing_potion_timer += 10 -> +8 HP per frame for 10 frames = +80 HP.",
+    "blue_potion": "Cavern pickup (drop code 9): healing_potion_timer += maxHP/8 + 1 -> +8 HP per frame until full (timer cleared when HP reaches max).",
+    "church": "Full HP and all spell charges, free (Muralla, Esco).",
+    "inn": "Full HP and all spell charges for the town's inn price (towns.json).",
+    "sage_level_up": "Full HP and spells.",
+    "evidence": ["ida/fight.asm increase_hp (byte_9F18, 16 frames, +2)", "ida/fight.asm healing_potion_timer consumer (+8 HP/frame)", "fight.asm flag_18 (+0Ah) / flag_19 (maxHP/8+1)", "214CHURP.bin / 216INNAP.bin"]
+  },
+  "hazards": {
+    "hazard_tiles": "Four tile ids per tileset (tileset table at DS:8020) hurt on contact: damage per frame = [1,1,4,8,20,20,20,20,20][cavern_level-1] unless Pirika Shoes are equipped (ida/fight.asm step_on_aggressive_ground, byte_7516).",
+    "heat": "cavern_level 7 (Caliente/Reaccion/Correr) without the Asbestos Cape equipped: 15 damage every 64 frames with the message 'It’s too hot !!'. Timer (temperature_timer) only counts while unprotected in level 7.",
+    "ice": "cavern_level 4: without Ruzeria Shoes the floor is slippery (hero slides).",
+    "slopes": "without Silkarn Shoes the hero slides down slopes.",
+    "evidence": "ida/fight.asm lines 2186 (Ruzeria), 1576 (Silkarn), 2535 (Feruza jump 4 vs 2), 2608 (Asbestos), 3171 (Pirika)"
+  },
+  "currency": {
+    "almas": "16-bit, saturates at 65535. Enemy drops: 1, 10 or 100 almas objects (drop codes 4, 5, 11). Also some wall stashes ('Wall, 100 almas').",
+    "gold": "24-bit carried (0x85..0x87) and 24-bit bank (0x88..0x8A).",
+    "exchange_almas_to_gold": {
+      "_note": "Gold received per alma. Authoritative values and bank program details are in towns.json (213BANKP). Values below are the DOS rates published by TCRF and the community, which agree with each other.",
+      "muralla": 6, "satono": 6, "bosque": 8, "helada": 4, "tumba": 2, "dorado": 4, "llama": 0.5, "pureza": 6, "esco": 8,
+      "llama_note": "Llama is 4 almas : 2 gold (i.e. 1 gold per 2 almas)."
+    },
+    "bank": "Deposit / withdraw / exchange almas / check balance. Bank balance survives death. Amount entry: Up/Down +/-10, Left/Right +/-1 (manual). See towns.json for limits and dialogue."
+  },
+  "sword_damage_formula": {
+    "formula": "d = sword_base[sword] + floor(level/2); if d > 255 -> 255; d = d * (sabre_oil_count + 1), capped at 255; downward thrust (jump + Up+Down + attack): d = min(255, d*2). Monster hp -= d; hp <= 0 kills.",
+    "sword_base": {"training_sword": 1, "wise_mans_sword": 2, "spirit_sword": 4, "knights_sword": 8, "illumination_sword": 32, "enchantment_sword": 127},
+    "evidence": "ida/fight.asm Get_Stats (al=1) and sword_damages db 1,2,4,8,32,127",
+    "details": "items.json"
+  },
+  "story_progression": {
+    "_note": "Map-file ids (MPxx) for boss arenas are verified from the MDT descriptors' boss_ai field; cavern names come from the save-flag documentation (ida/common.inc, TCRF notes). The exact cavern<->MDT assignment and door graph is owned by game/data/world/.",
+    "steps": [
+      {"order": 1, "place": "Felishika Castle", "what": "Audience with King Felishika: +1000 gold (once; flag 0x05, void after entering a cavern 0x06). Princess Felicia's chamber (petrified)."},
+      {"order": 2, "place": "Muralla Town", "sage": "Marid (no spell)", "services": "weapons, magic, church, bank, sage"},
+      {"order": 3, "cavern": "Cavern of Malicia (world 1)", "needs": "Key found in Malicia to open Cangrejo's lair door", "boss": "Cangrejo (MP1D, CRAB.BIN)", "reward": "Tear of Esmesanti #1", "exit": "door to Satono"},
+      {"order": 4, "place": "Satono (underground town)", "sage": "Yasmin: Espada"},
+      {"order": 5, "cavern": "Cavern of Peligro (world 2)", "needs": "keys for the locked blue/red doors; key to Pulpo's lair", "boss": "Pulpo (MP2D, TAKO.BIN)", "reward": "Tear #2", "exit": "locked door to the 3rd dungeon -> Bosque"},
+      {"order": 6, "place": "Bosque village", "sage": "Hajjar: Saeta", "gate": "a sentry blocks the exit toward Pollo until you hold the Hero's Crest (save flag 0x12 bit 3, set when the crest is picked up)"},
+      {"order": 7, "cavern": "Caverns of Madera / Riza (world 3, the Forest)", "item": "Hero's Crest (hidden in the largest tree trunk)", "boss": "Pollo (MP3D, TORI.BIN)", "reward": "Tear #3", "exit": "locked door to the 4th dungeon -> Helada"},
+      {"order": 8, "place": "Helada", "sage": "Chiriga: Fuego"},
+      {"order": 9, "cavern": "Caverns of Glacial / Escarcha (world 4, ice)", "item": "Ruzeria Shoes (anti-slip)", "boss": "Agar (MP4D, ZELA.BIN)", "reward": "Tear #4", "exit": "-> Tumba"},
+      {"order": 10, "place": "Tumba", "sage": "Hisham: Lanzar", "note": "Weapon master trades the Crest of Glory for the Knight's Sword"},
+      {"order": 11, "cavern": "Caverns of Corroer / Cementar (world 5, graveyard)", "items": ["Pirika Shoes (Gelroid/hazard protection)", "Crest of Glory"], "boss": "Vista (MP5D, MEDA.BIN)", "requirement": "a long sword (Knight's Sword or better) to reach Vista", "reward": "Tear #5", "exit": "-> Dorado"},
+      {"order": 12, "place": "Dorado", "sage": "Maryam: Rascar"},
+      {"order": 13, "cavern": "Caverns of Tesoro / Plata (world 6, gold)", "items": ["Silkarn Shoes (climb slopes)"], "optional": "Cavern of Arrugia behind a Lion's Head Key door: Enchantment Sword + Feruza Shoes + gold (key is found later, in Absor)", "boss": "Tarso (MP6D, LEGA.BIN)", "reward": "Tear #6", "exit": "locked door to the Cavern of Caliente -> Llama"},
+      {"order": 14, "place": "Llama (surface, hot)", "sage": "Saied: Agua", "events": ["Paguro in the house at the town's right end (MP73, ZEL2.BIN): defeat it to receive the Elf Crest; townspeople refuse to talk until then (flags 0x30, 0x34, 0x9A)", "Asbestos Cape bought from a villager for 2500 almas (flag 0x34 bit 6)"]},
+      {"order": 15, "cavern": "Caverns of Caliente / Reaccion / Correr (world 7, burning)", "needs": "Asbestos Cape against heat; keys", "boss": "Dragon (MP7D, DRGN.BIN)", "reward": "Tear #7", "exit": "-> Pureza"},
+      {"order": 16, "place": "Pureza", "sage": "Indihar: Guerra (Sage of All Sages, no level cap)", "notes": ["some townspeople lie", "the building at the back warps you one-way to Dorado (flag 0x45 bit 7)", "hidden route to Esco (secret town, no Sage, cheap shops, free church)"]},
+      {"order": 17, "cavern": "Caverns of Absor / Milagro / Desleal / Falter (world 8, fruit gardens)", "items": ["Lion's Head Key (Absor)"], "needs": "Feruza Shoes for the high jumps", "boss": "Alguien (MP8D, AKMA.BIN)", "reward": "Tear #8", "exit": "Cavern of Final"},
+      {"order": 18, "cavern": "Cavern of Final", "needs": "final key; locked door to Jashiin's lair (flag 0x45 bit 5)", "boss": "Jashiin (MP90 MAO1.BIN, then MPA0 MAO2.BIN)", "reward": "9th Tear (count byte 0xA0 reaches 9)"},
+      {"order": 19, "place": "Felishika Castle", "what": "Return with the nine Tears; Princess Felicia restored; ending (250ENDMO). See story.json."}
+    ],
+    "tears": "Count byte 0xA0 (0..9). One per main boss: Cangrejo, Pulpo, Pollo, Agar, Vista, Tarso, Dragon, Alguien (per-cavern 'Collected a Tear' flags 0x03 b5, 0x0B b3, 0x13 b1, 0x1C b4, 0x24 b2, 0x2D b4, 0x36 b7, 0x45 b6) + Jashiin. Paguro gives the Elf Crest, not a Tear.",
+    "confidence": "medium-high: order and gates are from save-flag semantics + Sage texts + community walkthroughs; exact door ids live in world data."
+  },
+  "confidence": {
+    "levels_xp_hp": "high (read directly from release bytes)",
+    "sage_rules_and_texts": "high",
+    "death_rules": "high (code) / medium for Japanese rule (secondary sources)",
+    "exchange_rates": "medium-high (TCRF + community agree; towns.json has the code-level check)",
+    "story_progression": "medium-high"
+  },
+  "conflicts": [
+    {"topic": "HP per level", "community": "Crystal/fan site list: L2 160, L3 240, L4 280 ... L15 800", "code": "L3 200, L4 240, ... L15 780, L16 800 (one extra 200 step)", "chosen": "code (217KENJP DS:A380)"},
+    {"topic": "death penalty", "community": "'keep all items, gold, and progress'", "code": "carried gold lost, almas halved, XP gained", "chosen": "code"},
+    {"topic": "Sage wording", "community": "'You must persevere'", "code": "'Your experience is lacking. Persevere in your quest.'", "chosen": "code"}
+  ]
+}

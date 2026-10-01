@@ -1,0 +1,30 @@
+{
+  "hero.idle": ["art.hero.idle", {"id": "old.hero_idle", "override": {"anims": {"idle": [0,1,2,3,4,5,6,7], "default": [0]}, "fps": 6}}],
+  "hero.walk": ["art.hero.walk", {"id": "old.hero_run", "override": {"anims": {"walk": [0,1,2,3,4,5,6,7]}, "fps": 12}}],
+  "hero.jump": ["art.hero.jump", {"id": "old.hero_jump", "override": {"anims": {"jump": [1,2]}, "fps": 8}}],
+  "hero.fall": ["art.hero.fall", {"id": "old.hero_jump", "override": {"anims": {"fall": [4,5]}, "fps": 8}}],
+  "hero.attack": ["art.hero.attack", {"id": "old.hero_attack", "override": {"anims": {"attack": [1,2,3,4,5]}}}],
+  "hero.overhead": ["art.hero.overhead", {"id": "old.hero_overhead_attack", "override": {"anims": {"overhead": [1,2,3,4,5]}}}],
+  "hero.low": ["art.hero.low", {"id": "old.hero_crouch_walk", "override": {"anims": {"low": [2,3,4]}}}],
+  "hero.thrust": ["art.hero.thrust", {"id": "old.hero_down_thrust", "override": {"anims": {"thrust": [3,4]}}}],
+  "hero.crouch": ["art.hero.crouch", {"id": "old.hero_crouch_walk", "override": {"anims": {"crouch": [0]}}}],
+  "hero.climb": ["art.hero.climb", {"id": "old.hero_climb", "override": {"anims": {"climb": [0,1,2,3,4,5,6,7]}, "fps": 10}}],
+  "hero.hurt": ["art.hero.hurt", {"id": "old.hero_defeat", "override": {"anims": {"hurt": [0,1]}}}],
+  "hero.dead": ["art.hero.dead", {"id": "old.hero_defeat", "override": {"anims": {"dead": [0,1,2,3,4,5,6,7]}}}],
+  "hero.cast": ["art.hero.cast", {"id": "old.hero_cast", "override": {"anims": {"cast": [1,2,3,4]}}}],
+  "hero.town": ["art.hero.walk", {"id": "old.hero_town_walk", "override": {"anims": {"walk": [0,1,2,3,4,5,6,7]}}}],
+
+  "item.spirit_mote": ["art.item.almas", "item.spirit_mote"],
+  "item.coin": ["art.item.gold", "item.coin"],
+  "prop.chest": ["art.prop.chest", {"id": "old.treasure_chest", "override": {"anims": {"default": [0], "open": [0,1,2,3,4,5,6,7]}}}],
+  "prop.lantern": ["art.prop.lantern", "old.save_lantern"],
+  "prop.crystal": ["art.prop.tear", "old.quest_crystal"],
+
+  "fx.espada": ["art.fx.espada", "old.spectral_blade"],
+  "fx.saeta": ["art.fx.saeta", "old.amber_arrow"],
+  "fx.fuego": ["art.fx.fuego", "old.ghostflame"],
+  "fx.lanzar": ["art.fx.lanzar", "old.fire_lance"],
+  "fx.rascar": ["art.fx.rascar", "old.stonefall"],
+  "fx.agua": ["art.fx.agua", "old.tidal_surge"],
+  "fx.guerra": ["art.fx.guerra", "old.star_nova"]
+}

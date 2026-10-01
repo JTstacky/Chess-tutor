@@ -1,0 +1,374 @@
+{
+ "id": "cmap",
+ "file": "cmap.mdt",
+ "name": "Felishika's Castle",
+ "place": "0x80",
+ "width": 114,
+ "height": 8,
+ "bank": "cpat",
+ "gridEncoding": "base64 of a Uint8Array, row-major: index = y * width + x (8 rows).",
+ "grid": "AAAAAFVWV1RVVldWVlYAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAACAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAA+VFVWV1RVVlRVVldUVVZUVVZXVFVWV1QAAAAAAAAAAFhaWlhZWltYWVpXVlU/AAAAODk6OwAAAAAAAAIAAAAAAAIAAAAAAAIAODk6Ojo5OTo6Ojk6Ojk5OwAAAgAAAAAAAgAAAAAAAgAAAAAAODk6O0BBWFlaW1hZWnFyc3R1dnd4WVpbXFlaW1gAAAAAAAAAPFxdXlxdXl9YXF9ZWmBCRgAABgcICQAAAgA4OTo5Ojo6Ojk5Ojo5Ojk7AAoLCwsLCwsLCwsLCwsMADg6Ojk6OTk5Ojo5Ojk6OjsAAAIABgcICUNEXF1eX15dcXl6e3x9fn+AeFxdXF1eX1wAAAAAAAAAPWxhYmBhYmNeX2BiZGNgSQAAABMUAA0ODg8ACgsLCwsLCwsLCwsLCwwAABARERERERERERERERESAAAKCwsLCwsLCwsLCwsLDAANDhUPABMUAEdIYGFiY2CBgoGCgYKDhIOEg4RgYGFiY2AAAAAAAAAAPWRlZmRsZmdcXWRjZ2VkYE0AABMUDg4RFxUOERERFxERFxEXEREXEREVDhcYGBgbHB0dHh8YGBgWDg4RFxEXERcRFxEREREREQ4VEREVDhMUAEtMYGFiY2SFZAEBAQGFAQEBZIVjZGRlZmAAAAAAAAAAPWVmZ2RlZ2hgYWRlaWdkSUoAABMUMjMzMzMzMzIyMjIzMzMzMzIyMzMzMzMYGBggISIjJCUYGBgBMjMzMzMzMzMzMzMzMzMzMzMzMzIyMhMUAE5MZWZnZmaGaIiJiouGjI2OZIZoaWdoY2MAAAAAAAAAPWlsa2lqbGlpb2lsbWxoUQAAABMUNDU0NDQ0NDQ0NDU1NTU1NDQ0NDQ1NTUYGBgmJygpKisYGBgBMzU1NTU1NTU1NTU1NTU1NTU1NTQ0NBMUAE9QaWxraWmHbI+QkZKHk42UaYdsaWlrbGkAAAAAAAAAPW1ub21tbm9tb21ub21tUwAAABMUNjc2NzY3Njc2NzY3Njc2NzY3Njc2NzYZGRksLS4vMDEaGhoBNjc2NzY3Njc2NzY3Njc2NzY3Njc2NxMUAABSbW1tbZWZlpeYmZmam5ubm5ucbW1tbm0AAAAA",
+ "doors": [
+  {
+   "index": 0,
+   "raw": "5f0001",
+   "x": 95,
+   "triggerX": [
+    94,
+    95,
+    96
+   ],
+   "dest": "0x01",
+   "kind": "princess"
+  },
+  {
+   "index": 1,
+   "raw": "340000",
+   "x": 52,
+   "triggerX": [
+    51,
+    52,
+    53
+   ],
+   "dest": "0x00",
+   "kind": "king"
+  }
+ ],
+ "transitions": [
+  {
+   "edge": "right",
+   "raw": "00010001",
+   "kind": "town",
+   "map": "mrmp",
+   "place": "0x81",
+   "npcGroup": "mman",
+   "bank": "mpat",
+   "arrivalHeroX": 4
+  }
+ ],
+ "entrances": [],
+ "npcs": [
+  {
+   "index": 0,
+   "raw": "3000811800000000",
+   "x": 48,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x18",
+   "animPhase": 0,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 0,
+   "text": "If you are the brave warrior we have awaited, we have something to tell you: throughout the ages, many young men have entered the caverns, but few have returned."
+  },
+  {
+   "index": 1,
+   "raw": "3800811800000001",
+   "x": 56,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x18",
+   "animPhase": 0,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 1,
+   "text": "According to legend, there may still be underground places that have not been destroyed by Jashiin. People may still be living there, and will surely lend you a hand."
+  },
+  {
+   "index": 2,
+   "raw": "5400800001030002",
+   "x": 84,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 0,
+   "headTile": "0x00",
+   "animPhase": 1,
+   "ai": 3,
+   "aiName": "face_hero",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 2,
+   "text": "I have been in the underground town. After I fled, they put a lock on the door. If the town is still there.... "
+  },
+  {
+   "index": 3,
+   "raw": "5c00811800000003",
+   "x": 92,
+   "headRow": 5,
+   "facingLeft": true,
+   "sprite": 1,
+   "headTile": "0x18",
+   "animPhase": 0,
+   "ai": 0,
+   "aiName": "look_at_hero_and_bob",
+   "flags": "0x00",
+   "autoTalk": false,
+   "blocksHero": false,
+   "canTalk": true,
+   "textIndex": 3,
+   "text": "This is the chamber of poor Princess Felicia, who has been turned to stone. You may enter, Duke Garland."
+  }
+ ],
+ "altNpcArrays": [
+  {
+   "condition": {
+    "byte": "0x49",
+    "mask": "0xff",
+    "name": "is_death_already_processed",
+    "description": null
+   },
+   "addr": "0xc894",
+   "npcs": [
+    {
+     "index": 0,
+     "raw": "2400820003038004",
+     "x": 36,
+     "facingLeft": true,
+     "sprite": 2,
+     "headTile": "0x00",
+     "ai": 3,
+     "aiName": "face_hero",
+     "flags": "0x80",
+     "textIndex": 4
+    },
+    {
+     "index": 1,
+     "raw": "3000811800000000",
+     "x": 48,
+     "facingLeft": true,
+     "sprite": 1,
+     "headTile": "0x18",
+     "ai": 0,
+     "aiName": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "textIndex": 0
+    },
+    {
+     "index": 2,
+     "raw": "3800811800000001",
+     "x": 56,
+     "facingLeft": true,
+     "sprite": 1,
+     "headTile": "0x18",
+     "ai": 0,
+     "aiName": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "textIndex": 1
+    },
+    {
+     "index": 3,
+     "raw": "5400800001030002",
+     "x": 84,
+     "facingLeft": true,
+     "sprite": 0,
+     "headTile": "0x00",
+     "ai": 3,
+     "aiName": "face_hero",
+     "flags": "0x00",
+     "textIndex": 2
+    },
+    {
+     "index": 4,
+     "raw": "5c00811800000003",
+     "x": 92,
+     "facingLeft": true,
+     "sprite": 1,
+     "headTile": "0x18",
+     "ai": 0,
+     "aiName": "look_at_hero_and_bob",
+     "flags": "0x00",
+     "textIndex": 3
+    }
+   ]
+  }
+ ],
+ "texts": [
+  {
+   "index": 0,
+   "text": "If you are the brave warrior we have awaited, we have something to tell you: throughout the ages, many young men have entered the caverns, but few have returned.",
+   "controlCodes": [],
+   "raw": "496620796f7520617265207468652062726176652077617272696f72207765206861766520617761697465642c207765206861766520736f6d657468696e6720746f2074656c6c20796f753a207468726f7567686f75742074686520616765732c206d616e7920796f756e67206d656e206861766520656e7465726564207468652063617665726e732c206275742066657720686176652072657475726e65642e"
+  },
+  {
+   "index": 1,
+   "text": "According to legend, there may still be underground places that have not been destroyed by Jashiin. People may still be living there, and will surely lend you a hand.",
+   "controlCodes": [],
+   "raw": "4163636f7264696e6720746f206c6567656e642c207468657265206d6179207374696c6c20626520756e64657267726f756e6420706c6163657320746861742068617665206e6f74206265656e2064657374726f796564206279204a61736869696e2e2050656f706c65206d6179207374696c6c206265206c6976696e672074686572652c20616e642077696c6c20737572656c79206c656e6420796f7520612068616e642e"
+  },
+  {
+   "index": 2,
+   "text": "I have been in the underground town. After I fled, they put a lock on the door. If the town is still there.... ",
+   "controlCodes": [],
+   "raw": "492068617665206265656e20696e2074686520756e64657267726f756e6420746f776e2e204166746572204920666c65642c2074686579207075742061206c6f636b206f6e2074686520646f6f722e2049662074686520746f776e206973207374696c6c2074686572652e2e2e2e20"
+  },
+  {
+   "index": 3,
+   "text": "This is the chamber of poor Princess Felicia, who has been turned to stone. You may enter, Duke Garland.",
+   "controlCodes": [],
+   "raw": "5468697320697320746865206368616d626572206f6620706f6f72205072696e636573732046656c696369612c2077686f20686173206265656e207475726e656420746f2073746f6e652e20596f75206d617920656e7465722c2044756b65204761726c616e642e"
+  },
+  {
+   "index": 4,
+   "text": "Brave knight, you have awakened. When you fell at the hand of Jashiin, the Spirits brought you here. Now make haste to the aid of the Princess Felicia.",
+   "controlCodes": [],
+   "raw": "4272617665206b6e696768742c20796f752068617665206177616b656e65642e205768656e20796f752066656c6c206174207468652068616e64206f66204a61736869696e2c2074686520537069726974732062726f7567687420796f7520686572652e204e6f77206d616b6520686173746520746f2074686520616964206f6620746865205072696e636573732046656c696369612e"
+  },
+  {
+   "index": 5,
+   "text": "Quickly, go to the Princess!",
+   "controlCodes": [],
+   "raw": "517569636b6c792c20676f20746f20746865205072696e6365737321"
+  },
+  {
+   "index": 6,
+   "text": "Ah, the Nine Tears of Esmesanti. Jashiin exists no more and the light of peace shines once again on our land... ",
+   "controlCodes": [],
+   "raw": "41682c20746865204e696e65205465617273206f662045736d6573616e74692e204a61736869696e20657869737473206e6f206d6f726520616e6420746865206c69676874206f66207065616365207368696e6573206f6e636520616761696e206f6e206f7572206c616e642e2e2e20"
+  },
+  {
+   "index": 7,
+   "text": "This will benefit the people living underground, as well. Hurry to the Princess Felicia.",
+   "controlCodes": [],
+   "raw": "546869732077696c6c2062656e65666974207468652070656f706c65206c6976696e6720756e64657267726f756e642c2061732077656c6c2e20487572727920746f20746865205072696e636573732046656c696369612e"
+  },
+  {
+   "index": 8,
+   "text": "The peace we dared not hope for has come. I'll get my things together and be on my way. I've a family to attend to.",
+   "controlCodes": [],
+   "raw": "546865207065616365207765206461726564206e6f7420686f706520666f722068617320636f6d652e20495c6c6c20676574206d79207468696e677320746f67657468657220616e64206265206f6e206d79207761792e20495c766520612066616d696c7920746f20617474656e6420746f2e"
+  },
+  {
+   "index": 9,
+   "text": "Quickly, enter this chamber. The holy crystals will break the evil spell which has turned Princess Felicia to stone.",
+   "controlCodes": [],
+   "raw": "517569636b6c792c20656e7465722074686973206368616d6265722e2054686520686f6c79206372797374616c732077696c6c20627265616b20746865206576696c207370656c6c20776869636820686173207475726e6564205072696e636573732046656c6963696120746f2073746f6e652e"
+  }
+ ],
+ "patches": [
+  {
+   "condition": {
+    "byte": "0x49",
+    "mask": "0xff",
+    "name": "is_death_already_processed",
+    "description": null
+   },
+   "writes": [
+    {
+     "addr": "0xc00f",
+     "value": "0x94",
+     "target": {
+      "header": "npc_array_addr"
+     }
+    },
+    {
+     "addr": "0xc010",
+     "value": "0xc8",
+     "target": {
+      "header": "npc_array_addr (high byte)"
+     }
+    },
+    {
+     "addr": "0xc38e",
+     "value": "0x3d",
+     "target": {
+      "tile": {
+       "x": 110,
+       "y": 7
+      }
+     }
+    },
+    {
+     "addr": "0xc8a3",
+     "value": "0x06",
+     "target": {
+      "npc": 0,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xc8ab",
+     "value": "0x07",
+     "target": {
+      "npc": 1,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xc8b3",
+     "value": "0x08",
+     "target": {
+      "npc": 2,
+      "field": "n_id"
+     }
+    },
+    {
+     "addr": "0xc8bb",
+     "value": "0x09",
+     "target": {
+      "npc": 3,
+      "field": "n_id"
+     }
+    }
+   ],
+   "raw": "4900ff0fc09410c0c88ec33da3c806abc807b3c808bbc809ffff"
+  },
+  {
+   "condition": {
+    "byte": "0x04",
+    "mask": "0xff",
+    "name": "byte_4",
+    "description": null
+   },
+   "writes": [
+    {
+     "addr": "0xc89b",
+     "value": "0x05",
+     "target": {
+      "fileOffset": "0x089b"
+     }
+    }
+   ],
+   "raw": "0400ff9bc805ffff"
+  }
+ ],
+ "patrolBounds": {
+  "min": 51,
+  "max": 109
+ },
+ "sageRespawnX": 34,
+ "townId": 1,
+ "descriptor": {
+  "raw": "0000ff0000",
+  "music": "mgt1",
+  "npcGroup": "mman",
+  "middleLayer": "ympd (surface)",
+  "bank": "cpat"
+ },
+ "raw": {
+  "header": "abc37200b0c301c6c3cac30000f6c39cc8a7c32200d2c3",
+  "pointers": {
+   "descriptor": "0xc3ab",
+   "name": "0xc3b0",
+   "transitions": "0xc3c6",
+   "doors": "0xc3ca",
+   "entrances": "0x0000",
+   "texts": "0xc3f6",
+   "npcs": "0xc89c",
+   "patrol": "0xc3a7",
+   "c015": "0xc3d2"
+  },
+  "nameInfo": "16af0012"
+ }
+}
