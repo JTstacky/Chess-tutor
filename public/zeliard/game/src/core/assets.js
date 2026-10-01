@@ -47,6 +47,39 @@ export class Sheet {
     this.fps = def.fps || 8;
     this.anims = def.anims || { default: [...Array(this.count).keys()] };
     this.faces = def.faces || 1; // 1 = art faces right, -1 = art faces left
+    this.dx = null; // per-frame x correction (see steady())
+  }
+  // The painted frames don't keep the body in one place: the knight's walk lurches ~25 px forward
+  // on its passing frames and his idle sways 11 px. Measure where each frame's head and torso sit
+  // and shift the frame so they stay over the anchor; the feet still move, the body doesn't jump.
+  // whole: measure the whole figure (monsters have no torso to go by). only: frames to correct
+  // (the rest keep their painted offset, e.g. a lunge).
+  steady(whole = false, only = null) {
+    if (!this.img || this.dx) return this;
+    try {
+      const c = document.createElement('canvas'); c.width = this.img.width; c.height = this.img.height;
+      const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(this.img, 0, 0);
+      const fw = this.fw, fh = this.fh;
+      this.dx = [];
+      for (let f = 0; f < this.count; f++) {
+        const ox = (f % this.cols) * fw, oy = Math.floor(f / this.cols) * fh;
+        const a = g.getImageData(ox, oy, fw, fh).data;
+        let top = -1;
+        for (let y = 0; y < fh && top < 0; y++) for (let x = 0; x < fw; x++) if (a[(y * fw + x) * 4 + 3] > 40) { top = y; break; }
+        let s = 0, n = 0;
+        // Head and torso: from just below the top (skipping plumes and raised staffs) to half the height.
+        const y0 = whole ? top : top + Math.round((this.ay - top) * 0.1), y1 = whole ? fh : top + Math.round((this.ay - top) * 0.55);
+        for (let y = Math.max(0, y0); y < Math.min(fh, y1); y++) for (let x = 0; x < fw; x++) if (a[(y * fw + x) * 4 + 3] > 40) { s += x; n++; }
+        this.dx.push(top < 0 || !n ? 0 : Math.round(this.ax - s / n));
+      }
+      if (only) {
+        // Keep the corrected frames' common offset out, so they line up with each other and with
+        // the frames left alone, rather than all jumping to the anchor.
+        const m = only.reduce((a, i) => a + this.dx[i], 0) / only.length;
+        this.dx = this.dx.map((d, i) => only.includes(i) ? Math.round(d - m) : 0);
+      }
+    } catch { this.dx = null; }
+    return this;
   }
   // Draw frame `i` with its anchor at (x, y). dir: 1 right, -1 left.
   draw(ctx, i, x, y, dir = 1, alpha = 1, scale = 1) {
@@ -60,12 +93,18 @@ export class Sheet {
     if (alpha !== 1) ctx.globalAlpha *= alpha;
     ctx.translate(Math.round(x), Math.round(y));
     if (flip) ctx.scale(-1, 1);
-    ctx.drawImage(this.img, sx, sy, this.fw, this.fh, -this.ax * s, -this.ay * s, this.fw * s, this.fh * s);
+    const dx = this.dx ? this.dx[f] : 0;
+    ctx.drawImage(this.img, sx, sy, this.fw, this.fh, (dx - this.ax) * s, -this.ay * s, this.fw * s, this.fh * s);
     ctx.restore();
   }
   frameAt(anim, t) {
     const seq = this.anims[anim] || this.anims.default || [0];
     return seq[Math.floor(t * this.fps) % seq.length];
+  }
+  // Walk cycles driven by distance covered, so the feet keep pace with the ground (`per` px a frame).
+  frameByDist(anim, d, per) {
+    const seq = this.anims[anim] || this.anims.default || [0];
+    return seq[Math.floor(Math.max(0, d) / per) % seq.length];
   }
   frameOnce(anim, t) {
     const seq = this.anims[anim] || this.anims.default || [0];
@@ -75,6 +114,8 @@ export class Sheet {
 }
 
 const sheets = new Map();
+// Character sheets whose frames are re-centred on the body (Sheet.steady).
+const STEADY = /^(hero\.(walk|idle|town)|art\.npc\.)/;
 let spriteDefs = {};
 
 export async function loadSpriteDefs(url) {
@@ -90,6 +131,8 @@ export async function sheet(id) {
   if (!def) { sheets.set(id, null); return null; }
   const img = await loadImage(def.src);
   const s = img ? new Sheet(img, def) : null;
+  if (s && STEADY.test(id)) s.steady();
+  else if (s && id.startsWith('art.enemy.')) s.steady(true, [...new Set([...(s.anims.move || []), ...(s.anims.idle || [])])]);
   sheets.set(id, s);
   return s;
 }

@@ -21,6 +21,9 @@ export const PHYS = {
   knockTiles: 2, stun: 0.22, iframes: 0.45,
   iceFriction: 260, wind: ORIG * 2 * 0.8, slopeSlide: ORIG / 4,
 };
+// The climbing frames were painted smaller (a 70 px body against 79 px standing), so the knight
+// shrank on every rope. Draw them up to the standing size.
+const POSE_SCALE = { climb: 1.14 };
 export const jumpV = (rows) => Math.sqrt(2 * PHYS.gravity * rows * TILE);
 
 // Sword boxes relative to the feet-centre, facing right: [x, y, w, h]. Active from t0 to
@@ -397,17 +400,18 @@ export class Hero {
       const a = ATTACKS[this.attack.kind];
       const seq = sh.anims[name] || sh.anims.default;
       f = this.attack.kind === 'thrust' ? seq[Math.min(seq.length - 1, Math.floor(at * sh.fps))] : seq[Math.min(seq.length - 1, Math.floor((at / a.dur) * seq.length))];
-    } else f = once ? sh.frameOnce(name, at) : sh.frameAt(name, at);
+    } else if (name === 'walk') f = walkFrame(this, sh);
+    else f = once ? sh.frameOnce(name, at) : sh.frameAt(name, at);
     // Co-op knights get a tinted cloak so players can tell each other apart.
     const tint = this.slot > 0 && this.state !== 'spirit' ? ['', 'hue-rotate(200deg)', 'hue-rotate(60deg) saturate(1.3)', 'hue-rotate(110deg)'][this.slot % 4] : '';
     if (tint) { ctx.save(); ctx.filter = tint; }
-    sh.draw(ctx, f, x, y, this.dir, alpha);
+    sh.draw(ctx, f, x, y, this.dir, alpha, POSE_SCALE[name] || 1);
     if (tint) ctx.restore();
     if (this.flash > 0) {
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       ctx.globalAlpha = this.flash * 3;
-      sh.draw(ctx, f, x, y, this.dir);
+      sh.draw(ctx, f, x, y, this.dir, 1, POSE_SCALE[name] || 1);
       ctx.restore();
     }
     if (this.label) {
@@ -424,6 +428,17 @@ export class Hero {
 }
 
 // The Spirit of Esmesanti (co-op support role): a small winged light with a trail.
+// Walk frame from the distance the knight has covered, so his feet keep pace with the ground at any
+// speed (cavern, town, co-op puppet). One stride of the 8-frame cycle covers about 120 px.
+// Jumps of more than 40 px between draws (a wrap seam, a door) don't count as walking.
+const STRIDE = 15;
+export function walkFrame(h, sh) {
+  const d = Math.abs(h.x - (h.lastWalkX ?? h.x));
+  h.lastWalkX = h.x;
+  if (d < 40) h.odo = (h.odo || 0) + d;
+  return sh.frameByDist('walk', h.odo || 0, STRIDE);
+}
+
 export function drawFairy(x, y, t, dir = 1, label) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';

@@ -11,10 +11,18 @@ import { TOWNS, townByPlace } from '../game/game.js';
 import { drawKnightHud } from './cavern.js';
 import { evalCondition } from '../game/conditions.js';
 import { RULES, maxHp } from '../game/character.js';
+import { walkFrame } from '../game/hero.js';
 
 const STREET = H - 64; // feet line
 const MUSIC = { cmap: 'royal_hall', mrmp: 'lantern_overture', esmp: 'lantern_overture' };
 const NPC_SPRITES = ['a0', 'a1', 'a2', 'a3', 'b0', 'b1', 'b2', 'b3', 'c0', 'c1', 'c2', 'c3'];
+// The townsfolk art was painted at one canvas size, so everyone came out about 80 px tall: the
+// halberd guard's body (72 px under his spear) looked smaller than the old man's, and the boy and
+// girl stood as tall as the adults. Scale each so heights read right next to the knight (84 px).
+const NPC_SCALE = { b1: 1.18, c0: 1.1, a2: 1.04, c3: 1.02, b0: 0.97, b3: 0.84, a3: 0.84 };
+// Two painted walk frames (contact poses) plus the standing frame as the passing pose, one frame
+// per NPC_STEP px walked, with a 1 px rise on the passing pose.
+const NPC_WALK = [0, 2, 1, 2], NPC_STEP = 9;
 const SERVICE_LABEL = {
   weapons_and_armour_shop: 'Weapons & Armour', church: 'Church', magic_shop: 'Witchcraft Shop', bank: 'Bank', sage: 'Sage',
   inn: 'Inn', cavern_entrance: 'Labyrinth', king: 'King of Felishika', princess_chamber: "Princess's Chamber", trap_warp_to_dorado: '???',
@@ -150,6 +158,7 @@ export class TownScene {
     if ([1, 2, 5, 6].includes(n.ai)) {
       const sp = n.ai === 1 || n.ai === 5 ? 34 : 22;
       n.x += n.dir * sp * dt;
+      n.odo = (n.odo || 0) + sp * dt;
       n.walking = true;
       const lo = Math.max(this.patrol[0], n.home - 6 * TILE), hi = Math.min(this.patrol[1], n.home + 6 * TILE);
       if (n.x < lo) { n.x = lo; n.dir = 1; }
@@ -268,7 +277,9 @@ export class TownScene {
       const sx = n.x - cx;
       if (sx < -80 || sx > W + 80) continue;
       const sh = sheetNow(n.sprite);
-      if (sh) sh.draw(ctx, sh.frameAt(n.talking ? 'talk' : n.walking ? 'walk' : 'idle', n.t), sx, STREET + 2, n.dir, 1);
+      const sc = NPC_SCALE[n.sprite.slice(8)] || 1;
+      if (sh && n.walking && !n.talking) { const k = Math.floor((n.odo || 0) / NPC_STEP) % 4; sh.draw(ctx, NPC_WALK[k], sx, STREET + 2 - (k % 2), n.dir, 1, sc); }
+      else if (sh) sh.draw(ctx, sh.frameAt(n.talking ? 'talk' : 'idle', n.t), sx, STREET + 2, n.dir, 1, sc);
       else { ctx.fillStyle = '#c8a070'; ctx.fillRect(sx - 12, STREET - 60, 24, 60); ctx.fillStyle = '#e8c8a0'; ctx.fillRect(sx - 9, STREET - 74, 18, 16); }
     }
     // Knights
@@ -276,7 +287,7 @@ export class TownScene {
     for (const h of this.game.coop?.townKnights() || []) {
       if (h.fairy) { h.draw(cx, 0, t); continue; }
       const sh = sheetNow(h.state === 'walk' ? 'hero.walk' : 'hero.idle');
-      if (sh) sh.draw(ctx, sh.frameAt(h.state === 'walk' ? 'walk' : 'idle', h.animT), h.cx - cx, STREET + 2, h.dir, 0.9);
+      if (sh) sh.draw(ctx, (h.state === 'walk' ? walkFrame(h, sh) : sh.frameAt('idle', h.animT)), h.cx - cx, STREET + 2, h.dir, 0.9);
       if (h.label) text(h.label, h.cx - cx, STREET - 104, { size: 13, align: 'center', color: '#8fd0ff' });
     }
     for (const l of this.game.locals) {
@@ -284,7 +295,7 @@ export class TownScene {
       if (h.fairy) { h.y = STREET - h.h - 30; h.draw(cx, 0, t); continue; }
       const sh = sheetNow(h.state === 'walk' ? 'hero.walk' : 'hero.idle');
       const hx = h.cx - cx;
-      if (sh) sh.draw(ctx, sh.frameAt(h.state === 'walk' ? 'walk' : 'idle', h.animT), hx, STREET + 2, h.dir, 1);
+      if (sh) sh.draw(ctx, (h.state === 'walk' ? walkFrame(h, sh) : sh.frameAt('idle', h.animT)), hx, STREET + 2, h.dir, 1);
       if (h.label) text(h.label, hx, STREET - 104, { size: 13, align: 'center', color: '#ffd27a' });
       const b = this.doorNear(h), n = this.npcNear(h);
       if (!this.dialogue && (b || n)) text(n ? '◆ Talk' : '▲ Enter', hx, STREET - 118, { size: 14, align: 'center', color: '#fff4c8', shadow: true });

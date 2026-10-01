@@ -355,7 +355,16 @@ class Platform {
       const img = imageNow(`art/props/${art}.png`);
       const w = 3 * TILE + 8, h = (img.height * w) / img.width;
       const below = art === 'lift' ? 16 : Math.min(h, 34); // lift art has ropes above the plank
+      // Moving platforms glow and carry a bright rim, like the original's yellow discs on black:
+      // the plain rock slab blended into the cavern, so one sliding away read as floor vanishing.
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createRadialGradient(x + 1.5 * TILE, y + 6, 4, x + 1.5 * TILE, y + 6, 2.2 * TILE);
+      g.addColorStop(0, 'rgba(255,200,90,0.35)'); g.addColorStop(1, 'rgba(255,200,90,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - TILE, y - TILE, 5 * TILE, 3 * TILE);
+      ctx.restore();
       drawProp(art, x - 4, y + below, w);
+      ctx.fillStyle = 'rgba(255,214,120,0.9)'; ctx.fillRect(x + 2, y - 1, 3 * TILE - 4, 2);
       return { x, y, art: true };
     }
     ctx.fillStyle = '#1a1208'; ctx.fillRect(x, y, 3 * TILE, 12);
@@ -421,20 +430,34 @@ class Mover extends Platform {
   draw(cx, cy) { this.drawAt(cx, cy, '#a07a44', 'ledge'); }
 }
 
-// Crumbling ledge: gives way a moment after it is stepped on, then re-forms.
+// Sinker (the original's "collapsing" platform, tiles 67-69): looks like a horizontal mover but
+// stays put; stood on, it sinks one row per frame until it meets rock or the knight steps off.
+// It used to crumble away and re-form 6 s later, which no floor in Zeliard does. The original's
+// return trip isn't documented, so an empty sinker drifts back up to its row, a row every 4 frames,
+// so a route can't be left without its platform.
 class Crumbler extends Platform {
+  constructor(p) { super(p); this.home = p.y; this.n = 0; }
   update(dt, world) {
-    this.t += dt;
-    if (this.gone) { if (this.t > 6) { this.gone = false; this.stamp(world.map, true); this.t = 0; } return; }
-    if (this.shaking == null && this.riders(world).length) { this.shaking = 0; }
-    if (this.shaking != null) {
-      this.shaking += dt;
-      if (this.shaking > 0.45) { this.gone = true; this.shaking = null; this.t = 0; this.stamp(world.map, false); world.effect('rubble', (this.tx + 1.5) * TILE, this.ty * TILE, { life: 0.6 }); }
+    this.acc += dt;
+    const m = world.map;
+    while (this.acc >= FRAME) {
+      this.acc -= FRAME;
+      this.ptx = this.tx; this.pty = this.ty;
+      const riders = this.riders(world);
+      const free = (row) => [0, 1, 2].every((i) => !(m.flags(this.tx + i, row) & F.SOLID));
+      if (riders.length) {
+        const ny = this.ty + 1;
+        if (!free(ny)) continue;
+        this.moveTo(m, this.tx, ((ny % m.h) + m.h) % m.h);
+        for (const h of riders) { h.y += TILE; h.riding = this; }
+        if (this.ty !== ny) this.pty = this.ty - 1;
+      } else if (this.ty !== this.home && ++this.n % 4 === 0) {
+        const ny = this.ty - 1;
+        if (!free(ny - 3)) continue;
+        this.moveTo(m, this.tx, ((ny % m.h) + m.h) % m.h);
+        if (this.ty !== ny) this.pty = this.ty + 1;
+      }
     }
   }
-  draw(cx, cy) {
-    if (this.gone) return;
-    const ox = this.shaking ? Math.sin(this.shaking * 90) * 2 : 0;
-    this.drawAt(cx - ox, cy, '#7a5a4a', 'crumbler');
-  }
+  draw(cx, cy) { this.drawAt(cx, cy, '#a07a44', 'ledge'); }
 }

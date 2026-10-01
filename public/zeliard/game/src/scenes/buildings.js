@@ -13,6 +13,7 @@ const GOLD_MAX = 16777215; // 24-bit purse, as in the original
 const PORTRAIT = {
   weapons_and_armour_shop: 'smith', magic_shop: 'witch', bank: 'banker', inn: 'innkeeper', church: 'priest', sage: 'sage', king: 'king', princess_chamber: 'felicia',
 };
+const SAGE_PORTRAITS = new Set(['Yasmin']);
 const TITLE = {
   weapons_and_armour_shop: 'Weapon and Armour Shop', magic_shop: 'Witchcraft Implement Shop', bank: 'The Bank', inn: 'The Inn', church: 'Church', sage: 'Sage', king: 'King of Felishika', princess_chamber: 'In the Hut',
 };
@@ -33,7 +34,10 @@ export class BuildingScene {
     this.widget = null;
     const p = PORTRAIT[this.service];
     this.portraitUrl = p ? `art/portraits/portrait_${p}.raw.png` : null;
-    if (this.portraitUrl) image(this.portraitUrl).then((i) => { this.portrait = i; });
+    // Sages with their own portrait (portrait_sage_<name>) use it; the rest share portrait_sage.
+    const own = this.service === 'sage' && SAGE_PORTRAITS.has(this.townRules.sage?.name) ? `art/portraits/portrait_sage_${this.townRules.sage.name.toLowerCase()}.raw.png` : null;
+    if (own) image(own).then((i) => { this.portrait = i; }, () => image(this.portraitUrl).then((i) => { this.portrait = i; }));
+    else if (this.portraitUrl) image(this.portraitUrl).then((i) => { this.portrait = i; });
     this.run().catch((e) => { console.error(e); this.close(); });
   }
 

@@ -234,8 +234,9 @@ export class TerrainRenderer {
       const iw = b.img.width * s, ih = b.img.height * s;
       const mapW = this.map.w * TILE, mapH = this.map.h * TILE;
       // Slide across the image as the camera crosses the map, so no tiling seams show.
-      const fx = mapW > W ? camX / (mapW - W) : 0.5;
-      const fy = mapH > H ? camY / (mapH - H) : 0.5;
+      // (clamped: past the wrap seam the camera leaves 0..map size, which bared the image edge)
+      const fx = mapW > W ? Math.max(0, Math.min(1, camX / (mapW - W))) : 0.5;
+      const fy = mapH > H ? Math.max(0, Math.min(1, camY / (mapH - H))) : 0.5;
       const x = -(iw - W) * (b.lockX ? 0.5 : fx * Math.min(1, p * 4));
       const y = -(ih - H) * (b.lockY ? 0.5 : fy);
       ctx.save();
@@ -247,21 +248,32 @@ export class TerrainRenderer {
     if (th.bgShade) { ctx.fillStyle = th.bgShade; ctx.fillRect(0, 0, W, H); }
   }
 
+  // Caverns wrap in both axes, so a view near an edge shows the far side of the map there.
+  // Draw every copy of the map the view touches, clipping each copy's last chunk row/column at
+  // the true map edge (sizes like 52 or 196 tiles aren't multiples of the chunk). Drawing only
+  // the in-bounds chunks left floors missing whenever the camera looked across the seam, e.g.
+  // Peligro's exit door at the bottom row, whose floor is row 1 at the top.
   draw(ctx, camX, camY, W, H) {
-    const cx0 = Math.floor(camX / CPX), cy0 = Math.floor(camY / CPX);
-    const cx1 = Math.floor((camX + W) / CPX), cy1 = Math.floor((camY + H) / CPX);
-    for (let cy = cy0; cy <= cy1; cy++) {
-      for (let cx = cx0; cx <= cx1; cx++) {
-        if (cx < 0 || cy < 0 || cx * CH >= this.map.w || cy * CH >= this.map.h) continue;
-        ctx.drawImage(this.chunk(cx, cy), Math.round(cx * CPX - camX), Math.round(cy * CPX - camY));
+    const m = this.map, mw = m.w * TILE, mh = m.h * TILE;
+    const nx = Math.ceil(m.w / CH), ny = Math.ceil(m.h / CH);
+    const kx0 = m.wrap ? Math.floor(camX / mw) : 0, kx1 = m.wrap ? Math.floor((camX + W) / mw) : 0;
+    const ky0 = m.wrap ? Math.floor(camY / mh) : 0, ky1 = m.wrap ? Math.floor((camY + H) / mh) : 0;
+    const used = new Set();
+    for (let ky = ky0; ky <= ky1; ky++) {
+      for (let kx = kx0; kx <= kx1; kx++) {
+        const lx = camX - kx * mw, ly = camY - ky * mh; // the camera inside this copy
+        const cx0 = Math.max(0, Math.floor(lx / CPX)), cx1 = Math.min(nx - 1, Math.floor((lx + W) / CPX));
+        const cy0 = Math.max(0, Math.floor(ly / CPX)), cy1 = Math.min(ny - 1, Math.floor((ly + H) / CPX));
+        for (let cy = cy0; cy <= cy1; cy++) {
+          for (let cx = cx0; cx <= cx1; cx++) {
+            const sw = Math.min(CPX, mw - cx * CPX), sh = Math.min(CPX, mh - cy * CPX);
+            ctx.drawImage(this.chunk(cx, cy), 0, 0, sw, sh, Math.round(cx * CPX - lx), Math.round(cy * CPX - ly), sw, sh);
+            used.add(cx + ',' + cy);
+          }
+        }
       }
     }
-    // Evict far chunks to bound memory on the 240-wide caverns.
-    if (this.chunks.size > 80) {
-      for (const key of this.chunks.keys()) {
-        const [x, y] = key.split(',').map(Number);
-        if (Math.abs(x - cx0) > 3 || Math.abs(y - cy0) > 3) this.chunks.delete(key);
-      }
-    }
+    // Evict chunks not on screen to bound memory on the 240-wide caverns.
+    if (this.chunks.size > 80) for (const key of this.chunks.keys()) if (!used.has(key)) this.chunks.delete(key);
   }
 }
