@@ -109,6 +109,7 @@ export class CoopLobby {
       else if (e.code === 'Enter') { if (this.code.length === 4) { this.typing = false; input.textCapture = null; this.chooseGuest(); } }
       else if (/^[a-zA-Z]$/.test(e.key) && this.code.length < 4) this.code += e.key.toUpperCase();
     };
+    input.textValue = () => this.code;
   }
   chooseGuest() {
     const extras = [
@@ -189,7 +190,7 @@ export class CoopLobby {
       text('Room code', W / 2, 238, { size: 18, align: 'center', color: COLORS.gold });
       const caret = Math.floor(this.t * 2) % 2 ? '_' : ' ';
       text((this.code + caret).padEnd(4, ' ').split('').join(' '), W / 2, 274, { size: 34, align: 'center' });
-      text('Type the 4 letters, Enter to join, Esc to go back', W / 2, 330, { size: 13, align: 'center', color: COLORS.dim });
+      text(input.isTouch ? 'Tap here to type the 4 letters · Sword to join · Pause to go back' : 'Type the 4 letters, Enter to join, Esc to go back', W / 2, 330, { size: 13, align: 'center', color: COLORS.dim });
       return;
     }
     if (this.msg) {

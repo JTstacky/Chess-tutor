@@ -213,7 +213,11 @@ export class Enemy {
     if (sh) {
       const moving = this.tx !== this.ptx || this.ty !== this.pty;
       const anim = this.dead && sh.anims.defeat ? 'defeat' : this.attackT > 0 && sh.anims.attack ? 'attack' : moving && sh.anims.move ? 'move' : sh.anims.idle ? 'idle' : 'default';
-      const f = this.dead ? sh.frameOnce(anim, this.deathT) : sh.frameAt(anim, this.animT);
+      let f = this.dead ? sh.frameOnce(anim, this.deathT) : sh.frameAt(anim, this.animT);
+      // Hoppers' sheets are [sit, leap, attack, defeat]: sit on the floor, leap only in the
+      // air (cycling the two had them sitting in mid-air and flashing leaps at rest).
+      // st 4 = about to take off (still on the floor), 3..1 = in the arc, 0 = landed.
+      if (d.ai === 'hopper' && !this.dead && anim !== 'attack') f = (this.st > 0 && this.st < 4) || Math.abs(this.y - this.ty * TILE) > 3 ? 1 : 0;
       ctx.save();
       if (flipY) { ctx.translate(x, y - this.h / 2); ctx.scale(1, -1); ctx.translate(-x, -(y - this.h / 2)); }
       sh.draw(ctx, f, x, y, this.dir, alpha, this.def.scale || 1);

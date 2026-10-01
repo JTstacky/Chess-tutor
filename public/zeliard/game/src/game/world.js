@@ -11,6 +11,8 @@ import { ctx, W, H } from '../render/screen.js';
 import { FRAME, rollDrop, Enemy } from './enemies.js';
 
 let pseq = 0;
+// Monsters that fly, hang or phase, and so cast no floor shadow.
+const AIRBORNE = new Set(['bat', 'icicle', 'spider', 'phantom', 'waveFlyer', 'hoverCharger', 'wallFollower']);
 
 export class CavernWorld {
   constructor(game, data, map, terrain) {
@@ -306,13 +308,40 @@ export class CavernWorld {
     if (this.boss) this.boss.draw(...this.view(this.boss, cx, cy), t, this);
     for (const e of this.enemies) {
       const [ex, ey] = this.view(e, cx, cy);
-      if (e.x + e.w > ex - 64 && e.x < ex + W + 64 && e.y + e.h > ey - 64 && e.y < ey + H + 64) e.draw(ex, ey, t);
+      if (e.x + e.w > ex - 64 && e.x < ex + W + 64 && e.y + e.h > ey - 64 && e.y < ey + H + 64) {
+        if (!e.dead && !e.hidden && !e.upsideDown && !AIRBORNE.has(e.def.ai)) this.drawShadow(e, ex, ey, 0.75);
+        e.draw(ex, ey, t);
+      }
     }
-    for (const h of this.heroes) h.draw(...this.view(h, cx, cy), t);
+    for (const h of this.heroes) {
+      const [hx, hy] = this.view(h, cx, cy);
+      if (!h.fairy && h.state !== 'dead' && h.state !== 'climb') this.drawShadow(h, hx, hy, 0.6);
+      h.draw(hx, hy, t);
+    }
     for (const p of this.projectiles) drawProjectile(p, ...this.view(p, cx, cy), t);
     for (const fx of this.effects) drawEffect(fx, ...this.view(fx, cx, cy));
     this.drawWind(cx, cy, t);
     if (this.game.debug) this.drawDebug(cx, cy);
+  }
+
+  // A soft shadow on the floor under a walker, shrinking and fading with height, so a hop
+  // or a jump reads as "in the air" and anything standing reads as grounded.
+  drawShadow(o, camX, camY, size) {
+    const m = this.map, tx = Math.floor(o.cx / TILE), row0 = Math.floor((o.feet - 1) / TILE) + 1;
+    let row = null;
+    for (let r = row0; r < row0 + 5; r++) if (m.solid(tx, r)) { row = r; break; }
+    if (row == null) return;
+    const gap = (row * TILE - o.feet) / TILE; // tiles between feet and floor
+    if (gap < -0.2) return;
+    const k = Math.max(0, 1 - Math.max(0, gap) / 5);
+    ctx.save();
+    ctx.globalAlpha = 0.8 * k;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    // Centred just inside the floor's lit top edge, where it shows against the stone.
+    ctx.ellipse(o.cx - camX, row * TILE - camY + 3, (o.w * size * (0.55 + 0.45 * k)) / 2, 3 + 2 * k, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   // Airflow tiles: streaks drifting along the draught.

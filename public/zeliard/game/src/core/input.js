@@ -88,7 +88,7 @@ class Input {
   }
 
   // Call once per simulation step after all frames were read.
-  flushTaps() { this.taps.clear(); }
+  flushTaps() { this.taps.clear(); this.tapConfirm = false; }
 
   keyboardFrame(layouts) {
     const f = emptyFrame();
@@ -110,6 +110,7 @@ class Input {
       for (const k in p) f[k] = f[k] || p[k];
     }
     for (const k in this.touchFrame) f[k] = f[k] || this.touchFrame[k];
+    if (this.tapConfirm) f.confirm = true; // a tap on the picture (touch screens)
     return f;
   }
 
@@ -140,30 +141,4 @@ class Input {
 function merge(into, from) { for (const k in from) into[k] = into[k] || from[k]; }
 
 export const input = new Input();
-
-// Touch controls: a virtual d-pad on the left and action buttons on the right.
-export function setupTouch() {
-  const host = document.getElementById('touch');
-  if (!('ontouchstart' in window) && !navigator.maxTouchPoints) return;
-  host.classList.add('on');
-  const buttons = [
-    { a: 'left', x: 18, y: -150, label: '◀' }, { a: 'right', x: 150, y: -150, label: '▶' },
-    { a: 'up', x: 84, y: -216, label: '▲' }, { a: 'down', x: 84, y: -84, label: '▼' },
-    { a: 'attack', x: -170, y: -120, label: 'ATK', right: true }, { a: 'jump', x: -90, y: -170, label: 'JMP', right: true },
-    { a: 'magic', x: -90, y: -80, label: 'MAG', right: true }, { a: 'menu', x: -84, y: 16, label: 'ITEM', right: true, top: true },
-    { a: 'pause', x: 16, y: 16, label: 'II', top: true },
-  ];
-  for (const b of buttons) {
-    const el = document.createElement('div');
-    el.className = 'pad';
-    el.textContent = b.label;
-    el.style[b.right ? 'right' : 'left'] = `${Math.abs(b.x)}px`;
-    if (b.top) el.style.top = `${b.y}px`; else el.style.bottom = `${-b.y}px`;
-    const on = (e) => { e.preventDefault(); input.touchFrame[b.a] = true; if (b.a === 'jump' || b.a === 'attack') input.touchFrame.confirm = true; if (b.a === 'pause') input.touchFrame.cancel = true; };
-    const off = (e) => { e.preventDefault(); input.touchFrame[b.a] = false; input.touchFrame.confirm = false; input.touchFrame.cancel = false; };
-    el.addEventListener('touchstart', on, { passive: false });
-    el.addEventListener('touchend', off, { passive: false });
-    el.addEventListener('touchcancel', off, { passive: false });
-    host.appendChild(el);
-  }
-}
+// Touch controls live in ui/touch.js.

@@ -82,6 +82,7 @@ export class TitleScene {
       else if (e.code === 'Escape') { input.textCapture = null; this.naming = null; this.showMain(); }
       else if (e.key.length === 1 && n.name.length < 10 && /[\w .'-]/.test(e.key)) n.name += e.key;
     };
+    input.textValue = () => this.naming?.name ?? '';
     this.menu = null;
   }
 
@@ -170,7 +171,7 @@ export class TitleScene {
     if (this.credits != null) return this.drawCredits();
     if (this.controls) return this.drawControls();
     if (this.pressStart) {
-      if (Math.floor(this.t * 2) % 2 === 0) text('PRESS ENTER', W / 2, 380, { size: 24, align: 'center', color: COLORS.ink });
+      if (Math.floor(this.t * 2) % 2 === 0) text(input.isTouch ? 'TAP TO START' : 'PRESS ENTER', W / 2, 380, { size: 24, align: 'center', color: COLORS.ink });
       text('Zeliard © 1987 Game Arts · English edition 1990 Sierra On-Line. Fan remake.', W / 2, H - 28, { size: 12, align: 'center', color: COLORS.dim });
       return;
     }
@@ -179,7 +180,7 @@ export class TitleScene {
       text('Name your knight', W / 2, 318, { size: 18, align: 'center', color: COLORS.gold });
       const caret = Math.floor(this.t * 2) % 2 ? '_' : ' ';
       text(this.naming.name + caret, W / 2, 352, { size: 26, align: 'center' });
-      text('Type a name, Enter to confirm, Esc to go back', W / 2, 394, { size: 13, align: 'center', color: COLORS.dim });
+      text(input.isTouch ? 'Tap here to type · Sword to confirm · Pause to go back' : 'Type a name, Enter to confirm, Esc to go back', W / 2, 394, { size: 13, align: 'center', color: COLORS.dim });
       return;
     }
     this.menu?.draw();

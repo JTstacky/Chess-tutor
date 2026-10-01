@@ -1,6 +1,7 @@
 // Boot: load data, fonts and art, then hand control to the scene stack.
 import { ctx, W, H, fit } from './render/screen.js';
-import { input, setupTouch } from './core/input.js';
+import { input } from './core/input.js';
+import { setupTouch } from './ui/touch.js';
 import { audio } from './core/audio.js';
 import { loadSpriteDefs, preloadSheets, spriteIds, loadJSON, setRemap } from './core/assets.js';
 import { settings } from './core/save.js';
