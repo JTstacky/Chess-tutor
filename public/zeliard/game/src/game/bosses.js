@@ -38,9 +38,7 @@ export const BOSSES = {
     dmg: (d, src, weak) => (RULES.jp ? (weak ? d >> 1 : d >> 3) : ((src === 1 ? d >> 1 : d >> 3) * (weak ? 2 : 1))), ai: 'dragon', flag: ['0x32', 0xff] },
   // Japanese: sword and spells 1/8, the tail 1/4; its breath hurts twice as much.
   mp8d: { id: 'alguien', name: 'Alguien', hp: 800, xp: 30000, x: 42, y: 0, tw: 13, th: 13, range: [10, 51], contact: 40, jpWeak: [2, 10, 9, 3],
-    dmg: (d, src, weak) => (RULES.jp ? (weak ? d >> 2 : d >> 3) : d), ai: 'alguien', flag: ['0x3a', 0x01],
-    // Temporary: the painted wings-up and fire poses are cropped; use the two whole poses until the art is redone.
-    poseFrames: [1, 1, 1, 3] },
+    dmg: (d, src, weak) => (RULES.jp ? (weak ? d >> 2 : d >> 3) : d), ai: 'alguien', flag: ['0x3a', 0x01] },
   mpa0: { id: 'jashiin', name: 'Jashiin', hp: 800, xp: 10000, x: 48, y: 9, tw: 6, th: 9, range: [15, 53], contact: 80, final: true,
     dmg: (d, src) => { const sw = RULES.jp ? d >> 2 : d >> 1; return src === 1 ? sw : RULES.jp ? d >> 4 : d >> 2; }, ai: 'jashiin', flag: ['0x47', 0xff] },
 };
@@ -546,7 +544,7 @@ const AI = {
       if (br.len <= 0) b.breath = null;
       else {
         b.pose = 2;
-        const paint = { color: '#ff40a0', r: 0.7 };
+        const paint = { color: '#ff7a20', r: 0.75 };
         for (let k = 1; k <= br.len; k++) {
           const x = b.dir < 0 ? (br.steep ? b.tx + 1 - 2 * k : b.tx - 2 * k) : (br.steep ? b.tx + 10 + 2 * k : b.tx + 11 + 2 * k);
           const y = b.ty + 9 + (br.steep ? 2 * k : k);
