@@ -272,7 +272,8 @@ export class Game {
     if (contents.trap != null) {
       import('./enemies.js').then(({ Enemy, enemyDef }) => {
         const def = enemyDef(this, world.level, contents.trap);
-        world.enemies.push(new Enemy(def, prop.tx, prop.ty - 2, { id: `trap${prop.id}` }));
+        const drop = { blue_potion: 9, red_potion: 8 }[contents.drop]; // DROP_CODES in enemies.js
+        world.enemies.push(new Enemy(def, prop.tx, prop.ty - 2, { id: `trap${prop.id}`, record: drop ? { dropOnDeath: drop } : undefined }));
       });
       this.toast('It was a trap!', '#e0584f');
       return;

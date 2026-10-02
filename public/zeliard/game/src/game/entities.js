@@ -78,6 +78,9 @@ export async function spawnEntities(game, world, data) {
       world.enemies.push(e);
       sprites.add(def.sprite);
     } else {
+      // A trap chest's monster: load its art now, not when it bursts out (it drew as a square).
+      const trap = m.type === 'chest' && /monster_kind_(\d+)/.exec(m.chest?.contains || '');
+      if (trap) sprites.add(enemyDef(game, worldNo, Number(trap[1])).sprite);
       const p = makeSpecial(game, world, m, data);
       if (p) { p.place?.(world.map); world.props.push(p); }
     }
@@ -102,7 +105,13 @@ function altTable(data, pointer) {
 
 function makeSpecial(game, world, m, data) {
   switch (m.type) {
-    case 'chest': return new Chest(m, contentsOf(m.chest?.contains || 'empty'));
+    case 'chest': {
+      // A trap chest releases a monster (mp20's one-time Magical Bat), which drops the chest's
+      // prize when beaten ("Chest, Blue Potion (With the One-time Bat)").
+      const c = contentsOf(m.chest?.contains || 'empty');
+      if (c && c.trap != null && m.chest?.monsterDrops) c.drop = m.chest.monsterDrops;
+      return new Chest(m, c);
+    }
     case 'breakable_block': return new Stash(m, contentsOf(m.contains));
     case 'falling_floor_block': return new FallingBlock(m);
     case 'sign': return new Sign(m, data.signs?.[m.signIndex]);
@@ -345,6 +354,12 @@ class Platform {
     }
   }
   moveTo(map, tx, ty) { this.stamp(map, false); this.tx = tx; this.ty = ty; this.stamp(map, true); }
+  // Move the riders with the platform, but only those with room to go: a knight hanging over the
+  // platform's edge was carried a whole tile into the rock beside it and stuck there for good.
+  // One without room stays put (on the ledge he overlaps, or he drops), as if he'd stepped off.
+  carry(world, riders, dx, dy) {
+    for (const h of riders) if (!world.map.rectSolid(h.x + dx, h.y + dy, h.w, h.h)) { h.x += dx; h.y += dy; h.riding = this; }
+  }
   riders(world) {
     const m = world.map, top = this.ty * TILE;
     return world.heroes.filter((h) => h.alive && h.state !== 'climb' && Math.abs(m.nearY(h.feet, top) - top) < 3 && overlapsX(m, h, { x: this.tx * TILE, w: 3 * TILE }));
@@ -396,7 +411,7 @@ class Lift extends Platform {
       const clear = [0, 1, 2].every((i) => !(m.flags(this.tx + i, dir > 0 ? ny : ny - 3) & F.SOLID));
       if (!clear) continue;
       this.moveTo(m, this.tx, ((ny % m.h) + m.h) % m.h);
-      for (const h of riders) { h.y += dir * TILE; h.riding = this; }
+      this.carry(world, riders, 0, dir * TILE);
       if (this.ty !== ny) { this.pty = this.ty - dir; }
     }
   }
@@ -428,7 +443,7 @@ class Mover extends Platform {
       const wx = wrap(nx);
       if (wx !== nx) this.ptx = wx - this.dir; // crossing the seam: keep the drawn slide one tile long
       this.moveTo(world.map, wx, this.ty);
-      for (const h of riders) if (!world.map.rectSolid(h.x + this.dir * TILE, h.y, h.w, h.h)) h.x += this.dir * TILE;
+      this.carry(world, riders, this.dir * TILE, 0);
     }
   }
   draw(cx, cy) { this.drawAt(cx, cy, '#a07a44', 'ledge'); }
@@ -453,7 +468,7 @@ class Crumbler extends Platform {
         const ny = this.ty + 1;
         if (!free(ny)) continue;
         this.moveTo(m, this.tx, ((ny % m.h) + m.h) % m.h);
-        for (const h of riders) { h.y += TILE; h.riding = this; }
+        this.carry(world, riders, 0, TILE);
         if (this.ty !== ny) this.pty = this.ty - 1;
       } else if (this.ty !== this.home && ++this.n % 4 === 0) {
         const ny = this.ty - 1;

@@ -8,18 +8,60 @@ import { image } from '../core/assets.js';
 const CH = 16; // tiles per chunk side
 const CPX = CH * TILE;
 
-async function cropTo(src, rect, w, h) {
+// key: which side of the piece faces open air ('top' for floor caps, 'bottom' for ceiling
+// fringes, 'all' for ladders). The atlas is opaque, its tiles painted on the cavern's dark (or,
+// for ice, deep blue) backdrop, so a cap's rocks and mushrooms, a fringe's drips and a ladder's
+// rungs came with black squares around them. The backdrop colour is read from the corner facing
+// the air and made transparent: for caps and fringes only where it joins that edge (so outlines
+// inside the art stay), for ladders everywhere.
+async function cropTo(src, rect, w, h, key = null) {
   const img = await image(src);
   if (!img) return null;
-  const c = document.createElement('canvas');
   const r = rect || [0, 0, img.width, img.height];
+  let piece = img, pr = r;
+  if (key) {
+    const k = document.createElement('canvas'); k.width = r[2]; k.height = r[3];
+    const kg = k.getContext('2d', { willReadFrequently: true });
+    kg.drawImage(img, r[0], r[1], r[2], r[3], 0, 0, r[2], r[3]);
+    keyBackdrop(kg, r[2], r[3], key);
+    piece = k; pr = [0, 0, r[2], r[3]];
+  }
+  const c = document.createElement('canvas');
   c.width = w || r[2];
   c.height = h || r[3];
   const g = c.getContext('2d');
   g.imageSmoothingEnabled = true;
   g.imageSmoothingQuality = 'high';
-  g.drawImage(img, r[0], r[1], r[2], r[3], 0, 0, c.width, c.height);
+  g.drawImage(piece, pr[0], pr[1], pr[2], pr[3], 0, 0, c.width, c.height);
   return c;
+}
+
+function keyBackdrop(g, w, h, key) {
+  const id = g.getImageData(0, 0, w, h), d = id.data;
+  const at = (x, y) => (y * w + x) * 4;
+  // The backdrop: the corner(s) on the open side.
+  const corners = key === 'bottom' ? [[0, h - 1], [w - 1, h - 1]] : [[0, 0], [w - 1, 0]];
+  const bg = [0, 1, 2].map((c) => corners.reduce((s, [x, y]) => s + d[at(x, y) + c], 0) / corners.length);
+  const dist = (i) => Math.hypot(d[i] - bg[0], d[i + 1] - bg[1], d[i + 2] - bg[2]);
+  const NEAR = 40, FAR = 72; // within NEAR: gone; up to FAR: faded (soft edge)
+  const clear = (i) => { const e = dist(i); if (e < FAR) d[i + 3] = Math.round(d[i + 3] * Math.max(0, (e - NEAR) / (FAR - NEAR))); };
+  if (key === 'all') { for (let i = 0; i < d.length; i += 4) clear(i); }
+  else {
+    // Flood from the open edge through backdrop-coloured pixels.
+    const seen = new Uint8Array(w * h), stack = [];
+    const y0 = key === 'bottom' ? h - 1 : 0;
+    for (let x = 0; x < w; x++) stack.push(x, y0);
+    while (stack.length) {
+      const y = stack.pop(), x = stack.pop();
+      if (x < 0 || y < 0 || x >= w || y >= h || seen[y * w + x]) continue;
+      seen[y * w + x] = 1;
+      const i = at(x, y);
+      if (dist(i) >= FAR) continue;
+      clear(i);
+      stack.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
+    }
+  }
+  g.putImageData(id, 0, 0);
 }
 
 export async function loadTheme(def) {
@@ -29,9 +71,9 @@ export async function loadTheme(def) {
     const f = def.fill;
     t.fillImg = await cropTo(f.src, f.rect, f.size && f.size * scale, f.size && f.size * scale);
   }
-  if (def.top) t.topImg = await cropTo(def.top.src, def.top.rect, def.top.w, def.top.h);
-  if (def.bottom) t.bottomImg = await cropTo(def.bottom.src, def.bottom.rect, def.bottom.w, def.bottom.h);
-  if (def.rope) t.ropeImg = await cropTo(def.rope.src, def.rope.rect, def.rope.w, def.rope.h);
+  if (def.top) t.topImg = await cropTo(def.top.src, def.top.rect, def.top.w, def.top.h, 'top');
+  if (def.bottom) t.bottomImg = await cropTo(def.bottom.src, def.bottom.rect, def.bottom.w, def.bottom.h, 'bottom');
+  if (def.rope) t.ropeImg = await cropTo(def.rope.src, def.rope.rect, def.rope.w, def.rope.h, 'all');
   if (def.hazard) t.hazardImg = await cropTo(def.hazard.src, def.hazard.rect, def.hazard.w, def.hazard.h);
   if (def.breakable) t.breakImg = await cropTo(def.breakable.src, def.breakable.rect, TILE, TILE);
   t.bgImgs = [];

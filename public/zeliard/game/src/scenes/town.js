@@ -148,8 +148,14 @@ export class TownScene {
       }
     }
     const lead = g.leader.hero;
-    const target = g.locals.length > 1 ? (Math.min(...g.locals.map((l) => l.hero.cx)) + Math.max(...g.locals.map((l) => l.hero.cx))) / 2 : lead.cx + lead.dir * 80;
-    this.cam.x += (this.clampCam(target - W / 2) - this.cam.x) * 0.12;
+    // The camera follows player 1; a couch player 2 who stays off screen for a moment
+    // reappears beside him (as in the caverns). Online partners roam freely: they aren't local.
+    this.cam.x += (this.clampCam(lead.cx + lead.dir * 80 - W / 2) - this.cam.x) * 0.12;
+    for (const l of g.locals.slice(1)) {
+      const h = l.hero, off = h.cx < this.cam.x - 24 || h.cx > this.cam.x + W + 24;
+      h.offCamT = off ? (h.offCamT || 0) + dt : 0;
+      if (h.offCamT > 0.75) { h.x = Math.max(0.5 * TILE, Math.min(this.width - 0.5 * TILE - h.w, lead.cx - 30 * lead.dir - h.w / 2)); h.offCamT = 0; }
+    }
   }
 
   updateNpc(n, dt) {

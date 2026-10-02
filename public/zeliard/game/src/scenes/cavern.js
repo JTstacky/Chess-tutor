@@ -1,7 +1,7 @@
 // Cavern play: runs the CavernWorld, the local knights, the camera(s) and the HUD.
 // Couch co-op uses a shared camera that keeps both knights on screen.
 import { ctx, W, H, text, panel, bar, COLORS, fade } from '../render/screen.js';
-import { TILE } from '../world/tilemap.js';
+import { TILE, F } from '../world/tilemap.js';
 import { loadCavern, loadSandbox } from '../world/loader.js';
 import { maxHp, RULES } from '../game/character.js';
 import { SPELLS } from '../game/spells.js';
@@ -84,6 +84,11 @@ export class CavernScene {
       w.checkHeroDamage(h);
       w.collectPickups(h);
       if (l.input.pressed('up') && h.alive && h.onGround && h.state !== 'climb') this.tryDoor(l);
+      this.keepFree(h, w, dt);
+      // Couch player 2 shares the leader's camera: off screen for a moment, he rejoins the leader.
+      if (l !== g.locals[0] && h.alive && h.state !== 'door' && this.offCamera(h)) {
+        if ((h.offCamT = (h.offCamT || 0) + dt) > 0.75) { this.rejoin(h, g.locals[0].hero, w); h.offCamT = 0; }
+      } else h.offCamT = 0;
       // Keep the knight inside the wrapped map, shifting its camera by the same amount.
       // Couch co-op shares one camera (h.cam === this.cam) that follows the leader, so only
       // the leader's wrap moves it, once; solo moves the knight's own camera.
@@ -102,6 +107,58 @@ export class CavernScene {
       this.defeatT += dt;
       if (this.defeatT > 2.5) { this.defeatT = null; g.onDefeat(); }
     }
+  }
+
+  // Never stranded: remember the last place each knight stood on solid ground, and if he ever
+  // ends up inside rock (a platform, a falling block, anything) for more than a moment, move
+  // him to the nearest open spot, or back to that safe place.
+  keepFree(h, w, dt) {
+    if (!h.alive || h.state === 'door' || h.state === 'spirit') { h.embedT = 0; return; }
+    const m = w.map;
+    if (m.rectSolid(h.x, h.y, h.w, h.h)) {
+      if ((h.embedT = (h.embedT || 0) + dt) > 0.15) { this.unstick(h, w, false); h.embedT = 0; }
+      return;
+    }
+    h.embedT = 0;
+    // On rock (platforms are one-way, not solid, so a ride never counts), standing up.
+    if (h.onGround && h.state !== 'crouch' && m.rectSolid(h.x + 2, h.y + h.h, h.w - 4, 2)) h.safe = { cx: h.cx, feet: h.feet };
+  }
+  // Move a knight out of rock: the nearest spot (within 4 tiles) where he fits with ground under
+  // him, else his last safe place. toSafe (the pause menu's Unstuck) tries the safe place first.
+  unstick(h, w, toSafe = true) {
+    const m = w.map, T = 24;
+    const fits = (cx, feet) => !m.rectSolid(cx - h.w / 2, feet - h.h, h.w, h.h) && m.rectHas(cx - h.w / 2 + 2, feet, h.w - 4, 2, F.SOLID | F.ONEWAY);
+    let best = toSafe && h.safe && fits(h.safe.cx, h.safe.feet) ? h.safe : null;
+    if (!best) {
+      for (let r = 1; r <= 4 * T && !best; r += 4) {
+        for (const [dx, dy] of [[0, -r], [0, r], [-r, 0], [r, 0], [-r, -r], [r, -r], [-r, r], [r, r]]) {
+          const cx = h.cx + dx, feet = Math.round((h.feet + dy) / T) * T;
+          if (fits(cx, feet)) { best = { cx, feet }; break; }
+        }
+      }
+    }
+    best ||= h.safe && fits(h.safe.cx, h.safe.feet) ? h.safe : null;
+    if (!best) return false;
+    h.rescues = (h.rescues || 0) + 1;
+    h.place(best.cx, best.feet);
+    h.vx = 0; h.vy = 0; h.fallStartY = h.y; h.riding = null;
+    if (h.state === 'climb' || h.state === 'hurt') h.state = 'idle';
+    if (toSafe) this.game.toast('Back on solid ground.', '#8fe3ff');
+    return true;
+  }
+  offCamera(h) {
+    const c = this.cam;
+    return !c || h.cx < c.x - 24 || h.cx > c.x + W + 24 || h.feet < c.y - 24 || h.y > c.y + H + 24;
+  }
+  // Put a straying couch knight back beside the leader (a free spot next to him, else on him).
+  rejoin(h, lead, w) {
+    const m = w.map;
+    for (const dx of [-30, 30, -54, 54, 0]) {
+      const cx = lead.cx + dx;
+      if (!m.rectSolid(cx - h.w / 2, lead.feet - h.h, h.w, h.h)) { h.place(cx, lead.feet); break; }
+    }
+    h.vx = 0; h.vy = 0; h.fallStartY = h.y; h.riding = null;
+    if (h.state === 'climb') h.state = 'idle';
   }
 
   tryDoor(l) {

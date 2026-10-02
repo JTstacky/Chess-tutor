@@ -25,6 +25,7 @@ export class PauseScene {
       { label: 'Sound volume', right: vol('sfx'), onLeft: () => this.adj('sfx', -0.1), onRight: () => this.adj('sfx', 0.1) },
       { label: 'Game speed', right: `${settings.get('speed') || 1}×`, onLeft: () => this.speed(-0.25), onRight: () => this.speed(0.25), hint: 'Like the original F9 speed setting.' },
       { label: 'Save game', value: 'save', disabled: !g.locals.some((l) => l.saveSlot >= 0), hint: this.saved || 'Saves right here. Continue on the title screen brings you back to this spot.' },
+      { label: 'Unstuck', value: 'unstuck', disabled: !this.under.unstick, hint: 'Stuck somewhere? Back to the last spot you stood on solid ground.' },
       { label: 'Add a second knight (couch)', value: 'couch', disabled: g.locals.length > 1 || !!g.coop, hint: 'Player 2 uses the arrow keys + , . /  or a second gamepad.' },
       { label: 'Quit to title', value: 'quit', hint: 'Progress is kept from your last visit to a Sage.' },
     ], { title: 'Paused', w: 380, x: W / 2 - 190, y: 120, onSelect: (it) => this.pick(it.value), onCancel: () => this.close() });
@@ -40,6 +41,12 @@ export class PauseScene {
       this.saved = r === 'boss' ? "You can't save while a guardian is watching." : r ? 'Saved.' : 'Could not save (browser storage is blocked or full).';
       audio.sfx(r && r !== 'boss' ? 'menu_accept' : 'menu_cancel', { vol: 0.6 });
       this.rebuild();
+    }
+    else if (v === 'unstuck') {
+      const w = this.under.world;
+      for (const l of g.locals) if (l.hero.alive) this.under.unstick(l.hero, w, true);
+      audio.sfx('menu_accept', { vol: 0.6 });
+      this.close();
     }
     else if (v === 'couch') {
       const { newCharacter } = await import('../game/character.js');
