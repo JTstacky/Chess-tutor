@@ -21,6 +21,8 @@ const MINOR = new Set(['yuup.grp']);
 const PIC_H = 380;
 const FALLBACK = { felicia_closeup: 'felicia_balcony', jashiin_eyes: 'jashiin_curse', duke_into_light: 'door_of_destiny' };
 const SPEAKER = { 'Duke Garland': 'duke', 'King Felishika': 'king', Jashiin: 'jashiin' };
+// Which way each talking portrait is painted looking (1 = to the right).
+const FACING = { duke: 1, king: 1, jashiin: 1 };
 
 function pictureFor(graphic) {
   const grps = (graphic || '').match(/\w+\.grp/g) || [];
@@ -293,9 +295,11 @@ export class StoryScene {
       this.drawFace(st.scrollAway, W / 2 - box / 2, 30 - k * (box + 60), box, false);
       return;
     }
-    who.forEach((w, i) => this.drawFace(w, x0 + i * (box + gap), 30, box, w === speaking && typing, !speaking || w === speaking));
+    // Side by side they face each other: the left one looks right, the right one looks left.
+    who.forEach((w, i) => this.drawFace(w, x0 + i * (box + gap), 30, box, w === speaking && typing, !speaking || w === speaking,
+      who.length > 1 && (i === 0 ? 1 : -1) !== (FACING[w] || 1)));
   }
-  drawFace(who, x, y, size, talking, lit = true) {
+  drawFace(who, x, y, size, talking, lit = true, mirror = false) {
     const fc = this.faces[who] || {};
     const blinkCycle = (this.t + (who === 'king' ? 1.3 : who === 'jashiin' ? 2.1 : 0)) % 3.4;
     let im = fc.base;
@@ -303,7 +307,8 @@ export class StoryScene {
     if (blinkCycle < 0.12 && fc.blink) im = fc.blink;
     ctx.fillStyle = '#d8a83a'; ctx.fillRect(x - 8, y - 8, size + 16, size + 16);
     ctx.fillStyle = '#5a1a10'; ctx.fillRect(x - 4, y - 4, size + 8, size + 8);
-    if (im) ctx.drawImage(im, x, y, size, size);
+    if (im && mirror) { ctx.save(); ctx.translate(x + size, y); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, size, size); ctx.restore(); }
+    else if (im) ctx.drawImage(im, x, y, size, size);
     if (!lit) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(x, y, size, size); }
   }
   drawTear(n, t) {
