@@ -453,45 +453,84 @@ export class Hero {
   }
 }
 
-// The sword's sweep, like the original's swing graphics (a curved blade trail per frame, white,
-// cyan or gold by sword): an arc around the shoulder that follows the swing phase. Angles are
-// for facing right (canvas: -90° is straight up, 180° behind).
-// Where the painted blade points in each art cell (hero_combat: forward swing cells 0-3, overhead
-// 4-7); the trail's leading edge follows the blade. (The crouching swing has its own painted sweep.)
+// The sword's sweep, like the original's swing graphics (a curved blade trail, white, cyan or gold
+// by sword): a smear of the blade itself, from the grip to the tip, over the last part of the swing.
+// `blade` is where the painted blade lies in each art cell, measured from the sheets: [grip x, grip y,
+// tip x, tip y] in px from the feet, facing right (hero_combat: forward swing cells 0, 1, 3, 7 —
+// wound up, overhead, level, then down through the follow-through — and overhead 4-7). Between
+// cells the blade turns about the shoulder (SHOULDER), so the trail is a round arc whose leading
+// edge sits on the drawn blade. `from` is the first cell that cuts (the forward swing's wind-up
+// doesn't). The crouching swing has its own painted sweep.
+const SHOULDER = [-10, -60];
 const SWOOSH = {
-  slash: [-160, -90, -10, 5],
-  overhead: [-185, -90, -45, 50],
+  slash: { from: 1, blade: [[-49, -69, -5, -89], [-27, -73, -29, -94], [9, -49, 39, -49], [-12, -29, 24, -4]] },
+  overhead: { from: 0, blade: [[-22, -74, -56, -68], [-23, -78, -23, -98], [11, -72, 34, -92], [-12, -29, 24, -4]] },
 };
+// Each blade key as polar coordinates about the shoulder: [grip angle, grip r, tip angle, tip r],
+// with the angles unwrapped so they only ever increase (the swings all turn clockwise).
+const polar = (x, y) => [Math.atan2(y - SHOULDER[1], x - SHOULDER[0]), Math.hypot(x - SHOULDER[0], y - SHOULDER[1])];
+for (const s of Object.values(SWOOSH)) {
+  let pg = -Infinity, pt = -Infinity;
+  s.keys = s.blade.map(([gx, gy, tx, ty]) => {
+    let [ga, gr] = polar(gx, gy), [ta, tr] = polar(tx, ty);
+    while (ga < pg - 0.3) ga += Math.PI * 2;
+    while (ta < pt - 0.3) ta += Math.PI * 2;
+    pg = ga; pt = ta;
+    return [ga, gr, ta, tr];
+  });
+}
 const SWORD_TINT = {
   training_sword: '235,240,255', knights_sword: '235,240,255', wise_mans_sword: '110,240,255',
   illumination_sword: '110,240,255', spirit_sword: '255,230,90', enchantment_sword: '255,210,60',
 };
 function drawSwoosh(x, y, dir, atk, crouch, sword, reach) {
-  const path = SWOOSH[atk.kind];
-  if (!path) return;
-  const a = ATTACKS[atk.kind];
-  // Cell k is on screen for u in [k, k+1); the blade matches path[k] mid-cell.
-  const u = Math.min(path.length - 0.5, Math.max(0.5, Math.max(0, (atk.t - a.t0) / (a.t1 - a.t0)) * path.length)) - 0.5;
-  const i = Math.min(path.length - 2, Math.floor(u));
-  const fade = atk.t > a.t1 ? Math.max(0, 1 - (atk.t - a.t1) / 0.07) : 1;
-  if (fade <= 0) return;
-  const deg = path[i] + (path[i + 1] - path[i]) * Math.min(1, u - i);
-  const end = deg * Math.PI / 180, start = Math.max(path[0] - 30, deg - 120) * Math.PI / 180;
-  const r = 50 + reach * 0.8;
+  const sw = SWOOSH[atk.kind];
+  if (!sw || crouch) return;
+  const a = ATTACKS[atk.kind], keys = sw.keys, n = keys.length;
+  // Cell k is on screen for u in [k, k+1); the blade matches key k mid-cell.
+  const lead = Math.min(n - 1, Math.max(0, Math.max(0, (atk.t - a.t0) / (a.t1 - a.t0)) * n - 0.5));
+  if (lead <= sw.from) return;
+  // Once the blade has stopped the trail drains into it and is gone in 0.12 s.
+  const after = Math.max(0, atk.t - a.t1) / 0.12;
+  if (after >= 1) return;
+  const len = 1.6 * (1 - after);
+  const tail = Math.max(sw.from, lead - len);
+  const at = (u) => {
+    const i = Math.min(n - 2, Math.floor(u)), f = u - i, k0 = keys[i], k1 = keys[i + 1];
+    const m = (j) => k0[j] + (k1[j] - k0[j]) * f;
+    return [m(0), m(1), m(2), m(3)];
+  };
+  const extra = reach * 0.6; // Knight's and Illumination swords reach a tile further
   const rgb = SWORD_TINT[sword] || SWORD_TINT.training_sword;
   ctx.save();
-  ctx.translate(x, y - (crouch ? 34 : 58));
+  ctx.translate(x + dir * SHOULDER[0], y + SHOULDER[1]);
   if (dir < 0) ctx.scale(-1, 1);
   ctx.globalCompositeOperation = 'lighter';
-  ctx.lineCap = 'butt';
-  // A crescent: thick and bright at the blade, thinning and fading along the trail.
-  const N = 24;
-  for (let j = 0; j < N; j++) {
-    const t0 = j / N, t1 = (j + 1) / N;
-    ctx.strokeStyle = `rgba(${rgb},${(0.08 + 0.85 * t1 * t1) * fade})`;
-    ctx.lineWidth = 1.5 + 7 * t1;
+  // A crescent between the grip's path and the tip's path: bright at the blade, fading behind it.
+  const N = 28;
+  let prev = at(tail);
+  for (let j = 1; j <= N; j++) {
+    const s = j / N, cur = at(tail + (lead - tail) * s);
+    const pt = (k, out) => [Math.cos(k[out ? 2 : 0]) * (k[out ? 3 : 1] + (out ? extra : 0)), Math.sin(k[out ? 2 : 0]) * (k[out ? 3 : 1] + (out ? extra : 0))];
+    // Mostly the outer half of the blade: the hilt end moves little and would muddy the body.
+    const inner = (k) => { const g = pt(k, false), t = pt(k, true); return [g[0] + (t[0] - g[0]) * 0.35, g[1] + (t[1] - g[1]) * 0.35]; };
+    const p0 = inner(prev), p1 = pt(prev, true), p2 = pt(cur, true), p3 = inner(cur);
+    ctx.fillStyle = `rgba(${rgb},${(0.03 + 0.34 * s * s) * (1 - after)})`;
     ctx.beginPath();
-    ctx.arc(0, 0, r - 4 * (1 - t1), start + (end - start) * t0, start + (end - start) * t1);
+    ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p3[0], p3[1]);
+    ctx.closePath(); ctx.fill();
+    prev = cur;
+  }
+  // A bright edge along the path of the tip.
+  ctx.strokeStyle = `rgba(${rgb},${0.75 * (1 - after)})`;
+  ctx.lineCap = 'round';
+  for (let j = 1; j <= N; j++) {
+    const s0 = (j - 1) / N, s1 = j / N, k0 = at(tail + (lead - tail) * s0), k1 = at(tail + (lead - tail) * s1);
+    ctx.globalAlpha = s1;
+    ctx.lineWidth = 1 + 2.5 * s1;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(k0[2]) * (k0[3] + extra), Math.sin(k0[2]) * (k0[3] + extra));
+    ctx.lineTo(Math.cos(k1[2]) * (k1[3] + extra), Math.sin(k1[2]) * (k1[3] + extra));
     ctx.stroke();
   }
   ctx.restore();

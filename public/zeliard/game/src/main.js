@@ -8,6 +8,7 @@ import { loadShieldArt } from './game/shields.js';
 import { settings } from './core/save.js';
 import { params } from './core/util.js';
 import { Game } from './game/game.js';
+import { watchForUpdates } from './core/update.js';
 
 const bootEl = document.getElementById('boot');
 
@@ -37,6 +38,7 @@ async function boot() {
   await game.init();
   bootEl.classList.add('gone');
   setupTouch();
+  watchForUpdates(game);
   const unlock = () => audio.unlock();
   window.addEventListener('keydown', unlock);
   window.addEventListener('pointerdown', unlock);
