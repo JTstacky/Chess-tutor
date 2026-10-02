@@ -16,6 +16,9 @@ const PANELS = {
 // waku.grp is only a frame drawn around other pictures, and yuup.grp (the Duke's
 // portrait) shares the screen with the picture that matters in split scenes.
 const MINOR = new Set(['yuup.grp']);
+// New pictures for the original's staging, and what to show until they exist.
+const FALLBACK = { felicia_closeup: 'felicia_balcony', jashiin_eyes: 'jashiin_curse', duke_into_light: 'door_of_destiny' };
+const SPEAKER = { 'Duke Garland': 'duke', 'King Felishika': 'king', Jashiin: 'jashiin' };
 
 function pictureFor(graphic) {
   const grps = (graphic || '').match(/\w+\.grp/g) || [];
@@ -59,9 +62,22 @@ function pagesFrom(scenes, skipPhases = []) {
   for (const sc of scenes || []) {
     if (skipPhases.includes(sc.phase)) continue;
     let pic = pictureFor(sc.graphic) || last;
-    if (sc.phase === 'story slideshow' && /palette 9/.test(sc.graphic || '')) pic = 'desert';
-    if (/Jashiin apparition|blended with the Jashiin/.test(sc.graphic || '')) pic = 'jashiin_curse';
+    const g = sc.graphic || '';
+    // The original's staging for each scene (100OPDMO): rain on the storm, the princess close-up,
+    // Jashiin's eyes blending in over her, the talking portraits in the split frame, Jashiin's
+    // portrait that scrolls away, and the closing walk through the door of destiny.
+    let stage = null;
+    if (sc.phase === 'story slideshow' && /palette 9/.test(g)) pic = 'desert';
+    else if (g.startsWith('waku.grp frame + ame.grp')) stage = { fx: 'rain' };
+    else if (g.startsWith('hime.grp (Princess')) pic = 'felicia_closeup';
+    else if (/blended with the Jashiin/.test(g)) { pic = 'felicia_closeup'; stage = { fx: 'eyes_in' }; }
+    else if (/Jashiin apparition/.test(g)) pic = 'jashiin_eyes';
+    else if (g.startsWith('split screen: yuup')) stage = { portraits: ['duke', 'king'] };
+    else if (g.startsWith('maop.grp')) stage = { portraits: ['jashiin'] };
+    else if (/scrolls away/.test(g)) stage = { portraits: ['duke', 'king'], scrollAway: 'jashiin' };
+    else if (g.startsWith('yuu3.grp')) { pic = 'duke_into_light'; stage = { fx: 'push' }; }
     last = pic;
+    let firstPage = true;
     for (const p of sc.pages || []) {
       const lines = localizeLines(p.lines.filter((l) => l.text !== undefined));
       if (!lines.length) continue;
@@ -73,7 +89,8 @@ function pagesFrom(scenes, skipPhases = []) {
         if (prev && prev.speaker === sp) prev.text += (l.speaker === 'caption' ? (l.text ? ' ' : '\n') : ' ') + l.text;
         else chunks.push({ speaker: sp, text: l.text });
       }
-      out.push({ pic, chunks, caption: lines.every((l) => l.speaker === 'caption') });
+      out.push({ pic, chunks, caption: lines.every((l) => l.speaker === 'caption'), stage, sceneStart: firstPage });
+      firstPage = false;
     }
   }
   return out;
@@ -116,7 +133,9 @@ export class StoryScene {
     this.chars = 0;
     this.imgs = {};
     const st = game.data.rules.story || {};
-    if (id === 'opening') this.pages = pagesFrom(st.opening?.scenes, ['title card', 'title', 'staff credits', 'Jashiin attract animation']);
+    // The copyright card, prologue, Jashiin's awakening, title and credits play before the title
+    // menu (scenes/opening.js); a new game starts at the story itself.
+    if (id === 'opening') this.pages = pagesFrom(st.opening?.scenes, ['title card', 'ancient-history prologue', 'title', 'staff credits', 'Jashiin attract animation']);
     else if (id === 'ending') this.pages = pagesFrom(st.ending?.scenes);
     else if (id === 'tear') {
       const n = opts.count || 1;
@@ -124,7 +143,19 @@ export class StoryScene {
       if (n >= 9) this.pages.push({ pic: 'tear', chunks: [{ speaker: '', text: 'All nine Tears shine together. The way to Jashiin lies open.' }], tear: n });
     }
     this.pages = this.pages.flatMap((p) => fitPage(p));
-    for (const p of this.pages) if (p.pic && !(p.pic in this.imgs)) { this.imgs[p.pic] = null; image(`art/story/${p.pic}.png`).then((im) => { this.imgs[p.pic] = im; }); }
+    for (const p of this.pages) if (p.pic && !(p.pic in this.imgs)) {
+      this.imgs[p.pic] = null;
+      image(`art/story/${p.pic}.png`).then((im) => im || (FALLBACK[p.pic] ? image(`art/story/${FALLBACK[p.pic]}.png`) : null)).then((im) => { this.imgs[p.pic] = im; });
+    }
+    // Talking portraits: base, mouth open, eyes shut (art/story/talk/<who>.png, _talk.png, _blink.png; tools/art/facepatch.py).
+    this.faces = {};
+    for (const who of ['duke', 'king', 'jashiin']) {
+      const fc = this.faces[who] = {};
+      image(`art/story/talk/${who}.png`).then((im) => { fc.base = im; });
+      image(`art/story/talk/${who}_talk.png`).then((im) => { fc.talk = im; });
+      image(`art/story/talk/${who}_blink.png`).then((im) => { fc.blink = im; });
+    }
+    image('art/story/jashiin_eyes_overlay.png').then((im) => { this.eyesOverlay = im; });
     image('art/ui/title_keyart.png').then((i) => { this.fallback = i; });
   }
   enter() {
@@ -142,9 +173,12 @@ export class StoryScene {
     const full = this.fullLen(this.page);
     this.chars = Math.min(full, this.chars + dt * 45);
     this.pageT = (this.pageT || 0) + dt;
+    this.picT = (this.picT || 0) + dt;
+    if (this.page.stage?.fx === 'rain' && Math.random() < dt * 0.12) { this.flash = 0.5; audio.sfx('boss_hit', { vol: 0.25, rate: 0.4 }); }
+    if (this.flash > 0) this.flash -= dt;
     if (m.pressed('confirm') || m.pressed('attack') || m.pressed('jump') || (this.opts.auto && this.pageT > 4)) {
       if (this.chars < full) this.chars = full;
-      else { this.i++; this.chars = 0; this.pageT = 0; audio.sfx('menu_move', { vol: 0.2 }); if (!this.page) this.finish(); }
+      else { this.prevPic = this.page.pic; this.prevPage = this.page; this.i++; this.chars = 0; this.pageT = 0; if (this.page && this.page.pic !== this.prevPic) this.picT = 0; audio.sfx('menu_move', { vol: 0.2 }); if (!this.page) this.finish(); }
     }
   }
   draw(t) {
@@ -154,9 +188,20 @@ export class StoryScene {
     if (!p) return;
     const img = this.imgs[p.pic];
     const ph = p.caption ? H : 360;
+    const st = p.stage || {};
     if (p.tear) this.drawTear(p.tear, t);
-    else if (img) { drawCover(img, 0, 0, W, ph); }
-    else if (this.fallback) { drawCover(this.fallback, -20 + Math.sin(this.t * 0.1) * 20, 0, W + 40, ph, 0.55); }
+    else if (st.portraits) this.drawPortraits(p, st, ph);
+    else {
+      // Crossfade from the previous picture over 0.8 s.
+      const k = Math.min(1, (this.picT || 0) / 0.8);
+      const prev = this.prevPic && this.prevPic !== p.pic && !this.prevPage?.stage?.portraits ? this.imgs[this.prevPic] : null;
+      if (prev && k < 1) drawCover(prev, 0, 0, W, ph);
+      const push = st.fx === 'push' ? Math.min(1, (this.picT || 0) / 14) : 0;
+      if (img) drawCover(img, -push * 60, -push * 40, W + push * 120, ph + push * 80, prev ? k : 1);
+      else if (this.fallback) drawCover(this.fallback, -20 + Math.sin(this.t * 0.1) * 20, 0, W + 40, ph, 0.55);
+      if (st.fx === 'rain') this.drawRain(ph, t);
+      if (st.fx === 'eyes_in') this.drawEyesIn(ph);
+    }
     if (p.caption) {
       fade(0.55, '#000');
       const n = p.chunks.reduce((a, c) => a + c.text.split('\n').length + (c.speaker ? 1 : 0), 0);
@@ -185,6 +230,69 @@ export class StoryScene {
       }
       yy += 6;
     }
+  }
+  // Rain streaks over the storm (the original animates the downpour in four frames), with a
+  // lightning flash now and then.
+  drawRain(ph, t) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, ph); ctx.clip();
+    ctx.strokeStyle = 'rgba(190,210,255,0.35)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i < 160; i++) {
+      const x = ((i * 97.3 + t * 260) % (W + 120)) - 60, y = ((i * 53.1 + t * 900) % (ph + 40)) - 20;
+      ctx.moveTo(x, y); ctx.lineTo(x - 6, y + 22);
+    }
+    ctx.stroke();
+    if (this.flash > 0) { ctx.fillStyle = `rgba(230,235,255,${this.flash * 0.7})`; ctx.fillRect(0, 0, W, ph); }
+    ctx.restore();
+  }
+  // Jashiin's eyes blend in over the princess (the original's palette blend).
+  drawEyesIn(ph) {
+    const im = this.eyesOverlay;
+    if (!im) return;
+    const k = Math.min(1, (this.picT || 0) / 2.5);
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    // In the dark sky over Felicia's shoulder (upper left of felicia_closeup), not on her face.
+    drawCover(im, -W * 0.02, -ph * 0.04, W * 0.6, W * 0.4, k * 0.9);
+    ctx.restore();
+  }
+  // The split frame: portraits side by side in gold frames (or Jashiin's alone). The speaker
+  // blinks and his mouth moves while his line is typing; a scrolling-away portrait slides off.
+  drawPortraits(p, st, ph) {
+    // The original's waku.grp: a crimson field inside a gold-and-blue ornate border.
+    ctx.fillStyle = '#0c1440'; ctx.fillRect(0, 0, W, ph);
+    ctx.strokeStyle = '#e0b040'; ctx.lineWidth = 3; ctx.strokeRect(8, 6, W - 16, ph - 12);
+    ctx.fillStyle = '#5a1010'; ctx.fillRect(20, 16, W - 40, ph - 32);
+    ctx.strokeStyle = '#f0c860'; ctx.lineWidth = 2; ctx.strokeRect(20, 16, W - 40, ph - 32);
+    ctx.strokeStyle = 'rgba(240,200,96,0.7)';
+    for (const [cx, cy, sx, sy] of [[20, 16, 1, 1], [W - 20, 16, -1, 1], [20, ph - 16, 1, -1], [W - 20, ph - 16, -1, -1]]) {
+      ctx.beginPath();
+      for (let k = 0; k < 3; k++) { const r = 12 + k * 10; ctx.moveTo(cx + sx * r, cy); ctx.quadraticCurveTo(cx + sx * r, cy + sy * r, cx, cy + sy * r); }
+      ctx.stroke();
+    }
+    const who = st.portraits;
+    const speaking = SPEAKER[p.chunks[p.chunks.length - 1]?.speaker] || SPEAKER[p.chunks[0]?.speaker];
+    const typing = this.chars < this.fullLen(p);
+    const box = 300, gap = 70;
+    const x0 = W / 2 - (who.length * box + (who.length - 1) * gap) / 2;
+    if (st.scrollAway && p.sceneStart && (this.picT || 0) < 1.6) {
+      const k = Math.min(1, (this.picT || 0) / 1.5);
+      this.drawFace(st.scrollAway, W / 2 - box / 2, 30 - k * (box + 60), box, false);
+      return;
+    }
+    who.forEach((w, i) => this.drawFace(w, x0 + i * (box + gap), 30, box, w === speaking && typing, !speaking || w === speaking));
+  }
+  drawFace(who, x, y, size, talking, lit = true) {
+    const fc = this.faces[who] || {};
+    const blinkCycle = (this.t + (who === 'king' ? 1.3 : who === 'jashiin' ? 2.1 : 0)) % 3.4;
+    let im = fc.base;
+    if (talking && fc.talk && Math.floor(this.t / 0.13) % 2 === 0) im = fc.talk;
+    if (blinkCycle < 0.12 && fc.blink) im = fc.blink;
+    ctx.fillStyle = '#d8a83a'; ctx.fillRect(x - 8, y - 8, size + 16, size + 16);
+    ctx.fillStyle = '#5a1a10'; ctx.fillRect(x - 4, y - 4, size + 8, size + 8);
+    if (im) ctx.drawImage(im, x, y, size, size);
+    if (!lit) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(x, y, size, size); }
   }
   drawTear(n, t) {
     const sh = sheetNow('art.prop.tear');

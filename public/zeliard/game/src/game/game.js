@@ -15,6 +15,7 @@ import { TitleScene } from '../scenes/title.js';
 import { CavernScene } from '../scenes/cavern.js';
 import { TownScene } from '../scenes/town.js';
 import { StoryScene } from '../scenes/story.js';
+import { OpeningScene } from '../scenes/opening.js';
 import { PauseScene, InventoryScene } from '../scenes/menus.js';
 import { TILE } from '../world/tilemap.js';
 import { FRAME } from './enemies.js';
@@ -60,8 +61,11 @@ export class Game {
     } else if (params.get('town')) {
       this.startSolo(this.testCharacter(diff), -1);
       this.replace(new TownScene(this, { mapId: params.get('town'), x: params.has('x') ? Number(params.get('x')) : null }));
-    } else {
+    } else if (params.has('nointro')) {
       this.replace(new TitleScene(this));
+    } else {
+      // The original's attract sequence (copyright, prologue, Jashiin, title, credits), then the menu.
+      this.replace(new OpeningScene(this, () => this.transition(() => new TitleScene(this))));
     }
   }
 
