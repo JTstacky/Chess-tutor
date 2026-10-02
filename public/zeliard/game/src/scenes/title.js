@@ -89,9 +89,11 @@ export class TitleScene {
       const n = this.naming;
       if (!n) return;
       if (e.code === 'Backspace') n.name = n.name.slice(0, -1);
-      else if (e.code === 'Enter') { input.textCapture = null; if (n.name.trim()) this.chooseDifficulty(n.slot, n.name.trim()); }
+      // An empty name can't be confirmed, and typing stays switched on: the phone keyboard's Done
+      // (or Sword / Jump) with nothing typed used to leave the prompt deaf to further taps.
+      else if (e.code === 'Enter') { if (n.name.trim()) { input.textCapture = null; this.chooseDifficulty(n.slot, n.name.trim()); } else { n.needName = true; audio.sfx('menu_cancel', { vol: 0.5 }); } }
       else if (e.code === 'Escape') { input.textCapture = null; this.naming = null; this.showMain(); }
-      else if (e.key.length === 1 && n.name.length < 10 && /[\w .'-]/.test(e.key)) n.name += e.key;
+      else if (e.key.length === 1 && n.name.length < 12 && /[\w .'-]/.test(e.key)) n.name += e.key;
     };
     input.textValue = () => this.naming?.name ?? '';
     this.menu = null;
@@ -121,16 +123,18 @@ export class TitleScene {
       { label: 'Music volume', right: vol('music'), onLeft: () => this.adj('music', -0.1), onRight: () => this.adj('music', 0.1) },
       { label: 'Sound volume', right: vol('sfx'), onLeft: () => this.adj('sfx', -0.1), onRight: () => this.adj('sfx', 0.1) },
       { label: 'Game speed', right: `${settings.get('speed') || 1}×`, onLeft: () => this.adjSpeed(-0.25), onRight: () => this.adjSpeed(0.25), hint: 'Like the original F9 speed control.' },
+      { label: 'Minimap', right: settings.get('minimap') === false ? 'Off' : 'On', value: 'minimap', onLeft: () => this.toggleMap(), onRight: () => this.toggleMap(), hint: 'A map of the cavern in the corner, showing only where you have been.' },
       { label: 'Controls', value: 'controls' },
       { label: 'Back up saves to a file', value: 'export', hint: this.saveNote || 'Downloads your three save slots as a .json file.' },
       { label: 'Restore saves from a file', value: 'import', hint: 'Replaces the slots that are in the file.' },
       { label: 'Back', value: 'back' },
     ];
     this.setMenu(new Menu(items, {
-      title: 'Options', w: 420, x: W / 2 - 210, y: 250,
+      title: 'Options', w: 420, x: W / 2 - 210, y: 205,
       onSelect: (it) => {
         if (it.value === 'back') this.showMain();
         else if (it.value === 'controls') this.controls = true;
+        else if (it.value === 'minimap') this.toggleMap();
         else if (it.value === 'export') { const n = exportSaves(); this.saveNote = `Backed up ${n} knight${n === 1 ? '' : 's'}.`; this.reopenOptions(); }
         else if (it.value === 'import') importSaves().then((n) => { this.saveNote = n ? `Restored ${n} knight${n === 1 ? '' : 's'}.` : 'Nothing restored.'; this.reopenOptions(); }, (e) => { this.saveNote = e.message; this.reopenOptions(); });
       },
@@ -138,6 +142,7 @@ export class TitleScene {
     }));
     this.optionsOpen = true;
   }
+  toggleMap() { settings.set('minimap', settings.get('minimap') === false); this.reopenOptions(); }
   reopenOptions() { const i = this.menu?.i ?? 0; this.options(); this.menu.i = i; }
   adj(k, d) { settings.set(k, Math.max(0, Math.min(1, Math.round((settings.get(k) + d) * 10) / 10))); audio.setVolumes(settings.get('music'), settings.get('sfx')); const i = this.menu.i; this.options(); this.menu.i = i; }
   adjSpeed(d) { const s = Math.max(0.5, Math.min(2, (settings.get('speed') || 1) + d)); settings.set('speed', s); this.game.speed = s; const i = this.menu.i; this.options(); this.menu.i = i; }
@@ -191,7 +196,8 @@ export class TitleScene {
       text('Name your knight', W / 2, 318, { size: 18, align: 'center', color: COLORS.gold });
       const caret = Math.floor(this.t * 2) % 2 ? '_' : ' ';
       text(this.naming.name + caret, W / 2, 352, { size: 26, align: 'center' });
-      text(input.isTouch ? 'Tap here to type · Sword to confirm · Pause to go back' : 'Type a name, Enter to confirm, Esc to go back', W / 2, 394, { size: 13, align: 'center', color: COLORS.dim });
+      const ask = this.naming.needName && !this.naming.name.trim();
+      text(ask ? (input.isTouch ? 'Tap here and type a name first' : 'Type a name first') : input.isTouch ? 'Tap here to type · Sword to confirm · Pause to go back' : 'Type a name, Enter to confirm, Esc to go back', W / 2, 394, { size: 13, align: 'center', color: ask ? '#ffb070' : COLORS.dim });
       return;
     }
     this.menu?.draw();
@@ -202,7 +208,7 @@ export class TitleScene {
     const rows = [
       ['Move / crouch', 'Arrows or WASD'], ['Jump / climb / doors', 'Up (or Z, L)'], ['Sword', 'Space (or X, J)   Up+Space = overhead swing,'],
       ['', 'Down+Space while falling = downward stab'], ['Magic', 'Alt (or C, K)'], ['Talk', 'Up or Space'],
-      ['Inventory', 'Enter, I or Tab'], ['Pause', 'Esc or P'], ['Gamepad', 'A jump · X sword · B magic · Y items · Start pause'],
+      ['Inventory', 'Enter, I or Tab'], ['Pause · map', 'Esc or P · M (or tap the minimap)'], ['Gamepad', 'A jump · X sword · B magic · Y items · Start pause'],
     ];
     rows.forEach(([a, b], i) => { text(a, 170, 240 + i * 27, { size: 16, color: COLORS.gold }); text(b, 360, 240 + i * 27, { size: 16 }); });
   }

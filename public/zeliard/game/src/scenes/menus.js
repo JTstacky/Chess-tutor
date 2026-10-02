@@ -5,7 +5,7 @@ import { audio } from '../core/audio.js';
 import { settings } from '../core/save.js';
 import { sheetNow } from '../core/assets.js';
 import { Menu } from '../ui/widgets.js';
-import { RULES, maxHp, xpNeeded, swordDamage } from '../game/character.js';
+import { RULES, maxHp, xpNeeded, swordDamage, isTester } from '../game/character.js';
 import { SPELLS, SPELL_ORDER } from '../game/spells.js';
 
 export class PauseScene {
@@ -19,23 +19,45 @@ export class PauseScene {
   build() {
     const g = this.game;
     const vol = (k) => `${Math.round(settings.get(k) * 10)}`;
+    if (this.travel) { this.travelMenu(); return; }
+    const tester = g.locals.some((l) => isTester(l.character));
     this.menu = new Menu([
       { label: 'Resume', value: 'resume' },
       { label: 'Music volume', right: vol('music'), onLeft: () => this.adj('music', -0.1), onRight: () => this.adj('music', 0.1) },
       { label: 'Sound volume', right: vol('sfx'), onLeft: () => this.adj('sfx', -0.1), onRight: () => this.adj('sfx', 0.1) },
       { label: 'Game speed', right: `${settings.get('speed') || 1}×`, onLeft: () => this.speed(-0.25), onRight: () => this.speed(0.25), hint: 'Like the original F9 speed setting.' },
+      { label: 'Minimap', right: settings.get('minimap') === false ? 'Off' : 'On', value: 'minimap', onLeft: () => this.toggleMap(), onRight: () => this.toggleMap(), hint: 'A map of the cavern in the corner, showing only where you have been. Tap it (or press M) to open it.' },
+      ...(tester ? [{ label: 'Quick travel', value: 'travel', hint: 'Go straight to any town or cavern.' }] : []),
       { label: 'Save game', value: 'save', disabled: !g.locals.some((l) => l.saveSlot >= 0), hint: this.saved || 'Saves right here. Continue on the title screen brings you back to this spot.' },
       { label: 'Unstuck', value: 'unstuck', disabled: !this.under.unstick, hint: 'Stuck somewhere? Back to the last spot you stood on solid ground.' },
       { label: 'Add a second knight (couch)', value: 'couch', disabled: g.locals.length > 1 || !!g.coop, hint: 'Player 2 uses the arrow keys + , . /  or a second gamepad.' },
       { label: 'Quit to title', value: 'quit', hint: 'Progress is kept from your last visit to a Sage.' },
-    ], { title: 'Paused', w: 380, x: W / 2 - 190, y: 120, onSelect: (it) => this.pick(it.value), onCancel: () => this.close() });
+    ], { title: 'Paused', w: 380, x: W / 2 - 190, y: 50, rows: 11, size: 18, onSelect: (it) => this.pick(it.value), onCancel: () => this.close() });
   }
   adj(k, d) { settings.set(k, Math.max(0, Math.min(1, Math.round((settings.get(k) + d) * 10) / 10))); audio.setVolumes(settings.get('music'), settings.get('sfx')); this.rebuild(); }
   speed(d) { const s = Math.max(0.5, Math.min(2, (settings.get('speed') || 1) + d)); settings.set('speed', s); this.game.speed = s; this.rebuild(); }
   rebuild() { const i = this.menu.i; this.build(); this.menu.i = i; }
+  toggleMap() { settings.set('minimap', settings.get('minimap') === false); this.rebuild(); }
+  // Testing: every town and cavern of world.json, in the order of the journey.
+  travelMenu() {
+    const g = this.game;
+    const maps = (g.data.world?.maps || []).filter((m) => m.kind !== 'castle' || m.id === 'cmap');
+    this.menu = new Menu(maps.map((m) => ({ label: m.name, right: m.kind === 'town' || m.kind === 'castle' ? 'town' : m.kind === 'boss' ? `guardian · ${m.id}` : m.id, value: m })), {
+      title: 'Quick travel', w: 460, x: W / 2 - 230, y: 50, rows: 13, size: 16,
+      onSelect: (it) => {
+        const m = it.value, town = m.kind === 'town' || m.kind === 'castle';
+        this.travel = false;
+        g.pop();
+        g.travel(town ? { kind: 'town', map: m.id, x: null } : { kind: 'cavern', map: m.id });
+      },
+      onCancel: () => { this.travel = false; this.build(); },
+    });
+  }
   async pick(v) {
     const g = this.game;
     if (v === 'resume') this.close();
+    else if (v === 'minimap') this.toggleMap();
+    else if (v === 'travel') { this.travel = true; this.build(); }
     else if (v === 'save') {
       const r = g.saveHere();
       this.saved = r === 'boss' ? "You can't save while a guardian is watching." : r ? 'Saved.' : 'Could not save (browser storage is blocked or full).';

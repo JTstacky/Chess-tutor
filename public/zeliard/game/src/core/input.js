@@ -58,6 +58,7 @@ class Input {
       }
       if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'AltLeft', 'AltRight', 'Backspace'].includes(e.code)) e.preventDefault();
       if (!e.repeat) for (const l of this.anyKeyListeners) l(e);
+      if (e.code === 'KeyM' && !e.repeat) this.mapAt = performance.now(); // the minimap's key
       this.keys.add(e.code);
       this.taps.add(e.code); // latched until the next frame so quick taps are never lost
       this.lastDevice = 'keyboard';

@@ -55,6 +55,12 @@ export function migrate(c) {
   return n;
 }
 
+// Developer testing knight (matched by name hash): hits land but leave 1 HP, the purse stays
+// full, cavern maps are fully drawn and the pause menu can jump to any map.
+export const TESTER_GOLD = 9999999;
+const nameHash = (s) => { let h = 0x811c9dc5; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; } return h; };
+export const isTester = (c) => typeof c?.name === 'string' && nameHash(c.name) === 0xd1556516;
+
 export function maxHp(c) {
   const t = RULES.hpByLevel;
   return t[Math.min(c.level, t.length - 1)] || 80;

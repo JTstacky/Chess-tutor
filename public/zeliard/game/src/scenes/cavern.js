@@ -7,6 +7,7 @@ import { maxHp, RULES } from '../game/character.js';
 import { SPELLS } from '../game/spells.js';
 import { audio } from '../core/audio.js';
 import { sheetNow } from '../core/assets.js';
+import { Minimap } from '../ui/minimap.js';
 
 const MUSIC = { mus1: 'moss_crypt', mus2: 'moss_crypt', mus3: 'bramble_gallery', mus4: 'frost_vault', mus5: 'bone_ossuary', mus6: 'gilded_deep', mus7: 'ember_works', mus8: 'abyss_throne' };
 
@@ -63,9 +64,11 @@ export class CavernScene {
       const { spawnBoss } = await import('../game/bosses.js');
       await spawnBoss(g, w);
     }
+    this.minimap = new Minimap(g, w);
     this.ready = true;
     this.nameT = 0;
   }
+  exit() { this.minimap?.store(); }
 
   update(dt) {
     if (!this.ready) return;
@@ -100,6 +103,7 @@ export class CavernScene {
       }
     }
     g.upkeep(w, dt);
+    this.minimap?.update(dt, this.lastCam);
     // World
     if (!g.coop || g.coop.isHost) w.simulate(dt);
     else g.coop.puppetWorld(w, dt);
@@ -238,6 +242,7 @@ export class CavernScene {
         text(d.locked ? (d.d.lock === 'lion' ? '▲ Lion seal' : '▲ Locked') : '▲ Enter', l.hero.cx - cx, l.hero.y - cy - 34, { size: 14, align: 'center', color: '#fff4c8', shadow: true });
       }
     }
+    this.minimap?.draw();
     if (this.defeatT != null) fade((this.defeatT / 2.5) * 0.9, '#200');
   }
 

@@ -7,7 +7,7 @@ import { audio } from '../core/audio.js';
 import { loadJSON } from '../core/assets.js';
 import { settings, saveSlot } from '../core/save.js';
 import { params } from '../core/util.js';
-import { RULES, newCharacter, migrate, maxHp, swordDamage, addXp, derived, shieldTier, setBit, hasBit, getByte, refillSpells } from './character.js';
+import { RULES, newCharacter, migrate, maxHp, swordDamage, addXp, derived, shieldTier, setBit, hasBit, getByte, refillSpells, isTester, TESTER_GOLD } from './character.js';
 import { applyRules } from './rules.js';
 import { Hero } from './hero.js';
 import { castSpell, SPELLS } from './spells.js';
@@ -158,6 +158,7 @@ export class Game {
 
   // Saves every knight that came from a save slot (couch knights keep their own).
   save(local) {
+    for (const s of this.scenes) s.minimap?.store(); // explored cavern ground goes in the save too
     const one = (l) => (!l || l.saveSlot == null || l.saveSlot < 0 ? false : saveSlot(l.saveSlot, l.character));
     if (local) return one(local);
     let ok = false;
@@ -343,7 +344,7 @@ export class Game {
         audio.sfx('shield_break');
       }
     }
-    c.hp = Math.max(0, c.hp - taken);
+    c.hp = Math.max(isTester(c) ? 1 : 0, c.hp - taken);
     local.regenT = 0;
     hero.knock(fromX, source === 'hazard' ? 0.5 : 1, world.map, shielded);
     world.heroHurtThisFrameNext = true;
@@ -382,7 +383,7 @@ export class Game {
         if (world.level === 7 && !h.stats.heatProof) {
           if (++l.heatT >= RULES.heat.every) {
             l.heatT = 0;
-            c.hp = Math.max(0, c.hp - RULES.heat.dmg);
+            c.hp = Math.max(isTester(c) ? 1 : 0, c.hp - RULES.heat.dmg);
             this.toast("It's too hot !!", '#ff8a4a');
             world.effect('hit', h.cx, h.y + 10, { dmg: RULES.heat.dmg, color: '#ffb070' });
             if (c.hp <= 0) this.heroDown(world, l);
@@ -537,6 +538,7 @@ export class Game {
     this.menu ||= new InputState();
     this.menu.set(input.menuFrame());
     for (const l of this.locals) l.input.set(input.frameFor(l.slot, this.locals.length));
+    for (const l of this.locals) if (isTester(l.character) && l.character.gold !== TESTER_GOLD) l.character.gold = TESTER_GOLD;
     input.flushTaps();
     if (this.fading) {
       const f = this.fading;
