@@ -24,6 +24,18 @@ const NPC_SCALE = { b1: 1.18, c0: 1.1, a2: 1.04, c3: 1.02, b0: 0.97, b3: 0.84, a
 // Two painted walk frames (contact poses) plus the standing frame as the passing pose, one frame
 // per NPC_STEP px walked, with a 1 px rise on the passing pose.
 const NPC_WALK = [0, 2, 1, 2], NPC_STEP = 9;
+// Where each facade's painted door sits, in px from the sprite's centre (0 when it's in the middle),
+// measured from tools/tests/doors.mjs overlays.
+const DOOR_DX = {
+  bsmp: { magic_shop: 40, weapons_and_armour_shop: 22 },
+  mrmp: { magic_shop: -60 },
+  drmp: { magic_shop: 72, weapons_and_armour_shop: -30 },
+  hlmp: { inn: 35, weapons_and_armour_shop: 52, magic_shop: 52 },
+  llmp: { weapons_and_armour_shop: 78, magic_shop: 62 },
+  prmp: { magic_shop: 50, sage: 40, weapons_and_armour_shop: 68 },
+  stmp: { magic_shop: 38, inn: 12, weapons_and_armour_shop: 48 },
+  tmmp: { weapons_and_armour_shop: -60, inn: -35, sage: -45, magic_shop: -90 },
+};
 const SERVICE_LABEL = {
   weapons_and_armour_shop: 'Weapons & Armour', church: 'Church', magic_shop: 'Witchcraft Shop', bank: 'Bank', sage: 'Sage',
   inn: 'Inn', cavern_entrance: 'Labyrinth', king: 'King of Felishika', princess_chamber: "Princess's Chamber", trap_warp_to_dorado: '???',
@@ -182,7 +194,9 @@ export class TownScene {
     for (const n of this.npcs) { const d = Math.abs(n.x - h.cx); if (d < bd && this.lineFor(n.r)) { bd = d; best = n; } }
     return best;
   }
-  doorNear(h) { return this.buildings.find((b) => Math.abs(h.cx / TILE - (b.x + 1.5)) <= 1.6); }
+  // Up enters within 38 px of the painted doorway, which on some facades sits off the sprite's centre.
+  doorX(b) { return (b.x + 1.5) * TILE + (DOOR_DX[this.mapId]?.[b.service] || 0); }
+  doorNear(h) { return this.buildings.find((b) => Math.abs(h.cx - this.doorX(b)) <= 1.6 * TILE); }
 
   // Current NPC flags: bit 6 blocks the street, bit 7 stops the knight and talks.
   npcFlags(n) {
