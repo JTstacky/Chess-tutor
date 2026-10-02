@@ -4,7 +4,7 @@
 // up), Jashiin's awakening (his face built up out of the dark, the eyes opening, the fanged mouth
 // speaking), the title logo with its colour rotation, and the staff credits. Enter skips to the
 // next part; Esc (or the pause key) goes straight to the title menu.
-import { ctx, W, H, text, COLORS, drawCover } from '../render/screen.js';
+import { ctx, W, H, text, COLORS, drawContain } from '../render/screen.js';
 import { image } from '../core/assets.js';
 import { audio } from '../core/audio.js';
 
@@ -14,6 +14,9 @@ const LINE = 10 * 0x1c / 236.7;
 const PHASES = ['card', 'prologue', 'jashiin', 'title', 'credits'];
 
 const lines = (scenes, phase) => (scenes.find((s) => s.phase === phase)?.pages || []).flatMap((p) => p.lines.map((l) => l.text ?? ''));
+
+// Jashiin's face: the whole 3:2 picture, fitted above the bottom 100 px where his words appear.
+const FACE = { w: (H - 100) * 1.5, h: H - 100, x: (W - (H - 100) * 1.5) / 2, y: 0 };
 
 export class OpeningScene {
   constructor(game, done) {
@@ -90,7 +93,8 @@ export class OpeningScene {
       ctx.save();
       ctx.globalAlpha = 1 - out;
       // Blue silhouette -> gold: draw the necklace, then wash it with deep blue that thins out.
-      drawCover(nk, -20, -10 - u * 30, W + 40, H + 60);
+      // The whole necklace, drifting up 30 px as the text rolls (never past the top).
+      const pic = drawContain(nk, 0, 30 * (1 - u), W, H - 30);
       ctx.globalCompositeOperation = 'color';
       ctx.fillStyle = `rgba(20,40,170,${Math.max(0, 1 - u * 1.6)})`;
       ctx.fillRect(0, 0, W, H);
@@ -103,7 +107,8 @@ export class OpeningScene {
         for (let i = 0; i < 9; i++) {
           const ph = (this.t * 0.9 + i * 0.37) % 3;
           if (ph > 0.5) continue;
-          const x = W * (0.29 + i * 0.053), y = H * (0.47 + Math.sin((i / 8) * Math.PI) * 0.1) - u * 20;
+          // On the gems: fractions of the picture.
+          const x = pic.x + pic.w * (0.298 + i * 0.0509), y = pic.y + pic.h * (0.457 + Math.sin((i / 8) * Math.PI) * 0.081);
           const r = 14 * Math.sin((ph / 0.5) * Math.PI) * (u - 0.6) * 2.5;
           const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2);
           g.addColorStop(0, 'rgba(255,255,230,0.9)'); g.addColorStop(1, 'rgba(255,220,150,0)');
@@ -152,17 +157,20 @@ export class OpeningScene {
         // Speaking: the mouth opens and closes while each strip is being spoken.
         const strip = this.stripAt(T);
         if (strip && roar && Math.floor((T - strip.t0) / 0.16) % 2 === 0 && T - strip.t0 < 1.6) img = roar;
-        drawCover(img, W * 0.08, -46, W * 0.84, W * 0.84 * 2 / 3, a); // a little smaller and higher: room for his words under the chin
+        drawContain(img, FACE.x, FACE.y, FACE.w, FACE.h, a, false); // the whole face, above his words
         ctx.restore();
       }
       // The eyes flare as they open.
       if (T > 5 && T < 6.2) {
         const k = 1 - (T - 5) / 1.2;
         ctx.globalCompositeOperation = 'lighter';
-        for (const ex of [0.357, 0.66]) {
-          const g = ctx.createRadialGradient(W * ex, 122, 0, W * ex, 122, 160);
+        // The eyes sit at (0.33, 0.31) and (0.69, 0.31) of the face picture.
+        const fr = 120 * FACE.w / 660, ey = FACE.y + FACE.h * 0.312;
+        for (const ex of [0.33, 0.69]) {
+          const cx = FACE.x + FACE.w * ex;
+          const g = ctx.createRadialGradient(cx, ey, 0, cx, ey, fr);
           g.addColorStop(0, `rgba(255,60,40,${0.8 * k})`); g.addColorStop(1, 'rgba(255,0,0,0)');
-          ctx.fillStyle = g; ctx.fillRect(W * ex - 160, 122 - 160, 320, 320);
+          ctx.fillStyle = g; ctx.fillRect(cx - fr, ey - fr, fr * 2, fr * 2);
         }
         ctx.globalCompositeOperation = 'source-over';
       }

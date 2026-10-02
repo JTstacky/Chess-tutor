@@ -1,7 +1,7 @@
 // Cutscenes: the opening story, the ending, and the Tear of Esmesanti fanfare.
 // Text is the Sierra English script from data/rules/story.json; each original
 // picture (.grp) maps to a remastered panel under art/story/ when one exists.
-import { ctx, W, H, text, panel, COLORS, drawCover, fade, wrap } from '../render/screen.js';
+import { ctx, W, H, text, panel, COLORS, drawCover, drawContain, fade, wrap } from '../render/screen.js';
 import { image } from '../core/assets.js';
 import { audio } from '../core/audio.js';
 import { sheetNow } from '../core/assets.js';
@@ -17,6 +17,8 @@ const PANELS = {
 // portrait) shares the screen with the picture that matters in split scenes.
 const MINOR = new Set(['yuup.grp']);
 // New pictures for the original's staging, and what to show until they exist.
+// Height of the picture above the text box (the box holds four lines at 19 px).
+const PIC_H = 380;
 const FALLBACK = { felicia_closeup: 'felicia_balcony', jashiin_eyes: 'jashiin_curse', duke_into_light: 'door_of_destiny' };
 const SPEAKER = { 'Duke Garland': 'duke', 'King Felishika': 'king', Jashiin: 'jashiin' };
 
@@ -187,7 +189,9 @@ export class StoryScene {
     const p = this.page || this.pages[this.pages.length - 1];
     if (!p) return;
     const img = this.imgs[p.pic];
-    const ph = p.caption ? H : 360;
+    // The picture area: everything above the text box (whole screen for captions). Pictures are
+    // shown whole (drawContain), never cropped to fill it.
+    const ph = p.caption ? H : PIC_H;
     const st = p.stage || {};
     if (p.tear) this.drawTear(p.tear, t);
     else if (st.portraits) this.drawPortraits(p, st, ph);
@@ -195,12 +199,16 @@ export class StoryScene {
       // Crossfade from the previous picture over 0.8 s.
       const k = Math.min(1, (this.picT || 0) / 0.8);
       const prev = this.prevPic && this.prevPic !== p.pic && !this.prevPage?.stage?.portraits ? this.imgs[this.prevPic] : null;
-      if (prev && k < 1) drawCover(prev, 0, 0, W, ph);
+      if (prev && k < 1) drawContain(prev, 0, 0, W, ph);
+      // The closing push-in starts from the whole picture and slowly closes in on it.
       const push = st.fx === 'push' ? Math.min(1, (this.picT || 0) / 14) : 0;
-      if (img) drawCover(img, -push * 60, -push * 40, W + push * 120, ph + push * 80, prev ? k : 1);
-      else if (this.fallback) drawCover(this.fallback, -20 + Math.sin(this.t * 0.1) * 20, 0, W + 40, ph, 0.55);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, 0, W, ph); ctx.clip();
+      const r = img ? drawContain(img, -push * 60, -push * 40, W + push * 120, ph + push * 80, prev ? k : 1) : null;
+      ctx.restore();
+      if (!img && this.fallback) drawContain(this.fallback, 0, 0, W, ph, 0.55);
       if (st.fx === 'rain') this.drawRain(ph, t);
-      if (st.fx === 'eyes_in') this.drawEyesIn(ph);
+      if (st.fx === 'eyes_in' && r) this.drawEyesIn(r);
     }
     if (p.caption) {
       fade(0.55, '#000');
@@ -211,7 +219,9 @@ export class StoryScene {
       g.addColorStop(0, 'rgba(5,3,10,0)'); g.addColorStop(1, 'rgba(5,3,10,1)');
       ctx.fillStyle = g; ctx.fillRect(0, ph - 60, W, 60);
       panel(40, ph + 6, W - 80, H - ph - 20, { alpha: 0.95 });
-      this.drawText(p, 70, ph + 24, W - 140, 19, 'left');
+      // Four lines fit at 19 px; the odd five-line page steps down a size.
+      const n = p.chunks.reduce((a, c) => a + (c.speaker ? 1 : 0) + c.text.split('\n').reduce((b, l) => b + wrap(l, W - 140, 19).length, 0), 0);
+      this.drawText(p, 70, ph + 22, W - 140, n > 4 ? 17 : 19, 'left');
     }
     text(`${Math.min(this.i + 1, this.pages.length)} / ${this.pages.length}    Enter: next   Esc: skip`, W - 20, H - 18, { size: 11, align: 'right', color: COLORS.dim });
   }
@@ -247,14 +257,16 @@ export class StoryScene {
     ctx.restore();
   }
   // Jashiin's eyes blend in over the princess (the original's palette blend).
-  drawEyesIn(ph) {
+  drawEyesIn(r) {
     const im = this.eyesOverlay;
     if (!im) return;
     const k = Math.min(1, (this.picT || 0) / 2.5);
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    // In the dark sky over Felicia's shoulder (upper left of felicia_closeup), not on her face.
-    drawCover(im, -W * 0.02, -ph * 0.04, W * 0.6, W * 0.4, k * 0.9);
+    // In the dark sky over Felicia's shoulder (upper left of felicia_closeup), not on her face;
+    // placed on the picture itself (r: where drawContain put it).
+    ctx.beginPath(); ctx.rect(r.x, r.y, r.w, r.h); ctx.clip();
+    drawCover(im, r.x, r.y - r.h * 0.02, r.w * 0.62, r.w * 0.62 * 2 / 3, k * 0.9);
     ctx.restore();
   }
   // The split frame: portraits side by side in gold frames (or Jashiin's alone). The speaker

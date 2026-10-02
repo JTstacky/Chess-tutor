@@ -338,8 +338,10 @@ class Platform {
   constructor(p) { this.p = p; this.tx = p.x; this.ty = p.y; this.ptx = p.x; this.pty = p.y; this.acc = 0; this.t = 0; }
   stamp(map, on = true) {
     for (let i = 0; i < 3; i++) {
-      if (on) map.setOverride(this.tx + i, this.ty, F.ONEWAY | F.PLATFORM);
-      else map.clearOverride(this.tx + i, this.ty);
+      // Footing only: the platform draws itself. Drawn by the terrain, the tiles it had just
+      // stepped onto showed as a ledge strip flashing ahead of the sliding rock.
+      if (on) map.setOverride(this.tx + i, this.ty, F.ONEWAY | F.PLATFORM, false);
+      else map.clearOverride(this.tx + i, this.ty, false);
     }
   }
   moveTo(map, tx, ty) { this.stamp(map, false); this.tx = tx; this.ty = ty; this.stamp(map, true); }
@@ -350,6 +352,7 @@ class Platform {
   drawAt(cx, cy, color, art) {
     const a = Math.min(1, this.acc / FRAME);
     const x = (this.ptx + (this.tx - this.ptx) * a) * TILE - cx, y = (this.pty + (this.ty - this.pty) * a) * TILE - cy;
+    this.lastDraw = { x, y }; // screen position, for tools/tests/moverstrip.mjs
     // Art: the walkable top sits on the tile row; the plank hangs a little below it.
     if (art && imageNow(`art/props/${art}.png`)) {
       const img = imageNow(`art/props/${art}.png`);

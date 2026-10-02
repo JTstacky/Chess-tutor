@@ -43,18 +43,21 @@ export class TileMap {
     if (dyn & 0x80000000) return dyn & 0x7fffffff; // override
     return this.flagsById[this.grid[i]] | dyn;
   }
-  setOverride(tx, ty, flags) {
+  // redraw: false for tiles that something else draws (a moving platform's footing): the terrain
+  // doesn't repaint for them, which also spares a chunk re-render on every platform step.
+  setOverride(tx, ty, flags, redraw = true) {
     const i = this.index(tx, ty);
     if (i < 0) return;
     this.dyn[i] = (0x80000000 | flags) >>> 0;
-    this.version++;
+    if (redraw) this.version++;
   }
-  clearOverride(tx, ty) {
+  clearOverride(tx, ty, redraw = true) {
     const i = this.index(tx, ty);
     if (i < 0) return;
     this.dyn[i] = 0;
-    this.version++;
+    if (redraw) this.version++;
   }
+  isOverride(tx, ty) { const i = this.index(tx, ty); return i >= 0 && (this.dyn[i] & 0x80000000) !== 0; }
   setTile(tx, ty, id) {
     const i = this.index(tx, ty);
     if (i < 0) return;

@@ -156,7 +156,7 @@ export class TerrainRenderer {
         const px = x * TILE - ox, py = y * TILE - oy;
         if (f & F.ROPE) this.drawRope(g, px, py, x, y);
         if (f & F.HAZARD && !(f & F.SOLID)) this.drawHazard(g, px, py, x, y);
-        if (f & F.ONEWAY) this.drawLedge(g, px, py, x, y);
+        if (f & F.ONEWAY && !(f & F.PLATFORM && m.isOverride(x, y))) this.drawLedge(g, px, py, x, y); // moving platforms draw themselves
         if (f & F.ICE && f & F.SOLID && !solid(x, y - 1)) { g.fillStyle = 'rgba(200,240,255,0.55)'; g.fillRect(px, py, TILE, 4); }
         if (f & F.WATER) { g.fillStyle = 'rgba(40,110,200,0.35)'; g.fillRect(px, py, TILE, TILE); }
         if (f & F.BREAKABLE && f & F.SOLID) this.drawCracks(g, px, py, x, y);

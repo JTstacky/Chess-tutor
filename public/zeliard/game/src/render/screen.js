@@ -96,6 +96,62 @@ export function fade(alpha, color = '#000') {
   ctx.restore();
 }
 
+// Fit the whole of an image inside a rectangle (nothing cropped) and return where it went. With
+// `backdrop`, the margins are filled with a dark, blurred copy of the same picture, cover-fitted,
+// so a 3:2 painting on the 16:9 screen reads as one image rather than a boxed one. The blur is a
+// small blurred copy, made once per image, so it costs nothing per frame.
+const blurred = new WeakMap();
+export function drawContain(img, x, y, w, h, alpha = 1, backdrop = true) {
+  if (!img) return null;
+  const s = Math.min(w / img.width, h / img.height);
+  const dw = img.width * s, dh = img.height * s;
+  const r = { x: x + (w - dw) / 2, y: y + (h - dh) / 2, w: dw, h: dh };
+  if (backdrop && (dw < w - 1 || dh < h - 1)) {
+    let b = blurred.get(img);
+    if (!b) {
+      b = document.createElement('canvas'); b.width = 240; b.height = Math.max(1, Math.round(240 * img.height / img.width));
+      const g = b.getContext('2d'); g.imageSmoothingEnabled = true; g.filter = 'blur(6px)';
+      g.drawImage(img, -12, -12, b.width + 24, b.height + 24); // overscan: no dark rim from the blur
+      blurred.set(img, b);
+    }
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    drawCover(b, x, y, w, h, alpha * 0.45);
+    ctx.restore();
+  }
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(backdrop ? feathered(img, dw, dh, dw < w - 1, dh < h - 1) : img, r.x, r.y, r.w, r.h);
+  ctx.restore();
+  return r;
+}
+// A copy of the picture at about its shown size whose edges fade out over 36 px, so it melts into
+// the blurred backdrop instead of ending in a hard line. Made once per image (and side set).
+const soft = new WeakMap();
+function feathered(img, dw, dh, sides, ends) {
+  if (!sides && !ends) return img;
+  const key = `${sides}${ends}`;
+  let c = soft.get(img)?.[key];
+  if (c) return c;
+  c = document.createElement('canvas');
+  c.width = Math.round(dw); c.height = Math.round(dh);
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = true;
+  g.drawImage(img, 0, 0, c.width, c.height);
+  g.globalCompositeOperation = 'destination-out';
+  const F = 36;
+  const edge = (x0, y0, x1, y1, rx, ry, rw, rh) => {
+    const gr = g.createLinearGradient(x0, y0, x1, y1);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(rx, ry, rw, rh);
+  };
+  if (sides) { edge(0, 0, F, 0, 0, 0, F, c.height); edge(c.width, 0, c.width - F, 0, c.width - F, 0, F, c.height); }
+  if (ends) { edge(0, 0, 0, F, 0, 0, c.width, F); edge(0, c.height, 0, c.height - F, 0, c.height - F, c.width, F); }
+  soft.set(img, { ...(soft.get(img) || {}), [key]: c });
+  return c;
+}
+
 // Cover-fit an image into a rectangle (used for backgrounds and cutscene panels).
 export function drawCover(img, x, y, w, h, alpha = 1) {
   if (!img) return;
