@@ -1,11 +1,11 @@
 // Overlays: the pause menu and the inventory (spell selection, magic items, the worn
 // accessory, equipment, keys, crests and Tears) — the original's 201SELCT screen.
-import { ctx, W, H, text, panel, COLORS, fade } from '../render/screen.js';
+import { ctx, W, H, text, panel, COLORS, fade, wrap } from '../render/screen.js';
 import { audio } from '../core/audio.js';
 import { settings } from '../core/save.js';
 import { sheetNow } from '../core/assets.js';
 import { Menu } from '../ui/widgets.js';
-import { RULES, maxHp, xpNeeded, swordDamage, isTester } from '../game/character.js';
+import { RULES, maxHp, xpNeeded, swordDamage, isTester, itemDesc } from '../game/character.js';
 import { SPELLS, SPELL_ORDER } from '../game/spells.js';
 
 export class PauseScene {
@@ -116,8 +116,8 @@ export class InventoryScene {
   rows() {
     const c = this.c;
     if (this.tab === 0) return SPELL_ORDER.map((id) => ({ id, label: SPELLS[id].name, have: c.spellsLearned.includes(id), right: `${c.charges[id] ?? 0}/${c.maxCharges[id] ?? 0}`, sel: c.spell === id, hint: SPELLS[id].desc ? `The Magic Spell of ${SPELLS[id].desc.replace(/^the Magic Spell of /, '').replace(/:.*/, '')}. Damage ${SPELLS[id].dmg}.` : '' }));
-    if (this.tab === 1) return Array.from({ length: 5 }, (_, k) => { const id = c.items[k]; return { id, slot: k, label: id ? RULES.items[id]?.name || id : '— empty —', have: !!id, hint: id ? RULES.items[id]?.effect : '' }; });
-    return c.accessories.map((id) => ({ id, label: RULES.items[id]?.name || id, have: true, sel: c.worn === id, hint: RULES.items[id]?.effect }));
+    if (this.tab === 1) return Array.from({ length: 5 }, (_, k) => { const id = c.items[k]; return { id, slot: k, label: id ? RULES.items[id]?.name || id : '— empty —', have: !!id, hint: id ? itemDesc(id, c) : '' }; });
+    return c.accessories.map((id) => ({ id, label: RULES.items[id]?.name || id, have: true, sel: c.worn === id, hint: itemDesc(id, c) }));
   }
   update() {
     // The Items key closes the screen, except Enter, which is both P2's Items key and "use".
@@ -172,7 +172,7 @@ export class InventoryScene {
       if (r.right && r.have) text(r.right, 590, y + 2, { size: 15, align: 'right', color: COLORS.magic });
     });
     const hint = rows[this.i]?.have ? rows[this.i].hint : '';
-    if (hint) text(hint, 640, 214, { size: 14, color: COLORS.dim });
+    if (hint) wrap(hint, 250, 14).forEach((l, k) => text(l, 640, 214 + k * 18, { size: 14, color: COLORS.dim }));
     const icon = sheetNow('hero.idle');
     if (icon) icon.draw(ctx, 0, 780, 430, 1, 1, 1.3);
   }

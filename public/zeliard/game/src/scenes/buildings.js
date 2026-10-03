@@ -5,7 +5,7 @@ import { ctx, W, H, text, panel, COLORS, drawCover, fade } from '../render/scree
 import { image } from '../core/assets.js';
 import { audio } from '../core/audio.js';
 import { Dialogue, Menu } from '../ui/widgets.js';
-import { RULES, maxHp, levelUp, refillSpells, sageTier, xpNeeded, shieldTier } from '../game/character.js';
+import { RULES, maxHp, levelUp, refillSpells, sageTier, xpNeeded, shieldTier, itemDesc } from '../game/character.js';
 import { SPELLS, SPELL_ORDER } from '../game/spells.js';
 import { splitPages } from './town.js';
 const GOLD_MAX = 16777215; // 24-bit purse, as in the original
@@ -189,7 +189,7 @@ export class BuildingScene {
       const v = await this.choose([{ label: 'Buy item', value: 'buy' }, { label: 'Sell item', value: 'sell' }, { label: 'Description of item', value: 'desc' }, { label: 'Go outside', value: 'out' }], { title: 'Witchcraft Implements', cancel: 'out' });
       if (v === 'out' || v == null) break;
       if (v === 'buy') {
-        const id = await this.choose([...this.stock('magic').map((x) => ({ label: RULES.items[x]?.name || x, value: x, right: `${this.price(x)} G`, hint: RULES.items[x]?.effect })), { label: 'Back', value: null }], { title: T.buy_prompt });
+        const id = await this.choose([...this.stock('magic').map((x) => ({ label: RULES.items[x]?.name || x, value: x, right: `${this.price(x)} G`, hint: itemDesc(x, c) })), { label: 'Back', value: null }], { title: T.buy_prompt });
         if (!id) continue;
         const price = this.price(id);
         if ((await this.ask(`${fill(T.confirm, { ITEM: RULES.items[id].name })} ${fill(T.price, { N: price })}`)) !== 0) continue;
@@ -208,7 +208,7 @@ export class BuildingScene {
         await this.say(T.thanks);
       } else if (v === 'desc') {
         const id = await this.choose([...this.stock('magic').map((x) => ({ label: RULES.items[x]?.name || x, value: x })), { label: 'Back', value: null }], { title: T.describe_prompt });
-        if (id) await this.say(D[id] || RULES.items[id]?.effect || '...');
+        if (id) await this.say(D[id] || itemDesc(id, c) || '...');
       }
     }
     await this.say(T.bye);

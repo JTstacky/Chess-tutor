@@ -151,6 +151,30 @@ export function hasBit(c, byte, mask) {
   const m = typeof mask === 'string' ? parseInt(mask, 16) : mask;
   return ((c.bits[b] || 0) & m) === m && m !== 0;
 }
+// What an item does for this knight, in plain words with the numbers as they
+// stand now (the rules file's notes carry the formulas; players never see those).
+export function itemDesc(id, c) {
+  const n = (v) => (v == null ? '?' : v);
+  switch (id) {
+    case 'feruza_shoes': return 'Jump twice as high.';
+    case 'pirika_shoes': return 'Thorns, Gelroid and fire floors no longer hurt you.';
+    case 'silkarn_shoes': return 'No more sliding down slopes.';
+    case 'ruzeria_shoes': return 'No more slipping on ice.';
+    case 'asbestos_cape': return `Keeps out the heat of the burning caverns (${n(RULES.heat?.dmg)} damage a pulse without it).`;
+    case 'kenko_potion': return `Heals ${RULES.jp?.kenkoHeal ?? 80} HP.`;
+    case 'juuen_fruit': return 'Restores all your HP.';
+    case 'elixir_of_kashi': { const sp = c?.spell; return sp ? `Refills ${SPELL_NAME(sp)} to ${n(c.maxCharges?.[sp])} charges.` : 'Refills the charges of your chosen spell.'; }
+    case 'chikara_powder': return 'Refills the charges of every spell you know.';
+    case 'magia_stone': return `Four spirits circle you for a while, each hitting for ${RULES.jp?.magiaFixed || Math.min(255, ((c?.level ?? 1) + 1) * 4)}. Caverns only.`;
+    case 'holy_water_of_acero': { const t = c ? shieldTier(c) : 0; const add = t ? RULES.holyWater?.[t - 1] : null; return t ? `Mends your shield by ${RULES.jp?.holyWaterFull ? 'all of its strength' : n(add)}.` : 'Mends your shield, more for a stronger shield.'; }
+    case 'sabre_oil': return `Doubles your sword's bite (${c?.sword ? `${swordDamage(c)} now` : 'per use'}) until you next enter a town. Stacks.`;
+    case 'kioku_feather': return 'Carries you back to town at once, with no toll. Caverns only.';
+    default: return RULES.items[id]?.desc || '';
+  }
+}
+// Spell names live in spells.js, which imports this file; look them up lazily.
+const SPELL_NAME = (id) => globalThis.__SPELLS?.[id]?.name || id;
+
 export function getByte(c, byte) {
   const b = typeof byte === 'string' ? byte.toLowerCase() : `0x${byte.toString(16).padStart(2, '0')}`;
   return c.bits[b] || 0;

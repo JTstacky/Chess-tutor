@@ -9,7 +9,7 @@ import { FRAME } from './enemies.js';
 export const SPELL_ORDER = ['espada', 'saeta', 'fuego', 'lanzar', 'rascar', 'agua', 'guerra'];
 const V2 = (2 * TILE) / FRAME; // 2 tiles per frame
 
-export const SPELLS = {
+export const SPELLS = globalThis.__SPELLS = {
   // The blade art points down (it was drawn as a falling sword); it is turned to fly point-first.
   espada: { name: 'Espada', dmg: 2, sprite: 'fx.espada', color: '#dfe8ff', pointsDown: true,
     cast: (w, h) => [{ x: h.cx + h.dir * 30, y: h.y + 24, vx: h.dir * V2, vy: 0, life: 5 * FRAME, w: 30, h: 18 }] },

@@ -130,8 +130,10 @@ export class Menu {
     if (this.scroll + this.rows < this.items.length) text('▼', x + w / 2, y + this.height - 16, { size: 12, align: 'center', color: COLORS.dim });
     const hint = this.items[this.i]?.hint;
     if (hint) {
-      const lines = wrap(hint, w + 200, 15);
-      lines.forEach((l, i) => text(l, x + w / 2, y + this.height + 10 + i * 18, { size: 15, align: 'center', color: COLORS.dim }));
+      // Centred under the menu, but never past the screen's edges.
+      const cx = x + w / 2;
+      const lines = wrap(hint, Math.min(w + 200, 2 * Math.min(cx, W - cx) - 90), 15);
+      lines.forEach((l, i) => text(l, cx, y + this.height + 10 + i * 18, { size: 15, align: 'center', color: COLORS.dim }));
     }
   }
 }
