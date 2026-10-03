@@ -225,6 +225,7 @@ export class Minimap {
 
   draw() {
     if (!minimapOn() || this.version < 0) return;
+    if (this.world.boss && this.world.boss.hp == null) return; // a cutscene (Jashiin's entrance)
     const lead = this.game.leader.hero;
     ctx.save();
     ctx.imageSmoothingEnabled = false;

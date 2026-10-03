@@ -5,7 +5,7 @@
 // with its post-boss tables (reward object + exit door), as load_place_and_reinit does.
 import { TILE } from '../world/tilemap.js';
 import { random } from '../core/util.js';
-import { sheetNow, preloadSheets } from '../core/assets.js';
+import { sheetNow, preloadSheets, image } from '../core/assets.js';
 import { audio } from '../core/audio.js';
 import { ctx, W, text, bar, COLORS, panel } from '../render/screen.js';
 import { RULES, addXp } from './character.js';
@@ -206,6 +206,7 @@ class Boss {
       const pose = `p${this.pose}`;
       const f = this.def.poseFrames ? this.def.poseFrames[this.pose] : sh.anims[pose] ? sh.anims[pose][0] : sh.frameAt('idle', t);
       sh.draw(ctx, f, x, y, this.dir, alpha);
+      if (this.def.id === 'alguien' && this.pose === 2 && this.parts.length) this.drawBreath(sh, x, y, cx, cy, alpha);
       if (this.flash > 0) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; sh.draw(ctx, f, x, y, this.dir, Math.min(1, this.flash * 5)); ctx.restore(); }
     } else {
       ctx.globalAlpha = alpha;
@@ -216,11 +217,36 @@ class Boss {
     this.drawParts(cx, cy);
     if (this.game.debug) { const b = this.body(); ctx.strokeStyle = '#f0f'; ctx.strokeRect(b.x - cx, b.y - cy, b.w, b.h); const wk = this.weakBox(); if (wk) { ctx.strokeStyle = '#ff0'; ctx.strokeRect(wk.x - cx, wk.y - cy, wk.w, wk.h); } }
   }
+  // Alguien's breath is the flame painted in its breathing frame (cut out as its own image),
+  // drawn from the mouth to the last breath cell, so it grows and shrinks with the damage.
+  drawBreath(sh, x, y, cx, cy, alpha) {
+    if (!alguienFlame) return;
+    const s = sh.scale, last = this.parts[this.parts.length - 1];
+    const mx = x + this.dir * 116 * s, my = y - 182 * s; // the mouth, measured on the frame
+    const ux = last.x + last.w / 2 - cx - mx, uy = last.y + last.h / 2 - cy - my;
+    const len = Math.hypot(ux, uy);
+    if (len < 8) return;
+    // The image was painted with him facing left: the mouth is at its (89, 0) and the flame
+    // sweeps round to its far end at (217, 183). Mirror first when he faces right, then map that
+    // mouth -> end line onto mouth -> last cell.
+    const vx = 128, vy = 183, vlen = Math.hypot(vx, vy);
+    const along = len / vlen, across = Math.min(along, 1.5 * s);
+    ctx.save();
+    ctx.globalAlpha *= alpha;
+    ctx.translate(mx, my);
+    if (this.dir > 0) ctx.scale(-1, 1);
+    ctx.rotate(Math.atan2(uy, this.dir > 0 ? -ux : ux));
+    ctx.scale(along, across);
+    ctx.rotate(-Math.atan2(vy, vx));
+    ctx.drawImage(alguienFlame, -89, 0);
+    ctx.restore();
+  }
   // Breath, flames, rocks and fireballs. Their look is plain data (look/color/r) so co-op guests,
   // who get the parts as a snapshot without functions, draw them too.
   drawParts(cx, cy) {
     for (const p of this.parts) {
       if (p.look === 'rock') rockPaint(p.x - cx, p.y - cy, p);
+      else if (p.look === 'fireball') fireballPaint(p.x - cx, p.y - cy, p);
       else if (p.color) glowPaint(p.color, p.r)(p.x - cx, p.y - cy, p);
     }
   }
@@ -240,12 +266,26 @@ function overlap(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y 
 const T = TILE;
 const toward = (b, hc, centre) => (b.tx + centre < hc ? 1 : -1);
 // A boss-cell hazard (acid, rock, fireball, lightning): contact damage, moved by `step` each frame.
-const cell = (x, y, dmg, o = {}) => ({ x: x * T, y: y * T, w: (o.w || 2) * T, h: (o.h || 2) * T, dmg, age: 0, ...o });
+const cell = (x, y, dmg, o = {}) => ({ x: x * T, y: y * T, dmg, age: 0, ...o, w: (o.w || 2) * T, h: (o.h || 2) * T });
 const glowPaint = (color, r = 0.75) => (x, y, p) => {
   ctx.save(); ctx.globalCompositeOperation = 'lighter';
   const cx = x + p.w / 2, cy = y + p.h / 2, g = ctx.createRadialGradient(cx, cy, 2, cx, cy, Math.max(p.w, p.h) * r);
   g.addColorStop(0, '#fff6d0'); g.addColorStop(0.45, color); g.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = g; ctx.fillRect(x - p.w, y - p.h, p.w * 3, p.h * 3);
+  ctx.restore();
+};
+// Jashiin's fireball: the flame painted in his hand (cut from his casting frame), flying
+// with its tail behind it, over a soft glow.
+let fireballImg = null, alguienFlame = null;
+image('art/bosses/alguien_flame.png').then((i) => { alguienFlame = i; });
+image('art/bosses/jashiin_fireball.png').then((i) => { fireballImg = i; });
+const fireballPaint = (x, y, p) => {
+  glowPaint('#ff5030', 0.55)(x, y, p);
+  if (!fireballImg) return;
+  const h = p.h * 1.5, w = h * fireballImg.width / fireballImg.height;
+  const cx = x + p.w / 2, cy = y + p.h / 2, flicker = 1 + Math.sin((p.age || 0) * 2.1) * 0.06;
+  ctx.save(); ctx.translate(cx, cy); ctx.scale((p.dir || 1) * flicker, flicker);
+  ctx.drawImage(fireballImg, -w * 0.42, -h / 2, w, h);
   ctx.restore();
 };
 const rockPaint = (x, y, p) => {
@@ -544,7 +584,7 @@ const AI = {
       if (br.len <= 0) b.breath = null;
       else {
         b.pose = 2;
-        const paint = { color: '#ff7a20', r: 0.75 };
+        const paint = {}; // unseen: the painted flame (drawBreath) covers the cells
         for (let k = 1; k <= br.len; k++) {
           const x = b.dir < 0 ? (br.steep ? b.tx + 1 - 2 * k : b.tx - 2 * k) : (br.steep ? b.tx + 10 + 2 * k : b.tx + 11 + 2 * k);
           const y = b.ty + 9 + (br.steep ? 2 * k : k);
@@ -566,7 +606,7 @@ const AI = {
     const cast = (kind) => {
       audio.sfx('fire_cast', { vol: 0.6 });
       const d = b.dir;
-      if (kind === 0) b.parts.push(cell(d > 0 ? b.tx + 5 : b.tx, b.ty + 4, 80, { life: 11, color: '#ff5030', r: 0.8, step(p) { if (p.age <= 9) p.x += d * T; if (p.age <= 3) p.y += T; } }));
+      if (kind === 0) b.parts.push(cell(d > 0 ? b.tx + 5 : b.tx, b.ty + 4, 80, { life: 11, look: 'fireball', dir: d, step(p) { if (p.age <= 9) p.x += d * T; if (p.age <= 3) p.y += T; } }));
       else b.parts.push(cell(d > 0 ? b.tx + 7 : b.tx - 1, b.ty + 4, 80, { w: 2.5, h: 1.2, life: 999, color: '#a0c8ff', r: 0.8,
         step(p) { if (p.age <= 3) p.y += T; else p.x += d * T; const c = p.x / T; if (c < 16 || c > 56) p.age = p.life; } }));
     };
@@ -646,7 +686,12 @@ class JashiinIntro {
   draw(cx, cy, t) {
     const sh = sheetNow('art.boss.jashiin');
     const a = Math.min(1, Math.max(0, (this.t - 43 * FRAME) / (9 * FRAME))); // materialises on frames 43-51
-    if (sh) sh.draw(ctx, sh.anims.p0?.[0] ?? 0, 30 * TILE - cx, 18 * TILE - cy, -1, a);
+    if (sh) sh.draw(ctx, sh.anims.p0?.[0] ?? 0, 25 * TILE - cx, this.floorY() - cy, -1, a);
+  }
+  // His feet on the stair landing at column 25: the first ledge below the ceiling's overhang.
+  floorY() {
+    if (this.fy == null) { const m = this.world.map; let ty = 6; while (ty < m.h - 1 && !m.solid(25, ty)) ty++; this.fy = ty * TILE; }
+    return this.fy;
   }
   hud() {
     const cur = this.lines.find(([at, till]) => this.t >= at && this.t < till);

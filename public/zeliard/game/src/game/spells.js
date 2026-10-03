@@ -5,6 +5,7 @@
 import { TILE } from '../world/tilemap.js';
 import { W, H } from '../render/screen.js';
 import { FRAME } from './enemies.js';
+import { isTester } from './character.js';
 
 export const SPELL_ORDER = ['espada', 'saeta', 'fuego', 'lanzar', 'rascar', 'agua', 'guerra'];
 const V2 = (2 * TILE) / FRAME; // 2 tiles per frame
@@ -32,23 +33,25 @@ export const SPELLS = globalThis.__SPELLS = {
     cast: (w, h) => [-2, 0, 2].map((r) => ({ x: h.cx + h.dir * 30, y: h.y + 30 + r * TILE, vx: h.dir * V2, vy: 0, life: 10 * FRAME, w: 40, h: 22 })) },
   // Screen-wide lightning: every monster in view takes 255 at once.
   guerra: { name: 'Guerra', dmg: 255, sprite: 'fx.guerra', color: '#fff3a0', instant: true },
+  // The testing knight's own: fells everything in view, guardians included. Never listed otherwise.
+  juicio: { name: 'Juicio', dmg: 65535, sprite: 'fx.guerra', color: '#ffffff', instant: true, slay: true, hidden: true },
 };
 
 export function castSpell(world, hero, character, game, cam) {
   const id = character.spell;
-  if (!id || !character.spellsLearned.includes(id)) return 'none';
+  if (!id || (!character.spellsLearned.includes(id) && !(SPELLS[id]?.hidden && isTester(character)))) return 'none';
   const sp = SPELLS[id];
   if (world.projectiles.some((p) => p.spell && p.owner === hero.id)) return 'busy';
   hero.castT = 0.25;
-  const left = character.charges[id] || 0;
+  const left = sp.hidden ? 1 : character.charges[id] || 0;
   if (left <= 0) return 'empty'; // the pose plays, nothing fires
-  character.charges[id] = left - 1;
+  if (!sp.hidden) character.charges[id] = left - 1;
   game.sfxFor?.(id);
   if (sp.instant) {
     world.effect('flash', 0, 0, { life: 0.35, color: '#fff8d0' });
     for (let i = 0; i < 4; i++) world.effect('bolt', cam.x + W * (0.15 + i * 0.23), cam.y + H * 0.8, { life: 0.4 });
     world.shake = 0.3;
-    return { instant: true, dmg: sp.dmg, kind: id };
+    return { instant: true, dmg: sp.dmg, kind: id, slay: sp.slay };
   }
   for (const p of sp.cast(world, hero, cam)) {
     world.spawnProjectile({ ...p, friendly: true, spell: true, owner: hero.id, dmg: sp.dmg, kind: id, sprite: sp.sprite, color: sp.color, pierce: sp.pierce, ghost: sp.ghost, rehit: sp.rehit, pointsDown: sp.pointsDown });

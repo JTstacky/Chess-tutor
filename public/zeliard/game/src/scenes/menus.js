@@ -115,7 +115,11 @@ export class InventoryScene {
   get c() { return this.local.character; }
   rows() {
     const c = this.c;
-    if (this.tab === 0) return SPELL_ORDER.map((id) => ({ id, label: SPELLS[id].name, have: c.spellsLearned.includes(id), right: `${c.charges[id] ?? 0}/${c.maxCharges[id] ?? 0}`, sel: c.spell === id, hint: SPELLS[id].desc ? `The Magic Spell of ${SPELLS[id].desc.replace(/^the Magic Spell of /, '').replace(/:.*/, '')}. Damage ${SPELLS[id].dmg}.` : '' }));
+    if (this.tab === 0) {
+      const rows = SPELL_ORDER.map((id) => ({ id, label: SPELLS[id].name, have: c.spellsLearned.includes(id), right: `${c.charges[id] ?? 0}/${c.maxCharges[id] ?? 0}`, sel: c.spell === id, hint: SPELLS[id].desc ? `The Magic Spell of ${SPELLS[id].desc.replace(/^the Magic Spell of /, '').replace(/:.*/, '')}. Damage ${SPELLS[id].dmg}.` : '' }));
+      if (isTester(c)) rows.push({ id: 'juicio', label: 'Juicio', have: true, right: '∞', sel: c.spell === 'juicio', hint: 'Fells everything in view, guardians too.' });
+      return rows;
+    }
     if (this.tab === 1) return Array.from({ length: 5 }, (_, k) => { const id = c.items[k]; return { id, slot: k, label: id ? RULES.items[id]?.name || id : '— empty —', have: !!id, hint: id ? itemDesc(id, c) : '' }; });
     return c.accessories.map((id) => ({ id, label: RULES.items[id]?.name || id, have: true, sel: c.worn === id, hint: itemDesc(id, c) }));
   }

@@ -276,5 +276,5 @@ export function drawKnightHud(l, x, y) {
   text(`${c.almas}`, x + 160, y + 48, { size: 13, color: COLORS.almas });
   text(`${c.gold} G`, x + 204, y + 48, { size: 13, color: COLORS.gold });
   if (c.keys) text(`Keys ${c.keys}`, x + 190, y + 10, { size: 13, color: '#e0c080' });
-  if (c.spell) text(`${SPELLS[c.spell]?.name || c.spell} ${c.charges[c.spell] ?? 0}`, x + 308, y + 48, { size: 12, color: COLORS.magic, align: 'right' });
+  if (c.spell) text(`${SPELLS[c.spell]?.name || c.spell} ${c.spell === 'juicio' ? '∞' : c.charges[c.spell] ?? 0}`, x + 308, y + 48, { size: 12, color: COLORS.magic, align: 'right' });
 }

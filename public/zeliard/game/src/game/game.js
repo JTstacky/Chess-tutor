@@ -474,10 +474,12 @@ export class Game {
       for (const e of world.enemies) {
         if (e.dead || e.hidden) continue;
         const ex = world.map.near(e.cx, cam.x + W / 2), ey = world.map.nearY(e.cy, cam.y + H / 2);
-        if (ex > cam.x - 24 && ex < cam.x + W + 24 && ey > cam.y - TILE && ey < cam.y + H) world.damageEnemy(e, r.dmg, hero.id, 1, 'guerra');
+        if (!(ex > cam.x - 24 && ex < cam.x + W + 24 && ey > cam.y - TILE && ey < cam.y + H)) continue;
+        if (r.slay) { e.hp = 0; world.killEnemy(e, hero.id, false); } else world.damageEnemy(e, r.dmg, hero.id, 1, 'guerra');
       }
       if (world.boss && !world.boss.dead) {
         if (this.coop && !this.coop.isHost) this.coop.reportBossHit(world, r.dmg, 'guerra');
+        else if (r.slay && world.boss.die && !world.boss.dying) world.boss.die(world);
         else world.boss.damage(r.dmg, 'guerra', world, hero.id, { spell: 'guerra' });
       }
     }
