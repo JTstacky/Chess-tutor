@@ -1,6 +1,6 @@
 // Cavern play: runs the CavernWorld, the local knights, the camera(s) and the HUD.
 // Couch co-op uses a shared camera that keeps both knights on screen.
-import { ctx, W, H, text, panel, bar, COLORS, fade } from '../render/screen.js';
+import { ctx, W, H, text, panel, bar, COLORS, fade, measure } from '../render/screen.js';
 import { TILE, F } from '../world/tilemap.js';
 import { loadCavern, loadSandbox } from '../world/loader.js';
 import { maxHp, RULES } from '../game/character.js';
@@ -263,7 +263,7 @@ export function drawKnightHud(l, x, y) {
   }
   panel(x, y, 322, 74, { alpha: 0.88 });
   text(c.name, x + 14, y + 9, { size: 15, color: COLORS.gold });
-  text(`Lv ${c.level}`, x + 120, y + 9, { size: 15 });
+  text(`Lv ${c.level}`, Math.max(x + 120, x + 24 + measure(c.name, 15)), y + 9, { size: 15 }); // long names push it right
   text(`XP ${c.xp}`, x + 308, y + 10, { size: 13, align: 'right', color: COLORS.dim });
   const mh = maxHp(c);
   bar(x + 14, y + 32, 196, 10, Math.min(1, c.hp / mh), '#d8423a', { segments: 10 });
