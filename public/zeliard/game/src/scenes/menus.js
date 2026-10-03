@@ -48,7 +48,9 @@ export class PauseScene {
         const m = it.value, town = m.kind === 'town' || m.kind === 'castle';
         this.travel = false;
         g.pop();
-        g.travel(town ? { kind: 'town', map: m.id, x: null } : { kind: 'cavern', map: m.id });
+        // Jashiin's arena has no door in: without a spot the cavern falls back to its post-fight
+        // edge, a sealed cell under the floor. Arrive where the entrance sequence delivers you.
+        g.travel(town ? { kind: 'town', map: m.id, x: null } : m.id === 'mpa0' ? { kind: 'cavern', map: 'mpa0', x: 12, headRow: 11 } : { kind: 'cavern', map: m.id });
       },
       onCancel: () => { this.travel = false; this.build(); },
     });
