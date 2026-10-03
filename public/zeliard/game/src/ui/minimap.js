@@ -179,12 +179,12 @@ export class Minimap {
   }
 
   // Markers: every knight in the cavern (local ones gold, others blue), doors already seen.
-  markers(ox, oy, s, clip) {
+  markers(ox, oy, s, clip, wrap = true) {
     const m = this.map, t = performance.now() / 1000;
     for (const d of this.world.doors) {
       const tx = d.x / TILE, ty = d.y / TILE;
       if (!this.has(Math.floor((tx + 1) / CELL) % this.cw, Math.floor((ty + 1) / CELL) % this.ch)) continue;
-      for (const [wx, wy] of this.images(tx, ty, ox, oy, s, clip)) {
+      for (const [wx, wy] of this.images(tx, ty, ox, oy, s, clip, wrap)) {
         ctx.fillStyle = d.locked ? '#c0703a' : d.dest?.kind === 'town' ? '#7fe08a' : '#c8b8ff';
         ctx.fillRect(wx, wy, Math.max(3, (d.w / TILE) * s), Math.max(3, (d.h / TILE) * s));
       }
@@ -193,7 +193,7 @@ export class Minimap {
     for (const h of this.world.heroes) {
       if (h.state === 'dead') continue;
       const mine = locals.has(h);
-      for (const [wx, wy] of this.images(h.cx / TILE, (h.y + h.h / 2) / TILE, ox, oy, s, clip)) {
+      for (const [wx, wy] of this.images(h.cx / TILE, (h.y + h.h / 2) / TILE, ox, oy, s, clip, wrap)) {
         const r = Math.max(3, s * 1.2);
         const pulse = mine ? 0.5 + 0.5 * Math.sin(t * 6) : 0;
         ctx.fillStyle = `rgba(255,240,180,${0.25 + 0.25 * pulse})`;
@@ -208,9 +208,9 @@ export class Minimap {
     }
   }
   // Screen spots of a map point (tile units) in a view; a wrapping cavern repeats every period.
-  images(tx, ty, ox, oy, s, clip) {
+  images(tx, ty, ox, oy, s, clip, wrap = true) {
     const m = this.map, out = [];
-    const rx = m.wrap ? [-1, 0, 1] : [0], ry = m.wrap ? [-1, 0, 1] : [0];
+    const rx = m.wrap && wrap ? [-1, 0, 1] : [0], ry = m.wrap && wrap ? [-1, 0, 1] : [0];
     for (const kx of rx) for (const ky of ry) {
       const x = ox + (tx + kx * m.w) * s, y = oy + (ty + ky * m.h) * s;
       if (x >= clip.x - 4 && x <= clip.x + clip.w + 4 && y >= clip.y - 4 && y <= clip.y + clip.h + 4) out.push([x, y]);
@@ -264,16 +264,11 @@ export class Minimap {
     ctx.save();
     ctx.beginPath(); ctx.rect(r.x, r.y, r.w, r.h); ctx.clip();
     ctx.fillStyle = '#05040a'; ctx.fillRect(r.x, r.y, r.w, r.h);
-    // A wrapping cavern is shown with the knight in the middle, as it is to him.
-    let ox = r.x, oy = r.y;
-    if (m.wrap) {
-      ox = r.x + r.w / 2 - (lead.cx / TILE) * s;
-      oy = r.y + r.h / 2 - ((lead.y + lead.h / 2) / TILE) * s;
-      ox = r.x + ((((ox - r.x) % r.w) + r.w) % r.w) - r.w; // keep the repeat lined up
-      oy = r.y + ((((oy - r.y) % r.h) + r.h) % r.h) - r.h;
-    }
-    this.blit(ox, oy, s, r);
-    this.markers(ox, oy, s, r);
+    // The cavern as laid out (no wrap copies: a knight-centred view scattered
+    // ground across the seams as detached fragments in the corners).
+    const ox = r.x, oy = r.y;
+    ctx.drawImage(this.seen, ox, oy, m.w * s, m.h * s);
+    this.markers(ox, oy, s, r, false);
     ctx.restore();
     const legend = [['#ffd23f', 'You'], ['#c8b8ff', 'Door'], ['#7fe08a', 'Way out'], ['#c0703a', 'Locked']];
     let lx = r.x;
