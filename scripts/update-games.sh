@@ -9,6 +9,7 @@
 #   JTstacky/Arcane-Arena       -> public/arcane-arena/
 #   JTstacky/Hammerguy-s-Party  -> public/hammerguys-party/
 #   JTstacky/Mission-Mars       -> public/mission-mars/
+#   JTstacky/Ninja-Nab          -> public/ninja-nab/
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -16,6 +17,7 @@ GAMES=(
   "JTstacky/Arcane-Arena:arcane-arena"
   "JTstacky/Hammerguy-s-Party:hammerguys-party"
   "JTstacky/Mission-Mars:mission-mars"
+  "JTstacky/Ninja-Nab:ninja-nab"
 )
 
 work="$(mktemp -d)"

@@ -1,0 +1,16 @@
+{
+  "name": "Ninja Nab",
+  "short_name": "Ninja Nab",
+  "description": "Grab the Jade Scroll or defend it: a fast, funny two-player ninja game.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#151a46",
+  "theme_color": "#151a46",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -55,8 +55,8 @@ All state is saved in the browser's localStorage.
 
 Every push to `main` builds and deploys via `.github/workflows/deploy.yml`.
 
-**Arcane Arena** (`public/arcane-arena/`), **Hammerguy's Party** (`public/hammerguys-party/`) and **Mission Mars** (`public/mission-mars/`) are developed in their own repos
-([JTstacky/Arcane-Arena](https://github.com/JTstacky/Arcane-Arena), [JTstacky/Hammerguy-s-Party](https://github.com/JTstacky/Hammerguy-s-Party), [JTstacky/Mission-Mars](https://github.com/JTstacky/Mission-Mars)).
+**Arcane Arena** (`public/arcane-arena/`), **Hammerguy's Party** (`public/hammerguys-party/`), **Mission Mars** (`public/mission-mars/`) and **Ninja Nab** (`public/ninja-nab/`) are developed in their own repos
+([JTstacky/Arcane-Arena](https://github.com/JTstacky/Arcane-Arena), [JTstacky/Hammerguy-s-Party](https://github.com/JTstacky/Hammerguy-s-Party), [JTstacky/Mission-Mars](https://github.com/JTstacky/Mission-Mars), [JTstacky/Ninja-Nab](https://github.com/JTstacky/Ninja-Nab)).
 Like Beast Binder and Demon Dragon, their built files are committed here. Each game repo's publish workflow commits a fresh build
 on every push to its `main`. To refresh them by hand, run `scripts/update-games.sh` and commit the result.
 
