@@ -3,17 +3,19 @@
 # each one and copies the result into public/<path>/, the same way Beast
 # Binder and Revenge of the Demon Dragon are included. Commit the result.
 #
-#   scripts/update-games.sh                 # both games
+#   scripts/update-games.sh                 # every game
 #   scripts/update-games.sh arcane-arena    # just one
 #
 #   JTstacky/Arcane-Arena       -> public/arcane-arena/
 #   JTstacky/Hammerguy-s-Party  -> public/hammerguys-party/
+#   JTstacky/Mission-Mars       -> public/mission-mars/
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 GAMES=(
   "JTstacky/Arcane-Arena:arcane-arena"
   "JTstacky/Hammerguy-s-Party:hammerguys-party"
+  "JTstacky/Mission-Mars:mission-mars"
 )
 
 work="$(mktemp -d)"
