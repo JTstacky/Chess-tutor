@@ -4,7 +4,7 @@
   'use strict';
   const V3 = THREE.Vector3;
   const G = {};
-  let renderer, scene, camera, viewEl, labelsEl, flashEl;
+  let renderer, scene, camera, viewEl, labelsEl, flashEl, composer = null, bloom = null;
   let stage = null;
   let last = 0;
   let gradientMap = null;
@@ -29,23 +29,36 @@
     } catch (e) {
       return false;
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    // Lite mode (phones, or ?lite) drops bloom and soft shadows to keep the frame rate up.
+    const small = Math.min(window.innerWidth, window.innerHeight) < 500;
+    G.lite = /[?&]lite/.test(location.search) || small;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, G.lite ? 1.5 : 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = G.lite ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400);
     G.camera = camera;
 
     // Three hard steps of light give the flat, toy-like toon look.
     const steps = new Uint8Array([90, 170, 255]);
-    const format = renderer.capabilities.isWebGL2 ? THREE.RedFormat : THREE.LuminanceFormat;
-    gradientMap = new THREE.DataTexture(steps, steps.length, 1, format);
+    gradientMap = new THREE.DataTexture(steps, steps.length, 1, THREE.RedFormat);
     gradientMap.minFilter = gradientMap.magFilter = THREE.NearestFilter;
     gradientMap.needsUpdate = true;
 
     initParticles();
+    const X = window.THREEX;
+    if (!G.lite && X) {
+      composer = new X.EffectComposer(renderer);
+      composer.addPass(new X.RenderPass(scene, camera));
+      bloom = new X.UnrealBloomPass(new THREE.Vector2(256, 256), 0.28, 0.4, 0.92);
+      composer.addPass(bloom);
+      composer.addPass(new X.OutputPass());
+    }
     const resize = () => {
       const w = Math.max(1, viewEl.clientWidth);
       const h = Math.max(1, viewEl.clientHeight);
       renderer.setSize(w, h, false);
+      if (composer) { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); }
       camera.aspect = w / h;
       particleMat.uniforms.scale.value = h * renderer.getPixelRatio() * 0.9;
     };
@@ -86,6 +99,8 @@
     if (stage) {
       scene.remove(stage.group);
       stage.group.traverse((o) => {
+        // Meshes cloned from the shared GLB assets keep their geometry and textures.
+        if (o.userData.keep) return;
         if (o.geometry) o.geometry.dispose();
         if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => {
           if (m.map) m.map.dispose();
@@ -99,6 +114,11 @@
     labelsEl.innerHTML = '';
     cam.shake = 0;
     if (!stage) return;
+    // Stages were written for the old light units; three r155+ wants them about pi times brighter.
+    stage.group.traverse((o) => {
+      if (o.isLight && !o.userData.scaled) { o.intensity *= Math.PI; o.userData.scaled = true; }
+      if (o.isMesh && !o.userData.noShadow && o.castShadow === false && o.receiveShadow === false && !o.material.transparent) o.receiveShadow = true;
+    });
     scene.add(stage.group);
     scene.background = new THREE.Color(stage.bg == null ? 0x000000 : stage.bg);
     scene.fog = stage.fog ? new THREE.Fog(stage.fog[0], stage.fog[1], stage.fog[2]) : null;
@@ -250,7 +270,7 @@
     cam.shake = s < 0.005 ? 0 : s * Math.exp(-dt * 7);
     if (camera.fov !== cam.fov) camera.fov = cam.fov;
     camera.updateProjectionMatrix();
-    renderer.render(scene, camera);
+    if (composer) composer.render(dt); else renderer.render(scene, camera);
   }
 
   window.Gfx = G;

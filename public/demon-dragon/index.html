@@ -41,7 +41,7 @@
           <button id="btn-continue" type="button" class="menu-btn">Continue</button>
           <button id="btn-new" type="button" class="menu-btn">New Game</button>
         </div>
-        <div class="credit">Move: D-pad / arrows &nbsp;·&nbsp; A sword &nbsp;·&nbsp; B bolt &nbsp;·&nbsp; C dodge</div>
+        <div class="credit">Move: joystick / WASD &nbsp;·&nbsp; A sword &nbsp;·&nbsp; B bolt &nbsp;·&nbsp; C dodge</div>
       </div>
 
       <div id="namebox">
@@ -60,15 +60,13 @@
       </div>
       <button id="skip" type="button">Skip ▸▸</button>
       <div id="fade"></div>
+      <div id="loading">Loading</div>
       <div id="nogl">This game needs WebGL, which this browser has switched off or does not support.</div>
     </div>
 
     <div id="deck">
-      <div id="pad" aria-label="Direction pad">
-        <span class="arrow up">▲</span><span class="arrow down">▼</span><span class="arrow left">◀</span><span class="arrow right">▶</span>
-        <span class="hub"></span>
-      </div>
-      <div id="keys-hint">Arrows / WASD move<br>Z or J sword · X or K bolt<br>C, L or Space dodge · Q relic</div>
+      <div id="stick" aria-label="Movement joystick"><div class="base"><div class="knob"></div></div></div>
+      <div id="keys-hint">Arrows / WASD move (any direction)<br>Z or J sword · X or K bolt<br>C, L or Space dodge · Q relic</div>
       <div id="buttons">
         <button id="btnC" type="button" class="act c">C<small>dodge</small></button>
         <button id="btnB" type="button" class="act b">B<small>bolt</small></button>
@@ -77,13 +75,9 @@
     </div>
   </div>
 
-  <script src="vendor/three.min.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/gfx.js"></script>
-  <script src="js/models.js"></script>
-  <script src="js/sets.js"></script>
-  <script src="js/level.js"></script>
-  <script src="js/audio.js"></script>
-  <script src="js/game.js"></script>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/" } }
+  </script>
+  <script type="module" src="js/boot.js"></script>
 </body>
 </html>

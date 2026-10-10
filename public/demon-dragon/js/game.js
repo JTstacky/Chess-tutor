@@ -128,7 +128,7 @@
     busy = true;
     const mine = level;
     if (mine) mine.locked = true;
-    setDir(null);
+    clearInput();
     try { await fn(); } finally {
       busy = false;
       if (mine && mine === level) mine.locked = false;
@@ -177,12 +177,32 @@
   }
 
   // ---------- input ----------
-  const held = [];
-  function setDir(dir) {
-    $('pad').dataset.dir = dir || '';
+  // Movement is an analog vector (x right, z down the screen), from the joystick,
+  // the keys (any mix of them), or a gamepad's left stick.
+  const held = new Set();
+  const stick = { x: 0, z: 0, on: false };
+  const padStick = { x: 0, z: 0 };
+  function pushInput() {
     if (!level) return;
-    if (dir && dir !== level.input.dir) level.input.fresh = true;
-    level.input.dir = dir;
+    let x = 0, z = 0;
+    if (stick.on) { x = stick.x; z = stick.z; }
+    else if (held.size) {
+      if (held.has('left')) x -= 1;
+      if (held.has('right')) x += 1;
+      if (held.has('up')) z -= 1;
+      if (held.has('down')) z += 1;
+      const n = Math.hypot(x, z) || 1;
+      x /= n; z /= n;
+    } else { x = padStick.x; z = padStick.z; }
+    level.input.x = x;
+    level.input.z = z;
+  }
+  function clearInput() {
+    held.clear();
+    stick.on = false; stick.x = stick.z = 0;
+    padStick.x = padStick.z = 0;
+    resetStick();
+    pushInput();
   }
   function press(btn) {
     Sfx.unlock();
@@ -204,32 +224,94 @@
       else if (KEY_BTN[k]) advance();
       return;
     }
-    if (KEY_DIR[k]) { held.push(KEY_DIR[k]); setDir(KEY_DIR[k]); }
+    if (KEY_DIR[k]) { held.add(KEY_DIR[k]); pushInput(); }
     else if (KEY_BTN[k]) press(KEY_BTN[k]);
     else if (k === 'q' || k === 'e' || k === 'Tab') cycleRelic();
   });
   window.addEventListener('keyup', (e) => {
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (!KEY_DIR[k]) return;
-    for (let i = held.length - 1; i >= 0; i--) if (held[i] === KEY_DIR[k]) held.splice(i, 1);
-    setDir(held.length ? held[held.length - 1] : null);
+    held.delete(KEY_DIR[k]);
+    pushInput();
   });
-  window.addEventListener('blur', () => { held.length = 0; setDir(null); });
+  window.addEventListener('blur', () => clearInput());
 
-  // The pad reads one finger's position, so a thumb can slide between directions.
-  const pad = $('pad');
-  let padPointer = null;
-  function padDir(e) {
-    const r = pad.getBoundingClientRect();
-    const x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
-    if (Math.hypot(x, y) < r.width * 0.12) return null;
-    return Math.abs(x) > Math.abs(y) ? (x > 0 ? 'right' : 'left') : (y > 0 ? 'down' : 'up');
+  // Floating joystick: the base appears under the thumb, the knob follows it.
+  const stickEl = $('stick'), baseEl = stickEl.querySelector('.base'), knobEl = stickEl.querySelector('.knob');
+  const REACH = 52;
+  let stickPointer = null, origin = null;
+  function resetStick() {
+    stickPointer = null;
+    stickEl.classList.remove('active', 'moved');
+    baseEl.style.left = baseEl.style.top = baseEl.style.bottom = '';
+    knobEl.style.transform = '';
   }
-  pad.addEventListener('pointerdown', (e) => { e.preventDefault(); Sfx.unlock(); padPointer = e.pointerId; pad.setPointerCapture(e.pointerId); setDir(padDir(e)); });
-  pad.addEventListener('pointermove', (e) => { if (e.pointerId === padPointer) setDir(padDir(e)); });
-  const padUp = (e) => { if (e.pointerId === padPointer) { padPointer = null; setDir(null); } };
-  pad.addEventListener('pointerup', padUp);
-  pad.addEventListener('pointercancel', padUp);
+  function stickMove(e) {
+    let dx = e.clientX - origin.x, dy = e.clientY - origin.y;
+    const d = Math.hypot(dx, dy);
+    if (d > REACH) { dx *= REACH / d; dy *= REACH / d; }
+    knobEl.style.transform = `translate(${dx}px, ${dy}px)`;
+    let m = Math.min(1, d / REACH);
+    m = m < 0.15 ? 0 : m > 0.85 ? 1 : (m - 0.15) / 0.7;
+    stick.on = true;
+    stick.x = d ? (dx / Math.hypot(dx, dy)) * m : 0;
+    stick.z = d ? (dy / Math.hypot(dx, dy)) * m : 0;
+    pushInput();
+  }
+  stickEl.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    Sfx.unlock();
+    if (dlg) { advance(); return; }
+    if (stickPointer != null) return;
+    stickPointer = e.pointerId;
+    stickEl.setPointerCapture(e.pointerId);
+    const r = stickEl.getBoundingClientRect();
+    origin = { x: e.clientX, y: e.clientY };
+    baseEl.style.left = (e.clientX - r.left) + 'px';
+    baseEl.style.top = (e.clientY - r.top) + 'px';
+    baseEl.style.bottom = 'auto';
+    stickEl.classList.add('active', 'moved');
+    stickMove(e);
+  });
+  stickEl.addEventListener('pointermove', (e) => { if (e.pointerId === stickPointer) stickMove(e); });
+  const stickUp = (e) => {
+    if (e.pointerId !== stickPointer) return;
+    resetStick();
+    stick.on = false; stick.x = stick.z = 0;
+    pushInput();
+  };
+  stickEl.addEventListener('pointerup', stickUp);
+  stickEl.addEventListener('pointercancel', stickUp);
+
+  // Gamepad: left stick or d-pad moves; A sword, X bolt, B dodge, bumpers switch relic.
+  const padWas = {};
+  function pollPad() {
+    requestAnimationFrame(pollPad);
+    const gp = navigator.getGamepads ? [...navigator.getGamepads()].find((g) => g && g.connected) : null;
+    if (!gp) return;
+    let x = gp.axes[0] || 0, z = gp.axes[1] || 0;
+    const b = (i) => !!(gp.buttons[i] && gp.buttons[i].pressed);
+    if (b(14)) x = -1;
+    if (b(15)) x = 1;
+    if (b(12)) z = -1;
+    if (b(13)) z = 1;
+    const m = Math.hypot(x, z);
+    if (m < 0.2) { x = 0; z = 0; } else if (m > 1) { x /= m; z /= m; }
+    if (x !== padStick.x || z !== padStick.z) { padStick.x = x; padStick.z = z; pushInput(); }
+    const edge = (i) => { const now = b(i), was = padWas[i]; padWas[i] = now; return now && !was; };
+    if (dlg) {
+      if (dlg.choices && !dlg.typing && (edge(12) || edge(14))) dlg.move(-1);
+      else if (dlg.choices && !dlg.typing && (edge(13) || edge(15))) dlg.move(1);
+      else if (edge(0) || edge(1) || edge(2)) advance();
+      return;
+    }
+    if (edge(0)) press('A');
+    if (edge(2)) press('B');
+    if (edge(1)) press('C');
+    if (edge(4) || edge(5)) cycleRelic();
+    if (edge(9) && app.classList.contains('mode-title')) $(load() ? 'btn-continue' : 'btn-new').click();
+  }
+  requestAnimationFrame(pollPad);
 
   [['btnA', 'A'], ['btnB', 'B'], ['btnC', 'C']].forEach(([id, btn]) => {
     const el = $(id);
@@ -294,7 +376,7 @@
     onBanner(text, big) {
       banner(text, big);
       if (!big && level && !arenaId && level.knight) {
-        P.pos = { x: level.knight.tx, y: level.knight.ty, dir: level.knight.dir };
+        P.pos = { x: level.knight.x, z: level.knight.z, rot: level.knight.rot };
         save();
       }
     },
@@ -306,7 +388,7 @@
       for (const line of lines) await say(line, 'King Aldric');
       level.heal();
       Sfx.play('heart');
-      P.pos = { x: level.knight.tx, y: level.knight.ty, dir: level.knight.dir };
+      P.pos = { x: level.knight.x, z: level.knight.z, rot: level.knight.rot };
       save();
       banner('Health restored. Game saved.');
     }),
@@ -337,7 +419,7 @@
     },
     onLair: (id) => scripted(async () => {
       const def = D.DRAGONS[id];
-      P.pos = { x: level.knight.tx, y: level.knight.ty, dir: 'down' };
+      P.pos = { x: level.knight.x, z: level.knight.z, rot: -Math.PI / 2 };
       if (id === 'demon' && P.slain.length < 4) {
         const left = 4 - P.slain.length;
         return say(`The Ashen Gate is sealed. ${left} seal-stone${left > 1 ? 's' : ''} still burn${left > 1 ? '' : 's'} above it, one for each living dragon.`);
@@ -376,6 +458,7 @@
     if (!alreadyDark) await fade(true);
     setMode('world');
     level = window.Level.create({ kind: 'world', player: P, start: P.pos || D.START, hooks });
+    pushInput();
     G.setStage(level.stage);
     Sfx.music('world');
     showHud(true);
@@ -409,7 +492,7 @@
       await say(def.intro);
       if (!P.tips.arena) {
         P.tips.arena = true;
-        await say('Glowing tiles strike a moment after they appear. Step off them, or roll through with (C). Slash with (A) up close, or loose bolts with (B) from anywhere below the dragon.');
+        await say('Glowing marks on the ground strike a moment after they appear. Step off them, or roll through with (C). Slash with (A) up close, or loose bolts with (B) from anywhere below the dragon.');
       }
     }
     renderBoss();
@@ -508,7 +591,7 @@
     save();
     await startWorld(true);
     scripted(async () => {
-      await say('Move with the D-pad. (A) swings your sword, and talks to people. (B) looses a bolt. (C) is a dodge roll.');
+      await say('Move with the joystick, in any direction. (A) swings your sword, and talks to people. (B) looses a bolt. (C) is a dodge roll.');
       await say('The King waits at the castle gate behind you. He can heal you, and save your journey.');
     });
   });
@@ -536,6 +619,7 @@
       story(id) { P = P || newPlayer('Tester'); playStory(id).then(showTitle); },
       relics() { P.relics = D.ELEMENT_ORDER.slice(); P.slain = D.ELEMENT_ORDER.slice(); P.hpMax = 18; P.sword = 8; P.shot = 4; renderHud(); },
       god() { P.hpMax = 60; if (level) level.heal(); },
+      warp(x, z) { const K = level.knight; K.x = K.circle.x = x; K.z = K.circle.z = z; },
       level: () => level, player: () => P,
     };
   }

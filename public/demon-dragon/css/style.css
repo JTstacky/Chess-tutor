@@ -126,12 +126,14 @@ html, body {
   padding: 8px calc(18px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(18px + env(safe-area-inset-left));
   background: linear-gradient(#3a3358, var(--deck)); border-top: 4px solid #15121f;
 }
-#pad { position: relative; width: 156px; height: 156px; border-radius: 50%; background: radial-gradient(circle, #4a4370 0%, #1d1930 72%); box-shadow: inset 0 0 0 4px #15121f, 0 4px 0 rgba(0, 0, 0, 0.4); touch-action: none; flex: 0 0 auto; }
-#pad .arrow { position: absolute; font-size: 25px; color: rgba(255, 255, 255, 0.8); pointer-events: none; }
-#pad .up { top: 10px; left: 50%; transform: translateX(-50%); } #pad .down { bottom: 10px; left: 50%; transform: translateX(-50%); }
-#pad .left { left: 12px; top: 50%; transform: translateY(-50%); } #pad .right { right: 12px; top: 50%; transform: translateY(-50%); }
-#pad .hub { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: #2a2540; box-shadow: inset 0 0 0 3px #15121f; pointer-events: none; }
-#pad[data-dir="up"] .up, #pad[data-dir="down"] .down, #pad[data-dir="left"] .left, #pad[data-dir="right"] .right { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+/* Floating analog joystick: the base jumps to where the thumb lands inside the zone. */
+#stick { position: relative; flex: 1 1 50%; align-self: stretch; touch-action: none; }
+#stick .base { position: absolute; left: 50%; top: 50%; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.04) 62%, rgba(255, 255, 255, 0) 70%);
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.35); pointer-events: none; transition: opacity 0.2s; }
+#stick .knob { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #d9d4ee 45%, #9a92c4 100%); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45); }
+#stick.active .base { box-shadow: inset 0 0 0 3px var(--gold); }
 
 #buttons { position: relative; width: 190px; height: 160px; flex: 0 0 auto; }
 .act {
@@ -150,8 +152,10 @@ html, body {
 /* Landscape: the controls float over the corners of the picture */
 @media (orientation: landscape) {
   #deck { position: absolute; left: 0; right: 0; bottom: 0; height: auto; background: none; border: 0; pointer-events: none; align-items: flex-end; z-index: 12; }
-  #pad, #buttons { pointer-events: auto; opacity: 0.72; }
-  #pad { width: 140px; height: 140px; }
+  #buttons { pointer-events: auto; opacity: 0.78; margin-left: auto; }
+  #stick { pointer-events: auto; position: absolute; left: 0; bottom: 0; width: 46%; height: 72vh; }
+  #stick .base { left: 110px; top: auto; bottom: calc(26px + env(safe-area-inset-bottom)); margin: 0 0 0 -66px; }
+  #stick.moved .base { margin: -66px 0 0 -66px; }
   #app.talking #deck { visibility: hidden; }
   #bossbar { bottom: auto; top: calc(8px + env(safe-area-inset-top)); }
   #banner { top: 22%; }
@@ -159,7 +163,7 @@ html, body {
 
 /* Mouse and keyboard: show the key list instead of touch controls */
 @media (hover: hover) and (pointer: fine) {
-  #pad, #buttons { display: none; }
+  #stick, #buttons { display: none; }
   #keys-hint { display: block; margin: 0 auto; }
   #deck { height: auto; padding: 8px; justify-content: center; }
 }
@@ -167,3 +171,5 @@ html, body {
   #deck { position: static; background: var(--deck); }
   #bossbar { top: auto; bottom: 10px; }
 }
+
+#loading { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #14101c; color: #fff; font: 800 18px var(--font); letter-spacing: 0.05em; }

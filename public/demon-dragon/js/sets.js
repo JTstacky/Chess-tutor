@@ -77,8 +77,10 @@
         const a = i * 2.4, r = 16 + (i % 5) * 5;
         const x = Math.cos(a) * r, z = Math.sin(a) * r * 0.8 + 6;
         if (Math.abs(x) < 3) continue;
-        const green = dawn ? 0x3fa34d : 0x1f4a33;
-        group.add(M.cyl(0.25, 0.35, 1.2, 6, G.toon(0x5a3a22), x, 0.6, z), M.ball(1.3, G.toon(green), x, 2.2, z), M.ball(0.9, G.toon(green), x + 0.1, 3.5, z));
+        const tree = M.env(i % 3 ? 'tree_single_A' : 'tree_single_B', 3.4 + (i % 4) * 0.4);
+        tree.position.set(x, 0, z);
+        tree.rotation.y = a;
+        group.add(tree);
       }
       const walkers = [];
       if (dawn) {
