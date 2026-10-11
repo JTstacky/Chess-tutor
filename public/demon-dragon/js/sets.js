@@ -91,13 +91,13 @@
         group.add(k.group);
         walkers.push({ model: k, knight: true });
       } else {
-        const steel = G.toon(0x9fb0c8), cloth = G.toon(0x3d7a4a), wood = G.toon(0x7a5a3a);
         for (let i = 0; i < 14; i++) {
-          const s = new THREE.Group();
-          s.add(M.cyl(0.2, 0.3, 0.9, 8, cloth, 0, 0.55, 0), M.ball(0.3, steel, 0, 1.25, 0), M.cyl(0.03, 0.03, 2.2, 5, wood, 0.35, 1.1, 0), M.cone(0.08, 0.3, 4, steel, 0.35, 2.3, 0));
-          s.scale.setScalar(1.3);
-          group.add(s);
-          walkers.push({ group: s, lane: i % 2 ? 0.6 : -0.6, offset: Math.floor(i / 2) * 2.6 });
+          const s = M.person('soldier');
+          s.group.scale.setScalar(1.5);
+          s.group.rotation.y = -Math.PI / 2;
+          s.anim.walk = 1;
+          group.add(s.group);
+          walkers.push({ model: s, group: s.group, lane: i % 2 ? 0.6 : -0.6, offset: Math.floor(i / 2) * 2.6 });
         }
       }
       return {
@@ -110,7 +110,8 @@
               w.model.update(dt, t);
             } else {
               const z = 6 + ((t * 1.5 + w.offset) % 30);
-              w.group.position.set(w.lane, Math.abs(Math.sin(t * 6 + w.offset)) * 0.08, z);
+              w.group.position.set(w.lane, 0, z);
+              w.model.update(dt, t);
             }
           });
         },

@@ -16,6 +16,5 @@ three.js r186 (MIT) is vendored under `vendor/three/` with its LICENSE.
 
 | File | Concept image | 3D | Licence |
 |---|---|---|---|
-| lair_water.glb, lair_fire.glb, ashen_gate.glb | gpt-image-2 via Codex (prompts in the toolkit's `scratch/lairs`) | TRELLIS.2 (local, ComfyUI), `--res 1024`, seed 42; Blender prep, meshopt simplify, WebP | concepts per OpenAI terms; TRELLIS.2 weights MIT |
-
-`lair_thunder` and `lair_earth` are not generated yet; the game uses the procedural stand-ins for those.
+| lair_thunder.glb, lair_water.glb, lair_fire.glb, lair_earth.glb, ashen_gate.glb | gpt-image-2 via Codex (prompts in the toolkit's `scratch/lairs`) | TRELLIS.2 (local, ComfyUI), `--res 1024 --faces 200000`, seed 42; Blender prep, meshopt simplify, WebP | concepts per OpenAI terms; TRELLIS.2 weights MIT |
+| chest_closed.glb, chest_open.glb, signpost.glb, heart.glb, crown.glb | gpt-image-2 via Codex (`scratch/props`) | same pipeline; chest_open with `--remesh 512`; heart uses the shape only (flat red material) | as above |

@@ -14,7 +14,7 @@ window.THREEX = { SkeletonUtils, EffectComposer, RenderPass, UnrealBloomPass, Ou
 
 const ASSETS = ['knight', 'barbarian', 'mage', 'rogue', 'rogue_hooded', 'dragon', 'env'];
 // Generated landmarks (TRELLIS.2). Optional: the procedural shapes stand in if one is missing.
-const OPTIONAL = ['lair_thunder', 'lair_water', 'lair_fire', 'lair_earth', 'ashen_gate'];
+const OPTIONAL = ['lair_thunder', 'lair_water', 'lair_fire', 'lair_earth', 'ashen_gate', 'chest_closed', 'chest_open', 'signpost', 'heart', 'crown'];
 const SCRIPTS = ['data', 'gfx', 'models', 'actors', 'sets', 'world', 'level', 'audio', 'game'];
 
 const status = document.getElementById('loading');

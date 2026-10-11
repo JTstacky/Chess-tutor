@@ -150,8 +150,12 @@
     if (look === 'king') {
       const mats = ownMaterials(c.model);
       Object.values(mats).flat().forEach((m) => m.color.setHex(0xffd27a));
-      const crown = M.cone(0.16, 0.2, 5, G.toon(0xf2c14e), 0, 1.5, 0);
-      c.group.add(crown);
+      const crown = landmark('crown', 0.32);
+      if (crown) {
+        c.model.traverse((o) => { if (/Hat/.test(o.name)) o.visible = false; });
+        crown.position.y = 1.18;
+        c.group.add(crown);
+      } else c.group.add(M.cone(0.16, 0.2, 5, G.toon(0xf2c14e), 0, 1.5, 0));
     }
     const anim = { walk: 0 };
     c.anim.base('Idle');
@@ -377,6 +381,39 @@
         portal.rotation.z = t * 0.8;
       },
     };
+  };
+
+  // ---------- small generated props (fall back to the procedural ones) ----------
+  const chestBase = M.chest;
+  M.chest = function (opened) {
+    const shut = landmark('chest_closed', 0.75), open = landmark('chest_open', 0.95);
+    if (!shut || !open) return chestBase(opened);
+    const g = new THREE.Group();
+    g.add(shut, open);
+    const set = (o) => { shut.visible = !o; open.visible = o; };
+    set(!!opened);
+    return { group: g, open() { set(true); } };
+  };
+  const signBase = M.sign;
+  M.sign = function () { return landmark('signpost', 1.35) || signBase(); };
+  const heartBase = M.heart;
+  M.heart = function () {
+    const h = landmark('heart', 0.5);
+    if (!h) return heartBase();
+    h.children[0].position.y = -0.25; // callers float the group by its centre
+    // The generated texture has bake holes; a heart is one colour, so use the shape only.
+    const red = G.toon(0xff3b5c, { emissive: 0x6a0018 });
+    h.traverse((m) => { if (m.isMesh) m.material = red; });
+    return h;
+  };
+
+  // Rockfall boulders: KayKit rocks instead of a plain dodecahedron.
+  const ROCKS = ['rock_single_A', 'rock_single_B', 'rock_single_C', 'rock_single_D', 'rock_single_E'];
+  M.boulder = function () {
+    const r = M.env(ROCKS[Math.floor(Math.random() * ROCKS.length)], 3.2);
+    r.rotation.y = Math.random() * 6.3;
+    r.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.color.setHex(0xb59a7a); } });
+    return r;
   };
 
   window.Actors = { prepare, toonOf, character };
