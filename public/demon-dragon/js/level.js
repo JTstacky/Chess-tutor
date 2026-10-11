@@ -97,6 +97,9 @@
     const theme = isArena ? (opts.bossId === 'demon' ? 'demon' : D.DRAGONS[opts.bossId].element) : 'world';
     const group = new THREE.Group();
     const L = { locked: false, input: { x: 0, z: 0 }, time: 0, hp: P.hpMax, over: false };
+    // Difficulty (see Data.DIFFICULTY) and this fight's record for the score.
+    const DF = D.difficulty(P.difficulty);
+    L.stats = { t: 0, taken: 0 };
     const rand = (n) => Math.floor(Math.random() * n);
 
     // ---------- ground, scenery, lights ----------
@@ -210,7 +213,7 @@
     const kModel = M.knight();
     group.add(kModel.group);
     const K = {
-      x: start.x, z: start.z, rot: start.rot, want: start.rot, speed: 0, tileX: null, tileY: null,
+      x: start.x, z: start.z, rot: start.rot, want: start.rot, speed: 0, tileX: null, tileY: null, vx: 0, vz: 0,
       invuln: 0, blink: 0, cdA: 0, cdB: 0, cdC: 0, lock: 0, roll: null, buffer: null,
     };
     K.circle = phys.add({ x: K.x, z: K.z, r: KR, knight: true });
@@ -261,8 +264,11 @@
       if (best) K.rot = K.want = angleOf(best.x - K.x, best.z - K.z);
     }
 
+    const eff = (attackEl, targetEl) => D.effectiveness(attackEl, targetEl, DF.level);
+    // Level-up upgrades (js/perks.js), read fresh each time so a new pick applies at once.
+    const PK = (key) => (window.Perks ? window.Perks.stat(P, key) : key === 'pierce' ? false : key === 'rollGuard' || key === 'heartDrop' ? 0 : 1);
     function swordDamage(targetEl, tired) {
-      return P.sword * D.effectiveness(P.active, targetEl) * (tired ? 2 : 1);
+      return P.sword * PK('swordDmg') * eff(P.active, targetEl) * (tired ? 2 : 1);
     }
     function bossDistance(x, z) {
       const qx = Math.max(boss.x - BOSS_BOX.half, Math.min(boss.x + BOSS_BOX.half, x));
@@ -271,10 +277,11 @@
     }
 
     function swing() {
-      K.cdA = 0.42;
-      K.lock = 0.24;
-      autoFace(2.6);
-      kModel.play('Chop', 1.7);
+      const quick = PK('swordCd'), reach = PK('swordReach');
+      K.cdA = 0.42 * quick;
+      K.lock = 0.24 * quick;
+      autoFace(2.6 * reach);
+      kModel.play('Chop', 1.7 / quick);
       hooks.sfx('swing');
       const color = P.active ? D.ELEMENTS[P.active].color : 0xffffff;
       setTimeout(() => {
@@ -282,21 +289,21 @@
         const f = facing();
         for (let i = -2; i <= 2; i++) {
           const a = K.rot + i * 0.45;
-          G.emit({ pos: p3(K.x + Math.cos(a) * 1.0, K.z - Math.sin(a) * 1.0, 0.65), count: 3, colors: [color, 0xffffff], speed: 1.4, life: 0.22, size: 0.32, area: 0.2 });
+          G.emit({ pos: p3(K.x + Math.cos(a) * reach, K.z - Math.sin(a) * reach, 0.65), count: 3, colors: [color, 0xffffff], speed: 1.4, life: 0.22, size: 0.32, area: 0.2 });
         }
         const inArc = (x, z, reach) => {
           const dx = x - K.x, dz = z - K.z, d = Math.hypot(dx, dz);
           return d <= reach && (d < 0.4 || (dx * f.x + dz * f.z) / d > 0.42);
         };
-        enemies.forEach((e) => { if (e.alive && inArc(e.x, e.z, 1.55 + 0.4)) hurtEnemy(e, swordDamage(e.element, false), f); });
-        const rock = rocks.find((r) => inArc(r.x, r.z, 1.5));
+        enemies.forEach((e) => { if (e.alive && inArc(e.x, e.z, 1.95 * reach)) hurtEnemy(e, swordDamage(e.element, false), f); });
+        const rock = rocks.find((r) => inArc(r.x, r.z, 1.5 * reach));
         if (rock) breakRock(rock);
-        if (boss && bossDistance(K.x + f.x * 0.6, K.z + f.z * 0.6) <= 1.0 && f.z < 0.3) hurtBoss(swordDamage(boss.element, boss.state === 'tired'), true);
+        if (boss && bossDistance(K.x + f.x * 0.6, K.z + f.z * 0.6) <= reach && f.z < 0.3) hurtBoss(swordDamage(boss.element, boss.state === 'tired'), true, eff(P.active, boss.element));
       }, 100);
     }
 
     function shoot() {
-      K.cdB = 0.45;
+      K.cdB = 0.45 * PK('boltCd');
       K.lock = 0.14;
       hooks.sfx('shoot');
       kModel.play('Interact', 2.2);
@@ -313,19 +320,25 @@
       if (boss && boss.alive) consider(boss.x, 2.6);
       if (best) { f = best; K.rot = K.want = angleOf(f.x, f.z); }
       const color = P.active ? D.ELEMENTS[P.active].color : 0xcfe8ff;
-      const mesh = M.ball(0.17, G.glow(color), K.x + f.x * 0.4, 0.75, K.z + f.z * 0.4);
-      group.add(mesh);
-      shots.push({ mesh, x: K.x + f.x * 0.4, z: K.z + f.z * 0.4, dx: f.x, dz: f.z, left: 11, color, element: P.active });
+      // Split Bolt fans extra bolts 14 degrees apart around the aim; each extra adds half a bolt's damage.
+      const count = PK('bolts'), range = PK('boltRange');
+      for (let i = 0; i < count; i++) {
+        const a = (i - (count - 1) / 2) * 0.245, ca = Math.cos(a), sa = Math.sin(a);
+        const dx = f.x * ca - f.z * sa, dz = f.x * sa + f.z * ca;
+        const mesh = M.ball(0.17, G.glow(color), K.x + dx * 0.4, 0.75, K.z + dz * 0.4);
+        group.add(mesh);
+        shots.push({ mesh, x: K.x + dx * 0.4, z: K.z + dz * 0.4, dx, dz, left: 11 * range, speed: 12 * Math.sqrt(range), color, element: P.active, hit: [], power: count === 2 ? 0.75 : i === (count - 1) / 2 ? 1 : 0.5 });
+      }
     }
 
     function dodge() {
-      K.cdC = 0.7;
+      K.cdC = 0.7 * PK('dodgeCd');
       const m = inputMag();
       let d = facing();
       if (m > 0.2) { const n = Math.hypot(L.input.x, L.input.z); d = { x: L.input.x / n, z: L.input.z / n }; }
       K.roll = { t: 0, dx: d.x, dz: d.z };
       K.rot = K.want = angleOf(d.x, d.z);
-      K.invuln = Math.max(K.invuln, 0.42);
+      K.invuln = Math.max(K.invuln, 0.42 + PK('rollGuard'));
       K.lock = ROLL.time;
       kModel.anim.spin = 1;
       hooks.sfx('dodge');
@@ -369,7 +382,7 @@
           const n = Math.hypot(L.input.x, L.input.z);
           const ux = L.input.x / n, uz = L.input.z / n;
           const slow = K.lock > 0 ? 0.3 : 1;
-          dx = ux * SPEED * m * slow * dt; dz = uz * SPEED * m * slow * dt;
+          dx = ux * SPEED * PK('speed') * m * slow * dt; dz = uz * SPEED * PK('speed') * m * slow * dt;
           K.want = angleOf(ux, uz);
           K.speed = m * slow;
         } else K.speed = 0;
@@ -415,6 +428,8 @@
 
     function hurtKnight(dmg, color) {
       if (K.invuln > 0 || L.locked || L.over) return;
+      dmg = Math.max(1, Math.round(dmg * DF.harm));
+      L.stats.taken += Math.min(L.hp, dmg);
       L.hp = Math.max(0, L.hp - dmg);
       K.invuln = 1.1;
       K.blink = 1.1;
@@ -529,17 +544,17 @@
     function updateShots(dt) {
       for (let i = shots.length - 1; i >= 0; i--) {
         const s = shots[i];
-        const move = 12 * dt;
+        const move = (s.speed || 12) * dt;
         s.x += s.dx * move; s.z += s.dz * move; s.left -= move;
         s.mesh.position.set(s.x, 0.75, s.z);
         if (Math.random() < 0.7) G.emit({ pos: s.mesh.position, count: 1, color: s.color, speed: 0.4, life: 0.3, size: 0.26 });
         let dead = s.left <= 0;
-        const e = enemies.find((en) => en.alive && Math.hypot(en.x - s.x, en.z - s.z) < 0.6);
+        const e = enemies.find((en) => en.alive && !s.hit.includes(en) && Math.hypot(en.x - s.x, en.z - s.z) < 0.6);
         const rock = rocks.find((r) => Math.hypot(r.x - s.x, r.z - s.z) < 0.5);
         const c = at(Math.round(s.x), Math.round(s.z));
-        if (e) { hurtEnemy(e, P.shot * D.effectiveness(s.element, e.element), { x: s.dx, z: s.dz }); dead = true; }
+        if (e) { s.hit.push(e); hurtEnemy(e, P.shot * PK('boltDmg') * s.power * eff(s.element, e.element), { x: s.dx, z: s.dz }); dead = dead || !PK('pierce'); }
         else if (boss && boss.alive && bossDistance(s.x, s.z) < 0.05) {
-          hurtBoss(P.shot * D.effectiveness(s.element, boss.element) * (boss.state === 'tired' ? 2 : 1) * (boss.def.toughHide ? 0.5 : 1), false);
+          hurtBoss(P.shot * PK('boltDmg') * s.power * eff(s.element, boss.element) * (boss.state === 'tired' ? 2 : 1) * (boss.def.toughHide ? 0.5 : 1), false, eff(s.element, boss.element));
           dead = true;
         } else if (rock) { breakRock(rock); dead = true; }
         else if (!isArena && !D.WALKABLE.includes(c) && c !== '~' && c !== 'L') dead = true;
@@ -577,6 +592,7 @@
       e.model.group.position.set(e.x, 0, e.z);
     }
     function hurtEnemy(e, dmg, push) {
+      if (dmg <= 0) { G.floatText(p3(e.x, e.z, 1.3), 'IMMUNE', 'dmg'); hooks.sfx('plink'); return; }
       e.hp -= dmg;
       e.model.flash();
       e.timer = Math.max(e.timer, 0.35);
@@ -590,13 +606,15 @@
         e.model.group.visible = false;
         G.emit({ pos: p3(e.x, e.z, 0.5), count: 22, colors: [D.ELEMENTS[e.element].color, 0xffffff], speed: 3, life: 0.6, size: 0.4 });
         hooks.sfx('poof');
-        if (L.hp < P.hpMax && Math.random() < 0.45) dropHeart(e.x, e.z);
+        if (L.hp < P.hpMax && Math.random() < 0.45 + PK('heartDrop')) dropHeart(e.x, e.z);
         hooks.onXp(1, p3(e.x, e.z, 1.4));
+        if (isArena) { e.gone = true; group.remove(e.model.group); L.drakeT = Math.max(L.drakeT, 8); }
       }
     }
     function updateEnemies(dt, t) {
       enemies.forEach((e) => {
         if (!e.alive) {
+          if (e.gone) return;
           e.respawn -= dt;
           if (e.respawn <= 0 && Math.hypot(e.home.x - K.x, e.home.z - K.z) > 10) resetEnemy(e);
           return;
@@ -650,6 +668,34 @@
       });
     }
 
+    // Boss fights call in drakelings of the boss's element, more on harder difficulties.
+    // They come one at a time, and a slain one is replaced after a while.
+    L.drakeT = 6;
+    function spawnArenaDrake() {
+      for (let tries = 0; tries < 30; tries++) {
+        const x = F.x0 + 0.8 + Math.random() * (F.x1 - F.x0 - 1.6), z = F.z0 + 1.6 + Math.random() * 3;
+        if (Math.hypot(x - K.x, z - K.z) < 3.5 || rocks.some((r) => Math.hypot(r.x - x, r.z - z) < 0.9)) continue;
+        const element = boss.element;
+        const model = M.dragon(element, 0.3);
+        group.add(model.group);
+        const e = { alive: true, home: { x, z }, x, z, element, model, timer: 1.5, pause: 0, goal: null, hp: 0, maxHp: 0, respawn: 0, rot: -Math.PI / 2 };
+        e.circle = phys.add({ x, z, r: 0.42 });
+        enemies.push(e);
+        resetEnemy(e);
+        e.timer = 1.5;
+        G.emit({ pos: p3(x, z, 0.8), count: 26, colors: [D.ELEMENTS[element].color, 0xffffff], speed: 3, life: 0.6, size: 0.4 });
+        hooks.sfx('poof');
+        return;
+      }
+    }
+    function updateArenaDrakes(dt) {
+      if (!boss || !boss.alive || boss.state === 'intro') return;
+      L.drakeT -= dt;
+      if (L.drakeT > 0) return;
+      const alive = enemies.filter((e) => e.alive).length;
+      if (alive < DF.drakes) { spawnArenaDrake(); L.drakeT = alive + 1 < DF.drakes ? 3.5 : 9; } else L.drakeT = 1;
+    }
+
     // ---------- the dragon ----------
     const randomPoint = () => [F.x0 + 0.6 + Math.random() * (F.x1 - F.x0 - 1.2), F.z0 + 0.6 + Math.random() * (F.z1 - F.z0 - 1.2)];
     const clampX = (x) => Math.max(F.x0 + 0.5, Math.min(F.x1 - 0.5, x));
@@ -669,7 +715,14 @@
       L.boss = boss;
     }
     const later = (delay, fn) => boss.events.push({ at: L.time + delay, fn });
-    const spd = () => boss.speed * (boss.enraged ? 0.86 : 1);
+    const spd = () => boss.speed * (boss.enraged ? 0.86 : 1) * DF.pace;
+    // Wind-ups never drop below a human reaction: on any difficulty every mark can be left or rolled through.
+    const WARN_FLOOR = 0.5;
+    const W = (x) => Math.max(WARN_FLOOR, x * spd());
+    const BW = (x) => Math.max(WARN_FLOOR, x * DF.pace);
+    // Harder difficulties aim where the knight is heading.
+    const leadX = () => clampX(K.x + K.vx * 0.32 * DF.chaos);
+    const leadZ = () => clampZ(K.z + K.vz * 0.32 * DF.chaos);
     const ecolor = () => D.ELEMENTS[boss.element].color;
     const dmg = () => 2 + boss.bonus;
 
@@ -686,41 +739,44 @@
 
     const ATTACKS = {
       claw() {
-        const warn = 0.8 * spd();
+        const warn = W(0.8);
         hazard({ shapes: [fieldRect(boss.x - 2.5, F.z0, boss.x + 2.5, F.z0 + 2)], warn, dmg: dmg(), color: 0xffffff, sfx: 'bite' });
         later(warn - 0.2, () => G.tween(boss.model.anim, { thrust: 1, lower: 0.75, mouth: 1 }, 180, G.ease.out).then(() => G.tween(boss.model.anim, { thrust: 0, lower: 0, mouth: 0 }, 420)));
         return warn + 0.7;
       },
       bolts() {
         for (let v = 0; v < 2; v++) later(v * 1.1, () => {
-          const picks = [[K.x, K.z]];
-          while (picks.length < 8) picks.push(randomPoint());
-          picks.forEach(([x, z], i) => later(i * 0.09, () => hazard({ shapes: [circle(x, z, 0.75)], warn: 0.72 * spd(), dmg: dmg(), color: ecolor(), sfx: 'zap' })));
+          const picks = [[leadX(), leadZ()]];
+          while (picks.length < 8 + Math.round(4 * DF.chaos)) picks.push(randomPoint());
+          picks.forEach(([x, z], i) => later(i * 0.09, () => hazard({ shapes: [circle(x, z, 0.75)], warn: W(0.72), dmg: dmg(), color: ecolor(), sfx: 'zap' })));
         });
         return 3.0;
       },
       cross() {
         for (let v = 0; v < 2; v++) later(v * 1.25, () => {
-          hazard({ shapes: [rect(F.x0, K.z - 0.55, F.x1, K.z + 0.55), rect(K.x - 0.55, F.z0, K.x + 0.55, F.z1)], warn: 0.85 * spd(), dmg: dmg(), color: ecolor(), sfx: 'zap' });
+          const cx = leadX(), cz = leadZ();
+          hazard({ shapes: [rect(F.x0, cz - 0.55, F.x1, cz + 0.55), rect(cx - 0.55, F.z0, cx + 0.55, F.z1)], warn: W(0.85), dmg: dmg(), color: ecolor(), sfx: 'zap' });
         });
         return 3.0;
       },
       wave(startDelay, stagger, d) {
-        const gx = F.x0 + 0.5 + Math.random() * (F.x1 - F.x0 - 2.6);
+        const gx = F.x0 + 0.5 + Math.random() * (F.x1 - F.x0 - 2.6), ph = Math.random() * 6;
         for (let i = 0; i < 8; i++) later((startDelay || 0) + i * (stagger || 0.2), () => {
-          hazard({ shapes: band(i, [[gx, gx + 2]]), warn: 0.75 * spd(), dmg: d || dmg(), color: ecolor(), sfx: 'splash' });
+          // On harder difficulties the gap snakes from row to row.
+          const g = Math.max(F.x0 + 0.2, Math.min(F.x1 - 2.2, gx + Math.sin(i * 0.9 + ph) * 1.4 * DF.chaos));
+          hazard({ shapes: band(i, [[g, g + 2]]), warn: W(0.75), dmg: d || dmg(), color: ecolor(), sfx: 'splash' });
         });
         return 0.75 + 8 * (stagger || 0.2) + 0.5;
       },
       bubble() {
         for (let v = 0; v < 2; v++) later(v * 1.1, () => {
-          hazard({ shapes: [circle(K.x, K.z, 1.5)], warn: 0.85 * spd(), dmg: dmg(), color: ecolor(), sfx: 'splash' });
+          hazard({ shapes: [circle(leadX(), leadZ(), 1.5)], warn: W(0.85), dmg: dmg(), color: ecolor(), sfx: 'splash' });
         });
         return 2.9;
       },
       breath() {
         const cx = clampX(K.x);
-        const warn = 0.85 * spd();
+        const warn = W(0.85);
         hazard({ shapes: [rect(cx - 1.6, F.z0, cx - 0.5, F.z1), rect(cx + 0.5, F.z0, cx + 1.6, F.z1)], warn, dmg: dmg(), color: ecolor(), sfx: 'fire' });
         hazard({ shapes: [rect(cx - 0.5, F.z0, cx + 0.5, F.z1)], warn, dmg: dmg(), color: ecolor(), linger: 2.2, sfx: 'fire' });
         G.tween(boss.model.anim, { mouth: 1 }, warn * 1000).then(() => {
@@ -732,15 +788,15 @@
       },
       fireballs() {
         for (let i = 0; i < 5; i++) later(i * 0.28, () => {
-          const [x, z] = i === 4 ? [K.x, K.z] : randomPoint();
-          hazard({ shapes: [circle(x, z, 1.05)], warn: 0.85 * spd(), dmg: dmg(), color: ecolor(), linger: 1.2, sfx: 'fire' });
+          const [x, z] = i === 4 ? [leadX(), leadZ()] : randomPoint();
+          hazard({ shapes: [circle(x, z, 1.05)], warn: W(0.85), dmg: dmg(), color: ecolor(), linger: 1.2, sfx: 'fire' });
         });
         return 2.8;
       },
       rockfall() {
         const picks = [[clampX(K.x), clampZ(K.z)]];
         while (picks.length < 6) picks.push(randomPoint());
-        picks.forEach(([x, z], i) => later(i * 0.12, () => hazard({ shapes: [circle(x, z, 0.65)], warn: 0.85 * spd(), dmg: dmg(), color: ecolor(), rocks: true, sfx: 'rock' })));
+        picks.forEach(([x, z], i) => later(i * 0.12, () => hazard({ shapes: [circle(x, z, 0.65)], warn: W(0.85), dmg: dmg(), color: ecolor(), rocks: true, sfx: 'rock' })));
         return 2.2;
       },
       shockwave() {
@@ -749,7 +805,7 @@
           // A boulder shelters the strip just behind it.
           const z0 = F.z0 + i;
           const gaps = rocks.filter((r) => r.z > z0 - 1.4 && r.z < z0 + 0.9).map((r) => [r.x - 0.55, r.x + 0.55]);
-          hazard({ shapes: band(i, gaps), warn: 0.75 * spd(), dmg: dmg(), color: ecolor(), sfx: 'rock' });
+          hazard({ shapes: band(i, gaps), warn: W(0.75), dmg: dmg(), color: ecolor(), sfx: 'rock' });
         });
         return 3.2;
       },
@@ -759,7 +815,7 @@
           for (let x = F.x0 + parity; x < F.x1; x += 2) out.push(rect(x, F.z0, Math.min(F.x1, x + 1), F.z1));
           return out;
         };
-        [[0, 1.05, 0], [1.25, 0.85, 1], [2.3, 0.75, 0]].forEach(([when, warn, parity]) => later(when, () => hazard({ shapes: stripes(parity), warn, dmg: 3, color: ecolor(), sfx: 'thunder' })));
+        [[0, 1.05, 0], [1.25, 0.85, 1], [2.3, 0.75, 0]].forEach(([when, warn, parity]) => later(when, () => hazard({ shapes: stripes(parity), warn: BW(warn), dmg: 3, color: ecolor(), sfx: 'thunder' })));
         return 3.6;
       },
       tidal() {
@@ -774,8 +830,8 @@
           }
           return out;
         };
-        later(0, () => hazard({ shapes: grid(0), warn: 1.15, dmg: 3, color: ecolor(), linger: 0.9, sfx: 'fire' }));
-        later(1.7, () => hazard({ shapes: grid(1), warn: 0.95, dmg: 3, color: ecolor(), linger: 0.9, sfx: 'fire' }));
+        later(0, () => hazard({ shapes: grid(0), warn: BW(1.15), dmg: 3, color: ecolor(), linger: 0.9, sfx: 'fire' }));
+        later(1.7, () => hazard({ shapes: grid(1), warn: BW(0.95), dmg: 3, color: ecolor(), linger: 0.9, sfx: 'fire' }));
         return 4.0;
       },
       quake() {
@@ -785,8 +841,8 @@
           if (safe.every((s) => Math.hypot(s.x - x, s.z - z) > 2.2)) safe.push(circle(x, z, 0.85));
         }
         rocks.slice().forEach((r) => { if (safe.some((s) => inside(s, r.x, r.z))) breakRock(r); });
-        hazard({ shapes: safe, warn: 1.9, safe: true, dmg: 0, color: 0x3dff7a });
-        hazard({ shapes: [rect(F.x0, F.z0, F.x1, F.z1)], except: safe, warn: 1.9, dmg: 4, color: ecolor(), shatter: true, sfx: 'thunder', onFire: () => G.shake(0.8) });
+        hazard({ shapes: safe, warn: BW(1.9), safe: true, dmg: 0, color: 0x3dff7a });
+        hazard({ shapes: [rect(F.x0, F.z0, F.x1, F.z1)], except: safe, warn: BW(1.9), dmg: 4, color: ecolor(), shatter: true, sfx: 'thunder', onFire: () => G.shake(0.8) });
         return 3.0;
       },
       cataclysm() {
@@ -795,6 +851,9 @@
         return d + 1.0;
       },
     };
+
+    // The quick targeted strike each element adds to a combo.
+    const COMBO = { thunder: 'bolts', water: 'bubble', fire: 'fireballs', earth: 'rockfall' };
 
     function pickAttack() {
       const pool = boss.def.attacks;
@@ -808,8 +867,15 @@
       return id;
     }
 
-    function hurtBoss(amount, melee) {
+    function hurtBoss(amount, melee, mult) {
       if (!boss || boss.state === 'dead' || boss.state === 'intro') return;
+      if (mult === 0) {
+        hooks.sfx('plink');
+        G.floatText(boss.model.headPos().add(new V3((Math.random() - 0.5) * 1.5, 0.6, 0)), 'IMMUNE', 'dmg');
+        if (!L.toldResist) { L.toldResist = true; hooks.onBanner('Immune! Switch relic (tap the badge or Q).', false); }
+        return;
+      }
+      if (mult < 1 && !L.toldResist) { L.toldResist = true; hooks.onBanner('Resisted! Another relic, or none, hits harder.', false); }
       amount = Math.max(1, Math.round(amount));
       boss.hp = Math.max(0, boss.hp - amount);
       boss.model.flash();
@@ -840,6 +906,11 @@
     }
 
     function killBoss() {
+      enemies.forEach((e) => {
+        if (!e.alive) return;
+        e.alive = false; e.gone = true; e.circle.off = true; group.remove(e.model.group);
+        G.emit({ pos: p3(e.x, e.z, 0.5), count: 22, colors: [D.ELEMENTS[e.element].color, 0xffffff], speed: 3, life: 0.6, size: 0.4 });
+      });
       boss.state = 'dead';
       boss.alive = false;
       boss.events.length = 0;
@@ -869,10 +940,10 @@
       if (b.timer > 0) return;
       if (b.state === 'intro' || b.state === 'attack') {
         b.state = 'idle';
-        b.timer = 0.9 * spd();
+        b.timer = 0.9 * spd() * (1 - 0.45 * DF.chaos * Math.random());
         if (Math.random() < b.def.roams) b.x = 3 + rand(5);
       } else if (b.state === 'idle') {
-        if (b.done >= 3) {
+        if (b.done >= (b.bigAfter || 3)) {
           b.state = 'roar';
           b.timer = 1.2;
           hooks.onBanner(b.def.shifts ? 'CATACLYSM!' : b.def.bigName + '!', true);
@@ -883,7 +954,11 @@
         } else {
           b.state = 'attack';
           b.done += 1;
-          b.timer = ATTACKS[pickAttack()]();
+          const id = pickAttack();
+          b.timer = ATTACKS[id]();
+          // Harder difficulties sometimes layer a quick targeted strike on top.
+          const extra = COMBO[b.element];
+          if (id !== 'claw' && extra !== id && Math.random() < 0.4 * DF.chaos) later(0.5 + Math.random() * 0.7, () => { if (b.alive) ATTACKS[extra](); });
         }
       } else if (b.state === 'roar') {
         b.state = 'big';
@@ -893,6 +968,7 @@
         b.state = 'tired';
         b.timer = 3.6;
         b.done = 0;
+        b.bigAfter = 3 + (Math.random() < 0.3 * DF.chaos ? 1 : 0) - (Math.random() < 0.4 * DF.chaos ? 1 : 0);
         G.tween(b.model.anim, { lower: 1 }, 400);
         hooks.onBanner(b.def.name + ' is exhausted. Strike now!', false);
         for (let tries = 0; tries < 20; tries++) {
@@ -929,12 +1005,16 @@
       fog: isArena ? null : [sky[1], 26, 55],
       update(dt, t) {
         L.time += L.locked ? 0 : dt;
+        if (L.debug.tick) L.debug.tick(dt); // test bots (tools/bot.mjs) steer from here
         K.cdA -= dt; K.cdB -= dt; K.cdC -= dt; K.lock -= dt; K.invuln -= dt; K.blink -= dt;
         if (K.buffer) { K.buffer.t -= dt; if (K.buffer.t <= 0) K.buffer = null; }
+        const px = K.x, pz = K.z;
         if (!L.over) {
           moveKnight(dt);
           if (!L.locked) { runBuffer(); checkTouches(); }
         }
+        if (dt > 0) { K.vx += ((K.x - px) / dt - K.vx) * Math.min(1, dt * 8); K.vz += ((K.z - pz) / dt - K.vz) * Math.min(1, dt * 8); }
+        if (isArena && boss && boss.alive && !L.locked && boss.state !== 'intro') L.stats.t += dt;
         kModel.group.rotation.y = K.rot;
         kModel.group.position.set(K.x, isArena ? 0 : groundY(K.x, K.z), K.z);
         kModel.anim.walk += (K.speed - kModel.anim.walk) * Math.min(1, dt * 14);
@@ -950,7 +1030,7 @@
         world.update(dt, t);
         pickups.forEach((p) => { p.mesh.position.y = 0.6 + Math.sin(t * 4) * 0.08; p.mesh.rotation.y = t * 2.5; });
         Object.values(lairModels).forEach((lm) => lm.crystals.forEach((c, i) => { c.rotation.y = t * 1.5 + i; c.position.y += Math.sin(t * 2 + i) * 0.0015; }));
-        if (!L.locked) { updateShots(dt); updateEnemies(dt, t); }
+        if (!L.locked) { updateShots(dt); updateEnemies(dt, t); if (isArena) updateArenaDrakes(dt); }
         if (boss) updateBoss(dt, t);
         if (!L.locked || hazards.length) updateHazards(L.locked ? 0 : dt);
         ambience(dt);
@@ -984,7 +1064,7 @@
     };
     L.heal = function () { L.hp = P.hpMax; hooks.onHud(); };
     L.knightModel = kModel;
-    L.debug = { hazards, rocks, pickups, enemies, ATTACKS: isArena ? ATTACKS : null, world };
+    L.debug = { hazards, rocks, pickups, enemies, ATTACKS: isArena ? ATTACKS : null, world, kill: isArena ? killBoss : null, hits, bossDistance: isArena ? (x, z) => bossDistance(x, z) : null, tick: null };
     L.knightWorldPos = () => p3(K.x, K.z, 1.5);
     return L;
   }

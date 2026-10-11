@@ -12,10 +12,23 @@
   let arenaId = null;
 
   // ---------- saving ----------
-  function newPlayer(name) {
-    return { name, hpMax: 10, sword: 4, shot: 3, relics: [], active: null, slain: [], chests: [], xp: 0, level: 1, pos: null, seenAwaken: false, tips: {}, won: false };
+  function newPlayer(name, difficulty) {
+    return { name, difficulty: difficulty || 1, fightScores: {}, hpMax: 10, sword: 4, shot: 3, relics: [], active: null, slain: [], chests: [], xp: 0, level: 1, perks: {}, perkPending: 0, pos: null, seenAwaken: false, tips: {}, won: false };
+  }
+  // A Trial replays one slain dragon with a fixed knight (D.trialKit) so every score on a
+  // dragon's board is comparable. A trial knight is never saved.
+  function trialPlayer(id, difficulty, name) {
+    const k = D.trialKit(id);
+    const p = newPlayer(name, difficulty);
+    Object.assign(p, { hpMax: k.hpMax, sword: k.sword, shot: k.shot, level: k.level, relics: k.relics, perks: {}, perkPending: 0, trial: id });
+    p.slain = D.ELEMENT_ORDER.filter((e) => e !== id); // sets the dragon's tier, as late in the quest
+    const weak = D.weaknessOf(D.DRAGONS[id].element);
+    p.active = p.relics.includes(weak) ? weak : null;
+    p.tips.arena = true;
+    return p;
   }
   function save() {
+    if (P && P.trial) return;
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(P)); } catch (e) { /* storage unavailable: play on without saving */ }
   }
   function load() {
@@ -114,6 +127,52 @@
     });
   }
 
+  // Roguelite level-up: three upgrade cards; arrows/stick + A, or a tap, keeps one.
+  function pickPerk(title, options) {
+    return new Promise((resolve) => {
+      const box = $('perks');
+      box.innerHTML = `<div class="ptitle">${title}</div><div class="pcards"></div>`;
+      const cards = box.querySelector('.pcards');
+      const pick = (i) => { Sfx.play('select'); box.classList.remove('on'); dlg = null; resolve(i); };
+      options.forEach((p, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'pcard';
+        const have = Perks.stacks(P, p.id);
+        b.innerHTML = `<span class="picon">${p.icon}</span><span class="pname">${p.name}</span><span class="pdesc">${p.per}</span><span class="prank">${have ? `Rank ${have + 1} of ${p.max}` : p.max > 1 ? `New · up to ${p.max}` : 'New'}</span>`;
+        b.addEventListener('click', (e) => { e.stopPropagation(); pick(i); });
+        cards.appendChild(b);
+      });
+      dlg = { typing: false, choices: true, sel: 0 };
+      dlg.pick = () => pick(dlg.sel);
+      dlg.move = (step) => {
+        dlg.sel = (dlg.sel + step + options.length) % options.length;
+        [...cards.children].forEach((b, i) => b.classList.toggle('sel', i === dlg.sel));
+      };
+      box.classList.add('on');
+      dlg.move(0);
+    });
+  }
+
+  // Offers one upgrade per level gained; picks still owed (cutscene, fight end) wait in P.perkPending.
+  function offerPerks() {
+    if (!P || !P.perkPending || busy || !level || level.over) return;
+    scripted(async () => {
+      while (P.perkPending > 0) {
+        const options = Perks.roll(P);
+        if (!options.length) { P.perkPending = 0; break; }
+        const i = await pickPerk(`Level ${P.level}! Choose an upgrade`, options);
+        const def = Perks.take(P, options[i].id);
+        P.perkPending -= 1;
+        if (def && def.id === 'vigor') { P.hpMax += 2; level.heal(); }
+        G.emit({ pos: level.knightWorldPos(), count: 26, colors: [0xffe680, 0xffffff], speed: 2.4, life: 0.8, size: 0.32 });
+        banner(`${def ? def.name : 'Upgrade'}!`);
+        renderHud();
+        save();
+      }
+    });
+  }
+
   function advance() {
     if (!dlg) return false;
     if (dlg.typing) dlg.finish();
@@ -133,6 +192,7 @@
       busy = false;
       if (mine && mine === level) mine.locked = false;
     }
+    if (P && P.perkPending && level && !level.over) setTimeout(offerPerks, 0);
   }
 
   // ---------- HUD ----------
@@ -145,7 +205,8 @@
       html += `<span class="heart ${v >= 2 ? '' : v === 1 ? 'half' : 'empty'}">♥</span>`;
     }
     hearts.innerHTML = html;
-    $('lvl').textContent = `${P.name}  ·  Lv ${P.level}`;
+    const dn = D.difficulty(P.difficulty).name;
+    $('lvl').textContent = P.trial ? `${P.name}  ·  Trial  ·  ${dn}` : `${P.name}  ·  Lv ${P.level}  ·  ${dn}`;
     const r = $('relic');
     r.style.display = P.relics.length ? 'block' : 'none';
     r.textContent = P.active ? `${D.ELEMENTS[P.active].icon} ${D.ELEMENTS[P.active].name}` : '⚔️ Plain';
@@ -261,7 +322,7 @@
   stickEl.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     Sfx.unlock();
-    if (dlg) { advance(); return; }
+    if (dlg) { if (!dlg.sheet) advance(); return; }
     if (stickPointer != null) return;
     stickPointer = e.pointerId;
     stickEl.setPointerCapture(e.pointerId);
@@ -402,18 +463,23 @@
       await say(def.text);
     }),
     onXp(n, pos) {
-      if (P.level >= 6) return;
+      if (P.trial) return;
+      if (P.level >= Perks.MAX_LEVEL) return;
       P.xp += n;
       G.floatText(pos, '+' + n + ' XP', 'xp');
-      const need = 2 + P.level * 2;
+      const need = Perks.xpNeeded(P.level);
       if (P.xp >= need) {
         P.xp -= need;
         P.level += 1;
-        P.sword += 0.5;
-        if (P.level % 2 === 1) { P.hpMax += 2; level.hp += 2; }
+        // The old fixed growth stays for the first levels; every level also brings an upgrade pick.
+        if (P.level <= 6) {
+          P.sword += 0.5;
+          if (P.level % 2 === 1) { P.hpMax += 2; level.hp += 2; }
+        }
+        P.perkPending = (P.perkPending || 0) + 1;
         Sfx.play('levelup');
-        banner(`Level ${P.level}! Your sword arm grows stronger.`);
         renderHud();
+        setTimeout(offerPerks, 350);
       }
       save();
     },
@@ -434,8 +500,10 @@
         Sfx.music(null);
         Sfx.play('defeat');
         scripted(async () => {
-          const again = await ask('You have fallen...  but a knight of Valemoor does not stay down.', ['Try again', 'Retreat']);
-          if (again === 0) await startArena(arenaId, true); else await startWorld();
+          const again = await ask('You have fallen...  but a knight of Valemoor does not stay down.', ['Try again', P.trial ? 'Back to Trials' : 'Retreat']);
+          if (again === 0) await startArena(arenaId, true);
+          else if (P.trial) await openTrials(true);
+          else await startWorld();
         });
       } else {
         Sfx.play('defeat');
@@ -466,6 +534,7 @@
     renderBoss();
     await fade(false);
     busy = false;
+    offerPerks();
   }
 
   async function startArena(id, retry) {
@@ -504,13 +573,22 @@
     busy = true;
     const id = arenaId;
     const def = D.DRAGONS[id];
+    const f = fightRecord(id);
+    const s = D.fightScore(Object.assign({ diff: P.difficulty }, f));
     Sfx.music(null);
     Sfx.play('fanfare');
     await wait(900);
+    if (P.trial) return trialWon(id, f, s);
+    P.fightScores = P.fightScores || {};
+    P.fightScores[id] = Object.assign({ total: s.total }, f);
+    unlockTrial(id);
+    save();
+    await sheet(scoreHtml(`${icon(id)} ${def.name} slain!`, f, s, P.difficulty), ['Continue']);
     if (id === 'demon') {
       P.won = true;
       P.pos = null;
       save();
+      await questResults();
       await playStory('ending');
       busy = false;
       return showTitle();
@@ -545,6 +623,192 @@
     }
   }
 
+  // ---------- panels: difficulty, results, Trials, high scores ----------
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const clock = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const store = {
+    get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* no storage */ } },
+  };
+  const BEST_KEY = 'rotdd.best.v1', TRIALS_KEY = 'rotdd.trials.v1', NAME_KEY = 'rotdd.name';
+  const TRIAL_IDS = D.ELEMENT_ORDER.concat('demon');
+  const icon = (id) => (id === 'demon' ? '🐲' : D.ELEMENTS[D.DRAGONS[id].element].icon);
+
+  // Shows a panel with a set of buttons and resolves with the index picked. Arrows, the
+  // stick and (A) work as in a dialogue choice. Buttons are labels or { html, disabled }.
+  function sheet(html, buttons, opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+      const box = $('sheet');
+      box.innerHTML = `<div class="panel${opts.wide ? ' wide' : ''}">${html}<div class="sbtns ${opts.layout || ''}"></div></div>`;
+      const row = box.querySelector('.sbtns');
+      const live = [];
+      const pick = (i) => { Sfx.play('select'); box.classList.remove('on'); dlg = null; resolve(i); };
+      buttons.forEach((b, i) => {
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'menu-btn';
+        el.innerHTML = typeof b === 'string' ? esc(b) : b.html;
+        if (b.disabled) el.disabled = true; else live.push(i);
+        el.addEventListener('click', (e) => { e.stopPropagation(); if (!el.disabled) pick(i); });
+        row.appendChild(el);
+      });
+      let at = Math.max(0, live.indexOf(opts.sel == null ? live[0] : opts.sel));
+      dlg = { typing: false, choices: true, sheet: true };
+      dlg.pick = () => pick(live[at]);
+      dlg.move = (step) => {
+        at = (at + step + live.length) % live.length;
+        [...row.children].forEach((el, i) => el.classList.toggle('sel', i === live[at]));
+      };
+      box.classList.add('on');
+      dlg.move(0);
+    });
+  }
+
+  const DIFF_NOTES = {
+    1: 'Any element does full damage. One drakeling.',
+    2: 'Quicker dragons. Wrong elements do ¾ damage.',
+    3: 'Wrong elements do half. Hits hurt 1.5×. Two drakelings.',
+    4: 'Combos and feints. Wrong elements do ¼. Three drakelings.',
+    5: 'Wrong elements do nothing. Hits hurt 2×. Four drakelings.',
+  };
+  async function pickDifficulty(sel, back) {
+    const opts = [1, 2, 3, 4, 5].map((n) => ({ html: `<b>${n} · ${D.difficulty(n).name}</b><small>${DIFF_NOTES[n]}</small>` }));
+    if (back) opts.push('Back');
+    const i = await sheet('<div class="stitle">Choose your difficulty</div><div class="snote">Your score is multiplied by the level. Dragons never gain health: they strike faster and less predictably, hit harder, resist the wrong element and bring drakelings.</div>',
+      opts, { sel: (sel || 1) - 1, layout: 'list' });
+    return i < 5 ? i + 1 : null;
+  }
+
+  // World scores (the tenggames-scores worker). ?scores=http://localhost:PORT points a
+  // local test at a local worker.
+  const SCORES_URL = (() => {
+    const o = new URLSearchParams(location.search).get('scores');
+    return o && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o) ? o : 'https://tenggames-scores.justintengyz.workers.dev';
+  })();
+  async function scoresApi(path, body) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 6000);
+    try {
+      const r = await fetch(SCORES_URL + path, body
+        ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: ctl.signal }
+        : { signal: ctl.signal });
+      const j = await r.json();
+      return r.ok ? j : { error: j.error || 'error' };
+    } catch (e) { return { error: 'offline' }; } finally { clearTimeout(timer); }
+  }
+  // Posts a result, keeps the local best, and writes the outcome into the open panel.
+  async function postScore(board, fights, total, diff, name) {
+    const bests = store.get(BEST_KEY, {});
+    const old = bests[board];
+    if (!old || total > old.total) { bests[board] = { total, diff }; store.set(BEST_KEY, bests); }
+    const mine = !old ? '' : total > old.total ? `New personal best! (was ${old.total.toLocaleString()})` : `Your best: ${old.total.toLocaleString()}`;
+    const r = await scoresApi('/scores', { game: 'demon-dragon', board, name, diff, fights });
+    const world = r.error === 'offline' ? 'Could not reach the world board. Your best is kept on this device.'
+      : r.error ? `The world board did not take this score (${r.error}).`
+      : `World rank #${r.rank} of ${r.count}`;
+    const el = $('srank');
+    if (el) el.innerHTML = `<b>${esc(world)}</b>${mine ? `<br>${esc(mine)}` : ''}`;
+  }
+
+  function fightRecord(id) {
+    return { id, tier: id === 'demon' ? 0 : Math.min(3, P.slain.length), t: Math.max(5, Math.round(level.stats.t * 10) / 10), taken: level.stats.taken, hpMax: P.hpMax };
+  }
+  function scoreHtml(title, f, s, diff) {
+    const df = D.difficulty(diff);
+    const row = (a, b, cls) => `<div class="srow ${cls || ''}"><span>${a}</span><b>${b}</b></div>`;
+    return `<div class="stitle">${title}</div>`
+      + row('Victory', '+1000')
+      + row(`Time ${clock(f.t)} <small>par ${clock(s.par)}</small>`, `+${s.time}`)
+      + row(`Health <small>${f.taken / 2} of ${f.hpMax / 2} hearts lost</small>`, `+${s.kept}`)
+      + (s.flawless ? row('Flawless!', `+${s.flawless}`, 'gold') : '')
+      + row(`${df.name} difficulty`, `×${df.level}`)
+      + `<div class="stotal">${s.total.toLocaleString()}</div>`;
+  }
+  function unlockTrial(id) {
+    const open = store.get(TRIALS_KEY, []);
+    if (!open.includes(id)) { open.push(id); store.set(TRIALS_KEY, open); }
+  }
+
+  async function trialWon(id, f, s) {
+    const name = P.name, diff = P.difficulty;
+    const shown = sheet(scoreHtml(`${icon(id)} Trial: ${D.DRAGONS[id].name}`, f, s, diff) + '<div id="srank" class="snote">Sending to the world board…</div>',
+      ['Fight again', 'Trials', 'Title'], { layout: 'row' });
+    postScore(id, [f], s.total, diff, name);
+    const c = await shown;
+    busy = false;
+    if (c === 0) { P = trialPlayer(id, diff, name); return startArena(id, true); }
+    if (c === 1) return openTrials(true);
+    await fade(true);
+    return showTitle();
+  }
+
+  // The quest board takes a whole story run: all five fights at one difficulty.
+  async function questResults() {
+    const fights = TRIAL_IDS.map((id) => P.fightScores[id]).filter(Boolean);
+    const df = D.difficulty(P.difficulty);
+    const rows = fights.map((f) => `<div class="srow"><span>${icon(f.id)} ${D.DRAGONS[f.id].name} <small>${clock(f.t)}, ${f.taken / 2} hearts lost</small></span><b>${f.total.toLocaleString()}</b></div>`).join('');
+    const total = fights.reduce((n, f) => n + f.total, 0);
+    const whole = fights.length === 5;
+    const shown = sheet(`<div class="stitle">Quest complete</div><div class="snote">${esc(P.name)} · ${df.name} difficulty</div>${rows}<div class="stotal">${total.toLocaleString()}</div>`
+      + `<div id="srank" class="snote">${whole ? 'Sending to the world board…' : 'This journey began before scores were kept, so it cannot go on the world board. Start a new quest to post one.'}</div>`, ['Continue']);
+    if (whole) postScore('quest', fights.map(({ id, tier, t, taken, hpMax }) => ({ id, tier, t, taken, hpMax })), total, P.difficulty, P.name);
+    await shown;
+  }
+
+  async function openTrials(fromGame) {
+    busy = true;
+    if (fromGame) { await fade(true); await showTitle(); }
+    const open = store.get(TRIALS_KEY, []);
+    const bests = store.get(BEST_KEY, {});
+    const pick = await sheet('<div class="stitle">Trials</div><div class="snote">Fight a dragon you have slain again, with a set knight: 8 hearts and the three other relics (10 hearts and all four for the Demon Dragon). Each dragon keeps its own world board.</div>',
+      TRIAL_IDS.map((id) => (open.includes(id)
+        ? { html: `${icon(id)} ${D.DRAGONS[id].name}<small>${bests[id] ? 'Best ' + bests[id].total.toLocaleString() : 'No score yet'}</small>` }
+        : { html: `🔒 ${D.DRAGONS[id].name}<small>Slay it in the quest</small>`, disabled: true })).concat(['Back']),
+      { layout: 'grid' });
+    if (pick === TRIAL_IDS.length) { busy = false; return; }
+    const id = TRIAL_IDS[pick];
+    const diff = await pickDifficulty(store.get('rotdd.diff', 1), true);
+    if (!diff) return openTrials(false);
+    store.set('rotdd.diff', diff);
+    let name = store.get(NAME_KEY, null) || (load() || {}).name;
+    if (!name) { name = await askName(); store.set(NAME_KEY, name); }
+    P = trialPlayer(id, diff, name);
+    busy = false;
+    await startArena(id);
+  }
+
+  const BOARDS = ['quest'].concat(TRIAL_IDS);
+  function boardRows(r) {
+    if (r.error) return '<div class="snote">Could not reach the world board.</div>';
+    if (!r.entries.length) return '<div class="snote">No scores yet. Be the first!</div>';
+    return '<table class="board">' + r.entries.map((e, i) => `<tr><td>${i + 1}</td><td>${esc(e.name)}</td><td>${e.total.toLocaleString()}</td><td>${esc(D.difficulty(e.diff).name)}</td><td>${clock(e.t)}</td></tr>`).join('') + '</table>';
+  }
+  async function openBoards() {
+    busy = true;
+    let at = 0;
+    for (;;) {
+      const b = BOARDS[at];
+      const head = b === 'quest' ? 'Whole quest: all five dragons in one run' : `Trial: ${D.DRAGONS[b].name}, ${D.DRAGONS[b].title}`;
+      const best = store.get(BEST_KEY, {})[b];
+      const shown = sheet(`<div class="stitle">World high scores</div><div class="snote">${esc(head)}${best ? ` · your best ${best.total.toLocaleString()}` : ''}</div><div id="sboard" data-board="${b}"><div class="snote">Loading…</div></div>`,
+        BOARDS.map((id) => (id === 'quest' ? '🏆 Quest' : { html: `${icon(id)} ${esc(D.DRAGONS[id].name)}` })).concat(['Back']),
+        { sel: at, layout: 'tabs', wide: true });
+      scoresApi(`/scores?board=${b}&limit=10`).then((r) => { const el = $('sboard'); if (el && el.dataset.board === b) el.innerHTML = boardRows(r); });
+      const i = await shown;
+      if (i === BOARDS.length) break;
+      at = i;
+    }
+    busy = false;
+  }
+
+  // Fight clock in arenas.
+  setInterval(() => {
+    const on = !!(level && arenaId && level.stats);
+    $('timer').style.display = on ? 'block' : 'none';
+    if (on) $('timer').textContent = '⏱ ' + clock(level.stats.t);
+  }, 250);
+
   // ---------- title and new game ----------
   async function showTitle() {
     level = null;
@@ -558,7 +822,11 @@
     cam.pos.set(-18, 4, 24); cam.target.set(0, 5.5, 0);
     G.tween(cam.pos, { x: 18, y: 8 }, 90000, G.ease.linear);
     Sfx.music('title');
-    $('btn-continue').style.display = load() ? 'block' : 'none';
+    const saved = load();
+    $('btn-continue').style.display = saved ? 'block' : 'none';
+    // Dragons slain in a quest from before Trials existed count too.
+    if (saved) { saved.slain.forEach(unlockTrial); if (saved.won) unlockTrial('demon'); }
+    $('btn-trials').style.display = store.get(TRIALS_KEY, []).length ? 'block' : 'none';
     await fade(false);
   }
 
@@ -586,7 +854,10 @@
     await playStory('intro');
     await fade(false);
     const name = await askName();
-    P = newPlayer(name);
+    store.set(NAME_KEY, name);
+    const diff = await pickDifficulty(store.get('rotdd.diff', 1));
+    store.set('rotdd.diff', diff);
+    P = newPlayer(name, diff);
     await playStory('rise');
     save();
     await startWorld(true);
@@ -596,6 +867,9 @@
     });
   });
 
+  $('btn-trials').addEventListener('click', () => { if (busy) return; Sfx.unlock(); Sfx.play('select'); openTrials(false); });
+  $('btn-scores').addEventListener('click', () => { if (busy) return; Sfx.unlock(); Sfx.play('select'); openBoards(); });
+
   $('btn-continue').addEventListener('click', async () => {
     if (busy) return;
     Sfx.unlock();
@@ -603,6 +877,8 @@
     P = load();
     if (!P) return;
     P.tips = P.tips || {};
+    P.difficulty = P.difficulty || 1;
+    P.fightScores = P.fightScores || {};
     await startWorld();
   });
 
@@ -614,7 +890,9 @@
   // Developer shortcuts, e.g. index.html?debug then DBG.boss('fire') in the console.
   if (/[?&]debug/.test(location.search)) {
     window.DBG = {
-      boss(id) { P = P || newPlayer('Tester'); startArena(id); },
+      boss(id, diff) { P = P || newPlayer('Tester', diff); startArena(id); },
+      trial(id, diff) { P = trialPlayer(id, diff || 5, 'Tester'); startArena(id); },
+      diff(n) { P.difficulty = n; },
       world() { P = P || newPlayer('Tester'); startWorld(); },
       story(id) { P = P || newPlayer('Tester'); playStory(id).then(showTitle); },
       relics() { P.relics = D.ELEMENT_ORDER.slice(); P.slain = D.ELEMENT_ORDER.slice(); P.hpMax = 18; P.sword = 8; P.shot = 4; renderHud(); },

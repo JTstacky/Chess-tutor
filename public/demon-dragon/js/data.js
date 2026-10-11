@@ -16,12 +16,51 @@
     return ELEMENT_ORDER.find((e) => ELEMENTS[e].beats === element);
   }
 
-  // Damage multiplier for an attack of `attackEl` (may be null) against `targetEl`.
-  function effectiveness(attackEl, targetEl) {
+  // Difficulty 1-5. pace scales attack wind-ups and pauses (with a reaction floor, see level.js),
+  // chaos makes patterns less predictable, harm scales damage taken, resist is what an "off"
+  // element still deals (1 = no reduction, 0 = immune), drakes join each boss fight.
+  // Boss health never changes with difficulty.
+  const DIFFICULTY = {
+    1: { level: 1, name: 'Squire', pace: 1.0, chaos: 0, harm: 1.0, resist: 1.0, drakes: 1 },
+    2: { level: 2, name: 'Knight', pace: 0.93, chaos: 0.25, harm: 1.25, resist: 0.75, drakes: 1 },
+    3: { level: 3, name: 'Champion', pace: 0.86, chaos: 0.5, harm: 1.5, resist: 0.5, drakes: 2 },
+    4: { level: 4, name: 'Hero', pace: 0.8, chaos: 0.75, harm: 1.75, resist: 0.25, drakes: 3 },
+    5: { level: 5, name: 'Legend', pace: 0.74, chaos: 1, harm: 2.0, resist: 0, drakes: 4 },
+  };
+  const difficulty = (n) => DIFFICULTY[n] || DIFFICULTY[1];
+
+  // Damage multiplier for an attack of `attackEl` (null = plain) against `targetEl`.
+  // Strong: the attack's element beats the target's. Off: the same element, or the one that
+  // beats it (Fire on Water). Off hits are cut by difficulty, down to nothing on Legend.
+  // Plain and unrelated elements always deal base damage.
+  function effectiveness(attackEl, targetEl, level) {
     if (!attackEl) return 1;
     if (ELEMENTS[attackEl].beats === targetEl) return 1.5;
-    if (attackEl === targetEl) return 0.5;
+    if (attackEl === targetEl || ELEMENTS[targetEl].beats === attackEl) return difficulty(level).resist;
     return 1;
+  }
+
+  // ---------- scoring ----------
+  // A fight scores a kill bonus, a time bonus against par and a bonus for health kept, all
+  // multiplied by the difficulty level. The scores worker runs the same formula, so keep
+  // scores/src/index.js (site repo) in step with any change here.
+  const PAR_PER_HP = 0.2; // seconds of par per point of boss health (tools/bot.mjs clears Trials in 15-25 s)
+  function bossMaxHp(id, tier) { return Math.round(DRAGONS[id].hp * (1 + 0.3 * (id === 'demon' ? 0 : tier))); }
+  function fightScore(f) {
+    // f: { id, tier, diff, t (seconds), taken (half hearts), hpMax (half hearts) }
+    const par = bossMaxHp(f.id, f.tier) * PAR_PER_HP;
+    const time = Math.round(2000 * Math.min(2, par / Math.max(1, f.t)));
+    const kept = Math.round(2500 * Math.max(0, 1 - f.taken / Math.max(1, f.hpMax)));
+    const flawless = f.taken <= 0 ? 1000 : 0;
+    const total = (1000 + time + kept + flawless) * difficulty(f.diff).level;
+    return { par: Math.round(par), time, kept, flawless, total };
+  }
+
+  // Trials: replay a slain dragon with a standard knight, so scores compare fairly. An elemental
+  // dragon is met as the fourth (the other three relics, three kills' growth); Malgrath with all four.
+  function trialKit(id) {
+    if (id === 'demon') return { hpMax: 20, sword: 9.5, shot: 5, level: 4, relics: ELEMENT_ORDER.slice(), tier: 0 };
+    return { hpMax: 16, sword: 8, shot: 4.5, level: 4, relics: ELEMENT_ORDER.filter((e) => e !== id), tier: 3 };
   }
 
   const DRAGONS = {
@@ -194,7 +233,7 @@
     ],
   };
 
-  const api = { ELEMENTS, ELEMENT_ORDER, weaknessOf, effectiveness, DRAGONS, ELEMENT_ATTACKS, ELEMENT_BIG, WORLD, LAIR_CHARS, WALKABLE, START, CHESTS, SIGNS, NPCS, KING_LINES, STORY };
+  const api = { ELEMENTS, ELEMENT_ORDER, weaknessOf, effectiveness, DIFFICULTY, difficulty, fightScore, bossMaxHp, trialKit, PAR_PER_HP, DRAGONS, ELEMENT_ATTACKS, ELEMENT_BIG, WORLD, LAIR_CHARS, WALKABLE, START, CHESTS, SIGNS, NPCS, KING_LINES, STORY };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Data = api;
 })(typeof window !== 'undefined' ? window : globalThis);
