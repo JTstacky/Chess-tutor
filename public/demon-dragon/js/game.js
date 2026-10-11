@@ -381,7 +381,11 @@
   });
   $('dialog').addEventListener('click', () => { Sfx.unlock(); advance(); });
   $('c').addEventListener('click', () => { Sfx.unlock(); if (dlg && !dlg.choices) advance(); });
-  $('relic').addEventListener('click', cycleRelic);
+  // The relic badge switches on pointerdown, like A/B/C, so a second finger can tap it while the
+  // first holds the joystick (phones send no click for a second touch). click stays for the
+  // keyboard (detail 0) only, so a mouse or single tap doesn't switch twice.
+  $('relic').addEventListener('pointerdown', (e) => { e.preventDefault(); Sfx.unlock(); cycleRelic(); });
+  $('relic').addEventListener('click', (e) => { if (e.detail === 0) cycleRelic(); });
   $('mute').addEventListener('click', () => { Sfx.unlock(); $('mute').textContent = Sfx.toggleMute() ? '🔇' : '🔊'; });
   $('mute').textContent = Sfx.muted ? '🔇' : '🔊';
   document.addEventListener('contextmenu', (e) => e.preventDefault());
