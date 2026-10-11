@@ -131,10 +131,14 @@
       { name: 'Greatsword', scale: [1.15, 1.4, 1.15] },
       { name: 'Battle Axe', from: ['barbarian', '1H_Axe'], scale: [0.8, 0.8, 0.8] },
     ],
+    // Every head but the helm replaces the knight's whole head: a KayKit head (and its hat)
+    // from the townsfolk, skinned to the knight's own bones.
     heads: [
-      { name: 'Plumed Helm' },
-      { name: 'Bear Hood', from: ['barbarian', 'Barbarian_Hat'], fit: [1.0, -0.2], cut: 0.5 },
-      { name: 'Wizard Hat', from: ['mage', 'Mage_Hat'], fit: [1.0, -0.3], cut: 0.5 },
+      { name: 'Knight Helm' },
+      { name: 'Bear Head', head: ['barbarian', 'Barbarian_Head'], hat: ['barbarian', 'Barbarian_Hat'], hatIsHead: true, crownY: 1.16 },
+      { name: 'Wizard', head: ['mage', 'Mage_Head'], hat: ['mage', 'Mage_Hat'] },
+      { name: 'Rogue', head: ['rogue', 'Rogue_Head'] },
+      { name: 'Hooded Rogue', head: ['rogue_hooded', 'Rogue_Head_Hooded'] },
     ],
   };
   const lookParts = (code) => {
@@ -149,23 +153,23 @@
   // Recolours the red cloth, grey steel and gold trim of the knight's texture; skin and
   // leather are left alone. One shader program serves every palette (uniforms differ).
   const srgb = (hex) => new THREE.Color().setHex(hex, THREE.LinearSRGBColorSpace);
-  // cut: with a hat on, the helmet's top (and plume) above this height in the head bone's
-  // space is not drawn, so the hat replaces it instead of sitting on it.
+  // cut: [height, radius] in the head bone's space. Inside that column and above that height
+  // the knight's own mesh is not drawn, so a new head (or the crown) replaces it.
   function paletteMaterial(base, pal, cut) {
     const m = base.clone();
     const u = {
       uCloth: { value: srgb(pal.cloth || 0xc8202a) }, uSteel: { value: srgb(pal.steel || 0xffffff) },
       uTrim: { value: srgb(pal.trim || 0xe6b94a) },
       uUse: { value: new THREE.Vector3(pal.cloth ? 1 : 0, pal.steel ? 1 : 0, pal.trim ? 1 : 0) },
-      uCut: { value: cut == null ? 1e6 : cut }, uToHead: { value: new THREE.Matrix4() },
+      uCut: { value: cut ? cut[0] : 1e6 }, uCutR: { value: cut ? cut[1] : 1e6 }, uToHead: { value: new THREE.Matrix4() },
     };
     m.userData.toHead = u.uToHead.value;
     m.onBeforeCompile = (sh) => {
       Object.assign(sh.uniforms, u);
-      sh.vertexShader = 'uniform mat4 uToHead;\nvarying float vHeadY;\n' + sh.vertexShader.replace('#include <skinning_vertex>',
-        '#include <skinning_vertex>\n  vHeadY = (uToHead * vec4(transformed, 1.0)).y;');
-      sh.fragmentShader = 'uniform vec3 uCloth, uSteel, uTrim, uUse;\nuniform float uCut;\nvarying float vHeadY;\n' + sh.fragmentShader
-        .replace('void main() {', 'void main() {\n  if (vHeadY > uCut) discard;')
+      sh.vertexShader = 'uniform mat4 uToHead;\nvarying vec3 vHead;\n' + sh.vertexShader.replace('#include <skinning_vertex>',
+        '#include <skinning_vertex>\n  vHead = (uToHead * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = 'uniform vec3 uCloth, uSteel, uTrim, uUse;\nuniform float uCut, uCutR;\nvarying vec3 vHead;\n' + sh.fragmentShader
+        .replace('void main() {', 'void main() {\n  bool inHead = length(vHead.xz) < uCutR;\n  if (inHead && vHead.y > uCut) discard;')
         .replace('#include <map_fragment>', `#include <map_fragment>
       {
         vec3 s = pow(clamp(diffuseColor.rgb, 0.0, 1.0), vec3(1.0 / 2.2));
@@ -175,7 +179,7 @@
         float gold = smoothstep(0.5, 0.6, s.r) * smoothstep(0.66, 0.74, s.g / max(s.r, 0.001)) * (1.0 - smoothstep(0.45, 0.55, s.b / max(s.r, 0.001)));
         float grey = (1.0 - smoothstep(0.1, 0.2, sat)) * smoothstep(0.2, 0.35, mx);
         // The plume hangs down the back of the helmet: under a hat, red goes a little lower.
-        if (red > 0.5 && vHeadY > uCut - 0.3) discard;
+        if (inHead && red > 0.5 && vHead.y > uCut - 0.3) discard;
         vec3 o = s;
         o = mix(o, uCloth * (mx / 0.8), red * uUse.x);
         o = mix(o, s * uSteel * 1.05, grey * uUse.y);
@@ -196,9 +200,26 @@
     return o;
   }
   // The best score's crown is headwear too: it replaces the helmet top like a hat does.
-  const CROWNED = { name: 'Crown', cut: 0.5, crownY: 1.0 };
+  const CROWNED = { name: 'Crown', cut: [0.5, 1e6], crownY: 1.0 };
+  function borrowHead([asset, name], body, model) {
+    const src = A[asset] && A[asset].scene.getObjectByName(name);
+    if (!src || !src.isSkinnedMesh || !body) return null;
+    const bones = src.skeleton.bones.map((b) => model.getObjectByName(b.name));
+    if (bones.some((b) => !b)) return null;
+    const m = prepare(src.clone());
+    m.material = m.material.clone();
+    m.frustumCulled = false;
+    m.bind(new THREE.Skeleton(bones, src.skeleton.boneInverses), src.bindMatrix);
+    body.parent.add(m);
+    return m;
+  }
+  const HEAD_CUT = [-0.05, 1.25]; // the knight's whole head, down to the collar
+  const HEAD_SCALE = 1.0;         // KayKit heads against the knight's larger generated one
   function dressKnight(model, code, crowned) {
-    const L = lookParts(code), pal = KNIGHT_LOOKS.colors[L.c], wpn = KNIGHT_LOOKS.weapons[L.w], head = crowned ? CROWNED : KNIGHT_LOOKS.heads[L.h];
+    const L = lookParts(code), pal = KNIGHT_LOOKS.colors[L.c], wpn = KNIGHT_LOOKS.weapons[L.w];
+    const pick = KNIGHT_LOOKS.heads[L.h];
+    // Crowned: the helm loses its top to the crown, a hat makes way for it; the bear is the head.
+    const head = pick.head ? Object.assign({ cut: HEAD_CUT }, pick, crowned && !pick.hatIsHead ? { hat: null } : {}) : crowned ? CROWNED : pick;
     let sword = null, shield = null, body = null, headBone = null;
     model.traverse((x) => {
       if (x.name === '1H_Sword') sword = x;
@@ -222,10 +243,10 @@
       if (wpn.tint) sword.traverse((x) => { if (x.isMesh) x.material.color.setHex(wpn.tint); });
       if (wpn.scale) sword.scale.multiply(new V3(...wpn.scale));
     }
-    if (head.from) {
-      const hat = borrow(head.from, headBone);
-      // fit: [scale, lift] seats the hat where the cut-away helmet top was (see cut above).
-      if (hat) { hat.scale.multiplyScalar(head.fit[0]); hat.position.y += head.fit[1]; }
+    if (head.head) {
+      if (headBone) headBone.scale.setScalar(HEAD_SCALE);
+      borrowHead(head.head, body, model);
+      if (head.hat) borrow(head.hat, headBone);
     }
     return sword;
   }
@@ -250,7 +271,7 @@
         const cr = landmark('crown', 0.3);
         if (!cr) return null;
         // Placed in the current pose, then carried by the head bone so it tilts with the head.
-        cr.position.y = CROWNED.crownY;
+        cr.position.y = KNIGHT_LOOKS.heads[lookParts(look).h].crownY || CROWNED.crownY;
         c.group.add(cr);
         const head = c.model.getObjectByName('head');
         if (head) { c.group.updateMatrixWorld(true); head.attach(cr); }
