@@ -125,6 +125,15 @@
     const lairModels = {};
     if (!isArena) {
       const seenHouse = new Set();
+      // Village dressing: x, z, height, facing, collision radius.
+      [['well', 17, 19.6, 1.7, 0.6, 0.6], ['market_stall', 16.3, 13.7, 1.6, 0.15, 0.75], ['windmill', 4.2, 14, 4.6, -1.07, 1.0]].forEach(([name, x, z, h, ry, r]) => {
+        const p = M.prop(name, h);
+        if (!p) return;
+        p.position.set(x, world.groundY(x, z), z);
+        p.rotation.y = ry;
+        group.add(p);
+        phys.add({ x, z, r });
+      });
       for (let y = 0; y < world.H; y++) for (let x = 0; x < world.W; x++) {
         const c = at(x, y);
         if (c === 'H' && !seenHouse.has(x + ',' + y)) {

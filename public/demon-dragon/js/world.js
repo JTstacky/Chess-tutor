@@ -80,47 +80,89 @@
     const RES = 2; // vertices per unit
     const x0 = -0.5 - margin, z0 = -0.5 - margin;
     const NX = (W + margin * 2) * RES, NZ = (H + margin * 2) * RES;
-    const pos = new Float32Array((NX + 1) * (NZ + 1) * 3);
-    const col = new Float32Array((NX + 1) * (NZ + 1) * 3);
     const heights = new Float32Array((NX + 1) * (NZ + 1));
     const c = new THREE.Color(), acc = new THREE.Color();
     for (let j = 0; j <= NZ; j++) for (let i = 0; i <= NX; i++) {
       const x = x0 + i / RES, z = z0 + j / RES;
-      // Average the cells whose square touches this vertex.
+      // Average the heights of the cells whose square touches this vertex.
       const xs = [Math.round(x - 0.01), Math.round(x + 0.01)], zs = [Math.round(z - 0.01), Math.round(z + 0.01)];
       let h = 0, n = 0;
-      acc.setRGB(0, 0, 0);
       const seen = new Set();
       for (const cz of zs) for (const cx of xs) {
         const k = cx + ',' + cz;
         if (seen.has(k)) continue;
         seen.add(k);
         h += heightAt(cx, cz);
-        c.setHex(colorAt(cx, cz));
-        acc.r += c.r; acc.g += c.g; acc.b += c.b;
         n += 1;
       }
       h /= n;
-      const ch = charAt(Math.round(x), Math.round(z));
       if (h > 0.05 || h < -0.05) h += (rand() - 0.5) * 0.18;
-      const shade = 0.94 + rand() * 0.1;
-      const v = j * (NX + 1) + i;
-      heights[v] = h;
-      pos[v * 3] = x; pos[v * 3 + 1] = h; pos[v * 3 + 2] = z;
-      col[v * 3] = (acc.r / n) * shade; col[v * 3 + 1] = (acc.g / n) * shade; col[v * 3 + 2] = (acc.b / n) * shade;
-      if (ch === ',' && rand() < 0.5) col[v * 3 + 1] *= 0.94;
+      heights[j * (NX + 1) + i] = h;
+      // Draws kept from the old per-vertex shading, so the props after this land where they always did.
+      rand();
+      if (charAt(Math.round(x), Math.round(z)) === ',') rand();
     }
-    const idx = [];
-    for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
-      const a = j * (NX + 1) + i, b = a + 1, d = a + NX + 1, e = d + 1;
-      if ((i + j) % 2) idx.push(a, d, b, b, d, e); else idx.push(a, d, e, a, e, b);
+    // The visible ground is finer than the height grid: its colours are blended between cells
+    // through a noise warp, so regions meet along soft wavy edges instead of squares.
+    const FR = G.lite ? RES : RES * 2;
+    const MX = (W + margin * 2) * FR, MZ = (H + margin * 2) * FR;
+    const vp = new Float32Array((MX + 1) * (MZ + 1) * 3);
+    const vc = new Float32Array((MX + 1) * (MZ + 1) * 3);
+    const uv = new Float32Array((MX + 1) * (MZ + 1) * 2);
+    const cellCol = new Map();
+    const colOf = (cx, cz) => {
+      const k = cx + ',' + cz;
+      let v = cellCol.get(k);
+      if (!v) { v = new THREE.Color(colorAt(cx, cz)); cellCol.set(k, v); }
+      return v;
+    };
+    const noise = (x, z) => Math.sin(x * 1.37 + Math.sin(z * 0.71) * 1.9) * 0.5 + Math.sin(z * 1.13 - x * 0.53 + Math.sin(x * 0.37) * 2.1) * 0.5;
+    const FOAM = new THREE.Color(0xf4fbff), EMBER = new THREE.Color(0xff7a22), SCORCH = new THREE.Color(0x2a1d1d);
+    const sharpen = (t) => { t = Math.min(1, Math.max(0, (t - 0.22) / 0.56)); return t * t * (3 - 2 * t); };
+    for (let j = 0; j <= MZ; j++) for (let i = 0; i <= MX; i++) {
+      const x = x0 + i / FR, z = z0 + j / FR;
+      const v = j * (MX + 1) + i;
+      const h = groundY(x, z);
+      vp[v * 3] = x; vp[v * 3 + 1] = h; vp[v * 3 + 2] = z;
+      uv[v * 2] = x / 4; uv[v * 2 + 1] = z / 4;
+      const wx = x + noise(x * 1.9, z * 1.9) * 0.3, wz = z + noise(z * 1.9 + 17, x * 1.9 + 5) * 0.3;
+      const fx = Math.floor(wx), fz = Math.floor(wz);
+      const u = sharpen(wx - fx), w = sharpen(wz - fz);
+      c.copy(colOf(fx, fz)).lerp(colOf(fx + 1, fz), u);
+      acc.copy(colOf(fx, fz + 1)).lerp(colOf(fx + 1, fz + 1), u);
+      c.lerp(acc, w);
+      // Shorelines: darker wet ground just above the water, and a pale foam line where it meets it.
+      if (h < 0 && h > -0.5) {
+        const wet = [charAt(fx, fz), charAt(fx + 1, fz), charAt(fx, fz + 1), charAt(fx + 1, fz + 1)].some((k) => k === '~' || k === '#');
+        const hot = !wet && [charAt(fx, fz), charAt(fx + 1, fz), charAt(fx, fz + 1), charAt(fx + 1, fz + 1)].includes('L');
+        if (hot) {
+          // Lava: a glowing lip where it meets the ground, then scorched rock.
+          const above = h + 0.17 + noise(x * 3.1, z * 3.3) * 0.03;
+          if (above > -0.02 && above < 0.1) c.lerp(EMBER, 0.85 * Math.min(1, (0.1 - above) / 0.05));
+          else if (above >= 0.1 && above < 0.33) c.lerp(SCORCH, 0.6 * (1 - (above - 0.1) / 0.23));
+        }
+        if (wet) {
+          const above = h + 0.2 + noise(x * 3.1, z * 3.3) * 0.03;
+          if (above > -0.02 && above < 0.12) c.lerp(FOAM, 0.8 * Math.min(1, (0.12 - above) / 0.06));
+          else if (above >= 0.12 && above < 0.32) c.multiplyScalar(0.82 + (above - 0.12) / 0.2 * 0.18);
+        }
+      }
+      // Broad light and dark patches, plus slopes shaded darker.
+      const patch = 1 + noise(x * 0.31 + 3, z * 0.29) * 0.06 + noise(x * 0.9, z * 0.83 + 9) * 0.03;
+      vc[v * 3] = c.r * patch; vc[v * 3 + 1] = c.g * (patch + 0.01); vc[v * 3 + 2] = c.b * patch;
+    }
+    const fidx = [];
+    for (let j = 0; j < MZ; j++) for (let i = 0; i < MX; i++) {
+      const a = j * (MX + 1) + i, b = a + 1, d = a + MX + 1, e = d + 1;
+      if ((i + j) % 2) fidx.push(a, d, b, b, d, e); else fidx.push(a, d, e, a, e, b);
     }
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    geo.setIndex(idx);
+    geo.setAttribute('position', new THREE.BufferAttribute(vp, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(vc, 3));
+    geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    geo.setIndex(fidx);
     geo.computeVertexNormals();
-    const mesh = new THREE.Mesh(geo, G.toon(0xffffff, { vertexColors: true }));
+    const mesh = new THREE.Mesh(geo, G.toon(0xffffff, { vertexColors: true, map: groundDetail() }));
     mesh.receiveShadow = true;
     // Ground height under any point, for feet and props.
     function groundY(x, z) {
@@ -132,6 +174,46 @@
       return (h00 * (1 - u) + h10 * u) * (1 - w) + (h01 * (1 - u) + h11 * u) * w;
     }
     return { mesh, groundY };
+  }
+
+  // Soft blotches and specks, multiplied over the ground colours so grass, sand and rock get grain.
+  let detailTex = null;
+  function groundDetail() {
+    if (detailTex) return detailTex;
+    const S = 256, cv = document.createElement('canvas');
+    cv.width = cv.height = S;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#ffffff';
+    g.fillRect(0, 0, S, S);
+    const r = rng(42);
+    // Tileable value noise: lattices whose size divides the tile wrap around, so there are no seams.
+    const img = g.getImageData(0, 0, S, S);
+    const octaves = [4, 8, 16, 32].map((n) => ({ n, v: Array.from({ length: n * n }, r) }));
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+      let sum = 0, amp = 0.5, tot = 0;
+      for (const { n, v } of octaves) {
+        const fx = (x / S) * n, fy = (y / S) * n, ix = Math.floor(fx), iy = Math.floor(fy);
+        const tx = fx - ix, ty = fy - iy, sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty);
+        const at = (i, j) => v[((j % n) * n) + (i % n)];
+        const a = at(ix, iy) + (at(ix + 1, iy) - at(ix, iy)) * sx;
+        const b = at(ix, iy + 1) + (at(ix + 1, iy + 1) - at(ix, iy + 1)) * sx;
+        sum += (a + (b - a) * sy) * amp; tot += amp; amp *= 0.55;
+      }
+      const k = 0.86 + (sum / tot) * 0.14, p = (y * S + x) * 4;
+      img.data[p] = img.data[p + 1] = img.data[p + 2] = Math.round(255 * k);
+    }
+    g.putImageData(img, 0, 0);
+    for (let i = 0; i < 260; i++) {
+      g.fillStyle = r() < 0.7 ? 'rgba(40,50,20,0.16)' : 'rgba(255,255,240,0.35)';
+      const x = r() * S, y = r() * S, s = 1.5 + r() * 2.5;
+      g.beginPath(); g.ellipse(x, y, s, s * 0.6, r() * 3, 0, 6.3); g.fill();
+    }
+    detailTex = new THREE.CanvasTexture(cv);
+    detailTex.wrapS = detailTex.wrapT = THREE.RepeatWrapping;
+    detailTex.colorSpace = THREE.SRGBColorSpace;
+    detailTex.anisotropy = 4;
+    detailTex.userData.keep = true;
+    return detailTex;
   }
 
   // A rippled water texture, scrolled each frame.

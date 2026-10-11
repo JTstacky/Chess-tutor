@@ -18,3 +18,12 @@ three.js r186 (MIT) is vendored under `vendor/three/` with its LICENSE.
 |---|---|---|---|
 | lair_thunder.glb, lair_water.glb, lair_fire.glb, lair_earth.glb, ashen_gate.glb | gpt-image-2 via Codex (prompts in the toolkit's `scratch/lairs`) | TRELLIS.2 (local, ComfyUI), `--res 1024 --faces 200000`, seed 42; Blender prep, meshopt simplify, WebP | concepts per OpenAI terms; TRELLIS.2 weights MIT |
 | chest_closed.glb, chest_open.glb, signpost.glb, heart.glb, crown.glb | gpt-image-2 via Codex (`scratch/props`) | same pipeline; chest_open with `--remesh 512`; heart uses the shape only (flat red material) | as above |
+
+## Generated characters and village props (2026-10-11)
+
+| File | Concept image | 3D | Licence |
+|---|---|---|---|
+| knight.glb (redesign) | gpt-image-2 *edit* of the KayKit knight's rest-pose render (`render_ref.py`) | TRELLIS.2; re-skinned onto the original KayKit rig and animations with `rig_transfer.py --fit arms` (keeps the KayKit sword and shield) | concept per OpenAI terms; TRELLIS.2 MIT; rig/animations KayKit CC0 |
+| person_soldier/scholar/villager/villager2/king.glb | gpt-image-2 edits of the KayKit barbarian, mage and rogue rest poses | TRELLIS.2; `rig_transfer.py --fit person` onto those KayKit rigs | as above |
+| dragon_thunder/water/fire/earth/demon.glb | gpt-image-2 edits of the Quaternius dragon's rest pose | TRELLIS.2; `rig_transfer.py --fit span` onto the Quaternius rig (demon: tail bound to the hips) | concepts per OpenAI terms; TRELLIS.2 MIT; rig/animations Quaternius CC0 |
+| well.glb, market_stall.glb, windmill.glb | gpt-image-2 via Codex (`scratch/props`) | TRELLIS.2, Blender prep, meshopt simplify, WebP | as above |

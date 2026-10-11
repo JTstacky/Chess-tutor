@@ -146,8 +146,10 @@
   const WEAPONS = /Axe|Wand|Spellbook|Knife|Crossbow|Sword|Shield/;
   const LOOKS = { soldier: 'barbarian', scholar: 'mage', villager: 'rogue', villager2: 'rogue_hooded', king: 'mage' };
   M.person = function (look) {
-    const c = character(A[LOOKS[look] || 'rogue'], look === 'king' ? 1.4 : 1.3, WEAPONS);
-    if (look === 'king') {
+    // A redesigned model for this look (assets/person_<look>.glb) replaces the shared KayKit one.
+    const own = A['person_' + look];
+    const c = character(own || A[LOOKS[look] || 'rogue'], look === 'king' ? 1.4 : 1.3, WEAPONS);
+    if (look === 'king' && !own) {
       const mats = ownMaterials(c.model);
       Object.values(mats).flat().forEach((m) => m.color.setHex(0xffd27a));
       const crown = landmark('crown', 0.32);
@@ -181,17 +183,24 @@
   };
   const DRAGON_SIZE = 0.8; // the old procedural dragon's scale 1 is about 3 units tall
   M.dragon = function (kind, scale) {
-    const c = character(A.dragon, DRAGON_HEIGHT * DRAGON_SIZE, null, DRAGON_HEIGHT);
+    // Each element has its own redesigned dragon (assets/dragon_<kind>.glb) on the shared rig;
+    // without one, the base model is tinted with the element's colours.
+    const own = A['dragon_' + kind];
+    const c = character(own || A.dragon, DRAGON_HEIGHT * DRAGON_SIZE, null, DRAGON_HEIGHT);
     c.group.scale.setScalar(scale || 1);
     const mats = ownMaterials(c.model);
     Object.values(mats).flat().forEach((m) => { m.side = THREE.DoubleSide; });
-    const flashMats = [].concat(mats.Main || [], mats.Belly || [], mats.Wings || []);
+    const flashMats = own ? Object.values(mats).flat() : [].concat(mats.Main || [], mats.Belly || [], mats.Wings || []);
     const pal = DRAGON_COLORS[kind] || DRAGON_COLORS.fire;
     const setColors = (p) => {
       ['Main', 'Wings', 'Belly', 'Claws'].forEach((n, i) => (mats[n] || []).forEach((m) => m.color.setHex(p[i])));
     };
-    setColors(pal);
-    if (kind === 'demon') (mats.Eyes || []).forEach((m) => { m.color.setHex(0xff2a2a); m.emissive.setHex(0xff2a2a); });
+    if (!own) setColors(pal);
+    if (kind === 'demon' && !own) (mats.Eyes || []).forEach((m) => { m.color.setHex(0xff2a2a); m.emissive.setHex(0xff2a2a); });
+    // The redesigned demon is lit by its own texture: its bright cracks and eyes glow, the dark
+    // hide stays dark. The glow takes the colour of the element it channels.
+    const glows = own && kind === 'demon';
+    if (glows) flashMats.forEach((m) => { m.emissiveMap = m.map; m.emissiveIntensity = 0.65; m.needsUpdate = true; });
     let head = null, nose = null, chest = null, eyes = null;
     c.model.traverse((o) => {
       if (o.name === 'Head') head = o;
@@ -202,7 +211,7 @@
     // The eyes are a loose mesh in the file; pin them to the head bone so they follow it.
     if (eyes && head) { c.model.updateMatrixWorld(true); head.attach(eyes); }
     const anim = { thrust: 0, lower: 0, mouth: 0, flap: 1, rise: 0, dead: 0, flashT: 0, phase: Math.random() * 6 };
-    const tint = new THREE.Color(0, 0, 0);
+    const tint = glows ? new THREE.Color(0xffffff) : new THREE.Color(0, 0, 0);
     const whiteC = new THREE.Color(0xffffff);
     let attacking = false;
     c.anim.base('Fly');
@@ -213,8 +222,9 @@
       // The Demon Dragon wears whichever element it is channelling.
       setElement(el) {
         const p = DRAGON_COLORS[el];
-        setColors([new THREE.Color(p[0]).lerp(new THREE.Color(DRAGON_COLORS.demon[0]), 0.55).getHex(), p[0], DRAGON_COLORS.demon[2], p[3]]);
-        tint.setHex(window.Data.ELEMENTS[el].color).multiplyScalar(0.25);
+        if (!own) setColors([new THREE.Color(p[0]).lerp(new THREE.Color(DRAGON_COLORS.demon[0]), 0.55).getHex(), p[0], DRAGON_COLORS.demon[2], p[3]]);
+        if (glows) tint.set(0xffffff).lerp(new THREE.Color(window.Data.ELEMENTS[el].color), 0.6);
+        else if (!own) tint.setHex(window.Data.ELEMENTS[el].color).multiplyScalar(0.25);
       },
       mouthPos() { return (nose || head || c.body).getWorldPosition(new V3()); },
       headPos() { return (head || c.body).getWorldPosition(new V3()); },
@@ -330,6 +340,8 @@
     g.add(o);
     return g;
   }
+  // Generated village dressing (well, market stall, windmill); null when the asset is missing.
+  M.prop = (name, height) => landmark(name, height);
 
   const lairBase = M.lair;
   M.lair = function (element) {
