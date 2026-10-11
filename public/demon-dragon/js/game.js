@@ -12,8 +12,11 @@
   let arenaId = null;
 
   // ---------- saving ----------
+  // clock: the quest clock in seconds (world and lairs, not cutscenes or menus). seed places
+  // and fills this quest's chests (Data.rollChests).
   function newPlayer(name, difficulty, look) {
-    return { name, look: look || '000', difficulty: difficulty || 1, fightScores: {}, hpMax: 10, sword: 4, shot: 3, relics: [], active: null, slain: [], chests: [], xp: 0, level: 1, perks: {}, perkPending: 0, pos: null, seenAwaken: false, tips: {}, won: false };
+    const seed = Math.floor(Math.random() * 2 ** 31);
+    return { name, look: look || '000', difficulty: difficulty || 1, fightScores: {}, hpMax: 10, sword: 4, shot: 3, relics: [], active: null, slain: [], chests: [], seed, chestSpots: D.rollChests(seed), xp: 0, level: 1, perks: {}, perkPending: 0, clock: 0, deaths: 0, pos: null, seenAwaken: false, tips: {}, won: false };
   }
   // A Trial replays one slain dragon with a fixed knight (D.trialKit) so every score on a
   // dragon's board is comparable. A trial knight is never saved.
@@ -161,7 +164,7 @@
     if (!P || !P.perkPending || busy || !level || level.over) return;
     scripted(async () => {
       while (P.perkPending > 0) {
-        const options = Perks.roll(P);
+        const options = Perks.roll(P, Perks.choices(P.level));
         if (!options.length) { P.perkPending = 0; break; }
         const i = await pickPerk(`Level ${P.level}! Choose an upgrade`, options);
         const def = Perks.take(P, options[i].id);
@@ -213,6 +216,10 @@
     r.style.display = P.relics.length ? 'block' : 'none';
     r.textContent = P.active ? `${D.ELEMENTS[P.active].icon} ${D.ELEMENTS[P.active].name}` : '⚔️ Plain';
     r.style.borderColor = P.active ? D.ELEMENTS[P.active].css : '';
+    const x = $('btnX');
+    x.classList.toggle('off', !P.relics.length);
+    x.innerHTML = `${P.active ? D.ELEMENTS[P.active].icon : '⚔️'}<small>relic</small>`;
+    x.style.background = P.active ? D.ELEMENTS[P.active].css : '';
   }
   function renderBoss() {
     const b = level && level.boss;
@@ -347,7 +354,8 @@
   stickEl.addEventListener('pointerup', stickUp);
   stickEl.addEventListener('pointercancel', stickUp);
 
-  // Gamepad: left stick or d-pad moves; A sword, X bolt, B dodge, bumpers switch relic.
+  // Gamepad, laid out like the buttons on screen: Y (top) relic, X (left) dodge, A (bottom)
+  // bolt, B (right) sword; the bumpers switch relic too.
   const padWas = {};
   function pollPad() {
     requestAnimationFrame(pollPad);
@@ -367,20 +375,20 @@
       if (dlg.side && (edge(14) || edge(15))) dlg.side(padWas[14] ? -1 : 1);
       else if (dlg.choices && !dlg.typing && (edge(12) || edge(14))) dlg.move(-1);
       else if (dlg.choices && !dlg.typing && (edge(13) || edge(15))) dlg.move(1);
-      else if (edge(0) || edge(1) || edge(2)) advance();
+      else if (edge(0) || edge(1) || edge(2) || edge(3)) advance();
       return;
     }
-    if (edge(0)) press('A');
-    if (edge(2)) press('B');
-    if (edge(1)) press('C');
-    if (edge(4) || edge(5)) cycleRelic();
+    if (edge(1)) press('A');
+    if (edge(0)) press('B');
+    if (edge(2)) press('C');
+    if (edge(3) || edge(4) || edge(5)) cycleRelic();
     if (edge(9) && app.classList.contains('mode-title')) $(load() ? 'btn-continue' : 'btn-new').click();
   }
   requestAnimationFrame(pollPad);
 
-  [['btnA', 'A'], ['btnB', 'B'], ['btnC', 'C']].forEach(([id, btn]) => {
+  [['btnA', 'A'], ['btnB', 'B'], ['btnC', 'C'], ['btnX', 'X']].forEach(([id, btn]) => {
     const el = $(id);
-    el.addEventListener('pointerdown', (e) => { e.preventDefault(); el.classList.add('down'); press(btn); });
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); el.classList.add('down'); if (btn === 'X') { Sfx.unlock(); if (dlg) advance(); else cycleRelic(); } else press(btn); });
     ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => el.addEventListener(ev, () => el.classList.remove('down')));
   });
   $('dialog').addEventListener('click', () => { Sfx.unlock(); advance(); });
@@ -463,33 +471,23 @@
     }),
     onChest: (def) => scripted(async () => {
       P.chests.push(def.id);
-      if (def.kind === 'heart') { P.hpMax += 2; level.heal(); }
-      if (def.kind === 'sword') P.sword += 1;
+      const k = def.kind;
+      if (k === 'heart') { P.hpMax += 2; level.heal(); }
+      if (k === 'sword') P.sword += 1;
+      if (k === 'shot') P.shot += 0.5;
+      if (k === 'hourglass') P.clock = Math.max(0, (P.clock || 0) - 30);
+      if (k === 'scroll') P.perkPending = (P.perkPending || 0) + 1;
       Sfx.play('item');
       save();
       renderHud();
-      await say(def.text);
+      const tome = 4 + 3 * P.slain.length;
+      await say(D.CHEST_KINDS[k].text + (k === 'tome' ? ` (+${tome} XP)` : ''));
+      if (k === 'tome') addXp(tome, level.knightWorldPos());
     }),
-    onXp(n, pos) {
-      if (P.trial) return;
-      if (P.level >= Perks.MAX_LEVEL) return;
-      P.xp += n;
-      G.floatText(pos, '+' + n + ' XP', 'xp');
-      const need = Perks.xpNeeded(P.level);
-      if (P.xp >= need) {
-        P.xp -= need;
-        P.level += 1;
-        // The old fixed growth stays for the first levels; every level also brings an upgrade pick.
-        if (P.level <= 6) {
-          P.sword += 0.5;
-          if (P.level % 2 === 1) { P.hpMax += 2; level.hp += 2; }
-        }
-        P.perkPending = (P.perkPending || 0) + 1;
-        Sfx.play('levelup');
-        renderHud();
-        setTimeout(offerPerks, 350);
-      }
-      save();
+    onXp: (n, pos) => addXp(n, pos),
+    onClock(dt) {
+      if (!P || P.trial) return;
+      P.clock = (P.clock || 0) + dt;
     },
     onLair: (id) => scripted(async () => {
       const def = D.DRAGONS[id];
@@ -504,11 +502,14 @@
     }),
     onDeath: () => {
       busy = false;
+      // Every death in a quest costs points (Data.DEATH_COST, times the difficulty).
+      const cost = P.trial ? '' : `  (-${(D.DEATH_COST * D.difficulty(P.difficulty).level).toLocaleString()} points)`;
+      if (!P.trial) { P.deaths = (P.deaths || 0) + 1; save(); }
       if (arenaId) {
         Sfx.music(null);
         Sfx.play('defeat');
         scripted(async () => {
-          const again = await ask('You have fallen...  but a knight of Valemoor does not stay down.', ['Try again', P.trial ? 'Back to Trials' : 'Retreat']);
+          const again = await ask('You have fallen...  but a knight of Valemoor does not stay down.' + cost, ['Try again', P.trial ? 'Back to Trials' : 'Retreat']);
           if (again === 0) await startArena(arenaId, true);
           else if (P.trial) await openTrials(true);
           else await startWorld();
@@ -520,13 +521,36 @@
           P.pos = null;
           await startWorld(true);
           level.locked = true;
-          await say('You wake in Valemoor. The healers will not say who carried you home.');
+          await say('You wake in Valemoor. The healers will not say who carried you home.' + cost);
           level.locked = false;
         });
       }
     },
     onBossDefeated: () => bossDefeated(),
   };
+
+  // Experience from drakelings, journals and dragons. Quick Study multiplies it; every level
+  // owes an upgrade pick, offered as soon as play allows.
+  function addXp(n, pos) {
+    if (!P || P.trial || P.level >= Perks.MAX_LEVEL) return;
+    n = Math.round(n * Perks.stat(P, 'xp'));
+    P.xp += n;
+    if (pos) G.floatText(pos, '+' + n + ' XP', 'xp');
+    let up = false;
+    while (P.level < Perks.MAX_LEVEL && P.xp >= Perks.xpNeeded(P.level)) {
+      P.xp -= Perks.xpNeeded(P.level);
+      P.level += 1;
+      // The old fixed growth stays for the first levels; every level also brings an upgrade pick.
+      if (P.level <= 6) {
+        P.sword += 0.5;
+        if (P.level % 2 === 1) { P.hpMax += 2; if (level) level.hp += 2; }
+      }
+      P.perkPending = (P.perkPending || 0) + 1;
+      up = true;
+    }
+    if (up) { Sfx.play('levelup'); renderHud(); setTimeout(offerPerks, 350); }
+    save();
+  }
 
   async function startWorld(alreadyDark) {
     busy = true;
@@ -582,16 +606,16 @@
     const id = arenaId;
     const def = D.DRAGONS[id];
     const f = fightRecord(id);
-    const s = D.fightScore(Object.assign({ diff: P.difficulty }, f));
+    const s = D.fightScore(f);
     Sfx.music(null);
     Sfx.play('fanfare');
     await wait(900);
-    if (P.trial) return trialWon(id, f, s);
+    if (P.trial) return trialWon(id, f);
     P.fightScores = P.fightScores || {};
     P.fightScores[id] = Object.assign({ total: s.total }, f);
     unlockTrial(id);
     save();
-    await sheet(scoreHtml(`${icon(id)} ${def.name} slain!`, f, s, P.difficulty), ['Continue']);
+    await sheet(scoreHtml(`${icon(id)} ${def.name} slain!`, f, s), ['Continue']);
     if (id === 'demon') {
       P.won = true;
       P.pos = null;
@@ -617,8 +641,9 @@
     renderHud();
     await say(`${def.name} is slain! You claim the ${def.relic}. ${def.relicText}`);
     await say('Your life grows by one heart, and your sword strikes harder.');
-    if (first) await say('Relics charge your sword and bolts with an element. Water beats Fire, Fire beats Earth, Earth beats Thunder, Thunder beats Water. Tap the relic badge (or press Q) to switch.');
+    if (first) await say('Relics charge your sword and bolts with an element. Water beats Fire, Fire beats Earth, Earth beats Thunder, Thunder beats Water. Press the top button (or Q) to switch.');
     await say(P.slain.length < 4 ? 'Far to the north, a seal-stone above the Ashen Gate shatters.' : 'Far to the north, the last seal-stone shatters. The ground begins to shake.');
+    addXp(6 + 3 * P.slain.length, level.knightWorldPos());
     save();
     if (P.slain.length >= 4 && !P.seenAwaken) {
       await playStory('awaken');
@@ -638,7 +663,9 @@
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* no storage */ } },
   };
-  const BEST_KEY = 'rotdd.best.v1', TRIALS_KEY = 'rotdd.trials.v1', NAME_KEY = 'rotdd.name', LOOK_KEY = 'rotdd.look';
+  const BEST_KEY = 'rotdd.best.v1', TRIALS_KEY = 'rotdd.trials.v1', NAME_KEY = 'rotdd.name', LOOK_KEY = 'rotdd.look', PRACTICE_KEY = 'rotdd.practice.v1';
+  // The one world board: whole quests on one clock, deaths counted (Data.questScore).
+  const BOARD = 'quest2';
   const TRIAL_IDS = D.ELEMENT_ORDER.concat('demon');
   const icon = (id) => (id === 'demon' ? '🐲' : D.ELEMENTS[D.DRAGONS[id].element].icon);
 
@@ -683,7 +710,7 @@
   async function pickDifficulty(sel, back) {
     const opts = [1, 2, 3, 4, 5].map((n) => ({ html: `<b>${n} · ${D.difficulty(n).name}</b><small>${DIFF_NOTES[n]}</small>` }));
     if (back) opts.push('Back');
-    const i = await sheet('<div class="stitle">Choose your difficulty</div><div class="snote">Your score is multiplied by the level. Dragons never gain health: they strike faster and less predictably, hit harder, resist the wrong element and bring drakelings.</div>',
+    const i = await sheet('<div class="stitle">Choose your difficulty</div><div class="snote">Your quest score is multiplied by the level. Dragons never gain health: they strike faster and less predictably, hit harder, resist the wrong element and bring drakelings.</div>',
       opts, { sel: (sel || 1) - 1, layout: 'list' });
     return i < 5 ? i + 1 : null;
   }
@@ -706,12 +733,12 @@
     } catch (e) { return { error: 'offline' }; } finally { clearTimeout(timer); }
   }
   // Posts a result, keeps the local best, and writes the outcome into the open panel.
-  async function postScore(board, fights, total, diff, name) {
+  async function postScore(board, run, total, diff, name) {
     const bests = store.get(BEST_KEY, {});
     const old = bests[board];
     if (!old || total > old.total) { bests[board] = { total, diff }; store.set(BEST_KEY, bests); }
     const mine = !old ? '' : total > old.total ? `New personal best! (was ${old.total.toLocaleString()})` : `Your best: ${old.total.toLocaleString()}`;
-    const r = await scoresApi('/scores', { game: 'demon-dragon', board, name, diff, fights, look: (P && P.look) || '000' });
+    const r = await scoresApi('/scores', Object.assign({ game: 'demon-dragon', board, name, diff, look: (P && P.look) || '000' }, run));
     const world = r.error === 'offline' ? 'Could not reach the world board. Your best is kept on this device.'
       : r.error ? `The world board did not take this score (${r.error}).`
       : `World rank #${r.rank} of ${r.count}`;
@@ -750,28 +777,31 @@
   function fightRecord(id) {
     return { id, tier: id === 'demon' ? 0 : Math.min(3, P.slain.length), t: Math.max(5, Math.round(level.stats.t * 10) / 10), taken: level.stats.taken, hpMax: P.hpMax };
   }
-  function scoreHtml(title, f, s, diff) {
-    const df = D.difficulty(diff);
-    const row = (a, b, cls) => `<div class="srow ${cls || ''}"><span>${a}</span><b>${b}</b></div>`;
+  const row = (a, b, cls) => `<div class="srow ${cls || ''}"><span>${a}</span><b>${b}</b></div>`;
+  // After a dragon in a quest: what the fight adds, and where the quest stands.
+  function scoreHtml(title, f, s) {
     return `<div class="stitle">${title}</div>`
       + row('Victory', '+1000')
-      + row(`Time ${clock(f.t)} <small>par ${clock(s.par)}</small>`, `+${s.time}`)
       + row(`Health <small>${f.taken / 2} of ${f.hpMax / 2} hearts lost</small>`, `+${s.kept}`)
       + (s.flawless ? row('Flawless!', `+${s.flawless}`, 'gold') : '')
-      + row(`${df.name} difficulty`, `×${df.level}`)
-      + `<div class="stotal">${s.total.toLocaleString()}</div>`;
+      + `<div class="stotal">+${s.total.toLocaleString()}</div>`
+      + `<div class="snote">Fight ${clock(f.t)} · Quest clock ${clock(P.clock || 0)}${P.deaths ? ` · ${P.deaths} death${P.deaths > 1 ? 's' : ''}` : ''}<br>The clock keeps running in the open world.</div>`;
   }
   function unlockTrial(id) {
     const open = store.get(TRIALS_KEY, []);
     if (!open.includes(id)) { open.push(id); store.set(TRIALS_KEY, open); }
   }
 
-  async function trialWon(id, f, s) {
+  // Trials are practice: no score, just the fight and this device's best time.
+  async function trialWon(id, f) {
     const name = P.name, diff = P.difficulty;
-    const shown = sheet(scoreHtml(`${icon(id)} Trial: ${D.DRAGONS[id].name}`, f, s, diff) + '<div id="srank" class="snote">Sending to the world board…</div><div id="spodium"></div>',
+    const bests = store.get(PRACTICE_KEY, {}), key = id + diff, old = bests[key];
+    if (!old || f.t < old) { bests[key] = f.t; store.set(PRACTICE_KEY, bests); }
+    const df = D.difficulty(diff);
+    const c = await sheet(`<div class="stitle">${icon(id)} Practice: ${D.DRAGONS[id].name}</div>`
+      + row('Time', clock(f.t)) + row('Hearts lost', `${f.taken / 2} of ${f.hpMax / 2}`)
+      + `<div class="snote">${df.name} difficulty · ${!old ? 'First win at this difficulty' : f.t < old ? `New best time! (was ${clock(old)})` : `Best time ${clock(old)}`}<br>Trials are practice. Only a whole quest goes on the world board.</div>`,
       ['Fight again', 'Trials', 'Title'], { layout: 'row' });
-    postScore(id, [f], s.total, diff, name);
-    const c = await shown;
     busy = false;
     if (c === 0) { P = trialPlayer(id, diff, name); return startArena(id, true); }
     if (c === 1) return openTrials(true);
@@ -779,16 +809,20 @@
     return showTitle();
   }
 
-  // The quest board takes a whole story run: all five fights at one difficulty.
+  // The world board takes a whole story run: all five dragons, the quest clock and the deaths.
   async function questResults() {
-    const fights = TRIAL_IDS.map((id) => P.fightScores[id]).filter(Boolean);
+    const fights = TRIAL_IDS.map((id) => P.fightScores[id]).filter(Boolean).map(({ id, tier, t, taken, hpMax }) => ({ id, tier, t, taken, hpMax }));
     const df = D.difficulty(P.difficulty);
-    const rows = fights.map((f) => `<div class="srow"><span>${icon(f.id)} ${D.DRAGONS[f.id].name} <small>${clock(f.t)}, ${f.taken / 2} hearts lost</small></span><b>${f.total.toLocaleString()}</b></div>`).join('');
-    const total = fights.reduce((n, f) => n + f.total, 0);
-    const whole = fights.length === 5;
-    const shown = sheet(`<div class="stitle">Quest complete</div><div class="snote">${esc(P.name)} · ${df.name} difficulty</div>${rows}<div class="stotal">${total.toLocaleString()}</div>`
-      + `<div id="srank" class="snote">${whole ? 'Sending to the world board…' : 'This journey began before scores were kept, so it cannot go on the world board. Start a new quest to post one.'}</div><div id="spodium"></div>`, ['Continue']);
-    if (whole) postScore('quest', fights.map(({ id, tier, t, taken, hpMax }) => ({ id, tier, t, taken, hpMax })), total, P.difficulty, P.name);
+    const t = Math.round(P.clock || 0), deaths = P.deaths || 0;
+    const q = D.questScore({ diff: P.difficulty, fights, t, deaths });
+    const rows = fights.map((f) => row(`${icon(f.id)} ${D.DRAGONS[f.id].name} <small>${f.taken / 2} hearts lost</small>`, `+${D.fightScore(f).total.toLocaleString()}`)).join('')
+      + row(`Quest time ${clock(t)} <small>par ${clock(D.QUEST_PAR)}</small>`, `+${q.time.toLocaleString()}`)
+      + row(`Deaths <small>${deaths}</small>`, deaths ? `-${q.deaths.toLocaleString()}` : '0', deaths ? '' : 'gold')
+      + row(`${df.name} difficulty`, `×${df.level}`);
+    const whole = fights.length === 5 && !P.untimed;
+    const shown = sheet(`<div class="stitle">Quest complete</div><div class="snote">${esc(P.name)} · ${df.name} difficulty</div>${rows}<div class="stotal">${q.total.toLocaleString()}</div>`
+      + `<div id="srank" class="snote">${whole ? 'Sending to the world board…' : 'This journey began before the quest clock was kept, so it cannot go on the world board. Start a new quest to post one.'}</div><div id="spodium"></div>`, ['Continue']);
+    if (whole) postScore(BOARD, { fights, t, deaths }, q.total, P.difficulty, P.name);
     await shown;
   }
 
@@ -796,10 +830,11 @@
     busy = true;
     if (fromGame) { await fade(true); await showTitle(); }
     const open = store.get(TRIALS_KEY, []);
-    const bests = store.get(BEST_KEY, {});
-    const pick = await sheet('<div class="stitle">Trials</div><div class="snote">Fight a dragon you have slain again, with a set knight: 8 hearts and the three other relics (10 hearts and all four for the Demon Dragon). Each dragon keeps its own world board.</div>',
+    const practice = store.get(PRACTICE_KEY, {});
+    const bestTime = (id) => { const ts = [1, 2, 3, 4, 5].map((d) => practice[id + d]).filter(Boolean); return ts.length ? 'Best ' + clock(Math.min(...ts)) : 'Not yet won'; };
+    const pick = await sheet('<div class="stitle">Trials</div><div class="snote">Practise a dragon you have slain, with a set knight: 8 hearts and the three other relics (10 hearts and all four for the Demon Dragon). Trials are not scored; only a whole quest goes on the world board.</div>',
       TRIAL_IDS.map((id) => (open.includes(id)
-        ? { html: `${icon(id)} ${D.DRAGONS[id].name}<small>${bests[id] ? 'Best ' + bests[id].total.toLocaleString() : 'No score yet'}</small>` }
+        ? { html: `${icon(id)} ${D.DRAGONS[id].name}<small>${bestTime(id)}</small>` }
         : { html: `🔒 ${D.DRAGONS[id].name}<small>Slay it in the quest</small>`, disabled: true })).concat(['Back']),
       { layout: 'grid' });
     if (pick === TRIAL_IDS.length) { busy = false; return; }
@@ -814,7 +849,6 @@
     await startArena(id);
   }
 
-  const BOARDS = ['quest'].concat(TRIAL_IDS);
   function boardRows(r) {
     if (r.error) return '<div class="snote">Could not reach the world board.</div>';
     if (!r.entries.length) return '<div class="snote">No scores yet. Be the first!</div>';
@@ -822,27 +856,24 @@
   }
   async function openBoards() {
     busy = true;
-    let at = 0;
-    for (;;) {
-      const b = BOARDS[at];
-      const head = b === 'quest' ? 'Whole quest: all five dragons in one run' : `Trial: ${D.DRAGONS[b].name}, ${D.DRAGONS[b].title}`;
-      const best = store.get(BEST_KEY, {})[b];
-      const shown = sheet(`<div class="stitle">World high scores</div><div class="snote">${esc(head)}${best ? ` · your best ${best.total.toLocaleString()}` : ''}</div><div id="sboard" data-board="${b}"><div class="snote">Loading…</div></div>`,
-        BOARDS.map((id) => (id === 'quest' ? '🏆 Quest' : { html: `${icon(id)} ${esc(D.DRAGONS[id].name)}` })).concat(['Back']),
-        { sel: at, layout: 'tabs', wide: true });
-      scoresApi(`/scores?board=${b}&limit=10`).then((r) => { const el = $('sboard'); if (el && el.dataset.board === b) el.innerHTML = boardRows(r); });
-      const i = await shown;
-      if (i === BOARDS.length) break;
-      at = i;
-    }
+    const best = store.get(BEST_KEY, {})[BOARD];
+    const shown = sheet(`<div class="stitle">World high scores</div><div class="snote">Whole quests: all five dragons on one clock, which runs in the open world too. Deaths cost points.${best ? ` Your best ${best.total.toLocaleString()}.` : ''}</div><div id="sboard"><div class="snote">Loading…</div></div>`,
+      ['Back'], { wide: true });
+    scoresApi(`/scores?board=${BOARD}&limit=10`).then((r) => { const el = $('sboard'); if (el) el.innerHTML = boardRows(r); });
+    await shown;
     busy = false;
   }
 
-  // Fight clock in arenas.
+  // The quest clock (world and lairs) in a quest, the fight clock in a Trial. A quest also
+  // saves its clock now and then, so a reload loses little.
+  let clockSaves = 0;
   setInterval(() => {
-    const on = !!(level && arenaId && level.stats);
+    const trial = P && P.trial;
+    const on = !!(level && P && (trial ? arenaId && level.stats : true));
     $('timer').style.display = on ? 'block' : 'none';
-    if (on) $('timer').textContent = '⏱ ' + clock(level.stats.t);
+    if (!on) return;
+    $('timer').textContent = '⏱ ' + clock(trial ? level.stats.t : P.clock || 0);
+    if (!trial && ++clockSaves % 40 === 0) save();
   }, 250);
 
   // ---------- title and new game ----------
@@ -1012,8 +1043,9 @@
     save();
     await startWorld(true);
     scripted(async () => {
-      await say('Move with the joystick, in any direction. (A) swings your sword, and talks to people. (B) looses a bolt. (C) is a dodge roll.');
-      await say('The King waits at the castle gate behind you. He can heal you, and save your journey.');
+      await say('Move with the joystick, in any direction. (A) swings your sword, and talks to people. (B) looses a bolt. (C) is a dodge roll. The top button switches relics, once you have one.');
+      await say('The quest clock is running, out here as well as in the lairs. Grow stronger first, or race to the dragons: a faster quest scores more, and every fall costs points.');
+      await say('Chests are hidden across Valemoor, different in every quest. The King waits at the castle gate behind you. He can heal you, and save your journey.');
     });
   });
 
@@ -1030,6 +1062,8 @@
     P.tips = P.tips || {};
     P.difficulty = P.difficulty || 1;
     P.fightScores = P.fightScores || {};
+    if (!P.chestSpots) { P.seed = Math.floor(Math.random() * 2 ** 31); P.chestSpots = D.rollChests(P.seed); }
+    if (P.clock == null) { P.clock = 0; P.deaths = 0; P.untimed = P.slain.length > 0; }
     await startWorld();
   });
 
@@ -1051,6 +1085,8 @@
       warp(x, z) { const K = level.knight; K.x = K.circle.x = x; K.z = K.circle.z = z; },
       level: () => level, player: () => P,
       creator: (name, look) => createKnight(name || 'Tester', look || '000'),
+      die: () => hooks.onDeath(),
+      xp: (n) => addXp(n),
       podium: (entries) => sheet(`<div class="stitle">World high scores</div>${podiumHtml(entries)}`, ['Back']),
     };
   }

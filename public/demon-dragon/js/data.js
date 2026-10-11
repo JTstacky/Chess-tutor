@@ -41,19 +41,27 @@
   }
 
   // ---------- scoring ----------
-  // A fight scores a kill bonus, a time bonus against par and a bonus for health kept, all
-  // multiplied by the difficulty level. The scores worker runs the same formula, so keep
-  // scores/src/index.js (site repo) in step with any change here.
-  const PAR_PER_HP = 0.2; // seconds of par per point of boss health (tools/bot.mjs clears Trials in 15-25 s)
+  // Only a whole quest is scored. Each dragon slain gives a kill bonus and a bonus for health
+  // kept. One clock runs for the whole quest, in the open world as well as in the lairs (not in
+  // cutscenes, talk or menus), so time spent levelling up is time off the quest bonus. Every
+  // death costs points. The total is multiplied by the difficulty level. The scores worker runs
+  // the same formulas, so keep scores/src/index.js (site repo) in step with any change here.
+  const QUEST_PAR = 900;   // seconds on the quest clock for the full time bonus (2x at half)
+  const DEATH_COST = 2000; // points lost per death, before the difficulty multiplier
   function bossMaxHp(id, tier) { return Math.round(DRAGONS[id].hp * (1 + 0.3 * (id === 'demon' ? 0 : tier))); }
   function fightScore(f) {
-    // f: { id, tier, diff, t (seconds), taken (half hearts), hpMax (half hearts) }
-    const par = bossMaxHp(f.id, f.tier) * PAR_PER_HP;
-    const time = Math.round(2000 * Math.min(2, par / Math.max(1, f.t)));
+    // f: { id, tier, t (seconds), taken (half hearts), hpMax (half hearts) }
     const kept = Math.round(2500 * Math.max(0, 1 - f.taken / Math.max(1, f.hpMax)));
     const flawless = f.taken <= 0 ? 1000 : 0;
-    const total = (1000 + time + kept + flawless) * difficulty(f.diff).level;
-    return { par: Math.round(par), time, kept, flawless, total };
+    return { kept, flawless, total: 1000 + kept + flawless };
+  }
+  function questScore(q) {
+    // q: { diff, fights: [fight records], t (quest clock, seconds), deaths }
+    const fights = q.fights.reduce((n, f) => n + fightScore(f).total, 0);
+    const time = Math.round(10000 * Math.min(2, QUEST_PAR / Math.max(1, q.t)));
+    const deaths = (q.deaths || 0) * DEATH_COST;
+    const mult = difficulty(q.diff).level;
+    return { fights, time, deaths, mult, total: Math.max(0, (fights + time - deaths) * mult) };
   }
 
   // Trials: replay a slain dragon with a standard knight, so scores compare fairly. An elemental
@@ -103,7 +111,7 @@
   // The overworld. 39 x 31 tiles, written as three 13-column strips per row so widths are easy to check.
   //  . grass   , tall grass   = path    s sand    p peak stone   a ash   c canyon floor
   //  T tree    R rock    M mountain    W canyon wall    ~ water    L lava    # bridge
-  //  H house   C castle  G castle gate    S sign    * chest    1-4 dragon lairs    5 the Ashen Gate
+  //  H house   C castle  G castle gate    S sign    1-4 dragon lairs    5 the Ashen Gate
   const WORLD_ROWS = [
     ['MMMMMMMMMMMMM', 'MMMMMMMMMMMMM', 'MMMMMMMMMMMMM'],
     ['MMMMMMMMMMMMM', 'MMMMMMMMMMMMM', 'MMMMMMMMMMMMM'],
@@ -125,13 +133,13 @@
     ['WWWWWWc=cWWWW', '......=......', '....=.ssssss~'],
     ['WWWcccc=cccWW', 'T.....=.....T', '...s=sss~~~~~'],
     ['WWWcccccccRWW', 'T.....=.CCCCC', '..ss=ss~~~~~~'],
-    ['WWWc,,cWWcccW', 'T.*...=.CCCCC', '.sss=s~~~~~~~'],
-    ['WWcc,,,WWc*cW', 'T.....=.CCCCC', 'ssss=ss~~~~~~'],
+    ['WWWc,,cWWcccW', 'T.....=.CCCCC', '.sss=s~~~~~~~'],
+    ['WWcc,,,WWcccW', 'T.....=.CCCCC', 'ssss=ss~~~~~~'],
     ['WWc,,,cWWWWWW', 'TT....=.CCGCC', 'sss,=sss~~~~~'],
     ['WWcc,ccWWWWWW', 'TTT...=====..', 'ss,,=ss~~~~~~'],
     ['WWcWWWcWWWWWW', 'TTTT.........', 's,,,=ss~~2~~~'],
     ['WWcW4WcWWWWWW', 'TTTTT.....TTT', 'ss,,==##sss~~'],
-    ['WWcWcWcWWWWWW', 'TTTTTTTTTTTTT', 'sss*ss~~sss~~'],
+    ['WWcWcWcWWWWWW', 'TTTTTTTTTTTTT', 'sssss~~~sss~~'],
     ['WWcccccWWWWWW', 'TTTTTTTTTTTTT', 'ssssss~~~~~~~'],
     ['WWWWWWWWWWWWW', 'TTTTTTTTTTTTT', 'TTsss~~~~~~~~'],
     ['WWWWWWWWWWWWW', 'TTTTTTTTTTTTT', 'TTTTT~~~~~~~~'],
@@ -142,11 +150,44 @@
   const WALKABLE = '.,=spac#';
   const START = { x: 23, y: 23, dir: 'down' };
 
-  const CHESTS = {
-    '15,20': { id: 'c1', kind: 'heart', text: 'A Heart Vessel! Your life grows by one heart.' },
-    '29,26': { id: 'c2', kind: 'heart', text: 'A Heart Vessel, crusted with salt. Your life grows by one heart.' },
-    '10,21': { id: 'c3', kind: 'sword', text: 'A dwarven whetstone! Your sword bites deeper.' },
+  // Chests are hidden anew for every quest: random places off the roads, random rewards.
+  // weight: how often a chest holds it. Effects are applied in game.js (onChest).
+  const CHEST_KINDS = {
+    heart: { weight: 3, text: 'A Heart Vessel! Your life grows by one heart.' },
+    sword: { weight: 3, text: 'A dwarven whetstone! Your sword bites deeper.' },
+    shot: { weight: 2, text: 'Fletching of storm-crow feathers! Your bolts hit harder.' },
+    tome: { weight: 3, text: 'A battle journal, full of hard lessons.' },
+    scroll: { weight: 2, text: 'A scroll of the old knights! Choose an upgrade.' },
+    hourglass: { weight: 2, text: 'An hourglass of the old mages! Thirty seconds flow back into the quest clock.' },
   };
+  const CHEST_COUNT = 10;
+  // Places and fills a quest's chests from its seed: [{ id, x, y, kind }]. Each needs open ground
+  // on every side (so it can be reached), off the road and away, the start, people,
+  // lairs and the other chests. At least one heart and one whetstone.
+  function rollChests(seed) {
+    let a = seed >>> 0;
+    const rand = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const at = (x, y) => (WORLD[y] || '')[x] || 'M';
+    const ground = '.spac';
+    const avoid = [{ x: START.x, y: START.y, r: 5 }].concat(NPCS.map((n) => ({ x: n.x, y: n.y, r: 2 })));
+    for (let y = 0; y < WORLD.length; y++) for (let x = 0; x < WORLD[0].length; x++) if ('12345GS'.includes(at(x, y))) avoid.push({ x, y, r: 3 });
+    const spots = [];
+    for (let y = 1; y < WORLD.length - 1; y++) for (let x = 1; x < WORLD[0].length - 1; x++) {
+      const ok = ground.includes(at(x, y)) && [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => WALKABLE.includes(at(x + dx, y + dy)));
+      if (ok && !avoid.some((v) => Math.hypot(v.x - x, v.y - y) < v.r)) spots.push({ x, y });
+    }
+    const out = [];
+    for (let tries = 0; out.length < CHEST_COUNT && tries < 4000; tries++) {
+      const p = spots[Math.floor(rand() * spots.length)];
+      if (p && !out.some((o) => Math.hypot(o.x - p.x, o.y - p.y) < 6)) out.push(p);
+    }
+    const kinds = Object.keys(CHEST_KINDS);
+    const total = kinds.reduce((n, k) => n + CHEST_KINDS[k].weight, 0);
+    const draw = () => { let r = rand() * total; return kinds.find((k) => (r -= CHEST_KINDS[k].weight) < 0) || kinds[0]; };
+    const list = out.map((p, i) => ({ id: 'r' + i, x: p.x, y: p.y, kind: draw() }));
+    ['heart', 'sword'].forEach((k, i) => { if (list.length > i && !list.some((c) => c.kind === k)) list[i].kind = k; });
+    return list;
+  }
 
   const SIGNS = {
     '18,13': 'CROSSROADS.  North: the Ashen Gate.  West road: Stormspire Peak, and south of it Hollowstone Canyon.  East road: Mount Cinder, and south of it the Sunken Grotto.',
@@ -233,7 +274,7 @@
     ],
   };
 
-  const api = { ELEMENTS, ELEMENT_ORDER, weaknessOf, effectiveness, DIFFICULTY, difficulty, fightScore, bossMaxHp, trialKit, PAR_PER_HP, DRAGONS, ELEMENT_ATTACKS, ELEMENT_BIG, WORLD, LAIR_CHARS, WALKABLE, START, CHESTS, SIGNS, NPCS, KING_LINES, STORY };
+  const api = { ELEMENTS, ELEMENT_ORDER, weaknessOf, effectiveness, DIFFICULTY, difficulty, fightScore, questScore, QUEST_PAR, DEATH_COST, bossMaxHp, trialKit, CHEST_KINDS, rollChests, DRAGONS, ELEMENT_ATTACKS, ELEMENT_BIG, WORLD, LAIR_CHARS, WALKABLE, START, SIGNS, NPCS, KING_LINES, STORY };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Data = api;
 })(typeof window !== 'undefined' ? window : globalThis);

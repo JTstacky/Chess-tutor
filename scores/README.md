@@ -6,16 +6,17 @@ the multiplayer relay, so changes here never touch multiplayer.
 
 - `GET /scores?board=<board>&limit=10` lists the top scores.
 - `POST /scores` submits a result and answers with its rank.
-- Boards: `quest` (a whole story run) and one per dragon for Trials (`thunder`, `water`,
-  `fire`, `earth`, `demon`).
+- Board: `quest2`, a whole story run (all five dragons) on one quest clock that also runs in
+  the open world, with deaths costing points. Only `quest2` takes new scores; the older boards
+  (`quest` before the clock, and one per dragon from when Trials were scored) stay readable.
 
 Each entry also carries the knight's look (three digits from the game's character creator),
 shown as portraits of the top three. Names go through `src/names.js`, a copy of the game's
 `js/names.js` (keep them identical): rude names are stored as "Knight".
 
-The server recomputes every score from the fight records with the game's formula (`fightScore`
-in the game's `js/data.js`), so the two must stay in step. Trials boards accept only the
-standard Trials knight, so they compare fairly. It keeps the top 200 per board and limits each
+The server recomputes every score from the fight records, the quest clock and the deaths with
+the game's formulas (`fightScore` and `questScore` in the game's `js/data.js`), so the two must
+stay in step. It keeps the top 200 per board and limits each
 address to a few submissions a minute. This stops casual tampering, not a determined cheat:
 the game runs in the browser.
 

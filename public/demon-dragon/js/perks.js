@@ -18,10 +18,19 @@
     { id: 'fleet', icon: '👢', name: 'Fleet Foot', per: 'Run 10% faster', max: 2 },
     { id: 'vigor', icon: '❤️', name: 'Vigor', per: 'One more heart, and full health', max: 3 },
     { id: 'forage', icon: '🍀', name: 'Forager', per: 'Drakelings drop hearts more often', max: 2 },
+    { id: 'lucky', icon: '🎲', name: 'Lucky Strike', per: '12% chance for a sword or bolt hit to deal double', max: 3 },
+    { id: 'mastery', icon: '🔮', name: 'Relic Mastery', per: 'Hits with the right element deal 25% more', max: 2 },
+    { id: 'iron', icon: '🛡️', name: 'Iron Skin', per: 'Take 15% less damage', max: 3 },
+    { id: 'mend', icon: '🩹', name: 'Mending', per: 'Heal half a heart every 20 seconds (faster with more)', max: 2 },
+    { id: 'second', icon: '✨', name: 'Second Wind', per: 'Once per fight or journey out, a deadly blow leaves you at half a heart', max: 1 },
+    { id: 'rollslash', icon: '🌀', name: 'Roll Strike', per: 'Rolling through a foe cuts it for half your sword', max: 2 },
+    { id: 'scholar', icon: '📜', name: 'Quick Study', per: 'Earn 50% more experience', max: 2 },
   ];
   const BY_ID = Object.fromEntries(PERKS.map((p) => [p.id, p]));
 
-  const MAX_LEVEL = 15;
+  const MAX_LEVEL = 30;
+  // Every fifth level offers one card more.
+  const choices = (level) => (level % 5 === 0 ? 4 : 3);
   const xpNeeded = (level) => 2 + level * 2;
   const stacks = (P, id) => (P && P.perks && P.perks[id]) || 0;
 
@@ -41,6 +50,13 @@
       case 'rollGuard': return 0.15 * n('ghost');
       case 'speed': return 1 + 0.1 * n('fleet');
       case 'heartDrop': return 0.15 * n('forage');
+      case 'lucky': return 0.12 * n('lucky');
+      case 'mastery': return 0.25 * n('mastery');
+      case 'harm': return Math.pow(0.85, n('iron'));
+      case 'mend': return n('mend') ? 20 / n('mend') : 0; // seconds per half heart, 0 = none
+      case 'second': return n('second') > 0;
+      case 'rollslash': return 0.5 * n('rollslash');
+      case 'xp': return 1 + 0.5 * n('scholar');
       default: return 1;
     }
   }
@@ -62,7 +78,7 @@
     return def;
   }
 
-  const api = { PERKS, BY_ID, MAX_LEVEL, xpNeeded, stacks, stat, roll, take };
+  const api = { PERKS, BY_ID, MAX_LEVEL, choices, xpNeeded, stacks, stat, roll, take };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Perks = api;
 })(typeof window !== 'undefined' ? window : globalThis);

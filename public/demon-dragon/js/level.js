@@ -159,19 +159,6 @@
           s.position.set(x, 0, y);
           group.add(s);
           targets.push({ x, z: y, reach: 1.45, act: () => hooks.onSign(D.SIGNS[x + ',' + y]) });
-        } else if (c === '*') {
-          const def = D.CHESTS[x + ',' + y];
-          const ch = M.chest(P.chests.includes(def.id));
-          ch.group.position.set(x, 0, y);
-          group.add(ch.group);
-          targets.push({
-            x, z: y, reach: 1.45, act: () => {
-              if (P.chests.includes(def.id)) return hooks.onSign('The chest is empty.');
-              ch.open();
-              G.emit({ pos: p3(x, y, 0.6), count: 24, colors: [0xffe680, 0xffffff], speed: 2.5, life: 0.8, size: 0.3, gravity: 3 });
-              hooks.onChest(def);
-            },
-          });
         } else if (D.LAIR_CHARS[c]) {
           const id = D.LAIR_CHARS[c];
           if (id === 'demon') {
@@ -191,6 +178,23 @@
           targets.push({ x, z: y, reach: 1.6, act: () => hooks.onLair(id) });
         }
       }
+      // This quest's chests (Data.rollChests), each in its own place with its own reward.
+      (P.chestSpots || []).forEach((def) => {
+        const { x, y } = def;
+        const ch = M.chest(P.chests.includes(def.id));
+        ch.group.position.set(x, world.groundY(x, y), y);
+        ch.group.rotation.y = ((x * 7 + y * 3) % 4) * 0.4 - 0.6;
+        group.add(ch.group);
+        phys.add({ x, z: y, r: 0.42 });
+        targets.push({
+          x, z: y, reach: 1.45, act: () => {
+            if (P.chests.includes(def.id)) return hooks.onSign('The chest is empty.');
+            ch.open();
+            G.emit({ pos: p3(x, y, 0.6), count: 24, colors: [0xffe680, 0xffffff], speed: 2.5, life: 0.8, size: 0.3, gravity: 3 });
+            hooks.onChest(def);
+          },
+        });
+      });
       D.NPCS.forEach((n) => {
         const m = M.person(n.look);
         m.group.position.set(n.x, 0, n.y);
@@ -264,11 +268,14 @@
       if (best) K.rot = K.want = angleOf(best.x - K.x, best.z - K.z);
     }
 
-    const eff = (attackEl, targetEl) => D.effectiveness(attackEl, targetEl, DF.level);
+    // Relic Mastery adds to a strong element's bonus.
+    const eff = (attackEl, targetEl) => { const e = D.effectiveness(attackEl, targetEl, DF.level); return e > 1 ? e + PK('mastery') : e; };
     // Level-up upgrades (js/perks.js), read fresh each time so a new pick applies at once.
     const PK = (key) => (window.Perks ? window.Perks.stat(P, key) : key === 'pierce' ? false : key === 'rollGuard' || key === 'heartDrop' ? 0 : 1);
+    // Lucky Strike: now and then a hit lands double.
+    const luck = (d) => (Math.random() < PK('lucky') ? d * 2 : d);
     function swordDamage(targetEl, tired) {
-      return P.sword * PK('swordDmg') * eff(P.active, targetEl) * (tired ? 2 : 1);
+      return luck(P.sword * PK('swordDmg') * eff(P.active, targetEl) * (tired ? 2 : 1));
     }
     function bossDistance(x, z) {
       const qx = Math.max(boss.x - BOSS_BOX.half, Math.min(boss.x + BOSS_BOX.half, x));
@@ -336,7 +343,7 @@
       const m = inputMag();
       let d = facing();
       if (m > 0.2) { const n = Math.hypot(L.input.x, L.input.z); d = { x: L.input.x / n, z: L.input.z / n }; }
-      K.roll = { t: 0, dx: d.x, dz: d.z };
+      K.roll = { t: 0, dx: d.x, dz: d.z, hit: [] };
       K.rot = K.want = angleOf(d.x, d.z);
       K.invuln = Math.max(K.invuln, 0.42 + PK('rollGuard'));
       K.lock = ROLL.time;
@@ -374,6 +381,11 @@
         r.t += dt;
         const step = (ROLL.dist / ROLL.time) * dt;
         dx = r.dx * step; dz = r.dz * step;
+        // Roll Strike: cuts each foe rolled through once per roll.
+        if (PK('rollslash') && !L.locked) {
+          enemies.forEach((e) => { if (e.alive && !r.hit.includes(e) && Math.hypot(e.x - K.x, e.z - K.z) < 0.9) { r.hit.push(e); hurtEnemy(e, swordDamage(e.element, false) * PK('rollslash'), { x: r.dx, z: r.dz }); } });
+          if (boss && boss.alive && !r.hit.includes(boss) && bossDistance(K.x, K.z) < 0.7) { r.hit.push(boss); hurtBoss(swordDamage(boss.element, boss.state === 'tired') * PK('rollslash'), true, eff(P.active, boss.element)); }
+        }
         if (r.t >= ROLL.time) { K.roll = null; kModel.anim.spin = 0; }
         K.speed = 0;
       } else {
@@ -428,7 +440,13 @@
 
     function hurtKnight(dmg, color) {
       if (K.invuln > 0 || L.locked || L.over) return;
-      dmg = Math.max(1, Math.round(dmg * DF.harm));
+      dmg = Math.max(1, Math.round(dmg * DF.harm * PK('harm')));
+      // Second Wind: once per level (a fight, or a journey out), a deadly blow leaves half a heart.
+      if (dmg >= L.hp && PK('second') && !L.secondUsed) {
+        L.secondUsed = true;
+        dmg = L.hp - 1;
+        hooks.onBanner('Second Wind!', false);
+      }
       L.stats.taken += Math.min(L.hp, dmg);
       L.hp = Math.max(0, L.hp - dmg);
       K.invuln = 1.1;
@@ -437,7 +455,7 @@
       G.flash('rgba(255,40,40,0.55)', 300);
       hooks.sfx('hurt');
       kModel.play('Hit', 1.6);
-      G.floatText(p3(K.x, K.z, 1.7), '-' + (dmg / 2) + ' ♥', 'hurt');
+      if (dmg) G.floatText(p3(K.x, K.z, 1.7), '-' + (dmg / 2) + ' ♥', 'hurt');
       G.emit({ pos: p3(K.x, K.z, 0.7), count: 14, colors: [color || 0xff5555, 0xffffff], speed: 3, life: 0.5, size: 0.3 });
       hooks.onHud();
       if (L.hp <= 0) {
@@ -552,9 +570,9 @@
         const e = enemies.find((en) => en.alive && !s.hit.includes(en) && Math.hypot(en.x - s.x, en.z - s.z) < 0.6);
         const rock = rocks.find((r) => Math.hypot(r.x - s.x, r.z - s.z) < 0.5);
         const c = at(Math.round(s.x), Math.round(s.z));
-        if (e) { s.hit.push(e); hurtEnemy(e, P.shot * PK('boltDmg') * s.power * eff(s.element, e.element), { x: s.dx, z: s.dz }); dead = dead || !PK('pierce'); }
+        if (e) { s.hit.push(e); hurtEnemy(e, luck(P.shot * PK('boltDmg') * s.power * eff(s.element, e.element)), { x: s.dx, z: s.dz }); dead = dead || !PK('pierce'); }
         else if (boss && boss.alive && bossDistance(s.x, s.z) < 0.05) {
-          hurtBoss(P.shot * PK('boltDmg') * s.power * eff(s.element, boss.element) * (boss.state === 'tired' ? 2 : 1) * (boss.def.toughHide ? 0.5 : 1), false, eff(s.element, boss.element));
+          hurtBoss(luck(P.shot * PK('boltDmg') * s.power * eff(s.element, boss.element)) * (boss.state === 'tired' ? 2 : 1) * (boss.def.toughHide ? 0.5 : 1), false, eff(s.element, boss.element));
           dead = true;
         } else if (rock) { breakRock(rock); dead = true; }
         else if (!isArena && !D.WALKABLE.includes(c) && c !== '~' && c !== 'L') dead = true;
@@ -607,7 +625,7 @@
         G.emit({ pos: p3(e.x, e.z, 0.5), count: 22, colors: [D.ELEMENTS[e.element].color, 0xffffff], speed: 3, life: 0.6, size: 0.4 });
         hooks.sfx('poof');
         if (L.hp < P.hpMax && Math.random() < 0.45 + PK('heartDrop')) dropHeart(e.x, e.z);
-        hooks.onXp(1, p3(e.x, e.z, 1.4));
+        hooks.onXp(1 + Math.min(4, P.slain.length), p3(e.x, e.z, 1.4));
         if (isArena) { e.gone = true; group.remove(e.model.group); L.drakeT = Math.max(L.drakeT, 8); }
       }
     }
@@ -872,7 +890,7 @@
       if (mult === 0) {
         hooks.sfx('plink');
         G.floatText(boss.model.headPos().add(new V3((Math.random() - 0.5) * 1.5, 0.6, 0)), 'IMMUNE', 'dmg');
-        if (!L.toldResist) { L.toldResist = true; hooks.onBanner('Immune! Switch relic (tap the badge or Q).', false); }
+        if (!L.toldResist) { L.toldResist = true; hooks.onBanner('Immune! Switch relic (top button or Q).', false); }
         return;
       }
       if (mult < 1 && !L.toldResist) { L.toldResist = true; hooks.onBanner('Resisted! Another relic, or none, hits harder.', false); }
@@ -1015,6 +1033,16 @@
         }
         if (dt > 0) { K.vx += ((K.x - px) / dt - K.vx) * Math.min(1, dt * 8); K.vz += ((K.z - pz) / dt - K.vz) * Math.min(1, dt * 8); }
         if (isArena && boss && boss.alive && !L.locked && boss.state !== 'intro') L.stats.t += dt;
+        if (!L.locked && !L.over) {
+          if (hooks.onClock) hooks.onClock(dt);
+          const mend = PK('mend');
+          if (mend && L.hp < P.hpMax && (L.mendT = (L.mendT || 0) + dt) >= mend) {
+            L.mendT = 0;
+            L.hp += 1;
+            G.floatText(p3(K.x, K.z, 1.6), '+½ ♥', 'heal');
+            hooks.onHud();
+          }
+        }
         kModel.group.rotation.y = K.rot;
         kModel.group.position.set(K.x, isArena ? 0 : groundY(K.x, K.z), K.z);
         kModel.anim.walk += (K.speed - kModel.anim.walk) * Math.min(1, dt * 14);
