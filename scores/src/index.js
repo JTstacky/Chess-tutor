@@ -1,0 +1,149 @@
+// Teng Games high scores (Revenge of the Demon Dragon).
+//
+//   GET  /scores?board=<board>[&limit=10]   top scores on a board
+//   POST /scores                            submit a result, answered with its rank
+//   GET  /health                            liveness check for the deploy workflow
+//
+// Boards: one per dragon (thunder, water, fire, earth, demon) for Trials, which use a fixed
+// knight, and "quest" for a whole story run (all five fights). The server never trusts a
+// submitted score: it recomputes it from the fight records with the game's own formula
+// (js/data.js in the game, fightScore) and rejects records outside what the game allows.
+//
+// POST body: { game: 'demon-dragon', board, name, diff: 1-5,
+//              fights: [{ id, tier, t: seconds, taken: half hearts, hpMax: half hearts }] }
+
+import { DurableObject } from 'cloudflare:workers';
+
+const GAME = 'demon-dragon';
+const BOARDS = ['quest', 'thunder', 'water', 'fire', 'earth', 'demon'];
+const DRAGON_HP = { thunder: 190, water: 240, fire: 240, earth: 270, demon: 620 };
+const PAR_PER_HP = 0.2;
+const KEEP = 200;            // rows kept per board
+const POSTS_PER_MINUTE = 8;  // per IP
+
+// --- the game's scoring rules (keep in step with js/data.js) ---
+const bossMaxHp = (id, tier) => Math.round(DRAGON_HP[id] * (1 + 0.3 * (id === 'demon' ? 0 : tier)));
+function fightScore(f, diff) {
+  const par = bossMaxHp(f.id, f.tier) * PAR_PER_HP;
+  const time = Math.round(2000 * Math.min(2, par / Math.max(1, f.t)));
+  const kept = Math.round(2500 * Math.max(0, 1 - f.taken / Math.max(1, f.hpMax)));
+  const flawless = f.taken <= 0 ? 1000 : 0;
+  return (1000 + time + kept + flawless) * diff;
+}
+const TRIAL = (id) => (id === 'demon' ? { tier: 0, hpMax: 20 } : { tier: 3, hpMax: 16 });
+
+function allowed(origin, env) {
+  const list = String(env.ALLOWED_ORIGINS || '*').split(',').map((s) => s.trim()).filter(Boolean);
+  if (list.includes('*') || !origin) return true;
+  return list.some((o) => origin === o || (o.startsWith('http://') && origin.startsWith(`${o}:`)));
+}
+function cors(origin, env) {
+  return {
+    'access-control-allow-origin': origin && allowed(origin, env) ? origin : 'https://tenggames.com.au',
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    'access-control-max-age': '86400',
+    vary: 'Origin',
+  };
+}
+const json = (data, status, headers) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', ...headers } });
+
+// Letters, digits, spaces and a little punctuation; 1-12 characters.
+function cleanName(s) {
+  const n = String(s || '').normalize('NFKC').replace(/[^\p{L}\p{N} ._'-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 12);
+  return n || 'Knight';
+}
+const num = (v, lo, hi) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
+
+// Checks a submission and returns { board, name, diff, total, t, taken } or an error string.
+export function validate(b) {
+  if (!b || b.game !== GAME) return 'unknown game';
+  if (!BOARDS.includes(b.board)) return 'unknown board';
+  if (!Number.isInteger(b.diff) || b.diff < 1 || b.diff > 5) return 'bad difficulty';
+  if (!Array.isArray(b.fights)) return 'no fights';
+  const fights = b.fights;
+  for (const f of fights) {
+    if (!f || !DRAGON_HP[f.id]) return 'bad fight';
+    if (!Number.isInteger(f.tier) || f.tier < 0 || f.tier > 3) return 'bad tier';
+    if (!num(f.t, 5, 7200) || !num(f.taken, 0, 400) || !Number.isInteger(f.taken)) return 'bad record';
+    if (!Number.isInteger(f.hpMax) || f.hpMax < 10 || f.hpMax > 60 || f.taken > f.hpMax * 12) return 'bad health';
+  }
+  if (b.board === 'quest') {
+    const ids = fights.map((f) => f.id).sort().join(',');
+    if (ids !== 'demon,earth,fire,thunder,water') return 'a quest needs all five dragons';
+    const tiers = fights.filter((f) => f.id !== 'demon').map((f) => f.tier).sort().join(',');
+    if (tiers !== '0,1,2,3' || fights.find((f) => f.id === 'demon').tier !== 0) return 'bad quest order';
+  } else {
+    const k = TRIAL(b.board);
+    if (fights.length !== 1 || fights[0].id !== b.board || fights[0].tier !== k.tier || fights[0].hpMax !== k.hpMax) return 'not a trial record';
+  }
+  const total = fights.reduce((s, f) => s + fightScore(f, b.diff), 0);
+  const t = Math.round(fights.reduce((s, f) => s + f.t, 0));
+  const taken = fights.reduce((s, f) => s + f.taken, 0);
+  return { board: b.board, name: cleanName(b.name), diff: b.diff, total, t, taken };
+}
+
+export default {
+  async fetch(req, env) {
+    const url = new URL(req.url);
+    const origin = req.headers.get('Origin');
+    const h = cors(origin, env);
+    if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
+    if (url.pathname === '/' || url.pathname === '/health') return json({ ok: true, service: 'tenggames-scores' }, 200, h);
+    if (url.pathname !== '/scores') return json({ error: 'not found' }, 404, h);
+    if (origin && !allowed(origin, env)) return json({ error: 'origin not allowed' }, 403, h);
+    const store = env.SCORES.get(env.SCORES.idFromName(GAME));
+    if (req.method === 'GET') {
+      const board = url.searchParams.get('board');
+      if (!BOARDS.includes(board)) return json({ error: 'unknown board' }, 400, h);
+      const limit = Math.max(1, Math.min(50, parseInt(url.searchParams.get('limit') || '10', 10) || 10));
+      return json(await store.top(board, limit), 200, h);
+    }
+    if (req.method === 'POST') {
+      let body;
+      try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400, h); }
+      const v = validate(body);
+      if (typeof v === 'string') return json({ error: v }, 400, h);
+      const ip = req.headers.get('CF-Connecting-IP') || 'local';
+      const r = await store.add(v, ip);
+      return json(r, r.error ? 429 : 200, h);
+    }
+    return json({ error: 'method not allowed' }, 405, h);
+  },
+};
+
+// One object holds every board (SQLite storage, Cloudflare's free plan).
+export class Scores extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.sql = ctx.storage.sql;
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS scores (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, board TEXT NOT NULL, name TEXT NOT NULL,
+      total INTEGER NOT NULL, diff INTEGER NOT NULL, t INTEGER NOT NULL, taken INTEGER NOT NULL, at INTEGER NOT NULL)`);
+    this.sql.exec('CREATE INDEX IF NOT EXISTS by_board ON scores (board, total DESC)');
+    this.recent = new Map(); // ip -> [timestamps], kept in memory only
+  }
+
+  top(board, limit) {
+    const rows = this.sql.exec('SELECT name, total, diff, t, taken, at FROM scores WHERE board = ? ORDER BY total DESC, at ASC LIMIT ?', board, limit).toArray();
+    const count = this.sql.exec('SELECT COUNT(*) AS n FROM scores WHERE board = ?', board).one().n;
+    return { board, count, entries: rows };
+  }
+
+  add(v, ip) {
+    const now = Date.now();
+    const times = (this.recent.get(ip) || []).filter((t) => now - t < 60000);
+    if (times.length >= POSTS_PER_MINUTE) return { error: 'too many submissions, try again in a minute' };
+    times.push(now);
+    this.recent.set(ip, times);
+    if (this.recent.size > 5000) this.recent.clear();
+
+    this.sql.exec('INSERT INTO scores (board, name, total, diff, t, taken, at) VALUES (?, ?, ?, ?, ?, ?, ?)', v.board, v.name, v.total, v.diff, v.t, v.taken, now);
+    const rank = this.sql.exec('SELECT COUNT(*) AS n FROM scores WHERE board = ? AND total > ?', v.board, v.total).one().n + 1;
+    const count = this.sql.exec('SELECT COUNT(*) AS n FROM scores WHERE board = ?', v.board).one().n;
+    if (count > KEEP) {
+      this.sql.exec('DELETE FROM scores WHERE board = ? AND id NOT IN (SELECT id FROM scores WHERE board = ? ORDER BY total DESC, at ASC LIMIT ?)', v.board, v.board, KEEP);
+    }
+    return { ok: true, board: v.board, total: v.total, rank, count: Math.min(count, KEEP) };
+  }
+}

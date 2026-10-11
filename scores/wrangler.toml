@@ -1,0 +1,17 @@
+# Teng Games high scores (Cloudflare Worker + one SQLite Durable Object, free plan).
+# Deployed by .github/workflows/scores.yml. See scores/README.md.
+name = "tenggames-scores"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+# Pages allowed to read and post scores (comma separated; "*" allows any).
+ALLOWED_ORIGINS = "https://tenggames.com.au,https://www.tenggames.com.au,https://jtstacky.github.io,http://localhost,http://127.0.0.1"
+
+[[durable_objects.bindings]]
+name = "SCORES"
+class_name = "Scores"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Scores"]
