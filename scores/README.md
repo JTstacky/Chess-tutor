@@ -9,6 +9,10 @@ the multiplayer relay, so changes here never touch multiplayer.
 - Boards: `quest` (a whole story run) and one per dragon for Trials (`thunder`, `water`,
   `fire`, `earth`, `demon`).
 
+Each entry also carries the knight's look (three digits from the game's character creator),
+shown as portraits of the top three. Names go through `src/names.js`, a copy of the game's
+`js/names.js` (keep them identical): rude names are stored as "Knight".
+
 The server recomputes every score from the fight records with the game's formula (`fightScore`
 in the game's `js/data.js`), so the two must stay in step. Trials boards accept only the
 standard Trials knight, so they compare fairly. It keeps the top 200 per board and limits each

@@ -9,10 +9,15 @@
 // submitted score: it recomputes it from the fight records with the game's own formula
 // (js/data.js in the game, fightScore) and rejects records outside what the game allows.
 //
-// POST body: { game: 'demon-dragon', board, name, diff: 1-5,
+// POST body: { game: 'demon-dragon', board, name, diff: 1-5, look: '000'-'999',
 //              fights: [{ id, tier, t: seconds, taken: half hearts, hpMax: half hearts }] }
+// look is the knight's look from the game's character creator (three digits); names go
+// through the game's own filter (names.js, a copy of js/names.js), rude ones become "Knight".
 
 import { DurableObject } from 'cloudflare:workers';
+import './names.js';
+
+const Names = globalThis.Names;
 
 const GAME = 'demon-dragon';
 const BOARDS = ['quest', 'thunder', 'water', 'fire', 'earth', 'demon'];
@@ -48,11 +53,9 @@ function cors(origin, env) {
 }
 const json = (data, status, headers) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', ...headers } });
 
-// Letters, digits, spaces and a little punctuation; 1-12 characters.
-function cleanName(s) {
-  const n = String(s || '').normalize('NFKC').replace(/[^\p{L}\p{N} ._'-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 12);
-  return n || 'Knight';
-}
+// Letters, digits, spaces and a little punctuation; 1-12 characters; nothing rude.
+const cleanName = (s) => Names.check(s).name;
+const cleanLook = (s) => (/^\d{3}$/.test(s || '') ? s : '000');
 const num = (v, lo, hi) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
 
 // Checks a submission and returns { board, name, diff, total, t, taken } or an error string.
@@ -80,7 +83,7 @@ export function validate(b) {
   const total = fights.reduce((s, f) => s + fightScore(f, b.diff), 0);
   const t = Math.round(fights.reduce((s, f) => s + f.t, 0));
   const taken = fights.reduce((s, f) => s + f.taken, 0);
-  return { board: b.board, name: cleanName(b.name), diff: b.diff, total, t, taken };
+  return { board: b.board, name: cleanName(b.name), look: cleanLook(b.look), diff: b.diff, total, t, taken };
 }
 
 export default {
@@ -121,11 +124,14 @@ export class Scores extends DurableObject {
       id INTEGER PRIMARY KEY AUTOINCREMENT, board TEXT NOT NULL, name TEXT NOT NULL,
       total INTEGER NOT NULL, diff INTEGER NOT NULL, t INTEGER NOT NULL, taken INTEGER NOT NULL, at INTEGER NOT NULL)`);
     this.sql.exec('CREATE INDEX IF NOT EXISTS by_board ON scores (board, total DESC)');
+    // Added with the character creator; older rows show the knight as made.
+    const cols = this.sql.exec('PRAGMA table_info(scores)').toArray().map((c) => c.name);
+    if (!cols.includes('look')) this.sql.exec("ALTER TABLE scores ADD COLUMN look TEXT NOT NULL DEFAULT '000'");
     this.recent = new Map(); // ip -> [timestamps], kept in memory only
   }
 
   top(board, limit) {
-    const rows = this.sql.exec('SELECT name, total, diff, t, taken, at FROM scores WHERE board = ? ORDER BY total DESC, at ASC LIMIT ?', board, limit).toArray();
+    const rows = this.sql.exec('SELECT name, look, total, diff, t, taken, at FROM scores WHERE board = ? ORDER BY total DESC, at ASC LIMIT ?', board, limit).toArray();
     const count = this.sql.exec('SELECT COUNT(*) AS n FROM scores WHERE board = ?', board).one().n;
     return { board, count, entries: rows };
   }
@@ -138,7 +144,7 @@ export class Scores extends DurableObject {
     this.recent.set(ip, times);
     if (this.recent.size > 5000) this.recent.clear();
 
-    this.sql.exec('INSERT INTO scores (board, name, total, diff, t, taken, at) VALUES (?, ?, ?, ?, ?, ?, ?)', v.board, v.name, v.total, v.diff, v.t, v.taken, now);
+    this.sql.exec('INSERT INTO scores (board, name, look, total, diff, t, taken, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', v.board, v.name, v.look, v.total, v.diff, v.t, v.taken, now);
     const rank = this.sql.exec('SELECT COUNT(*) AS n FROM scores WHERE board = ? AND total > ?', v.board, v.total).one().n + 1;
     const count = this.sql.exec('SELECT COUNT(*) AS n FROM scores WHERE board = ?', v.board).one().n;
     if (count > KEEP) {

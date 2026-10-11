@@ -12,14 +12,14 @@
   let arenaId = null;
 
   // ---------- saving ----------
-  function newPlayer(name, difficulty) {
-    return { name, difficulty: difficulty || 1, fightScores: {}, hpMax: 10, sword: 4, shot: 3, relics: [], active: null, slain: [], chests: [], xp: 0, level: 1, perks: {}, perkPending: 0, pos: null, seenAwaken: false, tips: {}, won: false };
+  function newPlayer(name, difficulty, look) {
+    return { name, look: look || '000', difficulty: difficulty || 1, fightScores: {}, hpMax: 10, sword: 4, shot: 3, relics: [], active: null, slain: [], chests: [], xp: 0, level: 1, perks: {}, perkPending: 0, pos: null, seenAwaken: false, tips: {}, won: false };
   }
   // A Trial replays one slain dragon with a fixed knight (D.trialKit) so every score on a
   // dragon's board is comparable. A trial knight is never saved.
   function trialPlayer(id, difficulty, name) {
     const k = D.trialKit(id);
-    const p = newPlayer(name, difficulty);
+    const p = newPlayer(name, difficulty, store.get(LOOK_KEY, '000'));
     Object.assign(p, { hpMax: k.hpMax, sword: k.sword, shot: k.shot, level: k.level, relics: k.relics, perks: {}, perkPending: 0, trial: id });
     p.slain = D.ELEMENT_ORDER.filter((e) => e !== id); // sets the dragon's tier, as late in the quest
     const weak = D.weaknessOf(D.DRAGONS[id].element);
@@ -27,6 +27,8 @@
     p.tips.arena = true;
     return p;
   }
+  // Every M.knight() without a look (the hero, in play and in cutscenes) wears the player's.
+  Object.defineProperty(window.Models, 'heroLook', { configurable: true, get: () => (P && P.look) || '000' });
   function save() {
     if (P && P.trial) return;
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(P)); } catch (e) { /* storage unavailable: play on without saving */ }
@@ -280,7 +282,8 @@
     if (e.repeat) return;
     Sfx.unlock();
     if (dlg) {
-      if (dlg.choices && !dlg.typing && (KEY_DIR[k] === 'up' || KEY_DIR[k] === 'left')) dlg.move(-1);
+      if (dlg.side && (KEY_DIR[k] === 'left' || KEY_DIR[k] === 'right')) dlg.side(KEY_DIR[k] === 'left' ? -1 : 1);
+      else if (dlg.choices && !dlg.typing && (KEY_DIR[k] === 'up' || KEY_DIR[k] === 'left')) dlg.move(-1);
       else if (dlg.choices && !dlg.typing && (KEY_DIR[k] === 'down' || KEY_DIR[k] === 'right')) dlg.move(1);
       else if (KEY_BTN[k]) advance();
       return;
@@ -361,7 +364,8 @@
     if (x !== padStick.x || z !== padStick.z) { padStick.x = x; padStick.z = z; pushInput(); }
     const edge = (i) => { const now = b(i), was = padWas[i]; padWas[i] = now; return now && !was; };
     if (dlg) {
-      if (dlg.choices && !dlg.typing && (edge(12) || edge(14))) dlg.move(-1);
+      if (dlg.side && (edge(14) || edge(15))) dlg.side(padWas[14] ? -1 : 1);
+      else if (dlg.choices && !dlg.typing && (edge(12) || edge(14))) dlg.move(-1);
       else if (dlg.choices && !dlg.typing && (edge(13) || edge(15))) dlg.move(1);
       else if (edge(0) || edge(1) || edge(2)) advance();
       return;
@@ -634,7 +638,7 @@
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* no storage */ } },
   };
-  const BEST_KEY = 'rotdd.best.v1', TRIALS_KEY = 'rotdd.trials.v1', NAME_KEY = 'rotdd.name';
+  const BEST_KEY = 'rotdd.best.v1', TRIALS_KEY = 'rotdd.trials.v1', NAME_KEY = 'rotdd.name', LOOK_KEY = 'rotdd.look';
   const TRIAL_IDS = D.ELEMENT_ORDER.concat('demon');
   const icon = (id) => (id === 'demon' ? '🐲' : D.ELEMENTS[D.DRAGONS[id].element].icon);
 
@@ -707,12 +711,40 @@
     const old = bests[board];
     if (!old || total > old.total) { bests[board] = { total, diff }; store.set(BEST_KEY, bests); }
     const mine = !old ? '' : total > old.total ? `New personal best! (was ${old.total.toLocaleString()})` : `Your best: ${old.total.toLocaleString()}`;
-    const r = await scoresApi('/scores', { game: 'demon-dragon', board, name, diff, fights });
+    const r = await scoresApi('/scores', { game: 'demon-dragon', board, name, diff, fights, look: (P && P.look) || '000' });
     const world = r.error === 'offline' ? 'Could not reach the world board. Your best is kept on this device.'
       : r.error ? `The world board did not take this score (${r.error}).`
       : `World rank #${r.rank} of ${r.count}`;
     const el = $('srank');
     if (el) el.innerHTML = `<b>${esc(world)}</b>${mine ? `<br>${esc(mine)}` : ''}`;
+    if (r.error) return;
+    const top = await scoresApi(`/scores?board=${board}&limit=3`);
+    const pod = $('spodium');
+    if (pod && !top.error) pod.innerHTML = podiumHtml(top.entries);
+  }
+
+  // The top three of a board as portraits of their knights, a crown on the first.
+  const portraits = new Map();
+  const lookOk = (l) => (/^\d{3}$/.test(l || '') ? l : '000');
+  function portrait(look, crowned) {
+    const key = look + (crowned ? 'c' : '');
+    if (!portraits.has(key)) {
+      const k = window.Models.knight({ look, crowned });
+      if (crowned) { k.crown(); k.anim.raise = 1; }
+      k.group.rotation.y = -Math.PI / 2 + 0.5;
+      k.update(0.45);
+      portraits.set(key, G.snapshot(k.group, 150, 190, (cam) => { cam.position.set(0, 1.0, 5.2); cam.lookAt(0, 0.82, 0); }));
+    }
+    return portraits.get(key);
+  }
+  function podiumHtml(entries) {
+    const top = (entries || []).slice(0, 3);
+    if (!top.length) return '';
+    const order = top.length === 3 ? [1, 0, 2] : top.length === 2 ? [1, 0] : [0];
+    return '<div class="podium">' + order.map((i) => {
+      const e = top[i];
+      return `<div class="pod p${i + 1}"><img alt="" src="${portrait(lookOk(e.look), i === 0)}"><b>${esc(e.name)}</b><small>${e.total.toLocaleString()}</small><span class="step">${i + 1}</span></div>`;
+    }).join('') + '</div>';
   }
 
   function fightRecord(id) {
@@ -736,7 +768,7 @@
 
   async function trialWon(id, f, s) {
     const name = P.name, diff = P.difficulty;
-    const shown = sheet(scoreHtml(`${icon(id)} Trial: ${D.DRAGONS[id].name}`, f, s, diff) + '<div id="srank" class="snote">Sending to the world board…</div>',
+    const shown = sheet(scoreHtml(`${icon(id)} Trial: ${D.DRAGONS[id].name}`, f, s, diff) + '<div id="srank" class="snote">Sending to the world board…</div><div id="spodium"></div>',
       ['Fight again', 'Trials', 'Title'], { layout: 'row' });
     postScore(id, [f], s.total, diff, name);
     const c = await shown;
@@ -755,7 +787,7 @@
     const total = fights.reduce((n, f) => n + f.total, 0);
     const whole = fights.length === 5;
     const shown = sheet(`<div class="stitle">Quest complete</div><div class="snote">${esc(P.name)} · ${df.name} difficulty</div>${rows}<div class="stotal">${total.toLocaleString()}</div>`
-      + `<div id="srank" class="snote">${whole ? 'Sending to the world board…' : 'This journey began before scores were kept, so it cannot go on the world board. Start a new quest to post one.'}</div>`, ['Continue']);
+      + `<div id="srank" class="snote">${whole ? 'Sending to the world board…' : 'This journey began before scores were kept, so it cannot go on the world board. Start a new quest to post one.'}</div><div id="spodium"></div>`, ['Continue']);
     if (whole) postScore('quest', fights.map(({ id, tier, t, taken, hpMax }) => ({ id, tier, t, taken, hpMax })), total, P.difficulty, P.name);
     await shown;
   }
@@ -776,7 +808,7 @@
     if (!diff) return openTrials(false);
     store.set('rotdd.diff', diff);
     let name = store.get(NAME_KEY, null) || (load() || {}).name;
-    if (!name) { name = await askName(); store.set(NAME_KEY, name); }
+    if (!name) { name = await askName(); store.set(NAME_KEY, name); store.set(LOOK_KEY, await createKnight(name, '000')); }
     P = trialPlayer(id, diff, name);
     busy = false;
     await startArena(id);
@@ -786,7 +818,7 @@
   function boardRows(r) {
     if (r.error) return '<div class="snote">Could not reach the world board.</div>';
     if (!r.entries.length) return '<div class="snote">No scores yet. Be the first!</div>';
-    return '<table class="board">' + r.entries.map((e, i) => `<tr><td>${i + 1}</td><td>${esc(e.name)}</td><td>${e.total.toLocaleString()}</td><td>${esc(D.difficulty(e.diff).name)}</td><td>${clock(e.t)}</td></tr>`).join('') + '</table>';
+    return podiumHtml(r.entries) + '<table class="board">' + r.entries.map((e, i) => `<tr><td>${i + 1}</td><td>${esc(e.name)}</td><td>${e.total.toLocaleString()}</td><td>${esc(D.difficulty(e.diff).name)}</td><td>${clock(e.t)}</td></tr>`).join('') + '</table>';
   }
   async function openBoards() {
     busy = true;
@@ -834,13 +866,125 @@
     await fade(false);
   }
 
+  // ---------- character creator ----------
+  // The knight on a turntable with three rows of choices. Tap a row's arrows (or left/right)
+  // to step through it; up/down or the stick picks a row; A steps the row forward.
+  function creatorStage() {
+    const group = new THREE.Group();
+    group.add(G.sky(0x8fc3ee, 0xfbeed2));
+    group.add(new THREE.HemisphereLight(0xffffff, 0x8a7a66, 1.1));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.25);
+    sun.position.set(3, 7, 5);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    group.add(sun);
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.4, 0.24, 48), G.toon(0xd8c095));
+    disc.position.y = -0.12;
+    disc.receiveShadow = true;
+    group.add(disc);
+    let knight = null, turn = 0;
+    return {
+      group, bg: 0xfbeed2,
+      set(code, move) {
+        if (knight) group.remove(knight.group);
+        knight = window.Models.knight({ look: code });
+        group.add(knight.group);
+        if (move) knight.play(move, 1.4);
+      },
+      cheer() { if (knight) knight.anim.raise = 1; },
+      update(dt) {
+        turn += dt;
+        if (knight) { knight.group.rotation.y = -Math.PI / 2 + Math.sin(turn * 0.6) * 0.7; knight.update(dt); }
+      },
+      frame(aspect) {
+        const tall = aspect < 1;
+        G.cam.fov = tall ? 34 : 30;
+        // The panel covers the bottom half (tall) or the right side (wide); keep the knight clear of it.
+        G.cam.target.set(tall ? 0 : 1.15, tall ? 0.05 : 0.7, 0);
+        G.cam.pos.set(tall ? 0 : 1.15, tall ? 1.3 : 1.4, tall ? 6.4 : 5.4);
+      },
+    };
+  }
+  function createKnight(name, look) {
+    return new Promise((resolve) => {
+      const K = window.Models.KNIGHT_LOOKS, parts = window.Models.lookParts(look);
+      const rows = [['c', 'Colours', K.colors], ['w', 'Weapon', K.weapons], ['h', 'Head', K.heads]];
+      const code = () => `${parts.c}${parts.w}${parts.h}`;
+      setMode('story');
+      const stage = creatorStage();
+      G.setStage(stage);
+      stage.set(code());
+      const box = $('creator');
+      let sel = 0;
+      const MOVES = { c: 'Interact', w: 'Chop', h: 'Interact' };
+      function step(i, s) {
+        const [k, , list] = rows[i];
+        parts[k] = (parts[k] + s + list.length) % list.length;
+        Sfx.play('select');
+        stage.set(code(), MOVES[k]);
+        draw();
+      }
+      function draw() {
+        box.innerHTML = `<div class="ctitle">Sir ${esc(name)}</div>` + rows.map(([k, label, list], i) => {
+          const o = list[parts[k]];
+          const sw = o.swatch != null ? `<i class="sw" style="background:#${o.swatch.toString(16).padStart(6, '0')}"></i>` : '';
+          return `<div class="crow${i === sel ? ' sel' : ''}"><button type="button" class="cstep" data-i="${i}" data-s="-1" aria-label="Previous">◀</button>`
+            + `<button type="button" class="cval" data-i="${i}" data-s="1"><small>${label}</small><span>${sw}${esc(o.name)}</span></button>`
+            + `<button type="button" class="cstep" data-i="${i}" data-s="1" aria-label="Next">▶</button></div>`;
+        }).join('') + `<div class="cbtns"><button type="button" class="menu-btn${sel === 3 ? ' sel' : ''}" data-a="rand">🎲 Surprise me</button><button type="button" class="menu-btn${sel === 4 ? ' sel' : ''}" data-a="done">Ready!</button></div>`;
+      }
+      function random() {
+        rows.forEach(([k, , list]) => { parts[k] = Math.floor(Math.random() * list.length); });
+        Sfx.play('select');
+        stage.set(code(), 'Chop');
+        draw();
+      }
+      async function done() {
+        box.onclick = null;
+        dlg = null;
+        Sfx.play('item');
+        stage.cheer();
+        box.classList.remove('on');
+        await wait(900);
+        resolve(code());
+      }
+      box.onclick = (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        if (b.dataset.a === 'rand') return random();
+        if (b.dataset.a === 'done') return done();
+        sel = +b.dataset.i;
+        step(sel, +b.dataset.s);
+      };
+      dlg = { typing: false, choices: true, sheet: true };
+      dlg.move = (s) => { sel = (sel + s + 5) % 5; draw(); };
+      dlg.side = (s) => { if (sel < 3) step(sel, s); else dlg.move(s); };
+      dlg.pick = () => (sel < 3 ? step(sel, 1) : sel === 3 ? random() : done());
+      draw();
+      box.classList.add('on');
+    });
+  }
+
   function askName() {
     return new Promise((resolve) => {
       $('namebox').classList.add('on');
       const input = $('name-input');
+      const q = $('namebox').querySelector('.q'), ask0 = 'What is your name, knight?';
+      q.textContent = ask0;
+      q.classList.remove('warn');
       input.value = '';
       $('name-ok').onclick = () => {
-        const name = input.value.trim().replace(/[<>]/g, '').slice(0, 12) || 'Knight';
+        const r = Names.check(input.value);
+        if (!r.ok) {
+          q.textContent = 'That name is not fit for a knight. Choose another.';
+          q.classList.add('warn');
+          Sfx.play('plink');
+          input.select();
+          return;
+        }
+        q.textContent = ask0;
+        q.classList.remove('warn');
+        const name = r.name;
         input.blur();
         $('namebox').classList.remove('on');
         Sfx.play('select');
@@ -859,9 +1003,11 @@
     await fade(false);
     const name = await askName();
     store.set(NAME_KEY, name);
+    const look = await createKnight(name, store.get(LOOK_KEY, '000'));
+    store.set(LOOK_KEY, look);
     const diff = await pickDifficulty(store.get('rotdd.diff', 1));
     store.set('rotdd.diff', diff);
-    P = newPlayer(name, diff);
+    P = newPlayer(name, diff, look);
     await playStory('rise');
     save();
     await startWorld(true);
@@ -879,6 +1025,7 @@
     Sfx.unlock();
     Sfx.play('select');
     P = load();
+    if (P) P.name = Names.check(P.name).name;
     if (!P) return;
     P.tips = P.tips || {};
     P.difficulty = P.difficulty || 1;
@@ -903,6 +1050,8 @@
       god() { P.hpMax = 60; if (level) level.heal(); },
       warp(x, z) { const K = level.knight; K.x = K.circle.x = x; K.z = K.circle.z = z; },
       level: () => level, player: () => P,
+      creator: (name, look) => createKnight(name || 'Tester', look || '000'),
+      podium: (entries) => sheet(`<div class="stitle">World high scores</div>${podiumHtml(entries)}`, ['Back']),
     };
   }
   $('fade').classList.add('on');

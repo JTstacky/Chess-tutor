@@ -273,5 +273,51 @@
     if (composer) composer.render(dt); else renderer.render(scene, camera);
   }
 
+  // Renders one object alone into a small transparent image (a data URL), with the game's own
+  // renderer, for portraits in menus. place(camera) frames it. Drawn at twice the size without
+  // MSAA and shrunk on a canvas: smooth edges, and no multisample read-back (which crashed the
+  // software GL the tests run on).
+  let snap = null;
+  G.snapshot = function (obj, w0, h0, place) {
+    const w = w0 * 2, h = h0 * 2;
+    if (!snap) {
+      const s = new THREE.Scene();
+      s.add(new THREE.HemisphereLight(0xffffff, 0x6a5a4a, 1.5 * Math.PI));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.3 * Math.PI);
+      sun.position.set(3, 5, 6);
+      s.add(sun);
+      snap = { scene: s, cam: new THREE.PerspectiveCamera(28, 1, 0.1, 60), canvas: document.createElement('canvas'), out: document.createElement('canvas') };
+    }
+    const rt = new THREE.WebGLRenderTarget(w, h);
+    rt.texture.colorSpace = THREE.SRGBColorSpace;
+    snap.cam.aspect = w / h;
+    place(snap.cam);
+    snap.cam.updateProjectionMatrix();
+    snap.scene.add(obj);
+    const clear = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha();
+    renderer.setRenderTarget(rt);
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
+    renderer.render(snap.scene, snap.cam);
+    const px = new Uint8Array(w * h * 4);
+    renderer.readRenderTargetPixels(rt, 0, 0, w, h, px);
+    renderer.setRenderTarget(null);
+    renderer.setClearColor(clear, alpha);
+    snap.scene.remove(obj);
+    rt.dispose();
+    const cv = snap.canvas;
+    cv.width = w; cv.height = h;
+    const x = cv.getContext('2d');
+    const img = x.createImageData(w, h);
+    for (let y = 0; y < h; y++) img.data.set(px.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4);
+    x.putImageData(img, 0, 0);
+    const out = snap.out;
+    out.width = w0; out.height = h0;
+    const o = out.getContext('2d');
+    o.imageSmoothingQuality = 'high';
+    o.drawImage(cv, 0, 0, w0, h0);
+    return out.toDataURL('image/png');
+  };
+
   window.Gfx = G;
 })();

@@ -110,21 +110,152 @@
     return { group, body, model, anim: animator(model, gltf) };
   }
 
+  // ---------- the knight's look (character creator) ----------
+  // Cheap variations on the one knight: a palette shader over his own texture, and weapons
+  // and hats borrowed from the KayKit townsfolk. They hang on the same bones (same rig), so
+  // every animation fits. A look is three digits: colours, weapon, head ("000" = as made).
+  const KNIGHT_LOOKS = {
+    colors: [
+      { name: 'Crimson', swatch: 0xc8202a },
+      { name: 'Azure', swatch: 0x2f6fd8, cloth: 0x2f6fd8 },
+      { name: 'Verdant', swatch: 0x2f9e4f, cloth: 0x2f9e4f },
+      { name: 'Amethyst', swatch: 0x7b3fc4, cloth: 0x7b3fc4, steel: 0x8a86a0, trim: 0xd9d9e6 },
+      { name: 'Sunlit', swatch: 0xf0c64a, cloth: 0xf4ecd6, steel: 0xf0c64a, trim: 0xffffff },
+      { name: 'Frost', swatch: 0x5fd0ee, cloth: 0x5fd0ee, steel: 0xdcefff, trim: 0xe4ecf6 },
+      { name: 'Ember', swatch: 0xff7a1f, cloth: 0x2a2226, steel: 0x55505c, trim: 0xff8a2a },
+    ],
+    weapons: [
+      { name: "Knight's Sword" },
+      { name: 'Gilded Sword', tint: 0xffcf5a },
+      { name: 'Shadow Blade', tint: 0x5b4a80 },
+      { name: 'Greatsword', scale: [1.15, 1.4, 1.15] },
+      { name: 'Battle Axe', from: ['barbarian', '1H_Axe'], scale: [0.8, 0.8, 0.8] },
+    ],
+    heads: [
+      { name: 'Plumed Helm' },
+      { name: 'Bear Hood', from: ['barbarian', 'Barbarian_Hat'], fit: [1.0, -0.2], cut: 0.5 },
+      { name: 'Wizard Hat', from: ['mage', 'Mage_Hat'], fit: [1.0, -0.3], cut: 0.5 },
+    ],
+  };
+  const lookParts = (code) => {
+    const d = String(code || '000');
+    const pick = (i, list) => Math.min(list.length - 1, Math.max(0, parseInt(d[i], 10) || 0));
+    return { c: pick(0, KNIGHT_LOOKS.colors), w: pick(1, KNIGHT_LOOKS.weapons), h: pick(2, KNIGHT_LOOKS.heads) };
+  };
+  M.KNIGHT_LOOKS = KNIGHT_LOOKS;
+  M.lookParts = lookParts;
+  M.heroLook = '000'; // the player's look; game.js keeps it in step with the save
+
+  // Recolours the red cloth, grey steel and gold trim of the knight's texture; skin and
+  // leather are left alone. One shader program serves every palette (uniforms differ).
+  const srgb = (hex) => new THREE.Color().setHex(hex, THREE.LinearSRGBColorSpace);
+  // cut: with a hat on, the helmet's top (and plume) above this height in the head bone's
+  // space is not drawn, so the hat replaces it instead of sitting on it.
+  function paletteMaterial(base, pal, cut) {
+    const m = base.clone();
+    const u = {
+      uCloth: { value: srgb(pal.cloth || 0xc8202a) }, uSteel: { value: srgb(pal.steel || 0xffffff) },
+      uTrim: { value: srgb(pal.trim || 0xe6b94a) },
+      uUse: { value: new THREE.Vector3(pal.cloth ? 1 : 0, pal.steel ? 1 : 0, pal.trim ? 1 : 0) },
+      uCut: { value: cut == null ? 1e6 : cut }, uToHead: { value: new THREE.Matrix4() },
+    };
+    m.userData.toHead = u.uToHead.value;
+    m.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, u);
+      sh.vertexShader = 'uniform mat4 uToHead;\nvarying float vHeadY;\n' + sh.vertexShader.replace('#include <skinning_vertex>',
+        '#include <skinning_vertex>\n  vHeadY = (uToHead * vec4(transformed, 1.0)).y;');
+      sh.fragmentShader = 'uniform vec3 uCloth, uSteel, uTrim, uUse;\nuniform float uCut;\nvarying float vHeadY;\n' + sh.fragmentShader
+        .replace('void main() {', 'void main() {\n  if (vHeadY > uCut) discard;')
+        .replace('#include <map_fragment>', `#include <map_fragment>
+      {
+        vec3 s = pow(clamp(diffuseColor.rgb, 0.0, 1.0), vec3(1.0 / 2.2));
+        float mx = max(s.r, max(s.g, s.b)), mn = min(s.r, min(s.g, s.b));
+        float sat = mx > 0.001 ? (mx - mn) / mx : 0.0;
+        float red = smoothstep(0.3, 0.45, s.r) * (1.0 - smoothstep(0.38, 0.5, max(s.g, s.b) / max(s.r, 0.001)));
+        float gold = smoothstep(0.5, 0.6, s.r) * smoothstep(0.66, 0.74, s.g / max(s.r, 0.001)) * (1.0 - smoothstep(0.45, 0.55, s.b / max(s.r, 0.001)));
+        float grey = (1.0 - smoothstep(0.1, 0.2, sat)) * smoothstep(0.2, 0.35, mx);
+        // The plume hangs down the back of the helmet: under a hat, red goes a little lower.
+        if (red > 0.5 && vHeadY > uCut - 0.3) discard;
+        vec3 o = s;
+        o = mix(o, uCloth * (mx / 0.8), red * uUse.x);
+        o = mix(o, s * uSteel * 1.05, grey * uUse.y);
+        o = mix(o, uTrim * (mx / 0.85), gold * uUse.z);
+        diffuseColor.rgb = pow(clamp(o, 0.0, 1.0), vec3(2.2));
+      }`);
+    };
+    m.customProgramCacheKey = () => 'knight-palette';
+    return m;
+  }
+  // A prop from another KayKit character, hung on this knight's bone of the same name.
+  function borrow([asset, name], bone) {
+    const src = A[asset] && A[asset].scene.getObjectByName(name);
+    if (!src || !bone) return null;
+    const o = prepare(src.clone());
+    o.traverse((x) => { if (x.isMesh) x.material = x.material.clone(); });
+    bone.add(o);
+    return o;
+  }
+  // The best score's crown is headwear too: it replaces the helmet top like a hat does.
+  const CROWNED = { name: 'Crown', cut: 0.5, crownY: 1.0 };
+  function dressKnight(model, code, crowned) {
+    const L = lookParts(code), pal = KNIGHT_LOOKS.colors[L.c], wpn = KNIGHT_LOOKS.weapons[L.w], head = crowned ? CROWNED : KNIGHT_LOOKS.heads[L.h];
+    let sword = null, shield = null, body = null, headBone = null;
+    model.traverse((x) => {
+      if (x.name === '1H_Sword') sword = x;
+      else if (x.name === 'Round_Shield') shield = x;
+      else if (x.isSkinnedMesh) body = x;
+      else if (x.isBone && x.name === 'head') headBone = x;
+    });
+    if (body && (pal.cloth || pal.steel || pal.trim || head.cut != null)) {
+      body.material = paletteMaterial(body.material, pal, head.cut);
+      const toHead = body.material.userData.toHead;
+      // Mesh space to head-bone space, refreshed each frame so the cut follows the head.
+      if (headBone && head.cut != null) body.onBeforeRender = () => toHead.copy(headBone.matrixWorld).invert().multiply(body.matrixWorld);
+    }
+    if (shield && pal.cloth) shield.traverse((x) => { if (x.isMesh) { x.material = x.material.clone(); x.material.color.set(pal.cloth).lerp(new THREE.Color(0xffffff), 0.45); } });
+    if (sword && wpn.from) {
+      const w = borrow(wpn.from, sword.parent);
+      if (w) { sword.visible = false; sword = w; }
+    }
+    if (sword) {
+      sword.traverse((x) => { if (x.isMesh && !x.material.userData.own) { x.material = x.material.clone(); x.material.userData.own = true; } });
+      if (wpn.tint) sword.traverse((x) => { if (x.isMesh) x.material.color.setHex(wpn.tint); });
+      if (wpn.scale) sword.scale.multiply(new V3(...wpn.scale));
+    }
+    if (head.from) {
+      const hat = borrow(head.from, headBone);
+      // fit: [scale, lift] seats the hat where the cut-away helmet top was (see cut above).
+      if (hat) { hat.scale.multiplyScalar(head.fit[0]); hat.position.y += head.fit[1]; }
+    }
+    return sword;
+  }
+
   // ---------- the knight ----------
   const knightBase = M.knight;
   M.proceduralKnight = knightBase;
+  // M.knight() is the player (M.heroLook); M.knight({ look, crowned }) any knight look, crowned
+  // for the top of a board; other options give the old procedural soldier.
   M.knight = function (o) {
-    if (o && Object.keys(o).length) return knightBase(o);
+    if (o && Object.keys(o).length && !('look' in o)) return knightBase(o);
     const c = character(A.knight, 1.35);
     const anim = { walk: 0, armZ: -0.35, spin: 0, dead: 0, raise: 0, phase: Math.random() * 6 };
-    let sword = null, bladeMats = [];
-    c.model.traverse((x) => { if (x.name === '1H_Sword') sword = x; });
-    if (sword) {
-      sword.traverse((x) => { if (x.isMesh) { x.material = x.material.clone(); bladeMats.push(x.material); } });
-    }
+    const look = o && 'look' in o ? o.look : M.heroLook;
+    let sword = dressKnight(c.model, look, o && o.crowned), bladeMats = [];
+    if (sword) sword.traverse((x) => { if (x.isMesh) bladeMats.push(x.material); });
     c.anim.base('Idle');
     return {
-      group: c.group, anim,
+      group: c.group, anim, model: c.model,
+      // Seats the crown on a knight made with { crowned: true }.
+      crown() {
+        const cr = landmark('crown', 0.3);
+        if (!cr) return null;
+        // Placed in the current pose, then carried by the head bone so it tilts with the head.
+        cr.position.y = CROWNED.crownY;
+        c.group.add(cr);
+        const head = c.model.getObjectByName('head');
+        if (head) { c.group.updateMatrixWorld(true); head.attach(cr); }
+        return cr;
+      },
       play(name, speed) { c.anim.play(name, speed); },
       setGlow(hex) {
         bladeMats.forEach((m) => { m.emissive.setHex(hex == null ? 0x000000 : hex); m.emissiveIntensity = hex == null ? 0 : 0.9; });

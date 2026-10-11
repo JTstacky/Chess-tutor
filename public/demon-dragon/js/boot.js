@@ -18,7 +18,7 @@ const OPTIONAL = ['lair_thunder', 'lair_water', 'lair_fire', 'lair_earth', 'ashe
   'person_soldier', 'person_scholar', 'person_villager', 'person_villager2', 'person_king',
   'dragon_thunder', 'dragon_water', 'dragon_fire', 'dragon_earth', 'dragon_demon',
   'well', 'market_stall', 'windmill'];
-const SCRIPTS = ['data', 'perks', 'gfx', 'models', 'actors', 'sets', 'world', 'level', 'audio', 'game'];
+const SCRIPTS = ['data', 'names', 'perks', 'gfx', 'models', 'actors', 'sets', 'world', 'level', 'audio', 'game'];
 
 const status = document.getElementById('loading');
 const setStatus = (text) => { if (status) status.textContent = text; };

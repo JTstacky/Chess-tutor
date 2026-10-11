@@ -226,3 +226,37 @@ html, body {
 #sheet table.board td:nth-child(2) { white-space: normal; font-weight: 800; }
 #sheet table.board td:nth-child(3) { font-weight: 900; text-align: right; }
 #sheet table.board td:nth-child(4), #sheet table.board td:nth-child(5) { font-size: 11px; color: #6a6780; text-align: right; }
+
+/* Character creator: knight on a turntable above (tall) or left of (wide) the choices */
+#creator { position: absolute; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 24; width: min(94%, 400px);
+  display: none; flex-direction: column; gap: 7px; padding: 12px; background: var(--paper); border: 4px solid var(--edge); border-radius: 16px; box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35); }
+#creator.on { display: flex; }
+#creator .ctitle { text-align: center; font-weight: 900; font-size: 19px; }
+#creator .crow { display: flex; gap: 6px; align-items: stretch; border-radius: 12px; }
+#creator .crow.sel { box-shadow: 0 0 0 3px var(--gold, #f2c14e); }
+#creator .cstep { flex: 0 0 46px; font: 900 18px var(--font); color: var(--edge); background: #fff; border: 3px solid var(--edge); border-radius: 11px; cursor: pointer; touch-action: manipulation; }
+#creator .cval { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 4px; font: 900 16px var(--font); color: var(--ink); background: #fff; border: 3px solid var(--edge); border-radius: 11px; cursor: pointer; touch-action: manipulation; }
+#creator .cval small { font-size: 11px; color: #6a6780; font-weight: 800; }
+#creator .cval span { display: flex; align-items: center; gap: 6px; }
+#creator .cstep:active, #creator .cval:active { background: #ffe9a8; }
+#creator .sw { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.35); }
+#creator .cbtns { display: flex; gap: 8px; }
+#creator .cbtns .menu-btn { flex: 1 1 0; font-size: 16px; padding: 9px 6px; }
+@media (min-aspect-ratio: 1/1) {
+  #creator { left: auto; right: calc(12px + env(safe-area-inset-right)); top: 50%; bottom: auto; transform: translateY(-50%); width: min(46%, 380px); }
+}
+#namebox .q.warn { color: #b3243b; }
+
+/* Top three on a board: their knights, the first one crowned and raised */
+.podium { flex-shrink: 0; display: flex; justify-content: center; align-items: flex-end; gap: 6px; margin: 4px 0 2px; }
+.podium .pod { flex: 0 1 31%; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.podium img { height: min(120px, 13vh); aspect-ratio: 150 / 190; object-fit: contain; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.3)); }
+.podium .p1 img { height: min(145px, 16vh); }
+.podium b { font-size: 14px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.podium small { font-size: 12px; font-weight: 800; color: #6a6780; }
+.podium .step { width: 100%; margin-top: 3px; text-align: center; font-weight: 900; color: #fff; border-radius: 8px 8px 0 0; background: #8d93b8; height: 22px; line-height: 22px; }
+.podium .p1 .step { background: #d9a520; height: 34px; line-height: 34px; }
+.podium .p2 .step { background: #a7adc0; height: 27px; line-height: 27px; }
+.podium .p3 .step { background: #c0835a; }
+/* A panel (results, boards, Trials) needs the whole screen on phones; the controls wait. */
+#app:has(#sheet.on) #deck { display: none; }
