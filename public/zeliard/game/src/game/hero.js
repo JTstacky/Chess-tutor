@@ -102,6 +102,8 @@ export class Hero {
     return true;
   }
 
+  canStand(map) { return this.h === PHYS.h || !map.rectSolid(this.x, this.y + this.h - PHYS.h, this.w, PHYS.h); }
+
   // ---------------------------------------------------------------- simulation
   update(dt, input, world) {
     const map = world.map;
@@ -126,7 +128,9 @@ export class Hero {
     // Knockback: 2 tiles away from the hit, no control until it ends.
     if (this.stun > 0) {
       this.stun -= dt;
-      map.move(this, this.vx * dt, 0);
+      // A crouched knight is never shoved under a ledge he could not stand up beneath.
+      const dx = this.vx * dt;
+      if (this.h === PHYS.h || !map.rectSolid(this.x + dx, this.y + this.h - PHYS.h, this.w, PHYS.h)) map.move(this, dx, 0);
       this.fall(dt, map);
       if (this.stun <= 0) { this.vx = 0; if (this.state === 'hurt') this.state = this.h < PHYS.h ? 'crouch' : this.onGround ? 'idle' : 'fall'; }
       return;
@@ -169,7 +173,9 @@ export class Hero {
     const ice = (under & F.ICE) && !this.stats.iceGrip;
     let move = (R ? 1 : 0) - (L ? 1 : 0);
     const swinging = this.attack && this.attack.kind !== 'thrust';
-    if (this.state === 'crouch') move = 0;
+    // Crouching is for standing still, except under a ledge: a knight who cannot stand up
+    // crawls, so a shove or a fall can never leave him pinned.
+    if (this.state === 'crouch' && this.canStand(map)) move = 0;
     if (move && !swinging) this.dir = move;
     const target = swinging && this.onGround ? 0 : move * PHYS.walk;
     if (ice) {

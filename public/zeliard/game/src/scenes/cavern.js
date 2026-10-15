@@ -4,6 +4,7 @@ import { ctx, W, H, text, panel, bar, COLORS, fade, measure } from '../render/sc
 import { TILE, F } from '../world/tilemap.js';
 import { loadCavern, loadSandbox } from '../world/loader.js';
 import { maxHp, RULES } from '../game/character.js';
+import { PHYS } from '../game/hero.js';
 import { SPELLS } from '../game/spells.js';
 import { audio } from '../core/audio.js';
 import { sheetNow } from '../core/assets.js';
@@ -50,6 +51,8 @@ export class CavernScene {
       h.dir = o.face === 'left' ? -1 : 1;
       h.cam = null;
       h.fallStartY = h.y;
+      // Where he has stood in this cavern (for Unstuck), starting from where he came in.
+      h.safe = null; h.trail = []; h.entry = { cx: h.cx, feet: h.feet };
       w.addHero(h);
       i++;
     }
@@ -124,15 +127,31 @@ export class CavernScene {
       return;
     }
     h.embedT = 0;
-    // On rock (platforms are one-way, not solid, so a ride never counts), standing up.
-    if (h.onGround && h.state !== 'crouch' && m.rectSolid(h.x + 2, h.y + h.h, h.w - 4, 2)) h.safe = { cx: h.cx, feet: h.feet };
+    // On rock (platforms are one-way, not solid, so a ride never counts), standing up. The
+    // trail keeps every such spot two tiles apart, so Unstuck can walk him back the way he came.
+    if (h.onGround && h.state !== 'crouch' && m.rectSolid(h.x + 2, h.y + h.h, h.w - 4, 2)) {
+      h.safe = { cx: h.cx, feet: h.feet };
+      const tr = h.trail || (h.trail = []), last = tr[tr.length - 1];
+      if (!last || Math.abs(m.near(h.cx, last.cx) - last.cx) >= 2 * TILE || Math.abs(m.nearY(h.feet, last.feet) - last.feet) >= 2 * TILE) {
+        tr.push(h.safe);
+        if (tr.length > 48) tr.shift();
+      }
+    }
   }
-  // Move a knight out of rock: the nearest spot (within 4 tiles) where he fits with ground under
-  // him, else his last safe place. toSafe (the pause menu's Unstuck) tries the safe place first.
+  // Move a knight somewhere he can stand (full height, ground under him). toSafe (the pause
+  // menu's Unstuck) walks back along his trail to the newest spot that is not where he is now,
+  // so a knight trapped on his feet goes back the way he came, and pressing again goes further
+  // back; otherwise (pushed into rock) the nearest such spot within 4 tiles. Failing both, his
+  // last safe place, then where he came into the cavern.
   unstick(h, w, toSafe = true) {
     const m = w.map, T = 24;
-    const fits = (cx, feet) => !m.rectSolid(cx - h.w / 2, feet - h.h, h.w, h.h) && m.rectHas(cx - h.w / 2 + 2, feet, h.w - 4, 2, F.SOLID | F.ONEWAY);
-    let best = toSafe && h.safe && fits(h.safe.cx, h.safe.feet) ? h.safe : null;
+    const fits = (cx, feet) => !m.rectSolid(cx - h.w / 2, feet - PHYS.h, h.w, PHYS.h) && m.rectHas(cx - h.w / 2 + 2, feet, h.w - 4, 2, F.SOLID | F.ONEWAY);
+    const away = (s) => Math.abs(m.near(s.cx, h.cx) - h.cx) >= 2 * T || Math.abs(m.nearY(s.feet, h.feet) - h.feet) >= 2 * T;
+    let best = null;
+    if (toSafe) {
+      const tr = h.trail || [];
+      while (tr.length && !best) { const s = tr.pop(); if (away(s) && fits(s.cx, s.feet)) best = s; }
+    }
     if (!best) {
       for (let r = 1; r <= 4 * T && !best; r += 4) {
         for (const [dx, dy] of [[0, -r], [0, r], [-r, 0], [r, 0], [-r, -r], [r, -r], [-r, r], [r, r]]) {
@@ -142,10 +161,11 @@ export class CavernScene {
       }
     }
     best ||= h.safe && fits(h.safe.cx, h.safe.feet) ? h.safe : null;
+    best ||= h.entry && fits(h.entry.cx, h.entry.feet) ? h.entry : null;
     if (!best) return false;
     h.rescues = (h.rescues || 0) + 1;
-    h.place(best.cx, best.feet);
-    h.vx = 0; h.vy = 0; h.fallStartY = h.y; h.riding = null;
+    h.place(best.cx, best.feet); // standing: place() restores full height and ends a crouch
+    h.vx = 0; h.vy = 0; h.fallStartY = h.y; h.riding = null; h.stun = 0;
     if (h.state === 'climb' || h.state === 'hurt') h.state = 'idle';
     if (toSafe) this.game.toast('Back on solid ground.', '#8fe3ff');
     return true;
