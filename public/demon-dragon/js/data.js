@@ -161,25 +161,40 @@
     hourglass: { weight: 2, text: 'An hourglass of the old mages! Thirty seconds flow back into the quest clock.' },
   };
   const CHEST_COUNT = 10;
+  const CHEST_CLEAR = 9; // no chest this close to the start
   // Places and fills a quest's chests from its seed: [{ id, x, y, kind }]. Each needs open ground
-  // on every side (so it can be reached), off the road and away, the start, people,
-  // lairs and the other chests. At least one heart and one whetstone.
+  // on every side (so it can be reached), off the road and away from the start, people,
+  // lairs and the other chests. Each dragon's land (thunder plateau, fire peaks, canyon, coast)
+  // gets one chest; the rest fall anywhere, more likely the further out. At least one heart and
+  // one whetstone.
   function rollChests(seed) {
     let a = seed >>> 0;
     const rand = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
     const at = (x, y) => (WORLD[y] || '')[x] || 'M';
     const ground = '.spac';
-    const avoid = [{ x: START.x, y: START.y, r: 5 }].concat(NPCS.map((n) => ({ x: n.x, y: n.y, r: 2 })));
+    const avoid = [{ x: START.x, y: START.y, r: CHEST_CLEAR }].concat(NPCS.map((n) => ({ x: n.x, y: n.y, r: 3 })));
     for (let y = 0; y < WORLD.length; y++) for (let x = 0; x < WORLD[0].length; x++) if ('12345GS'.includes(at(x, y))) avoid.push({ x, y, r: 3 });
     const spots = [];
     for (let y = 1; y < WORLD.length - 1; y++) for (let x = 1; x < WORLD[0].length - 1; x++) {
       const ok = ground.includes(at(x, y)) && [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => WALKABLE.includes(at(x + dx, y + dy)));
-      if (ok && !avoid.some((v) => Math.hypot(v.x - x, v.y - y) < v.r)) spots.push({ x, y });
+      if (ok && !avoid.some((v) => Math.hypot(v.x - x, v.y - y) < v.r)) spots.push({ x, y, land: at(x, y), far: Math.hypot(START.x - x, START.y - y) });
     }
+    // Spacing between chests varies a little per quest, closing up if ten won't fit.
+    let gap = 5 + rand() * 3;
+    const free = (p) => p && !out.some((o) => Math.hypot(o.x - p.x, o.y - p.y) < gap);
     const out = [];
-    for (let tries = 0; out.length < CHEST_COUNT && tries < 4000; tries++) {
-      const p = spots[Math.floor(rand() * spots.length)];
-      if (p && !out.some((o) => Math.hypot(o.x - p.x, o.y - p.y) < 6)) out.push(p);
+    const lands = 'pacs'.split('');
+    for (let i = lands.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [lands[i], lands[j]] = [lands[j], lands[i]]; }
+    lands.forEach((land) => {
+      const pool = spots.filter((p) => p.land === land);
+      for (let tries = 0; tries < 20; tries++) { const p = pool[Math.floor(rand() * pool.length)]; if (free(p)) { out.push(p); break; } }
+    });
+    const weight = spots.reduce((n, p) => n + p.far, 0);
+    for (let tries = 0; out.length < CHEST_COUNT && tries < 6000; tries++) {
+      if (tries % 1000 === 999) gap = Math.max(3, gap - 1);
+      let r = rand() * weight;
+      const p = spots.find((s) => (r -= s.far) < 0);
+      if (free(p)) out.push(p);
     }
     const kinds = Object.keys(CHEST_KINDS);
     const total = kinds.reduce((n, k) => n + CHEST_KINDS[k].weight, 0);
