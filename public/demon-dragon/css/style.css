@@ -155,18 +155,19 @@ html, body {
 #stick.active .base { box-shadow: inset 0 0 0 3px var(--gold); }
 
 /* Four buttons in a diamond, like a Super Nintendo pad: relic on top, dodge left, bolt below,
-   sword right. --b is one button; the diamond is three buttons across and three high. */
-#buttons { --b: min(64px, 10.5vh); position: relative; width: calc(var(--b) * 3 + 12px); height: calc(var(--b) * 3 + 6px); flex: 0 0 auto; }
+   sword right. --b is one button; --d is how far each button sits from the middle, tight enough
+   that neighbours on the diagonal are a thumb's slide apart (about 12px of gap). */
+#buttons { --b: min(64px, 10.5vh); --d: calc(var(--b) * 0.76 + 6px); position: relative; width: calc(var(--d) * 2 + var(--b)); height: calc(var(--d) * 2 + var(--b)); flex: 0 0 auto; }
 .act {
   position: absolute; width: var(--b); height: var(--b); border-radius: 50%; border: 4px solid #15121f; color: #fff; font: 900 23px var(--font); line-height: 1;
   display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 5px 0 rgba(0, 0, 0, 0.45); touch-action: none; cursor: pointer;
 }
 .act small { font-size: 10px; font-weight: 800; letter-spacing: 0.04em; opacity: 0.95; }
 .act.down { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45); filter: brightness(1.25); }
-.act.x { left: calc(var(--b) + 6px); top: 0; background: #8a6fd1; font-size: 22px; }
-.act.c { left: 0; top: calc(var(--b) + 3px); background: #33b36b; }
-.act.a { right: 0; top: calc(var(--b) + 3px); background: #e23b4e; }
-.act.b { left: calc(var(--b) + 6px); bottom: 0; background: #2f8fe0; }
+.act.x { left: var(--d); top: 0; background: #8a6fd1; font-size: 22px; }
+.act.c { left: 0; top: var(--d); background: #33b36b; }
+.act.a { left: calc(var(--d) * 2); top: var(--d); background: #e23b4e; }
+.act.b { left: var(--d); top: calc(var(--d) * 2); background: #2f8fe0; }
 .act.x.off { background: #5a5470; opacity: 0.45; }
 #keys-hint { display: none; color: rgba(255, 255, 255, 0.75); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.5; }
 
