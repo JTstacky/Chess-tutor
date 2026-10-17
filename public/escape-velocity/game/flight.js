@@ -6,6 +6,10 @@ import { addPolar, bearing } from '../engine/trig.js';
 import { modSum } from '../engine/encounters.js';
 
 export const VIEW_W = 496, VIEW_H = 480, BAR_X = 496;
+// Full-screen layout (main.js, re-gaps #65): the bar's three parts side by side in the top-right corner, as
+// [source top, height] of PICT 128: radar + shield/fuel, nav + secondary + target, cargo + credits.
+export const BAR_PARTS = [[0, 186], [186, 196], [382, 98]];   // panel gaps at rows 142, 186, 231, 258, 382
+export const BAR_BLOCK = { w: 144 * BAR_PARTS.length, h: Math.max(...BAR_PARTS.map(p => p[1])) };
 export const GREEN = '#00e000', DIM = '#008a00';
 // Geneva 9 (TextFont 3, TextSize 9) is drawn with Kelsey Higham's "Geneva 9" bitmap clone (CC BY 3.0,
 // game/fonts/geneva-9). Its grid is 64 units at 1024/em, so at 16 px every brick is one screen pixel and
@@ -156,16 +160,20 @@ export class FlightView {
     this.radarTick();
   }
 
-  draw(ctx, game) {
+  // full: the playfield is the whole W x H canvas, the ship at its centre and the bar top-right (BAR_PARTS);
+  // otherwise the original 496x480 playfield and the bar at x 496.
+  draw(ctx, game, W = 640, H = 480, full = false) {
     const A = this.assets, P = game.player, D = game.data;
+    const VIEW_W = full ? W : 496, VIEW_H = full ? H : 480;
+    this.view = { w: VIEW_W, h: VIEW_H };
     ctx.save();
     ctx.beginPath(); ctx.rect(0, 0, VIEW_W, VIEW_H); ctx.clip();
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, VIEW_W, VIEW_H);
     const cx = P?.x ?? 0, cy = P?.y ?? 0, ox = VIEW_W / 2 - cx, oy = VIEW_H / 2 - cy;
-    // stars
+    // stars (a 1024 px tile, repeated when the playfield is wider or taller)
     for (const s of STARS) {
-      const x = ((s.x - cx * s.f) % 1024 + 1024) % 1024, y = ((s.y - cy * s.f) % 1024 + 1024) % 1024;
-      if (x < VIEW_W && y < VIEW_H) { ctx.fillStyle = `rgb(${s.c},${s.c},${s.c})`; ctx.fillRect(x | 0, y | 0, 1, 1); }
+      const x0 = ((s.x - cx * s.f) % 1024 + 1024) % 1024, y0 = ((s.y - cy * s.f) % 1024 + 1024) % 1024;
+      for (let x = x0; x < VIEW_W; x += 1024) for (let y = y0; y < VIEW_H; y += 1024) { ctx.fillStyle = `rgb(${s.c},${s.c},${s.c})`; ctx.fillRect(x | 0, y | 0, 1, 1); }
     }
     // stellar objects
     for (const p of D.spobs(game.system)) {
@@ -221,10 +229,18 @@ export class FlightView {
     const m = this.messages[0];
     if (m) {
       ctx.font = SYSFONT; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#ffffff';
-      wrapLines(ctx, m.text, 420).forEach((line, i) => ctx.fillText(line, 26, 417 + 16 * i));
+      // full-screen portrait: under the status bar and its button row, clear of the thumb buttons at the bottom
+      const my = full && H > W ? BAR_BLOCK.h + 110 : VIEW_H - 63;
+      wrapLines(ctx, m.text, Math.min(420, VIEW_W - 52)).forEach((line, i) => ctx.fillText(line, 26, my + 16 * i));
     }
     ctx.restore();
-    this.drawBar(ctx, game);
+    if (!full) { this.drawBar(ctx, game); return; }
+    // the bar is drawn whole off-screen at its original coordinates, then its parts are copied side by side
+    const b = (this.barCv ??= Object.assign(document.createElement('canvas'), { width: 144, height: 480 })), bc = b.getContext('2d');
+    bc.setTransform(1, 0, 0, 1, -BAR_X, 0); bc.imageSmoothingEnabled = false;
+    this.drawBar(bc, game);
+    const x0 = W - BAR_BLOCK.w;
+    BAR_PARTS.forEach(([t, h], i) => ctx.drawImage(b, 0, t, 144, h, x0 + 144 * i, 0, 144, h));
   }
 
   brackets(ctx, x, y, r, color) {

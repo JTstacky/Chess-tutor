@@ -5,10 +5,10 @@
 // version, the main canvas gets a transparent hole at that rect. The HD image is drawn at the same rect on
 // a canvas behind it, sized to the screen's real pixels. Text, lines and buttons drawn later stay on the
 // main canvas, so they stay on top and keep their bitmap look. The rect clips (dialog text boxes, the map
-// pane) are mirrored onto the HD canvas.
+// pane) and the translate/scale of a centred screen are mirrored onto the HD canvas.
 const KEY = 'evonline.art';
 const P = CanvasRenderingContext2D.prototype;
-const O = { save: P.save, restore: P.restore, beginPath: P.beginPath, rect: P.rect, clip: P.clip, drawImage: P.drawImage };
+const O = { save: P.save, restore: P.restore, beginPath: P.beginPath, rect: P.rect, clip: P.clip, drawImage: P.drawImage, translate: P.translate, scale: P.scale };
 
 // ?art=original or ?art=hd picks the art and is remembered; HD is the default.
 export function artSetting() {
@@ -52,7 +52,8 @@ export class HDArt {
     canvas.parentNode.insertBefore(u, canvas);
     canvas.style.position = 'relative'; canvas.style.zIndex = '1';
     const c = this.uctx = u.getContext('2d'), self = this;
-    for (const k of ['save', 'restore', 'beginPath', 'clip']) {
+    // translate/scale too: the full-screen layout (main.js) draws screens and dialogs offset and sometimes scaled
+    for (const k of ['save', 'restore', 'beginPath', 'clip', 'translate', 'scale']) {
       ctx[k] = function (...a) { if (self.active) O[k].apply(c, a); return P[k].apply(this, a); };
     }
     ctx.rect = function (...a) { if (self.active) O.rect.apply(c, a); return P.rect.apply(this, a); };

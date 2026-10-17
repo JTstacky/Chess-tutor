@@ -13,6 +13,16 @@ import { HDArt, artSetting, saveArtSetting } from './hdart.js';
 import { TitleScreen, SpaceportScreen, MapDialog, InfoDialog, MissionInfoDialog, ShipCommDialog, PlanetCommDialog, PlunderDialog, NoticeDialog } from './screens.js';
 
 const GAME = new URLSearchParams(location.search).get('game') === 'evo' ? 'evo' : 'ev';
+// Screen layout (docs/re-gaps.md #65): "full" fills the window. The flight playfield is the whole canvas, with the
+// ship at its centre and the status bar in the top-right corner; other screens and dialogs keep their original
+// size, centred (or at the start edge on touch screens, to leave one strip for the big buttons). "classic" is
+// the original fixed 640x480 picture. ?layout=classic|full picks one and is remembered.
+const LAYOUT_KEY = 'evonline.layout';
+function layoutSetting() {
+  const q = new URLSearchParams(location.search).get('layout');
+  if (q === 'classic' || q === 'full') { try { localStorage.setItem(LAYOUT_KEY, q); } catch { } return q; }
+  try { return localStorage.getItem(LAYOUT_KEY) === 'classic' ? 'classic' : 'full'; } catch { return 'full'; }
+}
 const STEP_MS = 1000 / STEPS_PER_SECOND;
 
 class Saves {
@@ -33,6 +43,8 @@ class App {
     this.keyboard = new Keyboard(window); this.saves = new Saves(GAME);
     this.screen = null; this.dialogs = []; this.game = null; this.pilot = null;
     this.acc = 0; this.last = performance.now(); this.paused = false; this.shift = false; this.anim = null;
+    this.frameT = { x: 0, y: 0, s: 1 };   // where the current screen's or dialog's own coordinates sit on the canvas
+    this.setLayout(layoutSetting());
     this.keyboard.onKey(e => this.onKey(e));
     addEventListener('keydown', e => { if (e.key === 'Shift') this.shift = true; });
     addEventListener('keyup', e => { if (e.key === 'Shift') this.shift = false; });
@@ -79,7 +91,36 @@ class App {
     return false;
   }
   size(w, h) { if (this.canvas.width !== w || this.canvas.height !== h) { this.canvas.width = w; this.canvas.height = h; } this.ctx.imageSmoothingEnabled = false; }
-  toLogical(e) { const r = this.canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * this.canvas.width / r.width, y: (e.clientY - r.top) * this.canvas.height / r.height }; }
+  // Canvas pixels under a pointer event.
+  toCanvas(e) { const r = this.canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * this.canvas.width / r.width, y: (e.clientY - r.top) * this.canvas.height / r.height }; }
+  // The same in the coordinates of the screen or dialog on top (what UI hit regions use).
+  toLogical(e) { const q = this.toCanvas(e), f = this.frameT; return { x: (q.x - f.x) / f.s, y: (q.y - f.y) / f.s }; }
+  setLayout(v) {
+    this.full = v !== 'classic';
+    document.body.classList.toggle('full', this.full);
+    try { localStorage.setItem(LAYOUT_KEY, this.full ? 'full' : 'classic'); } catch { }
+    const b = document.getElementById('layout'); if (b) { b.textContent = this.full ? 'Full screen' : 'Classic'; b.onclick = () => this.setLayout(this.full ? 'classic' : 'full'); }
+    dispatchEvent(new Event('resize'));
+  }
+  // Canvas size for this frame. Classic: the screen's own size. Full: the window's shape, 480 canvas pixels on the
+  // short side in flight (the original's height), and just big enough to hold the screen otherwise.
+  canvasSize(flight, w0, h0) {
+    if (!this.full) return [w0, h0];
+    const r = this.canvas.getBoundingClientRect(), a = r.width > 0 && r.height > 0 ? r.width / r.height : w0 / h0;
+    if (flight) return a >= 1 ? [Math.max(480, Math.round(480 * a)), 480] : [480, Math.round(480 / a)];
+    return a >= w0 / h0 ? [Math.round(h0 * a), h0] : [w0, Math.round(w0 / a)];
+  }
+  // Where a w0 x h0 screen or dialog goes on a W x H canvas: scaled down only if it doesn't fit, centred, or
+  // at the start edge (left, or top in portrait) when touch controls are on.
+  placeFrame(w0, h0, W, H) {
+    const s = Math.min(1, W / w0, H / h0), fw = w0 * s, fh = h0 * s, start = !!this.touch?.active;
+    return { x: Math.round(start && W - fw > H - fh ? 0 : (W - fw) / 2), y: Math.round(start && H - fh > W - fw ? 0 : (H - fh) / 2), s };
+  }
+  // The current frame's rect in CSS pixels (the touch layer's big-button panel goes beside it).
+  frameRect() {
+    const r = this.canvas.getBoundingClientRect(), k = r.width / this.canvas.width, f = this.frameT, [w0, h0] = this.frameSize ?? [640, 480];
+    return { left: r.left + f.x * k, top: r.top + f.y * k, right: r.left + (f.x + w0 * f.s) * k, bottom: r.top + (f.y + h0 * f.s) * k, width: w0 * f.s * k, height: h0 * f.s * k };
+  }
 
   // ---------- flow ----------
   // FUN_1004ef64: the two naming dialogs, then the pilot is saved and the title screen shows it.
@@ -137,6 +178,9 @@ class App {
         // keep the last flight frame: the spaceport dialog is drawn over it, as in the original
         const b = this.backdrop ??= document.createElement('canvas'); b.width = this.canvas.width; b.height = this.canvas.height;
         b.getContext('2d').drawImage(this.canvas, 0, 0);
+        // full layout: render draws the whole frame where it was, and the spaceport's own backdrop is left blank
+        if (this.full) { this.backdropFull = b; this.backdrop = Object.assign(document.createElement('canvas'), { width: 640, height: 480 }); }
+        else this.backdropFull = null;
         this.save(); this.dialogs = []; this.screen = new SpaceportScreen(this); this.assets.play(390); break;
       }
       // Back to the title, whose pilot box now reads "<name> / has been killed" (FUN_1004cf20 asks
@@ -182,17 +226,35 @@ class App {
   }
 
   render(dt) {
-    const [w, h] = this.screen?.size ?? [640, 480];
+    const flight = this.screen?.flight && this.game?.player;
+    const [w0, h0] = flight ? [640, 480] : this.screen?.size ?? [640, 480];
+    const [w, h] = this.canvasSize(flight, w0, h0);
     this.size(w, h); this.hd?.begin(w, h);
     const ctx = this.ctx; this.ui.begin();
-    const flight = this.screen?.flight && this.game?.player;
+    this.frameT = { x: 0, y: 0, s: 1 }; this.frameSize = [w, h];
+    const frame = (fw, fh) => {   // later drawing in a fw x fh screen's own coordinates
+      const f = this.frameT = this.full ? this.placeFrame(fw, fh, w, h) : { x: 0, y: 0, s: 1 };
+      this.frameSize = [fw, fh];
+      if (f.x || f.y) ctx.translate(f.x, f.y); if (f.s !== 1) ctx.scale(f.s, f.s);
+    };
+    ctx.save();
     if (flight) {
       if (this.hd) this.hd.sprites = !this.game.pilot.cloaked;   // the cloak tint recolours the main canvas only
-      this.flight.draw(ctx, this.game);
-      if (this.anim) this.drawLaunch(ctx, dt);
-      if (this.paused) this.ui.text(ctx, 'PAUSED (F1 to resume)', 248, 230, '#ffffff', 'center');
-    } else this.screen?.draw(ctx, this.ui);
+      this.flight.draw(ctx, this.game, w, h, this.full);
+      if (this.anim) this.drawLaunch(ctx, dt, w, h);
+      if (this.paused) this.ui.text(ctx, 'PAUSED (F1 to resume)', this.full ? w / 2 : 248, this.full ? h / 2 - 10 : 230, '#ffffff', 'center');
+      if (this.dialogs.length) frame(640, 480);
+    } else {
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
+      // the spaceport sits over the last flight frame: show all of it around the 640x480 screen
+      if (this.full && this.backdropFull && this.screen instanceof SpaceportScreen) {
+        const b = this.backdropFull; ctx.drawImage(b, b.width === w ? 0 : Math.round((w - b.width) / 2), b.height === h ? 0 : Math.round((h - b.height) / 2));
+      }
+      frame(w0, h0);
+      this.screen?.draw(ctx, this.ui);
+    }
     for (const d of this.dialogs) d.draw(ctx, this.ui);
+    ctx.restore();
     // FUN_10064de4: the cloak switches the screen to the clut of the last owned Cloaking Device's ModVal.
     if (flight && this.game.pilot.cloaked) {
       const D = this.data, own = this.game.pilot.outfits;
@@ -204,12 +266,13 @@ class App {
   }
 
   // Take-off: the original airlock strip (PICT 8300-8316) over the playfield.
-  drawLaunch(ctx, dt) {
+  drawLaunch(ctx, dt, w = 640, h = 480) {
     const a = this.anim; a.t += dt;
     const f = Math.min(16, Math.floor(a.t / 70));
-    ctx.fillStyle = '#000'; ctx.globalAlpha = Math.max(0, 1 - Math.max(0, a.t - 1100) / 300); ctx.fillRect(0, 0, 496, 480);
+    const fw = this.full ? w : 496, oy = this.full ? Math.round((h - 480) / 2) : 0;
+    ctx.fillStyle = '#000'; ctx.globalAlpha = Math.max(0, 1 - Math.max(0, a.t - 1100) / 300); ctx.fillRect(0, 0, fw, this.full ? h : 480);
     const im = this.assets.pict(8300 + f);
-    if (im && a.t < 1200) ctx.drawImage(im, (496 - 480) / 2, 210);
+    if (im && a.t < 1200) ctx.drawImage(im, Math.round((fw - 480) / 2), oy + 210);
     ctx.globalAlpha = 1;
     if (a.t > 1400) { this.anim = null; this.last = performance.now(); }
   }

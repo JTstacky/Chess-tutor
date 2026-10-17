@@ -8,6 +8,10 @@
 <style>
   :root { --bg: #000; --bar: 0px; }
   html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  /* no grey/blue flash on every tap (mobile browsers highlight tapped elements) */
+  * { -webkit-tap-highlight-color: transparent; }
+  /* full-screen layout (main.js setLayout): the canvas fills the space under the key list */
+  body.full canvas { width: 100vw; height: calc(100vh - var(--bar)); height: calc(100dvh - var(--bar)); }
   body { display: flex; flex-direction: column; align-items: center; }
   #controls {
     width: 100%; box-sizing: border-box; padding: 4px 32px 4px 10px; position: relative;
@@ -31,7 +35,6 @@
 </style>
 </head>
 <body>
-<input id="kbd" autocomplete="off" autocapitalize="words" maxlength="24" aria-label="Pilot name" style="position:fixed;left:-1000px;top:0;opacity:0">
 <div id="controls">
   <span><b>&uarr;</b> thrust</span><span><b>&larr;</b><b>&rarr;</b> turn</span><span><b>&darr;</b> reverse</span>
   <span><b>Space</b> fire</span><span><b>Shift</b> secondary</span><span><b>W</b> pick secondary</span><span><b>S</b> safety</span><span><b>Z</b> afterburner</span>
@@ -39,7 +42,7 @@
   <span><b>L</b> land</span><span><b>1-4</b> select stellar</span><span><b>H</b> hyperspace mode</span><span><b>&#92;</b> next system</span><span><b>J</b> jump</span><span><b>~</b> nav off</span><span><b>M</b> map</span>
   <span><b>Y</b> hail</span><span><b>B</b> board</span><span><b>U</b> cloak</span><span><b>Ctrl</b>+<b>K</b> jettison</span>
   <span><b>P</b> player info</span><span><b>I</b> missions</span><span><b>F</b>/<b>C</b>/<b>V</b> escorts attack/formation/hold</span>
-  <span><b>Ctrl</b>+<b>E</b> eject</span><span><b>Ctrl</b>+<b>D</b> self-destruct</span><span><b>Esc</b> pause</span><span>(keys: Preferences)</span><span>art: <b id="art" role="button" tabindex="0" style="cursor:pointer" title="Switch between the AI-upscaled pictures and the original ones">HD</b></span><span><b id="creditsLink" role="button" tabindex="0" style="cursor:pointer">credits</b></span>
+  <span><b>Ctrl</b>+<b>E</b> eject</span><span><b>Ctrl</b>+<b>D</b> self-destruct</span><span><b>Esc</b> pause</span><span>(keys: Preferences)</span><span>art: <b id="art" role="button" tabindex="0" style="cursor:pointer" title="Switch between the AI-upscaled pictures and the original ones">HD</b></span><span>layout: <b id="layout" role="button" tabindex="0" style="cursor:pointer" title="Full screen, or the original 640x480 picture">Full screen</b></span><span><b id="creditsLink" role="button" tabindex="0" style="cursor:pointer">credits</b></span>
   <button id="hide" title="Hide controls" aria-label="Hide controls">&times;</button>
 </div>
 <button id="show">Controls</button>

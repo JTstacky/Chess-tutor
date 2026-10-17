@@ -5,9 +5,10 @@ import { SPOB, MOD } from '../engine/data.js';
 import * as port from '../engine/spaceport.js';
 import * as M from '../engine/missions.js';
 import * as E from '../engine/encounters.js';
-import { Pilot, legalLabel, combatRating, shortDate, DEFAULT_PILOT_NAMES, DEFAULT_SHIP_NAMES } from '../engine/pilot.js';
+import { Pilot, legalLabel, combatRating, shortDate } from '../engine/pilot.js';
 import { isDisabled, isDead } from '../engine/ships.js';
-import { PrefsDialog, AboutScroll, OpenPilotDialog } from './prefs.js';
+import { PrefsDialog, AboutScroll } from './prefs.js';
+import { PilotPanel } from './pilots.js';
 import { CMD } from '../engine/input.js';
 
 export const BIG = '12px EVGeneva, Geneva, Tahoma, Arial, sans-serif';
@@ -171,7 +172,11 @@ const TX = 96, TY = 72;
 // 0x99 as 179, 0x88 as 165, 0x44 as 102, 0xcc as 218): all colours here are framebuffer values.
 const LABEL_GREEN = '#009900', VALUE_GREEN = '#00ff00';
 export class TitleScreen {
-  constructor(app) { this.app = app; this.size = [832, 624]; this.dialog = null; this.edit = ''; this.sel = true; this.note = ''; }
+  constructor(app) {
+    this.app = app; this.size = [832, 624]; this.dialog = null; this.note = '';
+    // With no saved pilot yet, the pilot panel opens straight away (re-gaps #64).
+    if (!app.saves.list().length) this.openPilots('new');
+  }
   draw(ctx, ui) {
     const A = this.app.assets, bg = A.pict(8000), lit = A.pict(8002);
     if (bg) ctx.drawImage(bg, 0, 0);
@@ -210,9 +215,9 @@ export class TitleScreen {
   }
   menu(id) {
     const app = this.app; app.assets.unlock(); if (app.prefs?.music !== false) app.assets.music(30000);   // pref byte 0: Intro Music
-    // DITL 3100: the name field starts with a random STR# 128 pilot name, all of it selected.
-    if (id === 'new') { this.dialog = 'new'; this.edit = DEFAULT_PILOT_NAMES[Math.floor(Math.random() * 3)]; this.sel = true; this.strict = false; this.focusName(); }
-    else if (id === 'open') { this.dialog = 'open'; this.panel = new OpenPilotDialog(app, () => this.closePanel()); }
+    // New Pilot and Open Pilot both open the pilot panel (game/pilots.js, re-gaps #64), which replaces the
+    // original's Mac dialogs (DLOG 3100 / 3001 / 3002 and the Standard File picker).
+    if (id === 'new' || id === 'open') this.openPilots(id);
     // FUN_1004c8d8 item 1: Beep4 with no pilot loaded; otherwise Beep2, then a dead pilot only gets the
     // system beep and a live one enters the ship.
     else if (id === 'enter') { if (!app.pilot) beep(app, BEEP.REFUSE); else { beep(app, BEEP.OPEN); if (!app.pilot.killed) app.enterShip(); } }
@@ -221,72 +226,19 @@ export class TitleScreen {
     else if (id === 'about') { app.assets.stopMusic(); this.dialog = 'about'; this.panel = new AboutScroll(app, () => this.closePanel()); }
   }
   closePanel() { this.dialog = null; this.panel = null; }
-  // Standard Mac dialogs (proc 1, positioned 0x280a: centred on the screen) for New Pilot (DLOG 3100),
-  // the ship's name (DLOG 3001, text from 0x1007ce8f + STR# 5002) and the replace question (DLOG 3002).
-  macDialog(ctx, ui, id) {
-    // Centred as measured on orig-33 (DLOG 3100, 268x145 at (185,167)) and orig-34 (DLOG 3001, 343x138 at
-    // (148,170)): ceil((screen - size) / 2) - 1 on both axes.
-    const L = this.app.data.ui[id], x = TX + Math.ceil((640 - L.w) / 2) - 1, y = TY + Math.ceil((480 - L.h) / 2) - 1;
-    ui.hit(0, 0, 832, 624, () => { });
-    ui.macWindow(ctx, x, y, L.w, L.h);
-    const r = n => { const i = L.items[n]; return { x: x + i.x, y: y + i.y, w: i.w, h: i.h }; };
-    const icon = this.app.assets.pict(130); if (icon && L.items[4]) ctx.drawImage(icon, r(4).x, r(4).y);
-    return r;
+  openPilots(mode) {
+    this.panel?.close?.();
+    this.dialog = 'pilots';
+    this.panel = new PilotPanel(this.app, mode, { owner: this, onClose: () => this.closePanel(), onLaunch: () => this.menu('enter') });
   }
-  drawDialog(ctx, ui) {
-    const app = this.app, D = app.data, caret = Math.floor(performance.now() / 500) % 2 === 0;
-    if (this.dialog === 'new') {
-      const r = this.macDialog(ctx, ui, 3100);
-      ui.macText(ctx, 'Enter your name, pilot:', r(3));
-      ui.macEdit(ctx, this.edit, r(5), this.sel, caret, () => { this.sel = false; this.focusName(); });
-      ui.macCheckbox(ctx, 'Strict Play', r(2), this.strict, () => (this.strict = !this.strict));
-      const cap = app.assets.pict(129); if (cap) ctx.drawImage(cap, r(7).x, r(7).y);   // "If you check this box, when you're dead, you're dead..."
-      ui.macButton(ctx, 'OK', r(1), () => this.confirmName(), true, this.edit.trim().length > 0);
-      ui.macButton(ctx, 'Cancel', r(6), () => (this.dialog = null));
-    } else if (this.dialog === 'replace') {
-      const r = this.macDialog(ctx, ui, 3002);
-      ui.macText(ctx, 'A pilot file by that name already exists. Is it okay to replace it with this new pilot?', r(3));
-      ui.macButton(ctx, 'OK', r(1), () => this.askShipName(), true);
-      ui.macButton(ctx, 'Cancel', r(5), () => (this.dialog = null));
-    } else if (this.dialog === 'ship') {
-      const r = this.macDialog(ctx, ui, 3001);
-      ui.macText(ctx, `Now, please christen your brand-new ${D.str(5002, 0)}:`, r(3));
-      ui.macEdit(ctx, this.edit, r(5), this.sel, caret, () => { this.sel = false; this.focusName(); });
-      ui.macButton(ctx, 'OK', r(1), () => this.createPilot(), true, this.edit.trim().length > 0);
-      ui.macButton(ctx, 'Cancel', r(6), () => (this.dialog = null));
-    } else this.drawOther(ctx, ui);
-  }
+  drawDialog(ctx, ui) { this.drawOther(ctx, ui); }
   drawOther(ctx, ui) { this.panel?.draw(ctx, ui); }
   key(e) {
     if (this.panel) return this.panel.key(e);
-    if (this.dialog === 'new' || this.dialog === 'ship') {
-      const ok = () => (this.dialog === 'new' ? this.confirmName() : this.createPilot());
-      if (e.key === 'Enter') { if (this.edit.trim()) ok(); }
-      else if (e.key === 'Escape') this.dialog = null;
-      else if (e.key === 'Backspace') { this.edit = this.sel ? '' : this.edit.slice(0, -1); this.sel = false; }
-      else if (e.key.length === 1) { if (this.sel) this.edit = ''; this.sel = false; if (this.edit.length < 31) this.edit += e.key; }
-      return true;
-    }
-    if (this.dialog === 'replace') { if (e.key === 'Enter') this.askShipName(); else if (e.key === 'Escape') this.dialog = null; return true; }
     if (e.key === 'Escape' && this.dialog) { this.dialog = null; return true; }
     if (!this.dialog && e.key === 'Enter') { this.menu('enter'); return true; }
     return false;
   }
-  // A hidden text field, so phones show their keyboard for the name.
-  focusName() {
-    const el = document.getElementById('kbd'); if (!el) return;
-    el.value = this.edit; el.oninput = () => { this.edit = el.value.slice(0, 31); this.sel = false; };
-    el.onkeydown = e => { if (e.key === 'Enter' && this.edit.trim()) { el.blur(); this.key(e); } else if (e.key === 'Escape') { el.blur(); this.dialog = null; } };
-    el.focus();
-  }
-  // FUN_1004ef64: pilot name, then (if a file of that name exists) the replace question, then the
-  // ship's name, defaulting to a random STR# 128 ship name. The new pilot is saved and shown here.
-  confirmName() {
-    this.pilotName = this.edit.trim(); this.pilotStrict = !!this.strict;
-    if (this.app.saves.get(this.pilotName)) this.dialog = 'replace'; else this.askShipName();
-  }
-  askShipName() { this.dialog = 'ship'; this.edit = DEFAULT_SHIP_NAMES[Math.floor(Math.random() * 3)]; this.sel = true; this.focusName(); }
-  createPilot() { this.app.newPilot(this.pilotName, this.pilotStrict, this.edit.trim()); this.dialog = null; }
 }
 
 // ---------------------------------------------------------------- spaceport (DLOG 1000)

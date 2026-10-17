@@ -19,7 +19,7 @@ import { CMD } from '../engine/input.js';
 import { wrap } from '../engine/trig.js';
 import { MOD } from '../engine/data.js';
 import { hasOutfit, isDisabled } from '../engine/ships.js';
-import { VIEW_W, VIEW_H } from './flight.js';
+import { VIEW_W, VIEW_H, BAR_BLOCK } from './flight.js';
 
 const CSS = `
 #tc { position: fixed; inset: 0; z-index: 2; pointer-events: none; display: none; user-select: none; -webkit-user-select: none;
@@ -64,10 +64,18 @@ const RIGHT = {
   sec: [2.5, 0.6, 0.5], wpn: [2.62, 1.55, 0.36],
   tgt: [0.8, 2.35, 0.55], ab: [1.85, 2.2, 0.46], cloak: [2.78, 2.55, 0.4],
   land: [0.72, 3.5, 0.48], jump: [1.82, 3.3, 0.48], board: [2.82, 3.5, 0.44],
-  auto: [0.72, 4.55, 0.4], rev: [1.8, 4.35, 0.4],
+  auto: [0.72, 4.55, 0.4], rev: [1.8, 4.35, 0.4], hail: [2.85, 4.55, 0.4],
 };
 const RIGHT_W = 3.3, RIGHT_H = 5.0;
-const TOP = ['menu', 'pause', 'map', 'info', 'msn', 'hail'];
+// Full-screen layout in landscape: the same buttons in a wide, low arc under the status bar.
+const WIDE = {
+  fire: [1.0, 1.0, 0.85], eject: [1.0, 1.0, 0.85],
+  sec: [2.6, 0.7, 0.55], wpn: [3.6, 0.55, 0.38], ab: [4.55, 0.7, 0.48], hail: [5.55, 0.75, 0.45],
+  tgt: [2.3, 2.05, 0.55], land: [0.85, 2.75, 0.5], jump: [3.4, 1.75, 0.5], board: [4.45, 2.2, 0.46],
+  auto: [2.0, 3.2, 0.42], rev: [3.05, 3.05, 0.42], cloak: [4.2, 3.1, 0.42],
+};
+const WIDE_W = 6.0, WIDE_H = 3.65;
+const TOP = ['menu', 'pause', 'map', 'info', 'msn'];
 
 export class Touch {
   constructor(app) {
@@ -177,8 +185,9 @@ export class Touch {
   // A tap on a ship in the playfield targets it.
   tapShip(e) {
     const g = this.app.game, P = g?.player; if (!P) return;
-    const q = this.app.toLogical(e); if (q.x < 0 || q.x >= VIEW_W || q.y < 0 || q.y >= VIEW_H) return;
-    const ox = VIEW_W / 2 - P.x, oy = VIEW_H / 2 - P.y, scale = this.canvasScale;
+    const v = this.app.flight?.view ?? { w: VIEW_W, h: VIEW_H }, cv = this.app.canvas;
+    const q = this.app.toCanvas(e); if (q.x < 0 || q.x >= v.w || q.y < 0 || q.y >= v.h) return;
+    const ox = v.w / 2 - P.x, oy = v.h / 2 - P.y, scale = cv.getBoundingClientRect().width / cv.width || 1;
     let best = -1, bd = Infinity;
     for (const t of g.ships) {
       if (!g.targetable(t)) continue;
@@ -216,6 +225,7 @@ export class Touch {
   // ---------- layout ----------
   layout() {
     if (!this.active) return;
+    if (this.app.full) return this.layoutFull();
     const W = innerWidth, H = innerHeight, main = this.app.canvas.parentElement;
     let c = this.app.canvas.getBoundingClientRect();
     let u = Math.round(Math.max(44, Math.min(74, Math.min(W, H) * 0.13)));
@@ -242,6 +252,41 @@ export class Touch {
     this.topBottom = 0.12 * u + Math.ceil(top.length / cols) * step;
     this.split = Math.min(W * 0.5, ax - RIGHT_W * u);
     this.stickR = Math.round(1.05 * u);
+    this.barRect = { left: fieldR, top: c.top, right: c.right, bottom: c.bottom };
+  }
+  // Full-screen layout: the canvas fills the window and the status bar is in its top-right corner
+  // (flight.js BAR_PARTS). Every button is on the right: the action cluster under the bar, and the small
+  // buttons in the space left of the bar (landscape) or in a row under it (portrait). The left half is the stick's.
+  layoutFull() {
+    const W = innerWidth, H = innerHeight, main = this.app.canvas.parentElement;
+    if (main && main.style.justifyContent) main.style.justifyContent = '';
+    const c = this.app.canvas.getBoundingClientRect();
+    const k = Math.min(c.width, c.height) / 480;   // CSS px per canvas px in flight (480 on the short side)
+    const bar = this.barRect = { left: c.right - BAR_BLOCK.w * k, top: c.top, right: c.right, bottom: c.top + BAR_BLOCK.h * k };
+    const wide = W > H, L = wide ? WIDE : RIGHT, LW = wide ? WIDE_W : RIGHT_W, LH = wide ? WIDE_H : RIGHT_H;
+    const place = (b, x, y, r) => Object.assign(b.style, { left: x - r + 'px', top: y - r + 'px', width: 2 * r + 'px', height: 2 * r + 'px', fontSize: Math.round(Math.max(11, r * 0.42)) + 'px' });
+    const top = TOP.filter(id => this.b[id].shown !== false);
+    let u, us;
+    if (wide) {
+      u = Math.floor(Math.max(40, Math.min(84, (H - bar.bottom - 8) / (LH + 0.15), W * 0.55 / (LW + 0.15))));
+      us = Math.round(Math.min(56, Math.max(40, u * 0.8)));
+    } else {
+      us = Math.round(Math.min(56, Math.max(40, W * 0.13)));
+      u = Math.floor(Math.max(40, Math.min(84, W * 0.17, (H - bar.bottom - us * 1.3) / (LH + 0.15))));
+    }
+    this.u = u; this.canvasScale = k;
+    const ax = c.right - 0.15 * u, ay = c.bottom - 0.15 * u;
+    for (const [id, [x, y, r]] of Object.entries(L)) place(this.b[id], ax - x * u, ay - y * u, r * u);
+    for (const id of Object.keys(this.b)) if (!(id in L) && !TOP.includes(id)) this.b[id].style.left = '-999px';
+    const r = 0.44 * us, step = us;
+    if (wide) {
+      // a grid right to left from the bar's left edge, as many rows as fit above the cluster
+      const clusterTop = ay - LH * u, rows = Math.max(1, Math.floor((clusterTop - c.top - 0.1 * us) / step));
+      top.forEach((id, i) => place(this.b[id], bar.left - 0.1 * us - r - Math.floor(i / rows) * step, c.top + 0.1 * us + r + (i % rows) * step, r));
+    } else top.forEach((id, i) => place(this.b[id], c.right - 0.1 * us - r - i * step, bar.bottom + 0.15 * us + r, r));
+    this.topBottom = wide ? bar.bottom : bar.bottom + 0.2 * us + step;
+    this.split = Math.min(W * 0.5, ax - LW * u);
+    this.stickR = Math.round(1.1 * u);
   }
 
   // Called every frame: show the layer in flight only, and only the buttons that do something now.
@@ -253,8 +298,8 @@ export class Touch {
     if (!flying) {
       this.holds.clear(); this.stick = null; this.stickEl.style.display = this.knobEl.style.display = 'none'; if (this.menuOpen) this.closeMenu();
       if (this.active) {
-        const key = `${innerWidth}x${innerHeight}`;
-        if (this.layoutFor?.split(':')[0] !== key) { this.layoutFor = key; this.layout(); }
+        const key = `${innerWidth}x${innerHeight}:${+this.app.full}`;
+        if (!this.layoutFor?.startsWith(key)) { this.layoutFor = key; this.layout(); }
       }
       this.dock();
       return;
@@ -276,7 +321,7 @@ export class Touch {
       if (b.shown !== on) { b.shown = on; b.style.display = on ? 'flex' : 'none'; }
     }
     // re-place when the window or the set of top buttons changes (hidden ones leave no gap)
-    const key = `${innerWidth}x${innerHeight}:${TOP.map(id => +!!this.b[id].shown).join('')}`;
+    const key = `${innerWidth}x${innerHeight}:${+this.app.full}:${TOP.map(id => +!!this.b[id].shown).join('')}`;
     if (this.layoutFor !== key) { this.layoutFor = key; this.layout(); }
     this.b.pause.innerHTML = paused ? '&#9654;' : 'II';
     this.pad.style.display = paused ? 'none' : 'block';
@@ -284,7 +329,7 @@ export class Touch {
 
   // Tap slop for UI.click, in canvas pixels: about 22 screen px at the current scale, at most 16.
   slop() {
-    const c = this.app.canvas, k = c.getBoundingClientRect().width / c.width || 1;
+    const f = this.app.frameRect(), k = f.width / (this.app.frameSize?.[0] ?? 640) || 1;   // CSS px per screen px
     return Math.round(Math.min(16, Math.max(6, 22 / k)));
   }
 
@@ -316,7 +361,7 @@ export class Touch {
   // The largest free strip around the game picture, or null when there is none worth using (a tablet's
   // picture is big enough to tap directly).
   dockStrip() {
-    const W = innerWidth, H = innerHeight, c = this.app.canvas.getBoundingClientRect();
+    const W = innerWidth, H = innerHeight, c = this.app.frameRect();
     const opts = [
       { col: true, x: c.right, y: 0, w: W - c.right, h: H },
       { col: true, x: 0, y: 0, w: c.left, h: H },
@@ -375,6 +420,7 @@ export class Touch {
     head('Ship');
     item('Self-destruct (hold)', null, { held: CMD.DESTRUCT, cls: 'red' });
     item(`Art: ${a.art === 'hd' ? 'HD' : 'Original'}`, () => a.setArt(a.art === 'hd' ? 'original' : 'hd'));
+    item(`Layout: ${a.full ? 'Full screen' : 'Classic'}`, () => a.setLayout(a.full ? 'classic' : 'full'));
     if (document.fullscreenEnabled) item(document.fullscreenElement ? 'Leave full screen' : 'Full screen',
       () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.({ navigationUI: 'hide' }).catch(() => { }));
     item('Credits', () => globalThis.evCredits?.(true));
