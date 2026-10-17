@@ -1,0 +1,77 @@
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+___________________________________
+Documentation by David Dunham
+Special thanks to Andrew Welch, Matt Burch, Peter Cartwright, Jason Whong, John Cook and Jos Delbar for the plug ins chapter.
+©1996-8 by Ambrosia Software, Inc.
+
+Welcome to Override
+Welcome to a brand new universe!
+
+EV: Override is Ambrosia's huge follow up to the classic Escape Velocity.  With an immersive story and universe created by Peter Cartwright, a new conflict begins to unfold.  Much like the original game by Matt Burch, you are cast as a pioneering space captain with only a small shuttlecraft, a bit of money, and a strong sense of destiny.  But the similarity ends there.
+
+Override features a universe five times the size of the original game, and a slew of populated worlds within.  Gone are the neverending wars which raged in the original game; instead, winning critical battles can change the face of the universe.  Or, if you're happy with the existing balance of power, you can make a living as a humble trader.  Just watch out for those pesky renegades, who want nothing more than to swipe the precious cargo from your holds.
+
+Override also takes advantage of an improved Escape Velocity engine for improved game play, and enhanced flexibility for scenario developers.  Additionally, the game contains stunning new graphics and sound, over 250 new missions, and all the excitement of the original EV game.
+
+It's time to rediscover addiction.  The unexplored universe awaits!
+Navigating this Document
+
+To scroll a page up and down...
+• Use the scroll bar on the right side of the window
+• Use the up and down arrow keys on your keyboard
+• Use the Page Up and Page Down keys on your keyboard
+
+To move between chapters...
+• Use the scroll bar along the bottom of the window
+• Use the left and right arrow keys on your keyboard
+• Select an item from the “Chapters” menu
+
+
+Three types of icons help you along your way...
+
+   
+
+
+
+1) The Blue “Go To” buttons are found in the Table of Contents and elsewhere. Clicking on one of these transfers you to the indicated chapter.
+
+2) A “Print” button is found at the bottom of each page. Clicking on this button prompts you with a dialog box listing the chapters in this manual. Any or all of the chapters can be printed from this dialog box. 
+
+3) The “Quit” button is also found at the bottom of each page. “Quit” will exit this manual, returning you to the Finder.
+
+
+  
+
+
+

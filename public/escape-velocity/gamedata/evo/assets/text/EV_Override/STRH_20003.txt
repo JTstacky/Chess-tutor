@@ -1,0 +1,47 @@
+1	EV - A Blast From the Past:
+2	(portions of an AOL chat log)
+3	
+4	
+5	Matt Burch: I think we're shooting
+6	for a December release.
+7	EEKMAN: December, gee that's a long
+8	way away.
+9	AndrewWelc: Matt is going to lock
+10	himself in a room and get it done
+11	by October. :)
+12	GoH Ghent: sounds good
+13	EEKMAN: And not bath for 3 weeks?
+14	Matt Burch: It's a toss-up...
+15	GPA or EV? Hmmm... :)
+16	AndrewWelc: The game is mostly done --
+17	we just need to shake the bugs out,
+18	and build the world/missions/
+19	personalities, etc.
+20	Matt Burch: I'd say the code is 95%
+21	done right now. The scenario design
+22	and testing come next.
+23	
+24	
+25	AndrewWelc: BTW, I've disabled them
+26	and would KILL to be able to take
+27	over their ship. :)
+28	Matt Burch: Just watch out when they
+29	scramble their fighter wings. :)
+30	AndrewWelc: "Sir, should we scuttle
+31	the ship or take 'er over?"
+32	Matt Burch: Andrew, you want to be
+33	able to take over disabled ships?
+34	Matt Burch: Maybe I can do that...
+35	AndrewWelc: Matt, definitely. Some of
+36	those big suckers you can't buy! They're
+37	so juicy!
+38	Matt Burch: Well, first you have to
+39	explain how the crew of a Corvette
+40	could storm a cruiser...
+41	AndrewWelc: Matt, it's a game, we
+42	don't have to explain everything! :)
+43	Matt Burch: Oh yeah. :)
+44	
+45	
+46	And the EV design team says
+47	   a collective "D'oh!"

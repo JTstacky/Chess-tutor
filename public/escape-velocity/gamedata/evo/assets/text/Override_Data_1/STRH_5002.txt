@@ -1,0 +1,47 @@
+1	United Earth Liverpool shipyards S-685 shuttlecraft
+2	United Earth Houston shipyards F-612 interstellar freighter
+3	United Earth Port-au-Prince shipyards AF-37 attack fighter
+4	United Earth New England shipyards DS-11 destroyer
+5	United Earth Alexandria shipyards CA-6 attack fighter carrier
+6	Voinian Svass class Supply Ship
+7	Voinian Demon class heavy fighter
+8	Voinian Hellfire class frigate
+9	Voinian Borb class heavy cruiser
+10	United Earth Portsmouth shipyards SS-15 scoutship
+11	Frontier Express Crockett shipyards FC-5 freight-courier
+12	Voinian Vengeance class Dreadnought
+13	Voinian Devil class interceptor
+14	Profit Enterprises Gribn shipyards LF-61 Krait class light fighter
+15	Liberty Industries Freeport shipyards EF-22 Turncoat class light frigate
+16	Craftsmen's Guild Iothe Prime shipyards TC-121 Helian class clipper
+17	United Earth New Taranto shipyards PC-1 patrol cruiser
+18	The Nadir
+19	Miranu Mira shipyards 1011C courier
+20	Miranu Mira shipyards 618F freighter
+21	Miranu Kitrak shipyards 247F bulk freighter
+22	Generic trans-Crescent light attack fighter
+23	Generic Arada class multi-purpose vessel
+24	Generic trans-Crescent medium warship
+25	Zidagar Tumni shipyards Zidara class destroyer escort
+26	Azdgari Dames craftworks Azdara class light fighter
+27	Igadzra shipyards Igazra class heavy warship
+28	Azdgari Warship
+29	Renegade Arada
+30	Azdgari Arada
+31	Zidagar Fighter
+32	Emalgha scrapyard 12 Productions fighter
+33	Emalgha scrapyard 5 Productions freighter
+34	Emalgha warship
+35	Miranu New Mira shipyards 1G gunship
+36	Trader's Arada
+37	Igadzra Arada
+38	Zachit Arada
+39	Zachit Fighter
+40	
+41	
+42	
+43	
+44	
+45	
+46	Generic Lazira class high-performance escort
+47	United Earth Gdansk shipyards CT-493 cargo transporter

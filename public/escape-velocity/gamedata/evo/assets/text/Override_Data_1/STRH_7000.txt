@@ -1,0 +1,10 @@
+1	Greetings from UE shipping.
+2	Greetings from the United Earth government.
+3	Greetings from a UE trader.
+4	Greetings from UE shipping.
+5	Greetings from the United Earth government.
+6	Greetings from the United Earth government.
+7	You'll be safe as long as you remain in UE space. But to the galactic west are the Voinians, and elsewhere … only rumours.
+8	Join us against the evil Voinians!
+9	We shall strike back against the hated Voinians!
+10	Death to the Voinian scum!

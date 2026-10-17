@@ -1,0 +1,2 @@
+Enter Your Personal Information
+Please enter your name, company, address, eMail address, phone number, and fax number below.  If any information isn’t applicable, simply leave it blank.  This information is kept entirely confidential: we will not give out your personal information to anyone.  Click on the right arrow to continue.

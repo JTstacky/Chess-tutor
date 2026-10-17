@@ -1,0 +1,75 @@
+1	Blaze Cannon
+2	Blaze Turret
+3	Rocket Launcher
+4	Rocket
+5	Missile Launcher
+6	Hunter Missile
+7	Neutron Cannon
+8	Neutron Turret
+9	Voinian Fighter Bay
+10	Voinian Fighter
+11	UE Fighter Bay
+12	UE Fighter
+13	Dospect Armour
+14	Bronev Plating
+15	Needle Jammer
+16	Rocket Turret
+17	Turreted Rocket
+18	Cloaking Device
+19	Plasma Siphon
+20	N.P. Device
+21	Krait Bay
+22	Krait
+23	Mine Layer
+24	Space Mine
+25	Fake ID
+26	Fuel Tank
+27	Escape Pod
+28	Density Scanner
+29	IFF Decoder
+30	Afterburner
+31	Needle Launcher
+32	Needle Missile
+33	Sensor Upgrade
+34	Phase Cannon
+35	Rr. Phase Cannon
+36	Sw. Phase Cannon
+37	Phase Turret
+38	Regional Map
+39	SAD Launcher
+40	SAD Module
+41	Fuel Scoop
+42	Auto-Refueller
+43	Phased Beamer
+44	Azdara Bay
+45	Azdara
+46	Fighter Bay
+47	Crescent Fighter
+48	Defence System
+49	Defence Pod
+50	DR Launcher
+51	Dispy. Rocket
+52	Thrust Upgrade
+53	Shield Enhancer
+54	Zidagar Bay
+55	Zidagar Fighter
+56	Engine Upgrade
+57	Emalgha Cannon
+58	Emalgha Turret
+59	Freighter Upgrade
+60	Mass Expansion
+61	Cargo Expansion
+62	Shield Generator
+63	ECM System
+64	RCS Upgrade
+65	Azdgari Upgrade
+66	Missile Launcher
+67	Pursuit Missile
+68	Tractor Beam
+69	Repulsor Beam
+70	Shield Generator
+71	Systems Upgrade
+72	Zidagar ECM
+73	SAE Launcher
+74	SAE Module
+75	Marine Gear

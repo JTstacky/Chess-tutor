@@ -1,0 +1,25 @@
+1	Confed
+2	Rebel
+3	Pirate
+4	Cydonia
+5	Lethe
+6	Militia
+7	Unknown
+8	Astex
+9	Trader
+10	Merc
+11	SBound
+12	ConEx
+13	Alien
+14	Derelict
+15	UGExp
+16	Confed
+17	Rebel
+18	Confed
+19	Rebel
+20	ConEx
+21	Astex
+22	Confed
+23	Alien
+24	
+25	Hunter

@@ -1,0 +1,10 @@
+1	Greetings. We are of the Emalgha.
+2	Greetings. We are of the Emalgha.
+3	Greetings. We are of the Emalgha.
+4	Greetings. We are of the Emalgha.
+5	Greetings. We are of the Emalgha.
+6	What are you? Neither Emalgha nor Voinian.
+7	Greetings. We are of the Emalgha.
+8	If you are an ally of the Voinians - prepare to meet your doom!
+9	A human, you say? Will you help us fight the Voinians?
+10	Greetings. We are of the Emalgha.

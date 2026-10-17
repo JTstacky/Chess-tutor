@@ -1,0 +1,117 @@
+1	Escape Velocity
+2	
+3	by Matt Burch
+4	
+5	
+6	©1996 Ambrosia Software, Inc.
+7	
+8	
+9	Registered to:
+10	<REG>
+11	
+12	
+13	Programming... Matt Burch
+14	
+15	Game & Sprite Artwork...
+16	     Matt Burch
+17	
+18	Logos, Titles, Main Screen Art...
+19	     Mark W. Lewis
+20	
+21	Additional Graphics...
+22	     Adam Burch
+23	
+24	Music... Killer Tracks
+25	               & Ambrosia Labs
+26	
+27	Sprite Animation Toolkit...
+28	     Ingemar Ragnemalm
+29	
+30	Ambrosia Sound Tool
+31	   & Monitor Tool...
+32	     Andrew Welch
+33	
+34	Scenario Design...
+35	     Matt Burch
+36	
+37	Additional missions...
+38	     Jeremy Condit
+39	     Doug Hempel
+40	     Tim Aldrich
+41	
+42	
+43	The Ambrosia Crew:
+44	
+45	Chief Thaumaturgist...
+46	     Andrew Welch
+47	
+48	Technical Support...
+49	     “Cajun” David Richard
+50	
+51	Finances...
+52	     Gayle Haarr
+53	
+54	
+55	Beta Testers...
+56	     Andrew Callan
+57	     Pieter Paulson
+58	     David Freitas
+59	     Robert C. Lewis
+60	     Mark Elpers
+61	     Jeremy Condit
+62	     Allen Klein
+63	     Teddy Schall
+64	     John Hancock
+65	     Barry K. Maggert
+66	     Jeffre R. Claunch
+67	     David J. Fulton
+68	     Matt Domenici
+69	     Douglas Hempel
+70	     Duncan Howard
+71	     Eric Case
+72	     Emile Smith
+73	     Derek Chee
+74	     Eric Heien
+75	     Bobby Saha
+76	     Shane Blanchett
+77	     Jamie Dresser
+78	     Jack Mello
+79	     Joseph Vantaggi
+80	     Aaron Dickey
+81	     Michael Deleon
+82	     Mike Alletto
+83	     Marco Asteriti
+84	     David-Artur Daix
+85	     Mark Lewis
+86	     Matt Lee
+87	     Mark Juchter
+88	     Nathan Nunn
+89	     Patrick Boie
+90	     Patrick Delahanty
+91	     Bob Shutts
+92	     Rob Kilburn
+93	     Terry Fink
+94	     Shane Looker
+95	     Sidney Chen
+96	     David Slattery
+97	     Michael Esser
+98	     Timothy Aldrich
+99	     Truman C. Whiting III
+100	     Weldon Dodd
+101	
+102	Vocal Talent and
+103	Stunt Coordinator...
+104	     Patrick Delahanty
+105	
+106	Filmed in Hectorvision
+107	using genuine Apple lenses
+108	
+109	In stereo where available
+110	
+111	
+112	
+113	
+114	
+115	
+116	Stop reading the credits and
+117	  play the damn game already!

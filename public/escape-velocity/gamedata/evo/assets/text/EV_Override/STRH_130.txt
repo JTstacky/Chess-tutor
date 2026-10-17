@@ -1,0 +1,7 @@
+1	Override Graphics
+2	Override Sounds
+3	Override Data 1
+4	Override Data 2
+5	Override Titles
+6	Override Music
+7	Override Prefs

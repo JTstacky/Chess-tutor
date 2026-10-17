@@ -1,0 +1,190 @@
+1	Channel open.
+2	Communications channel open.
+3	Communications interlink established.
+4	Hailing frequencies open.
+5	Hailing channel ready.
+6	No response.
+7	No response to communication.
+8	No response detected.
+9	Sensors are picking up only static.
+10	No response on this channel.
+11	What do you want?
+12	What do you want?
+13	What is it?
+14	What is it?
+15	What?
+16	Calling to beg for your life?
+17	Stalling won’t get you anywhere.
+18	You’re just prolonging the inevitable.
+19	What does someone like you have to say to me?
+20	You don’t have a chance.
+21	What can I do for you?
+22	What can I help you with?
+23	What do you need?
+24	What can I do for you?
+25	What can I help you with?
+26	What can I do for you, sir?
+27	What can I help you with, sir?
+28	What do you need, sir?
+29	What can I do for you, sir?
+30	What can I help you with, sir?
+31	Go ahead, 
+32	Go ahead, 
+33	Go ahead, 
+34	Go ahead, 
+35	Proceed, 
+36	Good to have you flying with us, 
+37	Good to fly with you, 
+38	Good to see you, 
+39	Good to have you flying with us, 
+40	Good to have you flying with us, 
+41	Glad to see you, 
+42	Glad to see you, 
+43	Glad to see you, 
+44	Glad to see you, 
+45	Glad to see you, 
+46	Hello.
+47	Hello there.
+48	Greetings.
+49	Hi there.
+50	Hello.
+51	Whatever.
+52	Uh-huh.
+53	Right.
+54	Whatever you say.
+55	Sure, whatever.
+56	Up yours.
+57	Take off, hoser.
+58	Screw you.
+59	You suck.
+60	What a loser.
+61	What? Try again when you actually have enough to pay me.
+62	Yeah, whatever, cheapskate. You don’t have that many credits.
+63	You don’t even have that much.
+64	You can’t fool me - you can’t afford it.
+65	You can’t afford it.
+66	Stop wasting my time.
+67	This is a waste of time.
+68	What a waste of time.
+69	You’re wasting my valuable time.
+70	You’re just wasting my time.
+71	You’re not in any trouble.
+72	You’re in no danger.
+73	You don’t have any problems.
+74	You’re not in danger.
+75	There’s no danger to you right now.
+76	All right, I’ll help you.
+77	Sure, I’ll help you out.
+78	Help is on the way.
+79	I’ll come and help you.
+80	Hang on, I’m coming.
+81	I’m busy.
+82	I’m a little busy right now.
+83	I’m too busy to help you.
+84	I have other business.
+85	I’ve got other things to do.
+86	I’d rather not.
+87	Sorry, I’d rather not.
+88	I don’t think so.
+89	I think not.
+90	I don’t think I want to.
+91	You’ll have to pay me first.
+92	Only if you pay me first.
+93	Not without getting paid.
+94	Not unless you pay me.
+95	I might if you pay me.
+96	In your dreams, pal.
+97	Yeah, right!
+98	No way.
+99	You wish.
+100	Not a chance.
+101	A pleasure doing business with you.
+102	A pleasure to do business with you.
+103	Good doing business with you.
+104	Thank you very much.
+105	Thanks, pal.
+106	Are you trying to insult me?
+107	You’d better stop insulting me, pal.
+108	I don’t take kindly to insults.
+109	I consider that an insult.
+110	You shouldn’t insult people.
+111	Sorry sir, I can’t help you.
+112	Sorry sir, I can’t do that.
+113	Sorry sir, I can’t do that.
+114	Sorry sir, I’m just an escort.
+115	Sorry sir, I’m just an escort.
+116	You’re lucky - I’m in a good mood today.
+117	You’re in luck, I’m in a good mood today.
+118	You’re lucky - I’m in a good mood today.
+119	Lucky you - I’m in a good mood today.
+120	Lucky you - I’m in a good mood today.
+121	I’m in a bad mood today, so it’s going to cost you.
+122	I’m in a terrible mood today, so it’s going to cost you extra.
+123	I’m in a bad mood today, so it’s going to cost extra.
+124	I’m in a mean mood today, so it’s going to cost you extra.
+125	I’m in a bad mood today, so it’s going to cost you extra.
+126	Sorry, I can’t do that.
+127	I can’t do that.
+128	Sorry, but I can’t do that.
+129	Sorry, I can’t do that.
+130	Sorry, but I can’t do that.
+131	Huh?
+132	What?
+133	Huh?
+134	What?
+135	What the... ?
+136	Okay, I’ll leave you alone.
+137	All right, I’ll leave you alone.
+138	Okay, I’ll leave you alone.
+139	All right, I’ll leave you alone.
+140	Okay, I’ll leave you alone.
+141	All right, I’ll give you some fuel, but it’ll cost you.
+142	I’ll help you refuel if you pay me.
+143	If you pay me, I’ll refuel your ship.
+144	You can have some fuel if you pay me first.
+145	You can get some fuel if you give me some credits.
+146	Okay, I’m on my way.
+147	Hold on, I’ll be right there.
+148	Sit tight, I’m coming.
+149	Hang on, I’m on my way.
+150	Wait a minute, I’ll be right there.
+151	What? How dare you! Prepare to die!
+152	Die, cheapskate!
+153	What a cheapskate! This’ll teach you a lesson!
+154	No! You die!
+155	Ha ha ha! This will be your last mistake!
+156	Ha ha ha. What a comedian.
+157	If that’s the way you feel, then you can sit here forever.
+158	Fine, I guess you don’t want my fuel.
+159	You’re such a laugh riot.
+160	Forget it! What a joke.
+161	All right, but only because I like you.
+162	All right, but don’t tell anybody I did this.
+163	Well, okay. Just this once.
+164	Okay, since your reputation is so good.
+165	Well, since you’re so well-known, okay.
+166	Are you kidding? I can’t afford to pay that!
+167	No way! I’m not paying a credit more!
+168	You won’t get any more out of me, pal.
+169	Yeah, right - I can’t afford that!
+170	I can’t afford that! You must be joking!
+171	You’re going to put me in the poorhouse, but okay.
+172	Okay, but don’t tell anyone.
+173	All right! Fine! I’ll pay extra!
+174	Jeez, okay! It’s killing me, but okay!
+175	Sure, I guess I won’t take a vacation this year.
+176	Here, take it and go!
+177	Here, take it and go away!
+178	Here, take it and leave me alone!
+179	Here, take it and be gone!
+180	Here, take it and leave!
+181	Just hold on, I'm coming.
+182	I'm on my way. Calm down.
+183	Sit tight, I'm coming.
+184	Wait a minute. I'll be there soon.
+185	Just hold on a minute.
+186	Goodbye, captain.
+187	See you around the galaxy.
+188	I’ll buy you a synthale next time we meet.
+189	Catch you later.
+190	Check six, I’m outta here.

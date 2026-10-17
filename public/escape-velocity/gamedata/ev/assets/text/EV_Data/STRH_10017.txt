@@ -1,0 +1,8 @@
+1	U.S.S. Sacramento
+2	U.S.S. Hannibal
+3	U.S.S. Carson
+4	U.S.S. Geronimo
+5	U.S.S. Waylander
+6	U.S.S. Fitzgerald
+7	U.S.S. Robinson
+8	U.S.S. Revere

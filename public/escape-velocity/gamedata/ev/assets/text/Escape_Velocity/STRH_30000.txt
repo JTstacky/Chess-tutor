@@ -1,0 +1,6 @@
+1	Cap’n Hector says: “Don’t forget to register Escape Velocity!”
+2	Cap’n Hector says: “Don’t forget to pay your shareware fee!”
+3	Cap’n Hector says: “Don’t forget to send in your shareware registration fee!”
+4	Cap’n Hector says: “Prepare to be destroyed, non-shareware paying scum!”
+5	Cap’n Hector says: “Prepare to die, non-shareware paying scum!”
+6	Cap’n Hector says: “Avast, ye scurvy software pirate, prepare to meet thy maker!”

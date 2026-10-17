@@ -1,0 +1,4 @@
+1	This application requires System 7.0 or later.  Please upgrade to System 7.0 or later to use.
+2	An error occured during Apple event processing.
+3	This application requires a color-capable Macintosh.
+4	Direct eMail could not be sent; please use the Save As option instead.

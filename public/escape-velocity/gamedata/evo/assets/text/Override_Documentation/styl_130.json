@@ -1,0 +1,314 @@
+[
+ {
+  "start": 0,
+  "height": 25,
+  "ascent": 20,
+  "font": 21,
+  "face": 0,
+  "size": 24,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 14,
+  "height": 11,
+  "ascent": 8,
+  "font": 21,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 49,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   65535,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 50,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 2,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 85,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 86,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 2,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 87,
+  "height": 15,
+  "ascent": 12,
+  "font": 20,
+  "face": 1,
+  "size": 14,
+  "color": [
+   0,
+   4,
+   65534
+  ]
+ },
+ {
+  "start": 94,
+  "height": 11,
+  "ascent": 8,
+  "font": 20,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 95,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 118,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 317,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 322,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 494,
+  "height": 13,
+  "ascent": 10,
+  "font": 1,
+  "face": 0,
+  "size": 10,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 495,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 578,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 590,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 932,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 943,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1054,
+  "height": 13,
+  "ascent": 10,
+  "font": 1,
+  "face": 0,
+  "size": 10,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1055,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1065,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1070,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1075,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1084,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ }
+]

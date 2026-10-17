@@ -1,0 +1,14 @@
+1	R.S.S. Tarawa
+2	R.S.S. Leyte Gulf
+3	R.S.S. Guadalcanal
+4	R.S.S. Midway
+5	R.S.S. Coral Sea
+6	R.S.S. Corregidor
+7	R.S.S. White Plains
+8	R.S.S. Bataan
+9	R.S.S. Manila Bay
+10	R.S.S. Natoma Bay
+11	R.S.S. Sargent Bay
+12	R.S.S. Gambier Bay
+13	R.S.S. Fanshaw Bay
+14	R.S.S. Marianas

@@ -1,0 +1,41 @@
+[
+ {
+  "start": 0,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 538,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 540,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ }
+]

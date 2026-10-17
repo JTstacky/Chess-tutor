@@ -1,0 +1,10 @@
+1	Greetings from a simple merchant.
+2	Greetings from a fellow trader.
+3	Hello, captain.
+4	*
+5	*
+6	*
+7	*
+8	*
+9	*
+10	*

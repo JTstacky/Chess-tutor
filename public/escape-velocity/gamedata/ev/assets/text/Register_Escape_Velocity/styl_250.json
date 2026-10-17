@@ -1,0 +1,197 @@
+[
+ {
+  "start": 0,
+  "height": 16,
+  "ascent": 12,
+  "font": 0,
+  "face": 32,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 15,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 33,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 37,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 39,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 49,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 51,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 59,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 64,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 80,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 371,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 383,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 386,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 424,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 431,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ }
+]

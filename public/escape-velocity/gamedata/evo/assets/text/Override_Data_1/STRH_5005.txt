@@ -1,0 +1,75 @@
+1	blaze cannons
+2	blaze turrets
+3	rocket launchers
+4	rockets
+5	hunter missile launchers
+6	hunter missiles
+7	neutron cannons
+8	neutron turrets
+9	Voinian fighter bays
+10	Voinian heavy fighters
+11	UE fighter bays
+12	UE fighters
+13	layers of Dospect armour
+14	layers of Bronev plating
+15	needle jammers
+16	rocket turrets
+17	turretted rockets
+18	UE cloaking devices
+19	plasma siphons
+20	
+21	Krait fighter bays
+22	Krait fighters
+23	mine layers
+24	space mines
+25	
+26	external fuel tanks
+27	escape pods
+28	density scanners
+29	IFF decoders
+30	afterburners
+31	needle launchers
+32	needle missiles
+33	tail defenders
+34	phase cannons
+35	rear phase cannons
+36	swivel phase cannons
+37	phase turrets
+38	regional maps
+39	SAD module launchers
+40	SAD modules
+41	fuel scoops
+42	auto-refuellers
+43	phased disruption beams
+44	
+45	Azdaras
+46	
+47	Crescent fighters
+48	Miranu defence systems
+49	Miranu defence pods
+50	dispersal rocket launchers
+51	dispersal rockets
+52	
+53	shield enhancers
+54	
+55	Zidagar Fighters
+56	
+57	Emalgha cannons
+58	Emalgha turrets
+59	
+60	mass expansions
+61	cargo expansions
+62	shield generators
+63	
+64	
+65	
+66	pursuit missile launchers
+67	pursuit missiles
+68	
+69	
+70	exp. shield gens.
+71	
+72	
+73	SAE module launchers
+74	SAE modules
+75	

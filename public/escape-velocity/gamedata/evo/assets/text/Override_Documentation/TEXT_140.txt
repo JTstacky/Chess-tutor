@@ -1,0 +1,65 @@
+
+Troubleshooting
+___________________________________
+Help with common situations you may run into
+
+
+What if my question isn't answered here?
+If your question isn't answered here, please read the Override FAQ.text file that is included in the Override package, and is also available on our web site.  This FAQ has numerous answers to questions we are frequently asked about Override.
+
+What is the "EV Plug-Ins" folder for?
+The EV Plug-Ins folder allows mission designers to extend Override by adding new worlds, weapons, missions, ships, etc.  While this is not for the faint of heart, several developers are working on editors that will allow people to do just that.  Please don't ask us about editors, etc. -- we aren't working on them, independent developers are.  We’re just providing the support mechanism for it in Override.
+
+For the vast majority of people, the EV Plug-Ins folder is there to allow you to easily use scenerios that others have devised, simply by dropping them in the folder.
+
+Will my Escape Velocity plug ins work for EV Override?
+Override has its own architecture so your Escape Velocity plug ins will not work for EV Override, but it will take only minor changes to your plug in to make it work for EV Override.
+
+How can I pause a game of Override? Can I get to the Finder?
+Override doesn't have a "Pause Key" as many of our other games have. The reason for this is because Override pauses when you open a dialog box (for example, the Map window). The game is also paused when you are on a planet.
+
+If you would like to get to the Finder, you can use the ESC key to exit your ship (this is also a pausing technique). You can then hide Override from the Application menu or even quit the program while at the title screen. Keep in mind that Override only saves when you are on a planet, so it is a good idea not to use the ESC key until right after you leave a planet. 
+
+Does Override work on my PowerPC - is it PowerPC native?
+Override works just fine on all PowerMacs. It is a "Fat" binary, which means it has native code for both the 68K and PPC machines.  Override senses the type of machine you are using and loads the proper code.
+
+Why does the sound occasionally break up?
+Certain video cards may cause the sound to break up during fades.  This is because all video card drivers turn off interrupts while they are changing color table entries, and some video cards do not handle color table changes in an optimal manner.  Since interrupts are off while the video card is changing color table entries, the Sound Manager cannot service the sound chip quickly enough, and the sound breaks up.
+
+Will VM or RAM Doubler affect game play?
+If you have Virtual Memory turned on or are using the RAM Doubler extension, it may slow down Override's game play.  This is unavoidable; the only solution is to turn virtual memory or RAM Doubler off before playing Override.
+
+On slower machines, Virtual Memory or RAM Doubler may also cause the sound to breakup or screech on occasion.  We recommend against using Virtual Memory or RAM Doubler while playing Override (or any other game for that matter), but it does work.
+
+I have problems launching Override - what can I do?
+There are two things you can try. First, raise Override's memory allocation. This is done by hilighting the Override application icon from the Finder and choosing Get Info... from the File menu. You can set the memory allocation to a higher amount. Override requires at least 14013K of free RAM.
+
+If you continue to have problems, try disabling the extensions on your machine before playing. This is done by restarting your machine while holding the Shift key down. You will see a message that says "Welcome to Macintosh - Extensions off." Sometimes extensions can conflict with other programs.
+
+If your problems continue, please contact our technical support department.
+
+A pirate called Cap'n Hector keeps stealing my money - Why?
+That is Cap'n Hector, players of Escape Veloctity will recognize him.  If you play EV: Override unregistered, Cap'n Hector will come along to remind you to register, one of the ways he does this is by stealing your hard earned credits.  So, to keep all of your booty, register!
+
+I have a slower Macintosh (030 based machine) - is there anything I can do to improve game play?
+Override can run on the 030 based Macintoshes, but the speed when flying from planet to planet can be slow. A good thing to do is to enable the double speed feature of Override. This is done by locking down the Caps Lock key. You will see a little "2x" in the upper right hand corner. This feature can also come in handy when the sector you are in is saturated with many ships and game play slows down. By using the double speed feature, battle maneuvers are much easier.
+
+Can I use a joystick to play Override?
+Yes. Override will always need the use of the keyboard because of the amount of controls, however you can set up your joystick to fly your ship and shoot your weapons. Make sure that the settings for your joystick match those controls in the Override preferences dialog.
+
+Will my license code for Escape Velocity work for EV Override?
+EV Override is a completely new scenario almost five times the size of the original with all new graphics and missions, so we are charging a $15.00 fee to upgrade from Escape Velocity to EV Override.
+
+My License Code is invalid - what's wrong?
+The license code you were sent is based on your name as you gave it to us when you registered. Make sure that you are entering your name exactly as it appears on your registration confirmation. If you still have a problem with your license code not working, please get in contact with us and we will take care of the situation for you.
+
+I'm stuck on a particular mission in EV Override -where can I go for hints?
+You can go to the official source for all EV info:  http://www.escape-velocity.com/   and go to the Override section.  The Usenet group mac.comp.sys.games.action is a great place for EV Override discussion.  The AOL message boards are also a great source for EV info.  As usual use keyword MGM for macintosh games and check the message boards.  Remember, the tech support line is not a hint line, we can't and won't give out hints to Override.
+
+
+
+  
+
+
+
+

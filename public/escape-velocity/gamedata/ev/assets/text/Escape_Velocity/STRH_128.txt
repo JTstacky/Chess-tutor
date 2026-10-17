@@ -1,0 +1,6 @@
+1	Rick Hardslab
+2	Dash Riprock
+3	Stud Beefpile
+4	Starseeker
+5	Adventurer
+6	Journeyman

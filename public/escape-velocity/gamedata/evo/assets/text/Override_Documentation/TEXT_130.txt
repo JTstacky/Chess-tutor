@@ -1,0 +1,63 @@
+
+Introduction
+___________________________________
+Welcome to the world of EV Override
+
+Welcome
+Welcome to EV Override! This document will guide you through the basics of playing the game. After reading through it, you should have enough information to go out and conquer the galaxy — after some practice, of course.
+
+Note: Most of the controls in EV Override can be changed to other keys than the ones presented here. These instructions will refer to the default key setup to avoid confusion:
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This dialog can be brought up by clicking on the Preferences… panel on Override’s main screen.  To change a key, simply click on the box next to the command so it is hilited and press the key you’d like to use for that command.  EV Override has the ability to play QuickTime movies, a capability not taken advantage in this release, but it will allow plug ins to play QuickTime movies.  Clicking on the Game Speed… button brings up a dialog box that allows you to set the relative speed of the real-time action in Override:
+
+ 
+
+
+
+
+
+
+
+
+
+Note: The Caps Lock key causes time in Override to speed up by a factor of 2.  This can be useful if you want to get somewhere in a hurry, or if you're running Override on a slower Macintosh.
+
+
+  
+
+
+

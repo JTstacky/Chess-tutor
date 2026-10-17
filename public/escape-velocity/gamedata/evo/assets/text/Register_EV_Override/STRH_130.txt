@@ -1,0 +1,9 @@
+1	Payment Method:
+2	Card Number:
+3	Expiration Date:
+4	Name on the Card:
+5	International users: please only use a check if it is drawn on a US bank.
+6	(month/year)
+7	Please complete the information properly before continuing.
+8	The credit card number is invalid; please re-enter it.
+9	The expiration date you entered is invalid; please re-enter it.  Also check to make sure your Mac’s system date is properly set in the Date & Time control panel.

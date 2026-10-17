@@ -1,0 +1,10 @@
+1	*
+2	*
+3	*
+4	*
+5	*
+6	Watch yourself in my patrol space.
+7	Behave yourself in my patrol zone.
+8	I’m watching you - don’t try anything funny.
+9	Our job is to maintain the peace in this system - don’t make it a difficult one.
+10	I have you on my screen - be advised that you are being monitored.

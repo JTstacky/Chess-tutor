@@ -1,0 +1,5 @@
+1	Goodbye, captain.
+2	See you around the galaxy.
+3	I’ll buy you a synthale next time we meet.
+4	Catch you later.
+5	Check six, I’m outta here.

@@ -1,0 +1,9 @@
+1	Silent
+2	Very Quiet
+3	Quieter
+4	Quiet
+5	Normal
+6	Loud
+7	Louder
+8	Loudest
+9	Friggin’ Loud

@@ -1,0 +1,88 @@
+1	Escape Velocity: Override
+2	
+3	by Matt Burch
+4	
+5	
+6	©1996-2000 Ambrosia Software, Inc.
+7	
+8	
+9	Registered to:
+10	<REG>
+11	
+12	
+13	Programming... Matt Burch
+14	
+15	Game & Sprite Artwork...
+16	     Matt Burch
+17	     Chris West
+18	     Peter Cartwright
+19	
+20	Logos, Titles, Main Screen Art...
+21	     Mark W. Lewis
+22	     Steve Kody
+23	
+24	Music... Killer Tracks
+25	               & Ambrosia Labs
+26	
+27	Sprite Animation Toolkit...
+28	     Ingemar Ragnemalm
+29	
+30	Ambrosia Sound Tool
+31	   & Monitor Tool...
+32	     Andrew Welch
+33	
+34	Scenario Design...
+35	     Peter Cartwright
+36	
+37	
+38	Vocal Talent...
+39	     Patrick Delahanty
+40	
+41	
+42	The Ambrosia Crew:
+43	
+44	Chief Thaumaturgist...
+45	     Andrew Welch
+46	
+47	Technical Support...
+48	     David Dunham
+49	
+50	Finances...
+51	     Bernard Cockhern
+52	
+53	Marketing...
+54	     Jason “Lemon Fresh” Whong
+55	
+56	
+57	Beta Testers...
+58	     Patrick Delahanty
+59	     K.A. Raymoure
+60	     Flory Sebastien
+61	     David Slattery
+62	     Keith Calder
+63	     Chris “MAS” Mascio
+64	     Michael Vincent Caldwell
+65	     Jos Delbar
+66	     Richard Lukas
+67	     Jack Elias
+68	     Kane MacAniff
+69	     Bryan Mendoza
+70	     Peter van der Heide
+71	     Ali Saidi
+72	     Adam Champion
+73	     Ben Singley
+74	     Michael Cavanagh
+75	
+76	
+77	Filmed in Hectorvision
+78	using genuine Apple lenses
+79	
+80	In stereo where available
+81	
+82	
+83	
+84	
+85	
+86	
+87	Stop reading the credits and
+88	  play the damn game already!

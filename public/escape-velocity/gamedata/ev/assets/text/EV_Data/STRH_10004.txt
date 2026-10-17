@@ -1,0 +1,12 @@
+1	Blackstar
+2	Man O' War
+3	Starfire
+4	Skyclaw
+5	Shadow
+6	Hunter
+7	Visigoth
+8	Darkwing
+9	Dragon
+10	Cerberus
+11	Star Raider
+12	Death's Head

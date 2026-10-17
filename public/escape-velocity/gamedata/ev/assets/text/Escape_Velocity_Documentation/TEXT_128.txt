@@ -1,0 +1,87 @@
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+___________________________________
+Documentation by Matt Burch and Andrew Welch
+Special thanks to David Richard and Gayle Haarr
+©1995-6 by Ambrosia Software, Inc.
+
+Welcome to Escape Velocity
+
+Check your calendar… It’s 2246, and the galaxy just isn’t what it used to be. Spacefaring pirates roam free, civil war rages, and simple traders cheat death to make a living. Welcome to life in the 23rd century! 
+
+Ambrosia Software’s Escape Velocity puts you smack-dab in the middle of that booming galaxy. As the captain of a shiny new spacecraft, you make your fortune and build your empire. If that sounds like a walk in the park, you’re in for a surprise — dangers abound!  Your lowly shuttle craft will need more than a little luck to make a profit… and survive.
+
+Lovingly hand-crafted by programmer Matt Burch, Escape Velocity offers a rich and open-ended environment that evolves as you play. Over a hundred worlds occupy the galaxy, each with its own technology, alliances, and commodities. As you earn credits and gain fame, Confederation peace keepers and Rebel patriots struggle for power, leaving you in the middle.
+
+Escape Velocity spans a number of genres, combining elements of classic “trading” games, arcade space shoot-outs, and strategy simulations. Whether you choose to build a trading empire, aid the Rebellion in a civil war, or strike out on your own as a ruthless pirate, Escape Velocity provides a multitude of options for the game connoisseur. This open-ended gameplay allows each player to chart their own course as they play; there’s no “right” way to play Escape Velocity, as long as you have fun!
+
+Numerous sub-plots fill Escape Velocity’s world; your choices affect the story’s development, guaranteeing that each game will be different from the last. You’ll have the opportunity to infiltrate hostile military bases, ferry emergency supplies to distant star systems, rescue passengers from stranded cruise ships, stop alien invaders, and more. In addition, Escape Velocity sports an open game engine. Future scenario designers will be able to create their own worlds for other players to explore…
+
+Escape Velocity runs on any Mac with a 640x480 color monitor and 5.8 megabytes of free RAM. Optimized for the PowerMac, it’s lickety-split smooth on Apple’s latest iron. And of course, Escape Velocity has the dazzling 3D rendered graphics, full stereo sound, and all the polish that you’d expect of an Ambrosia game.
+
+About this Manual
+
+This manual assumes that you are familiar with the Macintosh and its basic operation. If you need help using the mouse, choosing from menus, or working in the Finder, please consult the Macintosh User’s Guide that came with your Macintosh.
+
+This manual mixes a fictional narrative of the exploits of Captain Scumdog with conventional instructions on how to play Escape Velocity.  The narrative portions of this manual appear in italics, while the regular instructions appear as normal text.
+
+Navigating this Document
+
+To scroll a page up and down...
+• Use the scroll bar on the right side of the window
+• Use the up and down arrow keys on your keyboard
+• Use the Page Up and Page Down keys on your keyboard
+
+To move between chapters...
+• Use the scroll bar along the bottom of the window
+• Use the left and right arrow keys on your keyboard
+• Select an item from the “Chapters” menu
+
+
+Three types of icons help you along your way...
+
+   
+
+
+
+1) The Blue “Go To” buttons are found in the Table of Contents and elsewhere. Clicking on one of these transfers you to the indicated chapter.
+
+2) A “Print” button is found at the bottom of each page. Clicking on this button prompts you with a dialog box listing the chapters in this manual. Any or all of the chapters can be printed from this dialog box. 
+
+3) The “Quit” button is also found at the bottom of each page. “Quit” will exit this manual, returning you to the Finder.
+
+
+  
+
+
+

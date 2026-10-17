@@ -1,0 +1,49 @@
+1	U. Earth
+2	Voinian
+3	Miranu
+4	Council
+5	Renegade
+6	St. Corp.
+7	Unexp.
+8	Fr. Exp.
+9	
+10	Merchant
+11	Derelict
+12	Hinwar
+13	U. Earth
+14	Militia
+15	Voinian
+16	Renegade
+17	Zidagar
+18	Igadzra
+19	Azdgari
+20	Renegade
+21	Huron
+22	Militia
+23	Emalgha
+24	Emalgha
+25	Zachit
+26	Zachit
+27	Hunter
+28	Militia
+29	Voinian
+30	Miranu
+31	Renegade
+32	Miranu
+33	Azdgari
+34	Voinian
+35	Unknown
+36	Azdgari
+37	Renegade
+38	Renegade
+39	Zidagar
+40	Zidagar
+41	Igadzra
+42	Igadzra
+43	Azdgari
+44	Igadzra
+45	Zidagar
+46	Zidagar
+47	U. Earth
+48	Ambrosia
+49	Ambrosia

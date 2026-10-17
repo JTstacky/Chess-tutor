@@ -1,0 +1,54 @@
+1	laser cannon
+2	neutron blaster
+3	proton cannon
+4	torpedo launcher
+5	torpedo
+6	missile rack
+7	missile
+8	cargo pod
+9	laser turret
+10	proton turret
+11	Hawk fighter bay
+12	Hawk light fighter
+13	mass expansion
+14	Confed patrol ship
+15	Manta light fighter
+16	Lightning fighter-bomber
+17	mass driver
+18	shield capacitor
+19	shield booster
+20	layer of armaplast armor
+21	layer of durasteel armor
+22	layer of tritanium armor
+23	thrust enhancement
+24	engine upgrade
+25	RCS upgrade
+26	external fuel tank
+27	escape pod
+28	density scanner
+29	IFF decoder
+30	afterburner
+31	missile jammer
+32	rocket launcher
+33	heavy rocket
+34	bomb rack
+35	space bomb
+36	javelin pod
+37	javelin rocket
+38	regional map
+39	particle beam
+40	cloaking device
+41	Meizner ramscoop
+42	auto-refueller
+43	Lightning bay
+44	rear laser turret
+45	swivel laser cannon
+46	tractor beam
+47	flare launcher
+48	decoy flare
+49	forklift
+50	patrol ship bay
+51	Manta bay
+52	gunboat bay
+53	set of fake ID papers
+54	auto-eject system

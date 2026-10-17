@@ -1,0 +1,7 @@
+1	The TCP/IP networking software has not been installed.
+2	Internet Config software has not been installed.
+3	Internet Config software has not been configured.
+4	Unable to open TCP/IP networking software.
+5	Unable to resolve the host name for the indicated mail server.
+6	Unable to communicate with the indicated mail server.
+7	The message is empty or contains non-ASCII characters.

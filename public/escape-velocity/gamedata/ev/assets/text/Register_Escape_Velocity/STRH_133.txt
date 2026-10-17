@@ -1,0 +1,6 @@
+1	License for:
+2	Number of copies:
+3	@ $
+4	 each.
+5	Quantity discount:
+6	Total:

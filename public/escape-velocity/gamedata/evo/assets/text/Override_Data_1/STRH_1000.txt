@@ -1,0 +1,5 @@
+1	Message Buoy: You are in United Earth space. Be advised that you are being observed by United Earth forces.
+2	Message Buoy: This is Voinian space. Humans, beware.
+3	Message Buoy: This is Voinian space. Emalgha, beware.
+4	Message Buoy: This system is under the protection of the Zachit. Renegades, beware!
+5	Message Buoy: This system is out of bounds to all vessels not on authorised business. Leave immediately!

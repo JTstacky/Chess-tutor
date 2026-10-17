@@ -1,0 +1,5 @@
+1	Ore Convoy
+2	Supply Convoy
+3	Weapons Convoy
+4	Equipment Convoy
+5	Munitions Convoy

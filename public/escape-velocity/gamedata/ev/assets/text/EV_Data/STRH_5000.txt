@@ -1,0 +1,54 @@
+1	Laser Cannon
+2	Neutron Blaster
+3	Proton Cannon
+4	Torp. Launcher
+5	Torpedo
+6	Missile Rack
+7	Missile
+8	Cargo Pod
+9	Laser Turret
+10	Proton Turret
+11	Fighter Bay
+12	Hawk
+13	Mass Expansion
+14	Patrol Ship
+15	Manta
+16	Lightning
+17	Mass Driver
+18	Sh. Capacitor
+19	Sh. Booster
+20	Armaplast
+21	Durasteel
+22	Tritanium
+23	Thrust Enhnc.
+24	Engine Upgrd.
+25	RCS Upgrade
+26	Ext. Fuel Tank
+27	Escape Pod
+28	Density Scanner
+29	IFF Decoder
+30	Afterburner
+31	Missile Jammer
+32	Rocket Launcher
+33	Heavy Rocket
+34	Bomb Rack
+35	Space Bomb
+36	Javelin Pod
+37	Javelin Rocket
+38	Regional Map
+39	Particle Beam
+40	Cloaking Device
+41	Ramscoop
+42	Auto-Refueller
+43	Lightning Bay
+44	Rear Laser
+45	Swivel Laser
+46	Tractor Beam
+47	Flare Launcher
+48	Decoy Flare
+49	Forklift
+50	Fighter Bay
+51	Manta Bay
+52	Gunboat Bay
+53	Fake ID
+54	Auto-Eject

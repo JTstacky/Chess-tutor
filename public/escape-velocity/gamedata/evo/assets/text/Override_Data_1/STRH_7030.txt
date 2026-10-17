@@ -1,0 +1,10 @@
+1	*
+2	*
+3	*
+4	*
+5	*
+6	What species was that? Ah well, your blood's as good as any other's.
+7	Your life continues at my whim, human.
+8	*
+9	*
+10	*

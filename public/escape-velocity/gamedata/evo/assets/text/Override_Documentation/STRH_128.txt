@@ -1,0 +1,28 @@
+1	Save TEXT To…
+2	Transfer where?
+3	Transfer
+4	Printing
+5	Printing Document…
+6	Processing
+7	Processing Document…
+8	Spooling the document to disk…
+9	Repaginating
+10	Page
+11	Double-click an item or select an item and press return
+12	Footer Info…
+13	Selected
+14	of
+15	Memory is very low.  You should increase memory size in the Finder (choose “Get Info” under the File Menu).
+16	Chapter
+17	.text
+18	•
+19	Find
+20	Please locate 
+21	Close Movie
+22	Show Table Of Contents
+23	Hide Table Of Contents
+24	“
+25	”
+26	.
+27	:
+28	:

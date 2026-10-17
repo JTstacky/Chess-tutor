@@ -1,0 +1,77 @@
+
+Registration and Contact Info
+___________________________________
+How to pay for Override and get in touch with Ambrosia
+
+Shareware?
+EV Override is distributed as shareware. You are permitted to use it on a trial basis for up to 30 days. If you wish to continue using Override beyond that period, you are expected to pay a registration fee to obtain a license to use Override.
+
+After we have processed your registration, we will send you a license code that you enter to complete the registration process. This removes the shareware notices and personalizes your copy of Override.
+
+Override has a $25.00 registration fee, or $15.00 if you've already registered Escape Velocity.
+
+We don’t gouge you with absurd prices. We don’t fool you into buying our software with slick advertising.
+What we ask is this: if you like our products, support us by paying for them. If you don’t like our products, don’t use them (or better yet, tell us why you don’t like them, so we can improve them).
+
+Why should I register (pay for) EV Override?
+We’re attempting to offer high quality products at a low price on a “try before you buy basis.” Supporting us by registering Override — assuming you like it — is the only way you can ensure that we will continue to produce more high quality software distributed as shareware.
+
+Also, if you play EV: Override unregistered you will soon meet Cap'n Hector, the office, er, I mean Space Pirate.  At first he will just remind you to pay for your shareware, as you progress he will get more agressive, stealing your credits, and finally, shooting you down.
+
+Beyond that, you will receive a license code that removes the shareware notices and personalizes Override with your name, giving you a legal copy on your Macintosh.
+
+Registering your copy of EV Override
+Ambrosia’s Register EV Override application allows you to easily register Override using your choice of several different methods. Simply click on the Register... button that appears when you launch Override. This will launch the Register Override application. You can also double-click the Register Override icon from the Finder.
+
+Ambrosia Software accepts all major credit cards (Visa, Mastercard, Discover and American Express). A credit card can be used to register by WWW, eMail, fax, phone, or postal mail. You can also send a check or money order to the address that appears below. Ambrosia Software also accepts purchase orders if your organization requires them. All of these options are available in the Register Override application.
+ 
+The Register Override application is used to register Override and enter your license code. This application should not be thrown out or moved, even after you’ve registered, in case you need to enter your code again.
+
+About Ambrosia Software, Inc.
+Ambrosia Software, Inc. is a small company dedicated to bringing you quality software, excellent support, and innovative ideas all at a reasonable cost. We give you commercial-quality software at a fraction of the price, with the added convenience of being able to try out the software before you pay for it.
+
+Ambrosia distributes software on numerous electronic information services, as well as via user groups and approved public domain distributors. Of course, you can always obtain our products directly from us as well. You are given a 30 day free license to evaluate any of our software; after the 30 days have passed, you are expected to send the appropriate registration fee to us for processing.
+
+Ambrosia creates personal productivity tools that make using your Macintosh a more enjoyable experience, as well as anti-productivity tools (games) which make your Macintosh just plain fun.
+
+Support Forums
+The latest versions of all our products are always available in the Ambrosia Software forums on the following services:
+
+      • America Online:  While you are signed on AOL, choose Keyword... from the GO TO menu, type MGM (for our games) or MUT (for our utilities) and hit the return key.
+
+      • CompuServe:  While you are signed on CompuServe, use GO word AMBROSIA to reach the Mac Vendor D area, where Ambrosia Software, maintains a forum.
+
+      • Internet: Visit our web site at http://www.AmbrosiaSW.com/ or our ftp site at ftp://ftp.AmbrosiaSW.com/
+
+      • Hotline: Visit our Hotline server at hotline://hotline.AmbrosiaSW.com/
+
+Contact Information
+Please feel free to get in touch with us using any of the following methods:
+
+                        Ambrosia Software, Inc.
+                        PO Box 23140
+                        Rochester, NY 14692
+
+                         Tel:  716.325.1910 (technical support)
+                                  800.231.1816 (orders only)
+
+                        Fax:  716.325.3665
+
+     America Online:  AmbrosiaSW
+          CompuServe:  74777,1147
+                    GEnie:  AmbrosiaSW
+                 Internet:  help@AmbrosiaSW.com (technical support)
+                                  register@AmbrosiaSW.com (orders only)
+
+Special thanks to Stephen Kody for the EV:Override splash picture.
+
+Many thanks to our Override beta testing team:
+Patrick Delahanty, Flory Sebastien, David Slattery, Keith Calder, Chris "MAS" Mascio, Michael Vincent Caldwell, Jos Delbar, Richard Lukas, Jack Elias, Kane MacAniff, Bryan Mendoza, Peter van der Heide, Ali Saidi, Adam Champion, Ben Singley, Evan Priestley, and Michael Cavanagh.
+
+
+
+  
+
+
+
+

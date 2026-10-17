@@ -1,0 +1,10 @@
+1	What?
+2	What is it?
+3	What do you want?
+4	What?
+5	What is it?
+6	We are watching you, human.
+7	We are watching you, human.
+8	We are watching you, human.
+9	Take care, human.
+10	Take care, human.

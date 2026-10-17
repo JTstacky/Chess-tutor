@@ -1,0 +1,101 @@
+
+Nuts and Bolts
+___________________________________
+Refueling, advanced navigation, basic missions, and ship upgrades
+
+
+Refueling
+A starship’s fuel is used to power its jump engines, as well as a few extra special items you may pick up during your travels. It is not used to power your main engines (the ones you use to fly around in real space).
+
+Your fuel status indicator, located just below the radar, shows you how much fuel you have left. Normally this bar is bright green — however, if you don’t have enough fuel for some number of complete jumps, the “leftover” portion will be displayed as dim green. You can also check exactly how much fuel you have left by accessing the player-info dialog. (Hit P)
+
+There are two ways to refuel your ship: by clicking on the Refuel Ship button at a spaceport, or by asking passing ships for assistance. Note that when you ask another ship for help, they’ll probably charge you an exorbitant fee for their trouble!
+ 
+Basic Missions
+A spaceport mission computer is a combination ATM machine and help-wanted ad. Whenever anyone has any odd jobs they need done — say, hauling a bit of cargo from one planet to another, or ferrying passengers where they want to go — they advertise through the mission computer. It’s a handy way to get basic missions and gain experience and credits.
+
+You can access a spaceport’s mission computer by clicking on the Mission Computer button while you’re landed on a planet or docked at a space station. The list of available missions, if any, will appear. Click on any of the missions to get a description of it, or click on Accept Mission to accept it. Note that the mission computer automatically scans your ship registry when you key in your access code and tailors the list of missions to fit your ship. In other words, if you don’t have the cargo space to take on a certain mission, it won’t show up in the mission computer.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mission destinations are marked on your computer's star map with a red arrow.  If you want to get information on what missions you’re currently assigned, hit the I key while in flight. A dialog box will appear, in which you can access quick briefings on your current missions, and abort any ones you decide you don’t want to do after all.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Most of the missions you get from a mission computer are simple ones where all you have to do is take something, be it cargo or passengers, from one planet to another. The negotiation of payment is automatically handled when you accept a mission, and the party who advertised the mission in the first place will automatically transfer credits from their bank account to yours when you complete a mission for them.
+
+Accessing the star map (by hitting the M key) while looking at a prospective mission (in the bar or in the mission computer) will show a green arrow pointing to the system where you're supposed to go for that mission. This is mainly useful for determining whether or not you want to take a certain delivery mission.
+
+Upgrades
+Many planets and space stations have the facilities necessary to install upgrades to your ship. If a spaceport has a button marked Outfit Ship, you can click on it to visit the spaceport’s ship-upgrade facility.
+
+ 
+
+
+
+You can select different items by clicking on them in the upgrade dialog. The right side of the dialog shows a picture and description of the selected item, along with some information on its price and the ability of your ship to carry that item. Different items have different masses — since your ship only has a limited amount of “free” mass available, it becomes important to manage your free mass carefully. Certain items also have a purchase limit on them, so if you see a message like “Can’t have any more!” when you still have mass to spare, it’s because you already have your quota of that item (e.g. you can only have one escape pod).
+
+Click on the Buy button to buy one of the selected items, or Sell to sell it, if possible — some upgrades, such as an engine upgrade, are permanently installed on your ship and can’t be sold back. If you want to buy or sell more than one of an item, you can hold down the Option or Command keys while clicking to buy or sell 5 or 10 of an item, or 50 of an item by holding both keys at the same time.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The number of a particular upgrade that you currently own is displayed next to the icon for that upgrade in this dialog box. The exception to this is a stellar map — since it is an item of information that goes into your ship’s navigation computer, rather than a physical item you can touch and feel, you can’t “own” a map upgrade. (But you still get the information when you click on Buy, however.)
+
+Another thing to note is that not all places sell the same items — in fact, some specialized items are available only on a few worlds.
+
+
+  
+
+
+

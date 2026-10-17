@@ -1,0 +1,10 @@
+1	*
+2	*
+3	*
+4	*
+5	*
+6	If you see any renegades - shoot them.
+7	Land on the planet or leave the system - no messing about now.
+8	Your record appears to be clean at the moment. Don't make that change.
+9	Be advised that you are being watched.
+10	Don't think I don't know what you're up to.

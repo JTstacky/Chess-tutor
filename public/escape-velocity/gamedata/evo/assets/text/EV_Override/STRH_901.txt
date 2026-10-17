@@ -1,0 +1,4 @@
+1	Register...
+2	Not Yet
+3	The “^1” application could not be launched.  Please make sure it is in the same folder as ^0 and that there is enough memory available.
+4	^0 is distributed as shareware.You are permitted to use it on a trial basis for up to 30 days.  If you wish to continue using ^0 beyond that period, you are expected to pay a registration fee to obtain a license to use ^0.

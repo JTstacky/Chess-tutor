@@ -1,0 +1,90 @@
+
+Down and Dirty
+___________________________________
+Giving in to the dark side
+
+
+Plundering Ships
+Mirimas is one of the more remote settlements in the galaxy, and by the time we had safely delivered the cargo there, we were far off the charted trade lanes. It’s out there, on the fringes of explored space, that the space pirates make their living. Because I knew they were out there, I kept all decks on yellow alert around the clock. It turned out to be a smart move, too — I sure wish I had remembered to do it yesterday... Anyway, as we were preparing to make the jump to Blake’s Star, heading back towards explored space, we were jumped by pirates.
+
+Instantly, my executive officer was shouting orders to the crew. “Pirates off the starboard bow! Shields up, red alert! Starboard batteries, prepare to fire!” “Belay that last order,” I said into the PA mic. “All turrets, hold your fire.” For I had recognized the pirate vessel — the scanners identified it as the Darksun, captained by Renzan Lefnor. His Argosy was no match for the Avenger, and I knew it — I wanted to have some fun with him first. I ordered my comm officer to hail the pirate vessel... all we got was static. “Very well, if that’s the way he wants to do it,” I mused, picking up the mic again. “Attention, this is the captain,” I addressed them. “Go to general quarters. All hands to battle stations. Missile bay, load tubes one and two and prepare to launch on my command. Starboard batteries, you are cleared to fire.”
+
+The battle was over almost as soon as it had begun. A salvo of missiles exploded against the pirate ship’s port side, sending it drifting slowly away from the Avenger. As we closed within gun range, the turrets opened up and began to chew away what remained of the Argosy’s shields. Within seconds, the pirate ship was beaten, shields down and engines crippled, disabled and drifting in space. It was with great pleasure that I again picked up the mic and addressed the crew: “Starboard batteries, hold your fire. Stand down from red alert, maintain battle stations. Weapons chief, assemble a boarding party at the ventral airlock.”
+
+If you manage to disable an opponent’s ship, you can board and plunder it for your own personal gain. (you are also sometimes required to board a disabled ship as part of a mission) To board a ship, you must first disable it, and then you must maneuver your ship so you are above the other, pointing roughly the same direction as the enemy, and moving at roughly the same velocity. When you’ve achieved all this, hit B to board the other ship.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+When you’ve successfully boarded a ship, the following dialog box will appear:
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+The top portion of the plunder dialog displays how much cargo, credits, ammo, and fuel is on board your opponent’s ship, along with the odds of capturing it. (see below) At any time, you can hit the Abort button to close the dialog and disengage your airlock from the target ship. The Cargo, Credits, Ammo, and Fuel buttons, when clicked on, will instruct your crew to take things from the target ship.
+
+Every ship is equipped with a security self-destruct mechanism, to prevent them from being boarded or captured by enemies. Every time you take something from the target ship, you increase your chances of setting off the self-destruct and detonating the ship.
+
+We lasered open the Darksun’s cargo hold with a quick burst from our turrets, and sent workpods into the dark space to retrieve what cargo we could find. After we had plundered what we could — about twenty tons of luxury goods, all told — from the cargo bays, we blasted another hole in the hull and extended a refueling probe into the Argosy’s dorsal fuel tank. As ton after ton of slush deuterium was pumped up to the Avenger’s thirsty fuel storage pods, I considered the ship below. Most of the crew were still alive, a quick scan revealed — most of the damage had been done to the engineering section — so our computed chances of capturing the ship were not that good. I knew the Avenger’s crew, while brave and capable, would be hard-pressed to win in a hand-to-hand fight against the Darksun’s remaining personnel. So, I decided to disengage our airlocks and escape intact with our booty. As we boosted away under full thrust, a weak transmission came through from Renzan Lefnor’s ship. “Damn you, you infernal scumdog!” was all it said. I guess that’s how I got my nickname...
+
+When you click on the Capture Ship button, your ship’s crew will attempt to overpower the target ship’s crew and take over the ship. If you have any large warships in your fleet, some of their crew members will assist in the capture operation as well. If you are successful in capturing the ship, you will have the option of assigning to your fleet of escorts, or using it as your own ship. Unlike hired escorts, captured escorts don’t have to be paid.
+
+Bribery
+Thirteen light-years farther in towards the center of explored space, we came upon a space station orbiting the third moon of Arcturus VII. We were low on fuel and consumables and needed to put in for a resupply stop, but we were denied docking permission. “Negative, Avenger,” the dockmaster radioed us, “The traffic pattern is full. No docking space available at this time.” We were all tired and just wanted to set down and get a little R & R in the station’s entertainment facilities, but that damn desk jockey wouldn’t give us clearance. So, I called him up again and arranged to have a few credits transferred his way, as a sort of incentive... “Acknowledged,” came the reply, “You are cleared for priority docking in bay two-niner.” I guess a few credits can go a long way.
+
+Some planets and space stations in the Escape Velocity universe just won’t let you visit them — either you’ve done something to annoy them, or you aren’t considered worthy of being given landing clearance. Either way, sometimes a little monetary persuasion can help you get where you want to go. To offer a spaceport a bribe, you first have to communicate with its traffic-control facility. To do this, make sure you have a planet or station selected, but with no ship selected, and hit Y.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Clicking on the Offer Bribe button will attempt to offer the spaceport officials a bribe. If they are willing to take your credits, you can sometimes negotiate a smaller fee. If they are unwilling to take a bribe and tell you to leave, you can sometimes still land. Just try again on a different day — maybe a different officer will be on duty.
+
+Dominating Planets
+Yeah, those pirates are bad news, but even worse are the folks who get their kicks from dominating entire planets. It doesn’t happen too much anymore — first the Great War and then the Rebellion occupied everyone’s attention — but not too many years ago it was almost common for unscrupulous privateers to extort planets for tribute. Why, I remember my father telling me stories, when I was knee-high to a banderfrog, of how he used to run the blockade to deliver relief supplies during the Oberon Conflagration. In that little conflict, a band of pirates based from the asteroid belt of the Wescoe system wiped out the meager defense fleet of the planet Oberon, imposed a naval blockade on the system’s jump points, and demanded thirty percent the colonists’ income. Since the galaxy’s militias were all independent at that time, nobody could do much about it, except for a few independent freighter captains like my father, who took it upon themselves to help deliver relief supplies through the blockade. It took three years to expel the pirates from Oberon... a period during which they became filthy rich from taxes levied on the colonists, I might add.
+
+If you’re feeling really evil, you might want to try to dominate a planet in order to collect tribute from its frightened inhabitants. To attempt this, all you have to do is hail the planet and click on the Demand Tribute button. If you’re only a weakling space jockey, unknown in the galaxy, the planet will probably just laugh at you and tell you to get lost.
+
+ 
+
+
+
+However, if you’ve built up a reputation for evil deeds, the planet will send out its defense fleet to do battle with you. Wave after wave of defense ships will attempt to destroy you. Generally, the more advanced the planet, the bigger and tougher the defense fleet.
+
+At any rate, once you’ve destroyed a planet’s defense fleet, you can hail the planet again and demand tribute a second time — they will acquiesce and agree to pay you a small fee each day. Beware, though, as you will be a wanted criminal in dozens of systems, due to your nefarious deeds. You can determine exactly how much you’re getting from planetary tribute by looking at the “General” section of the player-info dialog, (hit P) assuming you’ve managed to take over at least one planet.
+
+
+  
+
+
+

@@ -1,0 +1,10 @@
+1	Greetings from the Confederation.
+2	Greetings from a merchant of the Confederation.
+3	Greetings from the Confederation.
+4	Greetings from a ship of the Confederation.
+5	Greetings from a ship of the Confederation.
+6	Watch yourself in Confederation space and we’ll get along fine.
+7	Long live the Confederation!
+8	Death to the traitorous Rebels!
+9	Long live the Confederation!
+10	Unauthorized use of comm channels is a violation of Navy Code.

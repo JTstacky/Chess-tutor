@@ -1,0 +1,133 @@
+
+Exploring
+___________________________________
+Learning how to navigate and communicate in Escape Velocity
+
+
+Communication
+After blasting off with a cargo bay full of food, I cruised outward, toward the perimeter of the Levo system. On the way I passed another ship — a light freighter, by the looks of it — which was dropping into Levo’s gravity well after finishing its hyperspace jump from a far-off system. Being a neighborly sort of pilot, I hailed them and said hello. Their captain told me the location of a good place to sell the food I was carrying... a pretty useful piece of information, I thought.
+
+Hailing other ships can be useful. In order to hail a ship, you must first select it with your targeting sensors. You can do this by hitting Tab repeatedly to cycle through all the ships in the system you’re in. When you have a ship selected, part of the status display will change from reading “No Target” into a scan of the selected ship’s current status. The type of ship will appear at the top of the target display, along with a computer-generated blueprint, a reading of the ship’s current shield status, and its governmental affiliation, if any.
+
+To hail another ship, just hit the Y key. A dialog will appear with the other ship’s response to your hail, along with some buttons you can press for different dialog choices. Note that not all ships will respond the same to your communications. Hailing ships is often a good way to learn valuable information, get work, or even get yourself out of a tough spot. (such as running out of fuel!)
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+By the way, if the message that appears when the communication dialog appears says something like “Channel open to” and the name of a planet or space station, then you’ve just inadvertently hailed that planet or station instead of the ship you were trying to reach. This is because you had a navigation destination selected but didn’t have a ship targeted — in order to communicate with a ship, you first have to select it with the Tab key. (hailing planets will be covered in a later section)
+
+Player and Star System Information
+A starship captain always needs to know where he stands — not just in terms of where he is, but also how he’s doing. My star map and my computer’s summary screen were my most valuable sources of information.
+
+Any time you want to get an overview of how you’re doing, just hit the P key. The player-info dialog will appear, which will allow you to access three different screens of information. The first gives you some general information on yourself and your ship. The second tells you exactly what cargo you have loaded aboard your ship, and the third tells you what extra upgrades and items, if any, you have on your ship.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Another helpful dialog you can access is the star system map. You can call up this dialog at almost any time by hitting the M key. The system map is used for hyperspace navigation — i.e. setting a destination when you want to hyperjump to another star system — and for finding out information about remote star systems.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The currently selected system has a set of green brackets around it, and information on the selected system appears to the right and below the map display. The system you are currently in has a blue dot in the middle of it. Friendly or neutral systems are blue, hostile systems are red, uninhabited systems are light grey, and unexplored systems are dark grey.
+
+At first, the system you’re in, the Levo system, will be the one selected. You can select any other visible systems just by clicking on them. You can scroll the map by clicking and dragging on any part of the map display that’s not obscured by another system — the cursor changes into a set of directional arrows to show when you can do this. If you scroll too far, you can hit the C key to re-center the map on the system you’re currently in. The + and - buttons at the bottom of the map window allow you to zoom in and out.
+
+You will see more and more systems as you progress through the game, because your ship’s computer will remember where you’ve been and what was there, and each new system you explore will probably lead to several others. Also, when you land on a planet or dock at a space station in a system, your computer will remember what kinds of goods and services are offered in that system, so you can check back later to see if a certain system will sell you some industrial goods, for example.
+
+The map is also used to set hyperspace destinations, as you’ll see in the next section.
+
+Hyperspacing
+After getting used to the controls of the Journeyman, visiting Levo and buying a few goods, and hailing a couple of passing ships, I decided it was time to move on to bigger and better things. I set course for the Capella system and cruised outward, away from the clutches of Levo’s gravity well, into the fringes of interstellar space. When I was out far enough, my computer signaled that everything was ready for hyperjump. I still get a thrill every time my ship leaps into hyperspace, because I just know that when I drop back into realspace there’s going to be a whole new set of adventures and things to see. Well, normally there is, anyway. I’ve got a feeling I won’t be making any more hyperjumps any time soon...
+
+Starships move between star systems by traveling through hyperspace. In order for a ship’s powerful hyperdrive engines to operate properly, a ship must be free from a planet’s gravity well and have a relatively low velocity, and the coordinates of the destination star system must be locked into the ship’s computer. In addition, starships can only hyperjump along “warp lines,” which are regions of equipotential relativistic flux between two star systems. Each systems has a few warp lines to other star systems, and you can only jump between two systems which are linked by a single warp line.
+
+There are two ways to set a hyperspace destination. The first is by accessing the map display. (see above) You can click on a system adjacent to your current system to set it as your destination. You can also hit the Tab or Backslash keys to cycle through all the systems that are linked to your current system. The warp line between the two systems will be highlighted to indicate that you have a valid destination set.
+
+ 
+
+
+
+
+
+
+
+The other, quicker, way to set hyperspace destinations is done without the map display. While flying your ship — i.e., not on a planet — hit the H key to set your ship’s computer to hyperspace mode. Then, hit the Backslash key until the name of your desired destination system appears on the navigation portion of status display. (just below the fuel and shield displays)
+
+ 
+
+
+
+
+However you select your destination system, your navigation display will now say “Hyperspace,” and will list the name of your destination. If you’ve never been to that system, it will show up as “Unexplored System,” because your ship’s computer doesn’t have an entry for that system yet.
+
+If you’re planning a series of jumps (to a far away system, perhaps), you can use the Hyperspace Route Planning feature.  Instead of merely clicking on a bordering system, what you have to do is Shift-click on systems along your chosen route, from closest to furthest in succession. Clicking on the Clear Route button resets your flight plan. Whenever you enter a new system, your ship will automatically call up the next destination on the nav computer, so all you have to do is hit the J key to start the next jump. Note that this doesn't speed up the travel time, it just saves you the trouble of going to the map each jump.
+
+The trip to Capella took an entire day, measured in real time, but for me the process was instantaneous. There was the standard nausea and dizziness that I always get from a hyperspace jump — the Navy docs told me everybody gets that, something about traveling so far in zero time doing something to your inner ear — but it passed quickly, and I scanned the status display and found that the jump had been successful. I was on the edge of Capella’s gravity well, about one light-second out. I was almost immediately buzzed by two patrol ships, just like the one I used the fly, and I gave them a friendly wave out my cockpit window. In the distance, a luxury liner was dropping into high orbit around Capella, and the planet itself glowed bright green and blue a few thousand kilometers away. 
+
+Fly away from the center of the system you’re in, roughly toward your destination. When you’re far enough away, the word “Hyperspace” will become highlighted and an alert tone will play. This indicates that you’ve escaped the gravitational pull of any planets in the system. When this occurs, you’re all set to make your hyperspace jump — just hit the J key, and your ship’s computer will take over. It will nullify your velocity by using your main engines, align your heading along the specified warp line, and engage your hyperdrive engines. Your hyperdrive will spool up to full power, catapulting your forward, until you’ve build up sufficient energy to make the transition to hyperspace. (The actual jump itself is instantaneous to you, but several days may go by in “real time” while you’re streaking through the higher dimensions.) You’ll pop out into another system, where there’ll be even more to see...
+
+
+  
+
+
+

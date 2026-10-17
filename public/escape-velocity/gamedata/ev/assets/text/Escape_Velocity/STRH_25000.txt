@@ -1,0 +1,8 @@
+1	OK
+2	Yes
+3	No
+4	Damn
+5	EV tried to have SAT do something memory-related, but it failed because it was probably out of memory.
+6	EV couldn’t find a screen device.
+7	EV tried to load a background picture, but either it wasn’t found or there wasn’t enough memory.
+8	EV couldn’t initialize its window because it was probably out of memory.

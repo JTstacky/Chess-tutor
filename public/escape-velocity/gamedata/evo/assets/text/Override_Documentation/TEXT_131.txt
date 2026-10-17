@@ -1,0 +1,59 @@
+
+Override Basics
+___________________________________
+What you need to know to get up to speed in EV Override
+
+
+Flight Controls
+
+To start a new game in EV Override, click on the New Pilot button.  A dialog box appears, allowing you to name your pilot, and decide whether you’d like to play by Strict rules or not.  If you choose to play by Strict rules, when your pilot dies, he’s truly dead (so make sure you’re quick to jettison in your escape pod).  If you decide to not play by Strict rules, when your pilot dies, you can simply click on the Open Pilot button and resume where you left off.
+
+We recommend playing by Strict rules if you want to play Override as it was truly meant to be played, however, you may not want to do this when you are first starting out, because it is a savage universe out there.
+
+Either way, your first look at your new cargo shuttle will be in orbit around the planet Earth. In a minute you’ll learn how to land on the planet, but first let’s get used to flying your ship around. The flight controls in Override are similar to many other space games, including Ambrosia Software’s Maelstrom. Hold down on the right or left arrows to rotate your ship clockwise or counterclockwise. The up arrow will activate your ship’s main engines, accelerating you forward. Because there’s no air drag in space, you’ll keep going forward even when you let off the up arrow key, and you can rotate your ship to a different heading while your ship coasts in the previous direction.
+
+Your ship’s guidance computer will assist you in stopping the craft, if you wish: holding down on the down arrow key will make your ship’s computer try to align your ship’s heading along the reciprocal of your current path. In other words, it will make you turn around backwards with respect to your current motion. Holding down on the down arrow to rotate you backwards and then hitting the up arrow to apply “reverse” thrust is a quick and easy way to stop.
+
+By the way, don’t be alarmed if you see asteroids drifting across the screen — you can’t run into them. However, they do have useful benefits which will be discussed later in this document.
+
+Landing
+
+After you’ve mastered the basics of maneuvering your ship through space, the next thing you’ll probably want to do is land on the planet of Earth.  In a system with more than one stellar object, you have to explicitly tell your ship’s computer where you want to land. You can do this by hitting 1 through 4 (or F1 through F4) to select different objects in the system.  Once you have selected Earth all you have to do is hit the L key — your ship’s computer will contact the planetary spaceport’s traffic-control center to request landing clearance.
+
+After you’ve requested landing clearance, you’ll have to approach the planet itself. If you drifted too far away while you were learning to fly your ship, hold down on the A key and your ship’s computer will automatically align your heading to point toward Earth. You can also locate the planet by looking at the radar display in the upper right-hand corner of the screen; your ship is the bright green dot in the center of the display, and the planet Earth is a small green circle.
+
+Fly toward the planet until it appears on the screen. It should have a set of blue brackets around it, indicating that your ship’s computer has set it as your current navigation destination. (if, for some reason, the residents of Earth didn’t want you to land, those brackets would be red instead) To land, you need to fly your ship directly over the planet and get rid of most of your speed. You don’t need to be completely stopped, just moving relatively slowly. Once you’ve accomplished this — don’t hesitate to go around again if your landing approach isn’t working out like you want it to — hit L again and you should land on the planet. If you’re too far away, or if you’re moving too fast to enter the atmosphere, your ship’s computer will beep at you and you can try again.
+
+The Commodity Exchange
+
+Once you’ve landed successfully on Earth, take a moment to familiarize yourself with the spaceport. Other, more industrialized planets will have additional options for you to choose from, but for now there are plenty of things to do at Earth. For one thing, if you’re going to make money as a starship captain, the first thing you should do is try trading some goods. Click on the button marked “Commodity Exchange” to enter Earth’s trading center.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In the list box are entries for the different commodities that Earth will trade, along with their cost and how much of that commodity you have in your ship’s hold. The price for each commodity is listed in credits per ton, and also tells you if that price is low, medium, or high. The Buy and Sell buttons will buy and sell up to 10 tons of the selected commodity. You can tell how much free space you have left in your ship’s cargo hold by looking at the bottom of the status display, which should still be visible behind the spaceport dialog box.
+
+Remember, not all planets trade the same things, and different planets will pay different prices for the same commodity. A shrewd trader uses this to his advantage, buying low on one planet and selling high on another.
+
+
+  
+
+
+

@@ -1,0 +1,18 @@
+1	N/A
+2	Clean
+3	Offender
+4	Criminal
+5	Felon
+6	Fugitive
+7	Most Wanted
+8	Public Enemy
+9	Prime Evil
+10	Galactic Scourge
+11	Decent Individual
+12	Good Egg
+13	Upstanding Citizen
+14	Role Model
+15	Pillar of Society
+16	Honored Leader
+17	Usurper
+18	Overlord

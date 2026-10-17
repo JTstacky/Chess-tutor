@@ -1,0 +1,5826 @@
+{
+  "game": "ev",
+  "version": "1.0.5",
+  "format_source": "https://dev.os9.ca/techpubs/mac/pdf/MacintoshToolboxEssentials.pdf",
+  "resources": [
+    {
+      "type": "MENU",
+      "id": 1,
+      "name": "apl",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "58028a8d16026a93b80778ef3ff3ca9237c5bd3c408594861231cc61d931b39d",
+      "offset": 1947,
+      "length": 43,
+      "decoded": {
+        "menu_id": 1,
+        "proc_id": 0,
+        "enable_flags": 4294967291,
+        "title": "\u0014",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "About DOCMaker…",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "-",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 3,
+      "name": "Edit",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "b3cf1bec06a541fec5c00d8bee59450b5421810800413dce52d26c63727e7483",
+      "offset": 1994,
+      "length": 72,
+      "decoded": {
+        "menu_id": 3,
+        "proc_id": 0,
+        "enable_flags": 4294967291,
+        "title": "Edit",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "Undo",
+            "icon": 0,
+            "key_code": 90,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "-",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 3,
+            "text": "Cut",
+            "icon": 0,
+            "key_code": 88,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 4,
+            "text": "Copy",
+            "icon": 0,
+            "key_code": 67,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 5,
+            "text": "Paste",
+            "icon": 0,
+            "key_code": 86,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 6,
+            "text": "Clear",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 2,
+      "name": "File",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "9523838a4ef570238f0528f0e1be10bcb2b7f7d3b1d236a121515f57b95fccd2",
+      "offset": 2070,
+      "length": 20,
+      "decoded": {
+        "menu_id": 2,
+        "proc_id": 0,
+        "enable_flags": 4294967295,
+        "title": "File",
+        "items": [],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 4,
+      "name": "cntl",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "dc8ceb69de2fe0e8bdd0f3985bf78ad71ab43dd9cfab7d294ef68bc96d1c0016",
+      "offset": 2094,
+      "length": 51,
+      "decoded": {
+        "menu_id": 4,
+        "proc_id": 0,
+        "enable_flags": 4294967291,
+        "title": "Contents",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "Show Table Of Contents",
+            "icon": 0,
+            "key_code": 75,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 200,
+      "name": "prt1",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "632f4d04b5c6ad9e81a6d005c81e3f1acc235734b58350d4b919b67593519f4c",
+      "offset": 5084,
+      "length": 22,
+      "decoded": {
+        "rect": {
+          "top": 122,
+          "left": 138,
+          "bottom": 216,
+          "right": 464
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "X",
+        "trailing_hex": "",
+        "ditl_id": 200
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 3000,
+      "name": "abDlg",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "35f96c81ad5319e46b437d0c3c99a55fd436c934518ee74801362924dcdafc9e",
+      "offset": 5110,
+      "length": 22,
+      "decoded": {
+        "rect": {
+          "top": 58,
+          "left": 74,
+          "bottom": 235,
+          "right": 458
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "x",
+        "trailing_hex": "",
+        "ditl_id": 3000
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 132,
+      "name": "prt2",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "f729445aee34cd88f79bbc6796e7537c1e96c57399e11d37cb4c078da3bbe48d",
+      "offset": 5136,
+      "length": 22,
+      "decoded": {
+        "rect": {
+          "top": 38,
+          "left": 28,
+          "bottom": 238,
+          "right": 346
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "X",
+        "trailing_hex": "",
+        "ditl_id": 132
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 2999,
+      "name": "cust",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "b4b42fbb64cbc70fd62bc675586921453523f4c69784cb51b49f1c4b96080bba",
+      "offset": 5162,
+      "length": 22,
+      "decoded": {
+        "rect": {
+          "top": 58,
+          "left": 74,
+          "bottom": 463,
+          "right": 542
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "x",
+        "trailing_hex": "",
+        "ditl_id": 2999
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 130,
+      "name": "font",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "7e19e0de899b063baf8aa3554fa9d1e0d60c31518e53c8bd040683d9b1346938",
+      "offset": 5188,
+      "length": 22,
+      "decoded": {
+        "rect": {
+          "top": 37,
+          "left": 14,
+          "bottom": 251,
+          "right": 346
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "X",
+        "trailing_hex": "",
+        "ditl_id": 130
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 200,
+      "name": "prt1",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "24f969cdfa4c8ed705a97d5e04be6ba2cf8945a0fbeecea838b8fd6ecc353ab7",
+      "offset": 5253,
+      "length": 76,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 9,
+              "left": 10,
+              "bottom": 25,
+              "right": 320
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "5e30",
+            "text": "^0"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 32,
+              "left": 10,
+              "bottom": 64,
+              "right": 320
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "5e31",
+            "text": "^1"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 69,
+              "left": 78,
+              "bottom": 87,
+              "right": 262
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "50726573732028112020706572696f642920746f2063616e63656c2e",
+            "text": "Press (\u0011  period) to cancel."
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 132,
+      "name": "prt2",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "ea6b982a87d690a3a2a23d20c33322c41b6ba61a0c5fdd67869cb44bfa755dc0",
+      "offset": 5333,
+      "length": 178,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 175,
+              "left": 245,
+              "bottom": 195,
+              "right": 304
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 175,
+              "left": 173,
+              "bottom": 195,
+              "right": 232
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "43616e63656c",
+            "text": "Cancel"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 175,
+              "left": 87,
+              "bottom": 195,
+              "right": 160
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "5072696e7420416c6c",
+            "text": "Print All"
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 30,
+              "left": 10,
+              "bottom": 50,
+              "right": 102
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "53656c65637420416c6c",
+            "text": "Select All"
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 53,
+              "left": 9,
+              "bottom": 168,
+              "right": 304
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 30,
+              "left": 108,
+              "bottom": 50,
+              "right": 293
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "53656c65637465643a",
+            "text": "Selected:"
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 5,
+              "left": 10,
+              "bottom": 23,
+              "right": 294
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "53656c65637420436861707465727320546f205072696e74c9",
+            "text": "Select Chapters To Print…"
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 25,
+              "left": 10,
+              "bottom": 27,
+              "right": 304
+            },
+            "type": 4,
+            "disabled": true,
+            "raw_hex": "",
+            "text": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 2999,
+      "name": "cust",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "5c1001929ccae1a85ab99b93d5d389fb3871209cd9470925f0fd8ea393e1f4e6",
+      "offset": 5515,
+      "length": 106,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 379,
+              "left": 69,
+              "bottom": 399,
+              "right": 145
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 379,
+              "left": 163,
+              "bottom": 399,
+              "right": 395
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "41626f757420546865205374616e6420416c6f6e6520446f63756d656e74",
+            "text": "About The Stand Alone Document"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 210,
+              "left": 120,
+              "bottom": 274,
+              "right": 342
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "",
+            "text": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 277,
+              "left": 64,
+              "bottom": 375,
+              "right": 399
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "",
+            "text": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 4,
+              "left": 3,
+              "bottom": 198,
+              "right": 463
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "07e4",
+            "resource_id": 2020
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 130,
+      "name": "font",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "e0ace65f4a7d20894c010681003a3a528cdf613cf3be8bd8abc27ee158c40407",
+      "offset": 5625,
+      "length": 190,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 9,
+              "left": 5,
+              "bottom": 41,
+              "right": 37
+            },
+            "type": 32,
+            "disabled": true,
+            "raw_hex": "0080",
+            "resource_id": 128
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 80,
+              "left": 50,
+              "bottom": 210,
+              "right": 329
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 6,
+              "left": 44,
+              "bottom": 72,
+              "right": 326
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "5468697320646f63756d656e74207761732063726561746564207573696e6720666f6e747320776869636820617265206e6f7420617661696c61626c65206f6e2074686973204d6163696e746f73682e0d416c7465726e61746520666f6e74732077696c6c206265207573656420696e20706c616365206f662074686520666f6e7473206c697374656420686572653a",
+            "text": "This document was created using fonts which are not available on this Macintosh.\rAlternate fonts will be used in place of the fonts listed here:"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 129,
+      "name": "alrt",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "c6cedc3ae6e09d6f2d9239c7f2ef67c77e2f73f084803d21479ffd15e9cfc31c",
+      "offset": 5819,
+      "length": 40,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 88,
+              "left": 272,
+              "bottom": 108,
+              "right": 331
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 7,
+              "left": 74,
+              "bottom": 75,
+              "right": 331
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "5e305e315e325e33",
+            "text": "^0^1^2^3"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 3000,
+      "name": "abDlg",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "e983578bf004340902c64ac6db005c52fa0a320470758e4ffdd1c157ddba7777",
+      "offset": 5863,
+      "length": 622,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 6,
+              "left": 25,
+              "bottom": 35,
+              "right": 138
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0080",
+            "resource_id": 128
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 40,
+              "left": 6,
+              "bottom": 154,
+              "right": 157
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "205374616e6420416c6f6e6520446f63756d656e742043726561746f720d2020202020202020207772697474656e206279204d61726b2057616c6c0d20202020202020202020202020a931393836202d20313939360d20416c6c2052696768747320526573657276656420576f726c64776964650d0d202020202020477265656e204d6f756e7461696e20536f6674776172650d202020202020393430342056616c6c6579204c616e650d20202020202048756e747376696c6c652c20414c0d20202020202033353830332d3133323620202020555341",
+            "text": " Stand Alone Document Creator\r         written by Mark Wall\r             ©1986 - 1996\r All Rights Reserved Worldwide\r\r      Green Mountain Software\r      9404 Valley Lane\r      Huntsville, AL\r      35803-1326    USA"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 11,
+              "left": 162,
+              "bottom": 75,
+              "right": 375
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "444f434d616b6572206973206120736861726577617265207061636b61676520666f72206372656174696e67207374616e642d616c6f6e6520646f63756d656e747320666f7220636f6d7075746572732072756e6e696e6720756e646572204d61634f53aa2e202054686520646f63756d656e7420796f75206172652072656164696e67207761732063726561746564207769746820444f434d616b65722e2020436f6e7461637420477265656e204d6f756e7461696e20536f66747761726520666f72206c6963656e73696e6720696e666f726d6174696f6e2e",
+            "text": "DOCMaker is a shareware package for creating stand-alone documents for computers running under MacOS™.  The document you are reading was created with DOCMaker.  Contact Green Mountain Software for licensing information."
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 79,
+              "left": 162,
+              "bottom": 168,
+              "right": 379
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "4349533a202037333034372c313233330d414f4c3a20204d5357414c4c0d677265656e6d746e406873762e7469732e6e65740d687474703a2f2f7777772e6873762e7469732e6e65742f7e677265656e6d746e2f0d766f6963652f464158203230352e3838332e30333733",
+            "text": "CIS:  73047,1233\rAOL:  MSWALL\rgreenmtn@hsv.tis.net\rhttp://www.hsv.tis.net/~greenmtn/\rvoice/FAX 205.883.0373"
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 158,
+              "left": 6,
+              "bottom": 172,
+              "right": 89
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "76342e37",
+            "text": "v4.7"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "CNTL",
+      "id": 256,
+      "name": "stdv",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "7757e3a8621203f68d1befa48bfc9b906b671dd1d2286e2873e22c02007ff36d",
+      "offset": 6807,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": -1,
+          "left": 445,
+          "bottom": 285,
+          "right": 461
+        },
+        "value": 0,
+        "visible": false,
+        "maximum": 400,
+        "minimum": 0,
+        "proc_id": 16,
+        "refcon": 0,
+        "title": "x",
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "CNTL",
+      "id": 1000,
+      "name": "chap",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "d2d626ffad4c4558f3206164bcfcd4a86dd80a688b72ee58975054560a46867c",
+      "offset": 6835,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 100,
+          "left": 50,
+          "bottom": 125,
+          "right": 117
+        },
+        "value": 1,
+        "visible": false,
+        "maximum": 10,
+        "minimum": 1,
+        "proc_id": 480,
+        "refcon": 0,
+        "title": "a",
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "ALRT",
+      "id": 129,
+      "name": "alrt",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Documentation ƒ\\Escape Velocity Documentation.rsrc",
+      "source_sha256": "8f01ccf3853cf821a2176078f0b6216ea566f60ec82ef7c0daaf0901c7243025",
+      "sha256": "0801548dc7cbfa18ef0f50bb55ba2eb649d0b9270bdb6840714df05d3b938076",
+      "offset": 6895,
+      "length": 12,
+      "decoded": {
+        "rect": {
+          "top": 46,
+          "left": 64,
+          "bottom": 164,
+          "right": 405
+        },
+        "ditl_id": 129,
+        "stages": 21845,
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 2000,
+      "name": "Map",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "98a9a7114e0591a7901d326a0520368ca86e784709ee624feb540b687d2b282f",
+      "offset": 34742,
+      "length": 114,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 363,
+              "left": 334,
+              "bottom": 388,
+              "right": 412
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 312,
+              "left": 8,
+              "bottom": 355,
+              "right": 433
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 7,
+              "left": 8,
+              "bottom": 307,
+              "right": 308
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 362,
+              "left": 37,
+              "bottom": 387,
+              "right": 65
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 362,
+              "left": 69,
+              "bottom": 387,
+              "right": 97
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 7,
+              "left": 313,
+              "bottom": 313,
+              "right": 433
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 424,
+              "left": 178,
+              "bottom": 456,
+              "right": 210
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 363,
+              "left": 168,
+              "bottom": 388,
+              "right": 263
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1001,
+      "name": "Trade",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "ae186c58ade4b9b3a0d27945bbd0ebfefa34c039101628724fb92f960e104345",
+      "offset": 34860,
+      "length": 240,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 189,
+              "left": 236,
+              "bottom": 214,
+              "right": 314
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 245,
+              "left": 123,
+              "bottom": 275,
+              "right": 191
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 9,
+              "left": 8,
+              "bottom": 26,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 25,
+              "left": 8,
+              "bottom": 38,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 37,
+              "left": 8,
+              "bottom": 50,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 49,
+              "left": 8,
+              "bottom": 62,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 61,
+              "left": 8,
+              "bottom": 74,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 73,
+              "left": 8,
+              "bottom": 86,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 9,
+            "rect": {
+              "top": 85,
+              "left": 8,
+              "bottom": 99,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 10,
+            "rect": {
+              "top": 98,
+              "left": 8,
+              "bottom": 112,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 11,
+            "rect": {
+              "top": 111,
+              "left": 8,
+              "bottom": 125,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 12,
+            "rect": {
+              "top": 124,
+              "left": 8,
+              "bottom": 184,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 13,
+            "rect": {
+              "top": 8,
+              "left": 236,
+              "bottom": 33,
+              "right": 314
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 14,
+            "rect": {
+              "top": 37,
+              "left": 236,
+              "bottom": 62,
+              "right": 314
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 15,
+            "rect": {
+              "top": 189,
+              "left": 8,
+              "bottom": 214,
+              "right": 216
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 16,
+            "rect": {
+              "top": 250,
+              "left": 206,
+              "bottom": 280,
+              "right": 274
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 17,
+            "rect": {
+              "top": 285,
+              "left": 163,
+              "bottom": 315,
+              "right": 231
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 129,
+      "name": "Depth",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "0a7459ca7f5f586e6847b5906ae7167d97b16fa7717906bc8fa8cd282495fdab",
+      "offset": 35104,
+      "length": 178,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 80,
+              "left": 227,
+              "bottom": 100,
+              "right": 285
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "53757265",
+            "text": "Sure"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 80,
+              "left": 65,
+              "bottom": 100,
+              "right": 214
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f766572204d79204465616420426f6479",
+            "text": "Over My Dead Body"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 12,
+              "left": 12,
+              "bottom": 44,
+              "right": 44
+            },
+            "type": 32,
+            "disabled": true,
+            "raw_hex": "0002",
+            "resource_id": 2
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 12,
+              "left": 63,
+              "bottom": 64,
+              "right": 290
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "455620726571756972657320796f7572206d61696e206d6f6e69746f7220746f2062652073657420746f2032353620636f6c6f72732e204973206974206f6b617920696620492072657365742069743f",
+            "text": "EV requires your main monitor to be set to 256 colors. Is it okay if I reset it?"
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 132,
+              "left": 219,
+              "bottom": 162,
+              "right": 287
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0081",
+            "resource_id": 129
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1004,
+      "name": "Shipyard",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "d97d4853d8db2c6f2cc42e211ec012b6cf49cb81fcd9ae37bedfedef09912564",
+      "offset": 35286,
+      "length": 186,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 289,
+              "left": 352,
+              "bottom": 314,
+              "right": 473
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 440,
+              "left": 248,
+              "bottom": 470,
+              "right": 316
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0597",
+            "resource_id": 1431
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 380,
+              "left": 201,
+              "bottom": 398,
+              "right": 303
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 438,
+              "left": 144,
+              "bottom": 460,
+              "right": 213
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 8,
+              "left": 9,
+              "bottom": 279,
+              "right": 342
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 8,
+              "left": 352,
+              "bottom": 148,
+              "right": 602
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 289,
+              "left": 480,
+              "bottom": 314,
+              "right": 601
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 153,
+              "left": 501,
+              "bottom": 253,
+              "right": 601
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 9,
+            "rect": {
+              "top": 153,
+              "left": 352,
+              "bottom": 253,
+              "right": 495
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 10,
+            "rect": {
+              "top": 289,
+              "left": 131,
+              "bottom": 314,
+              "right": 192
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 11,
+            "rect": {
+              "top": 431,
+              "left": 365,
+              "bottom": 453,
+              "right": 434
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 12,
+            "rect": {
+              "top": 289,
+              "left": 10,
+              "bottom": 314,
+              "right": 37
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 13,
+            "rect": {
+              "top": 289,
+              "left": 41,
+              "bottom": 314,
+              "right": 68
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1005,
+      "name": "Shipyard Info",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "049203e8d718c476c91c77c1951cf1fb7d3079063156f86f1bdf3e447329e433",
+      "offset": 35476,
+      "length": 86,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 245,
+              "left": 44,
+              "bottom": 270,
+              "right": 165
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 320,
+              "left": 195,
+              "bottom": 350,
+              "right": 263
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 3,
+              "left": 3,
+              "bottom": 27,
+              "right": 193
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 334,
+              "left": 27,
+              "bottom": 365,
+              "right": 82
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 32,
+              "left": 8,
+              "bottom": 234,
+              "right": 193
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 367,
+              "left": 107,
+              "bottom": 398,
+              "right": 162
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1002,
+      "name": "Outfit",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "9557e5062a56711bcef6bda8abd6f60f4b1ada6782494c203fa77e71a163d4e3",
+      "offset": 35566,
+      "length": 184,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 290,
+              "left": 522,
+              "bottom": 315,
+              "right": 600
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 440,
+              "left": 248,
+              "bottom": 470,
+              "right": 316
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 287,
+              "left": 303,
+              "bottom": 308,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 290,
+              "left": 437,
+              "bottom": 315,
+              "right": 515
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 8,
+              "left": 9,
+              "bottom": 279,
+              "right": 342
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 8,
+              "left": 352,
+              "bottom": 148,
+              "right": 602
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 290,
+              "left": 352,
+              "bottom": 315,
+              "right": 430
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 153,
+              "left": 501,
+              "bottom": 253,
+              "right": 601
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 9,
+            "rect": {
+              "top": 153,
+              "left": 352,
+              "bottom": 253,
+              "right": 495
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 10,
+            "rect": {
+              "top": 290,
+              "left": 9,
+              "bottom": 315,
+              "right": 36
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 11,
+            "rect": {
+              "top": 290,
+              "left": 41,
+              "bottom": 315,
+              "right": 68
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 12,
+            "rect": {
+              "top": 449,
+              "left": 170,
+              "bottom": 481,
+              "right": 202
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 13,
+            "rect": {
+              "top": 422,
+              "left": 356,
+              "bottom": 452,
+              "right": 424
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1000,
+      "name": "Spaceport",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "eab3c2dcec6bce0c953225debe48b3b622db9a1c32f9d9274151e073d99f5fce",
+      "offset": 35754,
+      "length": 198,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 374,
+              "left": 248,
+              "bottom": 399,
+              "right": 448
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 387,
+              "left": 61,
+              "bottom": 417,
+              "right": 129
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 413,
+              "left": 207,
+              "bottom": 431,
+              "right": 309
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 159,
+              "left": 381,
+              "bottom": 184,
+              "right": 581
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 8,
+              "left": 9,
+              "bottom": 279,
+              "right": 342
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 8,
+              "left": 353,
+              "bottom": 148,
+              "right": 603
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 188,
+              "left": 381,
+              "bottom": 213,
+              "right": 581
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 217,
+              "left": 381,
+              "bottom": 242,
+              "right": 581
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 9,
+            "rect": {
+              "top": 246,
+              "left": 381,
+              "bottom": 271,
+              "right": 581
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 10,
+            "rect": {
+              "top": 288,
+              "left": 177,
+              "bottom": 313,
+              "right": 342
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 11,
+            "rect": {
+              "top": 288,
+              "left": 8,
+              "bottom": 313,
+              "right": 173
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 12,
+            "rect": {
+              "top": 288,
+              "left": 381,
+              "bottom": 313,
+              "right": 581
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 13,
+            "rect": {
+              "top": 288,
+              "left": 94,
+              "bottom": 313,
+              "right": 259
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 14,
+            "rect": {
+              "top": 413,
+              "left": 375,
+              "bottom": 443,
+              "right": 443
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 3000,
+      "name": "Notification",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "564c4f0b72c1216a614e20b2a359beb08e50516f495254eb0c8f0cd1803e8219",
+      "offset": 35956,
+      "length": 68,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 118,
+              "left": 286,
+              "bottom": 138,
+              "right": 344
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 186,
+              "left": 296,
+              "bottom": 216,
+              "right": 364
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0597",
+            "resource_id": 1431
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 5,
+              "left": 52,
+              "bottom": 104,
+              "right": 347
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "54657874",
+            "text": "Text"
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 5,
+              "left": 7,
+              "bottom": 37,
+              "right": 39
+            },
+            "type": 32,
+            "disabled": true,
+            "raw_hex": "0000",
+            "resource_id": 0
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 3001,
+      "name": "Text Input",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "a058c5a1181412f9935359246f52a2343d5451942deb67e7d1269ac0a323ecb4",
+      "offset": 36028,
+      "length": 112,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 106,
+              "left": 273,
+              "bottom": 126,
+              "right": 331
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 147,
+              "left": 259,
+              "bottom": 177,
+              "right": 327
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0081",
+            "resource_id": 129
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 5,
+              "left": 52,
+              "bottom": 55,
+              "right": 347
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "54657874",
+            "text": "Text"
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 5,
+              "left": 7,
+              "bottom": 37,
+              "right": 39
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0082",
+            "resource_id": 130
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 64,
+              "left": 91,
+              "bottom": 80,
+              "right": 291
+            },
+            "type": 16,
+            "disabled": false,
+            "raw_hex": "456469742054657874",
+            "text": "Edit Text"
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 106,
+              "left": 198,
+              "bottom": 126,
+              "right": 256
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "43616e63656c",
+            "text": "Cancel"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 4001,
+      "name": "Prefs",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "6fda1b3252cb9315835475e8b1040b7a67fbe9242d6f40df86b232945fc58c21",
+      "offset": 36144,
+      "length": 652,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 349,
+              "left": 439,
+              "bottom": 369,
+              "right": 497
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 424,
+              "left": 50,
+              "bottom": 464,
+              "right": 234
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 19,
+              "left": 80,
+              "bottom": 41,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 43,
+              "left": 80,
+              "bottom": 65,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 67,
+              "left": 80,
+              "bottom": 89,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 91,
+              "left": 80,
+              "bottom": 113,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 115,
+              "left": 80,
+              "bottom": 137,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 139,
+              "left": 80,
+              "bottom": 161,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 9,
+            "rect": {
+              "top": 163,
+              "left": 80,
+              "bottom": 185,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 10,
+            "rect": {
+              "top": 187,
+              "left": 80,
+              "bottom": 209,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 11,
+            "rect": {
+              "top": 211,
+              "left": 80,
+              "bottom": 233,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 12,
+            "rect": {
+              "top": 235,
+              "left": 80,
+              "bottom": 257,
+              "right": 161
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 13,
+            "rect": {
+              "top": 19,
+              "left": 251,
+              "bottom": 41,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 14,
+            "rect": {
+              "top": 43,
+              "left": 251,
+              "bottom": 65,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 15,
+            "rect": {
+              "top": 67,
+              "left": 251,
+              "bottom": 89,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 16,
+            "rect": {
+              "top": 127,
+              "left": 251,
+              "bottom": 149,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 17,
+            "rect": {
+              "top": 151,
+              "left": 251,
+              "bottom": 173,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 18,
+            "rect": {
+              "top": 175,
+              "left": 251,
+              "bottom": 197,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 19,
+            "rect": {
+              "top": 199,
+              "left": 251,
+              "bottom": 221,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 20,
+            "rect": {
+              "top": 223,
+              "left": 251,
+              "bottom": 245,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 21,
+            "rect": {
+              "top": 247,
+              "left": 251,
+              "bottom": 269,
+              "right": 332
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 22,
+            "rect": {
+              "top": 19,
+              "left": 422,
+              "bottom": 41,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 23,
+            "rect": {
+              "top": 43,
+              "left": 422,
+              "bottom": 65,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 24,
+            "rect": {
+              "top": 67,
+              "left": 422,
+              "bottom": 89,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 25,
+            "rect": {
+              "top": 91,
+              "left": 422,
+              "bottom": 113,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 26,
+            "rect": {
+              "top": 115,
+              "left": 422,
+              "bottom": 137,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 27,
+            "rect": {
+              "top": 139,
+              "left": 422,
+              "bottom": 161,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 28,
+            "rect": {
+              "top": 163,
+              "left": 422,
+              "bottom": 185,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 29,
+            "rect": {
+              "top": 187,
+              "left": 422,
+              "bottom": 209,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 30,
+            "rect": {
+              "top": 211,
+              "left": 422,
+              "bottom": 233,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 31,
+            "rect": {
+              "top": 235,
+              "left": 422,
+              "bottom": 257,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 32,
+            "rect": {
+              "top": 259,
+              "left": 422,
+              "bottom": 281,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 33,
+            "rect": {
+              "top": 283,
+              "left": 422,
+              "bottom": 305,
+              "right": 503
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 34,
+            "rect": {
+              "top": 5,
+              "left": 4,
+              "bottom": 311,
+              "right": 510
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 35,
+            "rect": {
+              "top": 349,
+              "left": 366,
+              "bottom": 369,
+              "right": 424
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "43616e63656c",
+            "text": "Cancel"
+          },
+          {
+            "item_number": 36,
+            "rect": {
+              "top": 293,
+              "left": 16,
+              "bottom": 309,
+              "right": 122
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "536f756e6420566f6c756d653a",
+            "text": "Sound Volume:"
+          },
+          {
+            "item_number": 37,
+            "rect": {
+              "top": 312,
+              "left": 34,
+              "bottom": 328,
+              "right": 156
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "5374617469632054657874",
+            "text": "Static Text"
+          },
+          {
+            "item_number": 38,
+            "rect": {
+              "top": 320,
+              "left": 17,
+              "bottom": 329,
+              "right": 28
+            },
+            "type": 64,
+            "disabled": false,
+            "raw_hex": "0087",
+            "resource_id": 135
+          },
+          {
+            "item_number": 39,
+            "rect": {
+              "top": 311,
+              "left": 17,
+              "bottom": 320,
+              "right": 28
+            },
+            "type": 64,
+            "disabled": false,
+            "raw_hex": "0086",
+            "resource_id": 134
+          },
+          {
+            "item_number": 40,
+            "rect": {
+              "top": 311,
+              "left": 162,
+              "bottom": 329,
+              "right": 261
+            },
+            "type": 5,
+            "disabled": false,
+            "raw_hex": "496e74726f204d75736963",
+            "text": "Intro Music"
+          },
+          {
+            "item_number": 41,
+            "rect": {
+              "top": 434,
+              "left": 247,
+              "bottom": 452,
+              "right": 346
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 42,
+            "rect": {
+              "top": 349,
+              "left": 168,
+              "bottom": 369,
+              "right": 283
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "47616d65205370656564c9",
+            "text": "Game Speed…"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 3002,
+      "name": "YesNo",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "7f22c17e593aa9e87cf6b1089cda9740a23e76f581c5f4eb17c6a953646215c7",
+      "offset": 36800,
+      "length": 88,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 75,
+              "left": 282,
+              "bottom": 95,
+              "right": 340
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 131,
+              "left": 277,
+              "bottom": 161,
+              "right": 345
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0081",
+            "resource_id": 129
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 5,
+              "left": 52,
+              "bottom": 55,
+              "right": 347
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "54657874",
+            "text": "Text"
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 5,
+              "left": 7,
+              "bottom": 37,
+              "right": 39
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0082",
+            "resource_id": 130
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 75,
+              "left": 205,
+              "bottom": 95,
+              "right": 263
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "43616e63656c",
+            "text": "Cancel"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 3003,
+      "name": "Desc Dialog",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "f310a782dfc8b416562eee8739a2a5a944e7330b800462c6bbdef18d87f2ece1",
+      "offset": 36892,
+      "length": 60,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 137,
+              "left": 279,
+              "bottom": 162,
+              "right": 357
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 217,
+              "left": 179,
+              "bottom": 247,
+              "right": 247
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0597",
+            "resource_id": 1431
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 7,
+              "left": 8,
+              "bottom": 127,
+              "right": 358
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 233,
+              "left": 28,
+              "bottom": 258,
+              "right": 106
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1006,
+      "name": "Mission Select",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "58ad3faebace6e2a30fb6af294c98846fc8ad80b349fd7a9da49449cd4b1141a",
+      "offset": 36956,
+      "length": 142,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 170,
+              "left": 248,
+              "bottom": 195,
+              "right": 369
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 30,
+              "left": 10,
+              "bottom": 174,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 30,
+              "left": 205,
+              "bottom": 174,
+              "right": 220
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 59,
+              "left": 229,
+              "bottom": 154,
+              "right": 504
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 30,
+              "left": 229,
+              "bottom": 55,
+              "right": 684
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 246,
+              "left": 175,
+              "bottom": 276,
+              "right": 243
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 170,
+              "left": 372,
+              "bottom": 195,
+              "right": 493
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 4,
+              "left": 10,
+              "bottom": 19,
+              "right": 410
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 9,
+            "rect": {
+              "top": 269,
+              "left": 285,
+              "bottom": 301,
+              "right": 317
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 10,
+            "rect": {
+              "top": 297,
+              "left": 204,
+              "bottom": 327,
+              "right": 272
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1007,
+      "name": "Communications",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "dbf8cd231814ec0e75a3d5eea51d04e104566114160334b4cb0508411b16043f",
+      "offset": 37102,
+      "length": 186,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 126,
+              "left": 5,
+              "bottom": 151,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 98,
+              "left": 5,
+              "bottom": 123,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 70,
+              "left": 5,
+              "bottom": 95,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 182,
+              "left": 43,
+              "bottom": 207,
+              "right": 243
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 261,
+              "left": 4,
+              "bottom": 286,
+              "right": 204
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 276,
+              "left": 196,
+              "bottom": 301,
+              "right": 396
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 202,
+              "left": 175,
+              "bottom": 227,
+              "right": 375
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 230,
+              "left": 175,
+              "bottom": 255,
+              "right": 375
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 9,
+            "rect": {
+              "top": 240,
+              "left": 31,
+              "bottom": 256,
+              "right": 143
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "53686970204964656e746966696572",
+            "text": "Ship Identifier"
+          },
+          {
+            "item_number": 10,
+            "rect": {
+              "top": 5,
+              "left": 5,
+              "bottom": 65,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 11,
+            "rect": {
+              "top": 7,
+              "left": 215,
+              "bottom": 107,
+              "right": 315
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 12,
+            "rect": {
+              "top": 111,
+              "left": 215,
+              "bottom": 149,
+              "right": 319
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1008,
+      "name": "Negotiation",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "42ab9fa00c91a67a299bbb4f8be06bf82a582adf31e66502dddc301eac86a436",
+      "offset": 37292,
+      "length": 44,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 39,
+              "left": 134,
+              "bottom": 64,
+              "right": 255
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 39,
+              "left": 7,
+              "bottom": 64,
+              "right": 128
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 6,
+              "left": 7,
+              "bottom": 31,
+              "right": 255
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 8011,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "56649c7622d9df1b240427e3ab8593212d84cbf086bd60aeaa8a88f7b2babbea",
+      "offset": 37340,
+      "length": 16,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 0,
+              "left": 0,
+              "bottom": 348,
+              "right": 400
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1009,
+      "name": "Planet Comm",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "42ff620c1004373e48a95ea6d56d0bd60654f6af46e26c872e561dc89523c6a6",
+      "offset": 37360,
+      "length": 86,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 129,
+              "left": 5,
+              "bottom": 154,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 73,
+              "left": 5,
+              "bottom": 98,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 101,
+              "left": 5,
+              "bottom": 126,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 5,
+              "left": 5,
+              "bottom": 65,
+              "right": 205
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 10,
+              "left": 215,
+              "bottom": 90,
+              "right": 295
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 100,
+              "left": 213,
+              "bottom": 150,
+              "right": 284
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1010,
+      "name": "Escort Select",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "c28682fe86ec0652d7ebb4f5931f88e405460228934a04302dd44d70a6fbab03",
+      "offset": 37450,
+      "length": 148,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 141,
+              "left": 173,
+              "bottom": 166,
+              "right": 251
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "416363657074",
+            "text": "Accept"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 141,
+              "left": 89,
+              "bottom": 166,
+              "right": 167
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "43616e63656c",
+            "text": "Cancel"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 28,
+              "left": 12,
+              "bottom": 88,
+              "right": 72
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 28,
+              "left": 72,
+              "bottom": 88,
+              "right": 132
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 28,
+              "left": 132,
+              "bottom": 88,
+              "right": 192
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 28,
+              "left": 192,
+              "bottom": 88,
+              "right": 252
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 5,
+              "left": 5,
+              "bottom": 21,
+              "right": 162
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "53656c65637420616e206573636f727420747970653a",
+            "text": "Select an escort type:"
+          },
+          {
+            "item_number": 8,
+            "rect": {
+              "top": 96,
+              "left": 12,
+              "bottom": 128,
+              "right": 252
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1011,
+      "name": "Plunder Dialog",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "f391aca1902acf656476920f7810d08f35304d3a22e5c6416564d3fcd6b57fd5",
+      "offset": 37602,
+      "length": 100,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 79,
+              "left": 4,
+              "bottom": 104,
+              "right": 65
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 79,
+              "left": 67,
+              "bottom": 104,
+              "right": 128
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 79,
+              "left": 130,
+              "bottom": 104,
+              "right": 191
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 79,
+              "left": 193,
+              "bottom": 104,
+              "right": 254
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 3,
+              "left": 7,
+              "bottom": 76,
+              "right": 254
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 106,
+              "left": 193,
+              "bottom": 131,
+              "right": 254
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 106,
+              "left": 4,
+              "bottom": 131,
+              "right": 191
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1012,
+      "name": "Mission Info",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "a5f2febaa1965aaf282a9c1df0964c24283ad05a183ae2fb1f279881808eb77d",
+      "offset": 37706,
+      "length": 86,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 125,
+              "left": 293,
+              "bottom": 150,
+              "right": 414
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 24,
+              "left": 9,
+              "bottom": 108,
+              "right": 204
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 4,
+              "left": 9,
+              "bottom": 15,
+              "right": 204
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 24,
+              "left": 214,
+              "bottom": 119,
+              "right": 464
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 124,
+              "left": 44,
+              "bottom": 149,
+              "right": 165
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 222,
+              "left": 177,
+              "bottom": 259,
+              "right": 232
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1013,
+      "name": "Bar",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "bd1a2d89c48b022798968ccf07343f14c4385967104f0f5f1a042cfa6c3929f0",
+      "offset": 37796,
+      "length": 100,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 113,
+              "left": 131,
+              "bottom": 138,
+              "right": 252
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 84,
+              "left": 131,
+              "bottom": 109,
+              "right": 252
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 113,
+              "left": 6,
+              "bottom": 138,
+              "right": 127
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 186,
+              "left": 51,
+              "bottom": 211,
+              "right": 172
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 84,
+              "left": 6,
+              "bottom": 109,
+              "right": 127
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 176,
+              "left": 256,
+              "bottom": 201,
+              "right": 377
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 4,
+              "left": 8,
+              "bottom": 80,
+              "right": 250
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1014,
+      "name": "News",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "ca2fd00fa001190744c15c317643ab092e7048ce086a243e2be9437c898de1bb",
+      "offset": 37900,
+      "length": 2,
+      "decoded": {
+        "items": [],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1015,
+      "name": "Slot Machine",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "7b60ea2f34d092829abe1d92c51c37f658bf9433c27cfaab754166aa331c601d",
+      "offset": 37906,
+      "length": 72,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 6,
+              "left": 7,
+              "bottom": 70,
+              "right": 71
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 6,
+              "left": 76,
+              "bottom": 70,
+              "right": 140
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 6,
+              "left": 144,
+              "bottom": 70,
+              "right": 208
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 75,
+              "left": 7,
+              "bottom": 100,
+              "right": 105
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 75,
+              "left": 110,
+              "bottom": 100,
+              "right": 208
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1016,
+      "name": "Single Mission",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "ac0bf36b31b6fff291d165d286ac27219ced151b1ae1937b27360188ad7cb894",
+      "offset": 37982,
+      "length": 100,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 128,
+              "left": 152,
+              "bottom": 153,
+              "right": 230
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 128,
+              "left": 70,
+              "bottom": 153,
+              "right": 148
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 5,
+              "left": 6,
+              "bottom": 123,
+              "right": 291
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 192,
+              "left": 45,
+              "bottom": 224,
+              "right": 77
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 191,
+              "left": 113,
+              "bottom": 223,
+              "right": 145
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 128,
+              "left": 113,
+              "bottom": 153,
+              "right": 191
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 230,
+              "left": 181,
+              "bottom": 262,
+              "right": 213
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1017,
+      "name": "Player Info",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "ad55ba5dda364b8133022155daf3fbdddb7316860591690df1f61a87942db8a9",
+      "offset": 38086,
+      "length": 86,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 181,
+              "left": 293,
+              "bottom": 206,
+              "right": 371
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 4,
+              "left": 4,
+              "bottom": 29,
+              "right": 125
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 4,
+              "left": 128,
+              "bottom": 29,
+              "right": 249
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 4,
+              "left": 251,
+              "bottom": 29,
+              "right": 372
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 249,
+              "left": 150,
+              "bottom": 274,
+              "right": 239
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 33,
+              "left": 4,
+              "bottom": 179,
+              "right": 372
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 1018,
+      "name": "Capture Assignment",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "82a7c264e0a6128b4c43a45db5a6d3cb86fa58b3e310bef568f687e1d358f3d8",
+      "offset": 38176,
+      "length": 44,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 51,
+              "left": 130,
+              "bottom": 76,
+              "right": 251
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 51,
+              "left": 5,
+              "bottom": 76,
+              "right": 126
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 5,
+              "left": 5,
+              "bottom": 47,
+              "right": 251
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 130,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "bb534dced7b19404e85a821775b08379a44fe5125868de7e5d3db37abf490a32",
+      "offset": 38224,
+      "length": 78,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 8,
+              "left": 10,
+              "bottom": 45,
+              "right": 269
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "48616e67206f6e2061207365636f6e642c204556206973206d6561737572696e6720746865207370656564206f6620796f757220636f6d7075746572c9",
+            "text": "Hang on a second, EV is measuring the speed of your computer…"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 3100,
+      "name": "New Pilot",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "b35dfb5438f8857d3e05d39fa626b0359e8132eff5e21c8d72b74dde75aaf421",
+      "offset": 38306,
+      "length": 158,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 118,
+              "left": 199,
+              "bottom": 138,
+              "right": 257
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 63,
+              "left": 55,
+              "bottom": 80,
+              "right": 150
+            },
+            "type": 5,
+            "disabled": false,
+            "raw_hex": "53747269637420506c6179",
+            "text": "Strict Play"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 5,
+              "left": 52,
+              "bottom": 23,
+              "right": 347
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "456e74657220796f7572206e616d652c2070696c6f743a",
+            "text": "Enter your name, pilot:"
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 5,
+              "left": 7,
+              "bottom": 37,
+              "right": 39
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0082",
+            "resource_id": 130
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 33,
+              "left": 60,
+              "bottom": 49,
+              "right": 260
+            },
+            "type": 16,
+            "disabled": false,
+            "raw_hex": "456469742054657874",
+            "text": "Edit Text"
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 118,
+              "left": 124,
+              "bottom": 138,
+              "right": 182
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "43616e63656c",
+            "text": "Cancel"
+          },
+          {
+            "item_number": 7,
+            "rect": {
+              "top": 82,
+              "left": 74,
+              "bottom": 104,
+              "right": 256
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0081",
+            "resource_id": 129
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 4002,
+      "name": "Speed",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "b79fd46fc089d5a15a5584f63930f1e67920a78ac32ec11e13341cd0eb87b0b7",
+      "offset": 38468,
+      "length": 66,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 58,
+              "left": 130,
+              "bottom": 78,
+              "right": 188
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 58,
+              "left": 57,
+              "bottom": 78,
+              "right": 115
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "43616e63656c",
+            "text": "Cancel"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 345,
+              "left": 70,
+              "bottom": 385,
+              "right": 254
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 4,
+              "left": 6,
+              "bottom": 44,
+              "right": 190
+            },
+            "type": 0,
+            "disabled": false,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 4005,
+      "name": "•• SECRET CHEAT DIALOG!!! ••",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "547d9df2ebd89d9ce354840ca735060d9f55cae79e5a178740f8ef12b94a088e",
+      "offset": 38538,
+      "length": 130,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 94,
+              "left": 67,
+              "bottom": 114,
+              "right": 125
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "6b65776c21",
+            "text": "kewl!"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 63,
+              "left": 11,
+              "bottom": 79,
+              "right": 187
+            },
+            "type": 16,
+            "disabled": false,
+            "raw_hex": "",
+            "text": ""
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 5,
+              "left": 6,
+              "bottom": 56,
+              "right": 204
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "5479706520746865207365637265742070617373776f726420746f206265636f6d6520696e76696e6369626c6520616e642067657420746f6e73206f66206b2d7261642073747566662064bfbf6421",
+            "text": "Type the secret password to become invincible and get tons of k-rad stuff døød!"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 3010,
+      "name": "MMM Warning",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "562160e4ee3d526525983c5b49cb87b70e314df46c9ab1344033aeaa1684551d",
+      "offset": 38672,
+      "length": 80,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 109,
+              "left": 212,
+              "bottom": 129,
+              "right": 270
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 109,
+              "left": 62,
+              "bottom": 129,
+              "right": 195
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "446f6ed5742053686f7720416761696e",
+            "text": "Don’t Show Again"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 6,
+              "left": 50,
+              "bottom": 98,
+              "right": 283
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "008c",
+            "resource_id": 140
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 9,
+              "left": 9,
+              "bottom": 41,
+              "right": 41
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0082",
+            "resource_id": 130
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 900,
+      "name": "-Main Reg Alert",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "3604b226f2328c5f59a0d162adf7de32912976062162f636d62715368ffc8ae4",
+      "offset": 38756,
+      "length": 108,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 241,
+              "left": 391,
+              "bottom": 261,
+              "right": 481
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "52656769737465722e2e2e",
+            "text": "Register..."
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 241,
+              "left": 291,
+              "bottom": 261,
+              "right": 381
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4e6f7420596574",
+            "text": "Not Yet"
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 237,
+              "left": 387,
+              "bottom": 265,
+              "right": 485
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 10,
+              "left": 10,
+              "bottom": 161,
+              "right": 109
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0384",
+            "resource_id": 900
+          },
+          {
+            "item_number": 5,
+            "rect": {
+              "top": 10,
+              "left": 127,
+              "bottom": 228,
+              "right": 485
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          },
+          {
+            "item_number": 6,
+            "rect": {
+              "top": 227,
+              "left": 27,
+              "bottom": 263,
+              "right": 257
+            },
+            "type": 0,
+            "disabled": true,
+            "raw_hex": ""
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 901,
+      "name": "-Reg Error",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "5e97f3252a37fa98ced62acc5e9d4c5d97166028caad8e8a4c8f91f51b065546",
+      "offset": 38868,
+      "length": 184,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 108,
+              "left": 281,
+              "bottom": 128,
+              "right": 361
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 10,
+              "left": 10,
+              "bottom": 42,
+              "right": 42
+            },
+            "type": 32,
+            "disabled": true,
+            "raw_hex": "0000",
+            "resource_id": 0
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 20,
+              "left": 65,
+              "bottom": 99,
+              "right": 361
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "54686520d25e31d3206170706c69636174696f6e20636f756c64206e6f74206265206c61756e636865642e2020506c65617365206d616b65207375726520697420697320696e207468652073616d6520666f6c646572206173205e3020616e64207468617420746865726520697320656e6f756768206d656d6f727920617661696c61626c652e",
+            "text": "The “^1” application could not be launched.  Please make sure it is in the same folder as ^0 and that there is enough memory available."
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 2000,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "eb2ae0dc797909c0874a323762a3ceaa93a29b0975ba4338c18cb6a66cd472b5",
+      "offset": 39056,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": -150,
+          "left": 3,
+          "bottom": 245,
+          "right": 442
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 2000
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1001,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "33b7210c16505460d614038d8db14c97b5aeda5eb45ae13004910139f2210cc4",
+      "offset": 39084,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 35,
+          "left": 32,
+          "bottom": 255,
+          "right": 354
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1001
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 129,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "d255ee993e73c927c567b4d3c5fe8e2e37996d9d454899da86797f7942053019",
+      "offset": 39112,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 156,
+          "right": 345
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 129
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 130,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "680b66d045c9b59839c67021fcc07ee6e4d6e3f6fddaea0c452aab661d4798d9",
+      "offset": 39140,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 81,
+          "left": 56,
+          "bottom": 130,
+          "right": 329
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 130
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1004,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "ffaf4698735a342f5665733612e39cfd227cc001eaf3e311117cd33bbbaa65f8",
+      "offset": 39168,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 25,
+          "left": -139,
+          "bottom": 348,
+          "right": 470
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1004
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1005,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "356a64b2a9c58b27e9af97899f3b1ad7d4a04b489ec8c8cd71c028f2db80d704",
+      "offset": 39196,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 320,
+          "right": 236
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1005
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1002,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "5b8ca9e4d1cb9339eb4025a736459dbc83573373edf1f4e249b93c21e9998e6d",
+      "offset": 39224,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 35,
+          "left": -108,
+          "bottom": 358,
+          "right": 501
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1002
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1000,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "8f6a02114d5ecd1263e7a3e61583392d1debc07311e41628d080046ea7aebff7",
+      "offset": 39252,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 35,
+          "left": -108,
+          "bottom": 358,
+          "right": 501
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1000
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 3000,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "767fcd325434ede790a8a1870dcf16dabd371c0ae00b7f589bf0738ae4a06003",
+      "offset": 39280,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 190,
+          "right": 397
+        },
+        "proc_id": 1,
+        "visible": true,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "41280a",
+        "ditl_id": 3000
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 3001,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "64ac06c47ea51faa62bfaed172c86ea21fa6ad75eebb6bc18311ab28b43f5d83",
+      "offset": 39308,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 53,
+          "left": 46,
+          "bottom": 191,
+          "right": 389
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 3001
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 4000,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "ed7440e485345129bb8b8ce6da16f851f77f2820bd53f45e1ea6e2bf4b1ab045",
+      "offset": 39336,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 139,
+          "right": 307
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 4000
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 4001,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "5589f330089b729094a831b7a87685ac31223d15a90f13b33bf89e8b2b7a8496",
+      "offset": 39364,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": -104,
+          "left": -102,
+          "bottom": 276,
+          "right": 412
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 4001
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 3002,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "574bb3c169a922c8656093af59e381c10f9ccbd2de618e230baee26f88853442",
+      "offset": 39392,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 149,
+          "right": 395
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "64280a",
+        "ditl_id": 3002
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1006,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "75022147c5d6a94246a851b0b405f92397ad8889b2e066c36e9acfe1b37b1780",
+      "offset": 39420,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 101,
+          "left": -72,
+          "bottom": 305,
+          "right": 463
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1006
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 3003,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "6a01ff71ab3b745aed5fda435c1f1cfb999d9112f40d9617bbf1067fa5ba3f1b",
+      "offset": 39448,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 210,
+          "right": 404
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 3003
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1007,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "b045999798fc361620d4e7c860bdb882894f78b77cc231aad7b06f975335d4ee",
+      "offset": 39476,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 78,
+          "left": 51,
+          "bottom": 234,
+          "right": 376
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1007
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1008,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "947cf8702507f2567d633d5edf08fd87be30d0fb8822ecbdea1b25c17ed07472",
+      "offset": 39504,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 113,
+          "right": 302
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1008
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 8011,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "b2b7d6d302c478fb52c7598c48275d592e3d95840d087f08ff125b8ba275ddf0",
+      "offset": 39532,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 27,
+          "left": 27,
+          "bottom": 375,
+          "right": 427
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 8011
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1009,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "76ebda994a55959e9e2d3b8f64b266d06096f650955b392b0aaf67f666d777fc",
+      "offset": 39560,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 201,
+          "right": 346
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1009
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1010,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "76afd6813ac5a2c22de4589be31a350589bc37009fc5f93ad303875e76f15b69",
+      "offset": 39588,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 53,
+          "left": 41,
+          "bottom": 226,
+          "right": 303
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1010
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1011,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "67af67e83f8a9a29c9fe15cd6ea6f83ece7e1b084d2748a0273458fcc4057cca",
+      "offset": 39616,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 175,
+          "right": 299
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "09280a",
+        "ditl_id": 1011
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1012,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "379e1f2d8c62f83142c0c30b087187c9210a361a01fa38662e5c7f8aad07c74b",
+      "offset": 39644,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 195,
+          "right": 511
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1012
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1013,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "4464117007996bdb1abc37e629cf8876ba9755daee79f1fc5637dfac163d8e56",
+      "offset": 39672,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 184,
+          "right": 297
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1013
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1014,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "7499218054dbed1c6aa8cebb1e0adb6ecce396ebd4ba06c59deec27380318e55",
+      "offset": 39700,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 89,
+          "left": 66,
+          "bottom": 319,
+          "right": 366
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1014
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1015,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "2d6d376079af133529534ee3cc8eb909c208e3772752d727b3370a43a0b5e3bd",
+      "offset": 39728,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 146,
+          "right": 255
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1015
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1016,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "8512fd683e0c706bcb76cb236d293437874e0b67c2c002ce17423da4a7b6129c",
+      "offset": 39756,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 198,
+          "right": 337
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 1016
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1017,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "e1718e5ac9f57bfdd817b8691c622b67b424188ca98e07b62dff7e4ee9d5b84d",
+      "offset": 39784,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 250,
+          "right": 416
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "06280a",
+        "ditl_id": 1017
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 1018,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "6eadc169f382342609e59cd3d013ddea8f7ab9003c6d5b2b25152e5103709907",
+      "offset": 39812,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 122,
+          "right": 297
+        },
+        "proc_id": 2,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "2b280a",
+        "ditl_id": 1018
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 3100,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "21a153f0b1574205d26d8e30c1747bfaee9bdbfc289c87db8b7e3a26f79e7b6f",
+      "offset": 39840,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 47,
+          "left": 85,
+          "bottom": 192,
+          "right": 353
+        },
+        "proc_id": 1,
+        "visible": true,
+        "go_away": true,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 3100
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 4002,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "8fca706fdeacc46d5737b364b5453585ac33c68ee5a76ba09c3fe70fd0d9df65",
+      "offset": 39868,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 126,
+          "right": 237
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 4002
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 4005,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "696450cf1b2950fcc1ae55999ea6f4c8c201787e8e9a6979b2400e8eaf972c27",
+      "offset": 39896,
+      "length": 21,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 165,
+          "right": 245
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "",
+        "ditl_id": 4005
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 3010,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "2f2024b5eeba056cabc14ac9f42fe0c6033e8ab5be086841e3b288227b4ffea2",
+      "offset": 39921,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 182,
+          "right": 330
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "00280a",
+        "ditl_id": 3010
+      }
+    },
+    {
+      "type": "DLOG",
+      "id": 900,
+      "name": "-Main Reg dialog",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "aff057a77cc2f4d4d83978fda3ac5c74ff68a480370c5c5b5a911a710b682613",
+      "offset": 39949,
+      "length": 24,
+      "decoded": {
+        "rect": {
+          "top": 40,
+          "left": 40,
+          "bottom": 310,
+          "right": 530
+        },
+        "proc_id": 1,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "6c300a",
+        "ditl_id": 900
+      }
+    },
+    {
+      "type": "sfnt",
+      "id": 9295,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "f10dafd7f1b059630356192cb1a2e0acf4853a797a6bdc1300d70c632728c145",
+      "offset": 56069,
+      "length": 17000,
+      "decoded": {
+        "tables": [
+          {
+            "tag": "OS/2",
+            "checksum": 2021934558,
+            "offset": 15248,
+            "length": 78
+          },
+          {
+            "tag": "cmap",
+            "checksum": 1019129817,
+            "offset": 14212,
+            "length": 546
+          },
+          {
+            "tag": "cvt ",
+            "checksum": 310055103,
+            "offset": 15156,
+            "length": 90
+          },
+          {
+            "tag": "fpgm",
+            "checksum": 2816040595,
+            "offset": 1068,
+            "length": 100
+          },
+          {
+            "tag": "glyf",
+            "checksum": 400775920,
+            "offset": 1360,
+            "length": 12218
+          },
+          {
+            "tag": "hdmx",
+            "checksum": 2544480612,
+            "offset": 15328,
+            "length": 1672
+          },
+          {
+            "tag": "head",
+            "checksum": 2880321084,
+            "offset": 236,
+            "length": 54
+          },
+          {
+            "tag": "hhea",
+            "checksum": 101647026,
+            "offset": 292,
+            "length": 36
+          },
+          {
+            "tag": "hmtx",
+            "checksum": 3032288014,
+            "offset": 14760,
+            "length": 396
+          },
+          {
+            "tag": "loca",
+            "checksum": 605166,
+            "offset": 13580,
+            "length": 400
+          },
+          {
+            "tag": "maxp",
+            "checksum": 14221602,
+            "offset": 328,
+            "length": 32
+          },
+          {
+            "tag": "name",
+            "checksum": 276045822,
+            "offset": 360,
+            "length": 705
+          },
+          {
+            "tag": "post",
+            "checksum": 155257328,
+            "offset": 13980,
+            "length": 232
+          },
+          {
+            "tag": "prep",
+            "checksum": 3509282240,
+            "offset": 1168,
+            "length": 191
+          }
+        ]
+      },
+      "font_file": "font-9295-f10dafd7.ttf"
+    },
+    {
+      "type": "FOND",
+      "id": 2020,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "aa7fee2b7c1622d7768c4a5a9a5e66f0886aa792a02f7673ed9f23f9a3ddfdfb",
+      "offset": 73073,
+      "length": 676,
+      "decoded": {
+        "flags": 0,
+        "family_id": 2020,
+        "first_char": 0,
+        "last_char": 255,
+        "raw_hex": "000007e4000000ff0cccfccd00000e040000004e0000000000000256000000000000000000000000000000000000000000000002000000000000244f000000000006000000000c42feacfcc10d4c00000000080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000400047606870c0c070e0e0409e302e1055305530999090604000553025a061808560856085608560856085608560856085608560472047209060906090607020c000831083d0831084906fd06fd083d083d033f083d08d006fd0ac809890831083d083d083d06fd083d083d08310c08083d0849083d0553047205530781080005530831083d06fd070a083d083d083d06fd033f06fd070a033f0b5c0831083d083d083106fd06f105ca06fd06fd0c0806fd070a06fd07ae033307ae08a708000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080008000800080001f40000000f000000000000000002020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020200030853696c6c79636f6e01030656616c6c6579",
+        "coverage": "header only; sfnt contains actual outline font"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 128,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "5dedb00bdd85c9d3b302a21f087c337606deb9648efebe86b36019166627763b",
+      "offset": 73753,
+      "length": 29,
+      "decoded": {
+        "menu_id": 128,
+        "proc_id": 0,
+        "enable_flags": 4294967295,
+        "title": "File",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "Quit",
+            "icon": 0,
+            "key_code": 81,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 129,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "1cd2fa676c090f256d1c0ac7c901f3401ef9ccd271a8133dab9ba3e29c85912b",
+      "offset": 73786,
+      "length": 62,
+      "decoded": {
+        "menu_id": 202,
+        "proc_id": 0,
+        "enable_flags": 4294967233,
+        "title": "Edit",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "Undo",
+            "icon": 0,
+            "key_code": 90,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "-",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 3,
+            "text": "Cut",
+            "icon": 0,
+            "key_code": 88,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 4,
+            "text": "Copy",
+            "icon": 0,
+            "key_code": 67,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 5,
+            "text": "Paste",
+            "icon": 0,
+            "key_code": 86,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 1000,
+      "name": null,
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "2cfafdcaddbc900fbf290b37a09e1f193838d67adb974e6bf9ef86e0f625d8d2",
+      "offset": 73852,
+      "length": 50,
+      "decoded": {
+        "menu_id": 1000,
+        "proc_id": 0,
+        "enable_flags": 4294967291,
+        "title": "\u0014",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "About Escape Velocity…",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "-",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "ALRT",
+      "id": 901,
+      "name": "-Reg Error",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Escape Velocity.rsrc",
+      "source_sha256": "1b8c35af22b4b5ce482cd82f937bb0ac801498f0d2436f252c9b4fd382128080",
+      "sha256": "4d63f0477f604306dddf9abdf691b250f81beec6b0b23624594576f9980a29e8",
+      "offset": 93327,
+      "length": 14,
+      "decoded": {
+        "rect": {
+          "top": 52,
+          "left": 66,
+          "bottom": 185,
+          "right": 432
+        },
+        "ditl_id": 901,
+        "stages": 17476,
+        "trailing_hex": "300a"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 128,
+      "name": "Apple",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "47fbe315324b3b9396aef6c167ccad07d52f9f04130a1f50b035635e63b7f489",
+      "offset": 260,
+      "length": 47,
+      "decoded": {
+        "menu_id": 128,
+        "proc_id": 0,
+        "enable_flags": 4294967291,
+        "title": "\u0014",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "About Registration…",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "-",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 129,
+      "name": "File",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "e9adca9b96b67781bccaae58c829d690b83f79305073dcfbe80d15e1dec059f1",
+      "offset": 311,
+      "length": 29,
+      "decoded": {
+        "menu_id": 129,
+        "proc_id": 0,
+        "enable_flags": 4294967295,
+        "title": "File",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "Quit",
+            "icon": 0,
+            "key_code": 81,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 130,
+      "name": "Edit",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "349f0cb6c939dd200335809cbf931e72437d6c502aeca70467cb6c8bdef7b8a6",
+      "offset": 344,
+      "length": 93,
+      "decoded": {
+        "menu_id": 130,
+        "proc_id": 0,
+        "enable_flags": 4294966784,
+        "title": "Edit",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "Undo",
+            "icon": 0,
+            "key_code": 90,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "-",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 3,
+            "text": "Cut",
+            "icon": 0,
+            "key_code": 88,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 4,
+            "text": "Copy",
+            "icon": 0,
+            "key_code": 67,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 5,
+            "text": "Paste",
+            "icon": 0,
+            "key_code": 86,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 6,
+            "text": "Clear",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 7,
+            "text": "-",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 8,
+            "text": "Select All",
+            "icon": 0,
+            "key_code": 65,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 200,
+      "name": "Payment Methods",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "133cc6dc9a3ad28c6dc10a754e7f7f5ea08d1a339b8ea8ab7efe763332231e1b",
+      "offset": 441,
+      "length": 124,
+      "decoded": {
+        "menu_id": 130,
+        "proc_id": 0,
+        "enable_flags": 4294967295,
+        "title": "CCs",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "VISA",
+            "icon": 1,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "MasterCard",
+            "icon": 2,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 3,
+            "text": "Discover",
+            "icon": 3,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 4,
+            "text": "American Express   ",
+            "icon": 4,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 5,
+            "text": "Purchase Order",
+            "icon": 6,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 6,
+            "text": "Check/Money Order   ",
+            "icon": 5,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "MENU",
+      "id": 210,
+      "name": "Online services",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "81f8cd5fd563f5700b3ea69954d4a13b7cf61c79d729efdc0536ba4081e29831",
+      "offset": 569,
+      "length": 69,
+      "decoded": {
+        "menu_id": 129,
+        "proc_id": 0,
+        "enable_flags": 4294967295,
+        "title": "Online",
+        "items": [
+          {
+            "item_number": 1,
+            "text": "...none...   ",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 2,
+            "text": "AOL",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 3,
+            "text": "CIS",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          },
+          {
+            "item_number": 4,
+            "text": "Internet",
+            "icon": 0,
+            "key_code": 0,
+            "mark": 0,
+            "style": 0
+          }
+        ],
+        "trailing_hex": "00"
+      }
+    },
+    {
+      "type": "ALRT",
+      "id": 128,
+      "name": "Error",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "4ee0101d210568b85bc711b32a3a4c68c6f8e141007d6c35865654ceec1398f0",
+      "offset": 642,
+      "length": 14,
+      "decoded": {
+        "rect": {
+          "top": 52,
+          "left": 98,
+          "bottom": 182,
+          "right": 398
+        },
+        "ditl_id": 128,
+        "stages": 17476,
+        "trailing_hex": "300a"
+      }
+    },
+    {
+      "type": "ALRT",
+      "id": 200,
+      "name": "About",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "8dd215711b5183afa268f977c626cb623f67402b220f91ce6fb52c1bc9ba0275",
+      "offset": 660,
+      "length": 14,
+      "decoded": {
+        "rect": {
+          "top": 90,
+          "left": 108,
+          "bottom": 253,
+          "right": 491
+        },
+        "ditl_id": 200,
+        "stages": 17476,
+        "trailing_hex": "300a"
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 128,
+      "name": "Error",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "1f3fd4b3ed379518cade0e7cc55ed496e80f167f3877fe6dc546704e94f5e820",
+      "offset": 678,
+      "length": 72,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 105,
+              "left": 215,
+              "bottom": 125,
+              "right": 295
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 10,
+              "left": 10,
+              "bottom": 42,
+              "right": 42
+            },
+            "type": 32,
+            "disabled": true,
+            "raw_hex": "0000",
+            "resource_id": 0
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 10,
+              "left": 61,
+              "bottom": 95,
+              "right": 294
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "5e30",
+            "text": "^0"
+          },
+          {
+            "item_number": 4,
+            "rect": {
+              "top": 110,
+              "left": 4,
+              "bottom": 126,
+              "right": 199
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "636f64653a205e31",
+            "text": "code: ^1"
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "DITL",
+      "id": 200,
+      "name": "About",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "d632a6a95ea37db558098c5fd7927f2f22d43ef4a85b488285fd8ed4f52ef17b",
+      "offset": 754,
+      "length": 172,
+      "decoded": {
+        "items": [
+          {
+            "item_number": 1,
+            "rect": {
+              "top": 138,
+              "left": 298,
+              "bottom": 158,
+              "right": 378
+            },
+            "type": 4,
+            "disabled": false,
+            "raw_hex": "4f4b",
+            "text": "OK"
+          },
+          {
+            "item_number": 2,
+            "rect": {
+              "top": 6,
+              "left": 6,
+              "bottom": 157,
+              "right": 105
+            },
+            "type": 64,
+            "disabled": true,
+            "raw_hex": "0080",
+            "resource_id": 128
+          },
+          {
+            "item_number": 3,
+            "rect": {
+              "top": 13,
+              "left": 120,
+              "bottom": 131,
+              "right": 371
+            },
+            "type": 8,
+            "disabled": true,
+            "raw_hex": "416d62726f73696120526567697374726174696f6e2053797374656d0d0d627920416e647265772057656c63680da9313939352d3820627920416d62726f73696120536f6674776172652c20496e632e0d0d417274776f726b206279204d61726b20436f6e67652e20205468616e6b7320746f2047696c6d6f72652e",
+            "text": "Ambrosia Registration System\r\rby Andrew Welch\r©1995-8 by Ambrosia Software, Inc.\r\rArtwork by Mark Conge.  Thanks to Gilmore."
+          }
+        ],
+        "trailing_hex": ""
+      }
+    },
+    {
+      "type": "WIND",
+      "id": 128,
+      "name": "Main",
+      "source_path": "E:\\AI\\Games\\Escape Velocity\\escape-velocity-research\\analysis\\acquisition\\installed-ev-1.0.5\\Escape Velocity 1.0.5 ƒ\\Register Escape Velocity.rsrc",
+      "source_sha256": "fd47c30fe9f28ebc63931848086e1c3b24771866e0af0ca85caca1a3a94af3cf",
+      "sha256": "bed43d2622276325863db4b5495ea19ed09b405855ac8e36f126374689612e49",
+      "offset": 120870,
+      "length": 22,
+      "decoded": {
+        "rect": {
+          "top": 42,
+          "left": 7,
+          "bottom": 436,
+          "right": 502
+        },
+        "proc_id": 5,
+        "visible": false,
+        "go_away": false,
+        "refcon": 0,
+        "title": "",
+        "trailing_hex": "45280a"
+      }
+    }
+  ],
+  "errors": [],
+  "counts": {
+    "MENU": 12,
+    "DLOG": 38,
+    "DITL": 41,
+    "CNTL": 2,
+    "ALRT": 4,
+    "sfnt": 1,
+    "FOND": 1,
+    "WIND": 1
+  }
+}

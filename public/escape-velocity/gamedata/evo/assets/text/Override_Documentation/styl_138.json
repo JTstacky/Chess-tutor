@@ -1,0 +1,223 @@
+[
+ {
+  "start": 0,
+  "height": 24,
+  "ascent": 18,
+  "font": 20,
+  "face": 0,
+  "size": 24,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1,
+  "height": 25,
+  "ascent": 20,
+  "font": 21,
+  "face": 0,
+  "size": 24,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 23,
+  "height": 11,
+  "ascent": 8,
+  "font": 21,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 59,
+  "height": 11,
+  "ascent": 8,
+  "font": 20,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 60,
+  "height": 15,
+  "ascent": 12,
+  "font": 20,
+  "face": 3,
+  "size": 14,
+  "color": [
+   65534,
+   606,
+   0
+  ]
+ },
+ {
+  "start": 69,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 2,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 159,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 160,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 2,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 263,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 266,
+  "height": 13,
+  "ascent": 10,
+  "font": 1,
+  "face": 0,
+  "size": 10,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 267,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 305,
+  "height": 15,
+  "ascent": 12,
+  "font": 20,
+  "face": 1,
+  "size": 14,
+  "color": [
+   0,
+   4,
+   65534
+  ]
+ },
+ {
+  "start": 315,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 1523,
+  "height": 15,
+  "ascent": 12,
+  "font": 20,
+  "face": 1,
+  "size": 14,
+  "color": [
+   0,
+   4,
+   65534
+  ]
+ },
+ {
+  "start": 1535,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 6511,
+  "height": 13,
+  "ascent": 10,
+  "font": 1,
+  "face": 0,
+  "size": 10,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 6513,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ }
+]

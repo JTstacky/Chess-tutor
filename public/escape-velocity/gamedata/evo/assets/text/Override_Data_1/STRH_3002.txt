@@ -1,0 +1,50 @@
+1	Communications channel open to 
+2	Communications interlink established with 
+3	Hailing frequencies open to 
+4	Ready with hailing channel to 
+5	Channel open to 
+6	Don’t make us laugh.
+7	Such talk is highly dangerous.
+8	Surrender? To you? Ha ha ha!
+9	You’re far too puny to be anything but a bother to us. Go away.
+10	You’re deluding yourself. Go find a healthier way to work out your frustrations.
+11	It’s you who should surrender, once you see our mighty ships coming at you!
+12	You’ll think again when you encounter our defense fleet!
+13	Our defense fleet will make short work of you.
+14	We’re sending out our defense fleet. In a few minutes you’ll be begging for mercy.
+15	Eat vaccum, sucker - our defense fleet is on its way.
+16	We know nothing.
+17	Sorry pal, nothing to tell you.
+18	Sorry, we don’t know anything.
+19	We wish we had some.
+20	We don’t have any advice.
+21	Stop wasting our time.
+22	This is a waste of time.
+23	What a waste of time.
+24	You’re wasting our valuable time.
+25	You’re just wasting our time.
+26	The planet agrees to pay you tribute.
+27	The station agrees to pay you tribute.
+28	<dominated = TRUE>
+29	<dominated = TRUE>
+30	<dominated = TRUE>
+31	Yeah, you wish.
+32	No way. Leave immediately.
+33	No deal, cheapskate.
+34	Your greed has been noted. Go away.
+35	Apparently you don’t want to port here after all.
+36	You release the planet from its debt to you.
+37	You release the station from its debt to you.
+38	<dominated = FALSE>
+39	<dominated = FALSE>
+40	<dominated = FALSE>
+41	We’ll let you slip by the security barrier if you pay us.
+42	We’ll let you pass through the patrols if you pay us.
+43	We’ll let you defeat spaceport security if you pay us.
+44	If you pay us, we’ll make sure the spaceport security forces ignore you.
+45	Pay us and we’ll look the other way if you want to vist our spaceport.
+46	Yeah, right.
+47	You wish.
+48	Are you trying to insult us?
+49	We don’t take kindly to insults.
+50	We consider that an insult.

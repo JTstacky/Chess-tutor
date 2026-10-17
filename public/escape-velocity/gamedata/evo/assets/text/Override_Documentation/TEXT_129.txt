@@ -1,0 +1,93 @@
+
+Table of Contents
+___________________________________
+Click on the blue “Go To” button to jump to a chapter.
+
+Chapter 1 - Welcome to Override
+
+               • Welcome Override 
+               • About This Manual
+               • Navigating this Document
+
+Chapter 2 - Table of Contents
+
+               • You are here!
+
+Chapter 3 - Introduction
+
+                 • Introduction
+               • Default Key Setup
+
+Chapter 4 - Override Basics
+
+                 • Flight Controls
+               • Landing
+               • Commodity Exchange
+
+Chapter 5 - Exploring
+
+                 • Communication
+               • Player and Starship Information
+               • Hyperspacing
+
+Chapter 6 - Nuts and Bolts
+
+                 • Refueling
+               • Advanced Navigation
+               • Basic Missions
+               • Upgrades
+
+Chapter 7 - Into the Maelstrom
+
+                 • Combat
+               • Escape Pods
+               • Buying New Ships
+               • Advanced Missions
+               • Escorts and Fighters
+
+Chapter 8 - Down and Dirty
+                • Plundering Ships
+                 • Bribery
+                 • Dominating Planets
+
+Chapter 9 - Unofficial UE Training Manual
+                • Congratulations
+                 • Ships
+																 • Weaponry
+                 • Foes
+
+Chapter 10 - Unofficial UE Training Manual - Appendices
+               • Appendix I - Advice to Independant Pilots
+                • Appendix II - Rumours From the Fringes of the Galaxy
+
+
+Chapter 11 - Override Civilizations
+               • The Miranu
+                • The Crescent
+
+
+Chapter 12 - EVO Plug Ins
+                • What is a Plug In?
+                 • How do I use a Plug In?
+                 • How do I design a Plug In of my own?
+                 • What should my plug in offer?
+																	• Where to go from here...
+                 • Plug In troubleshooting
+               
+Chapter 13 - Troubleshooting
+
+            • Common Problems Explained
+
+
+
+Chapter 14 - Registration and Contact Info.
+
+                 • Shareware?
+               • Why should I register (pay for) Override?
+               • Registering your copy of Override
+               • About Ambrosia Software, Inc.
+               • Contact Information
+
+  
+
+

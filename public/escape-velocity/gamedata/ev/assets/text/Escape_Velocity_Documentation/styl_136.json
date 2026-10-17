@@ -1,0 +1,93 @@
+[
+ {
+  "start": 0,
+  "height": 25,
+  "ascent": 20,
+  "font": 21,
+  "face": 0,
+  "size": 24,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 10,
+  "height": 11,
+  "ascent": 8,
+  "font": 21,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 45,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 0,
+  "size": 12,
+  "color": [
+   65535,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 46,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 2,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 111,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 1,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 114,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 2,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 3329,
+  "height": 12,
+  "ascent": 9,
+  "font": 20,
+  "face": 2,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ }
+]

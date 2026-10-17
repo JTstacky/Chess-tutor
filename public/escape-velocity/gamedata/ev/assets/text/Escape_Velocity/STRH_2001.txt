@@ -1,0 +1,9 @@
+1	EV Data
+2	EV Graphics
+3	EV Sounds
+4	EV Intro
+5	EV Music 1
+6	EV Music 2
+7	Escape Velocity Prefs
+8	:Pilots:
+9	Last Pilot

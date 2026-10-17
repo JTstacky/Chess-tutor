@@ -1,0 +1,5 @@
+1	Delta Gamma 5
+2	Alpha Psi 4
+3	Omega Theta 2
+4	Epsillon Iota 9
+5	Eta Omicron 6

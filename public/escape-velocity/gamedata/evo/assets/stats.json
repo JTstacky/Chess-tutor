@@ -1,0 +1,116 @@
+{
+ "CURS": {
+  "total": 2,
+  "ok": 2,
+  "fail": 0,
+  "errors": {}
+ },
+ "ICN#": {
+  "total": 20,
+  "ok": 20,
+  "fail": 0,
+  "errors": {}
+ },
+ "ICON": {
+  "total": 12,
+  "ok": 12,
+  "fail": 0,
+  "errors": {}
+ },
+ "PICT": {
+  "total": 641,
+  "ok": 641,
+  "fail": 0,
+  "errors": {}
+ },
+ "STR ": {
+  "total": 18,
+  "ok": 18,
+  "fail": 0,
+  "errors": {}
+ },
+ "STR#": {
+  "total": 108,
+  "ok": 108,
+  "fail": 0,
+  "errors": {}
+ },
+ "TEXT": {
+  "total": 43,
+  "ok": 43,
+  "fail": 0,
+  "errors": {}
+ },
+ "cicn": {
+  "total": 83,
+  "ok": 83,
+  "fail": 0,
+  "errors": {}
+ },
+ "clut": {
+  "total": 3,
+  "ok": 3,
+  "fail": 0,
+  "errors": {}
+ },
+ "crsr": {
+  "total": 2,
+  "ok": 2,
+  "fail": 0,
+  "errors": {}
+ },
+ "icl4": {
+  "total": 20,
+  "ok": 20,
+  "fail": 0,
+  "errors": {}
+ },
+ "icl8": {
+  "total": 19,
+  "ok": 19,
+  "fail": 0,
+  "errors": {}
+ },
+ "ics#": {
+  "total": 20,
+  "ok": 20,
+  "fail": 0,
+  "errors": {}
+ },
+ "ics4": {
+  "total": 20,
+  "ok": 20,
+  "fail": 0,
+  "errors": {}
+ },
+ "ics8": {
+  "total": 20,
+  "ok": 20,
+  "fail": 0,
+  "errors": {}
+ },
+ "mstr": {
+  "total": 2,
+  "ok": 2,
+  "fail": 0,
+  "errors": {}
+ },
+ "ppat": {
+  "total": 12,
+  "ok": 12,
+  "fail": 0,
+  "errors": {}
+ },
+ "snd ": {
+  "total": 68,
+  "ok": 68,
+  "fail": 0,
+  "errors": {}
+ },
+ "styl": {
+  "total": 49,
+  "ok": 49,
+  "fail": 0,
+  "errors": {}
+ }
+}

@@ -1,0 +1,7 @@
+1	Apeiron II
+2	Starliner Asimov
+3	Trajan
+4	Artemis III
+5	Pride of Mindor
+6	Pride of Vega
+7	Lady of Regulus

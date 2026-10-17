@@ -1,0 +1,159 @@
+
+Into the Maelstrom
+___________________________________
+Defending yourself in a dangerous and chaotic universe
+
+
+Combat
+I didn’t see the pirates until it was almost too late. The first warning I got was when my threat warning board lit up like a Christmas tree, and the ship’s master alarm screamed a shrill alert in my ear. I frantically stabbed at the targeting controls to try to locate the ship that was making my plot board go wild with computed intercept trajectories.
+
+There it was, about six hundred klicks away, closing fast from around the night side of Nimbus III. My targeting scanner identified it as an Argosy-class light freighter, piloted by Renzan Lefnor. The pirates really like using Argosies for raiding the supply routes, as they’re more than a match for most unprotected freighters and can carry off a large stash of loot as well. I activated the navigation computer and evaluated my options: I was too low on fuel to attempt to hyperjump out of the system, and the attacking pirate ship was between me and the safety of Nimbus III. There was no choice but to fight it out.
+
+Fortunately, I wasn’t defenseless. By this time I had upgraded the Journeyman quite nicely, with a pair of laser cannons and a layer of ablative armaplast plating for defense. The Argosy was much bigger, but I had the advantage of surprise — he couldn’t have been expecting me to fight back. I punched the acceleration controls and steered the ship onto an intercept course while warming up the firing circuits...
+
+There will be many times when you’ll have to fight other ships in Escape Velocity, whether it’s to defend yourself, to fulfill a mission requirement, or simply to boost your combat rating and plunder goods from the drifting hulks of your enemies’ disabled vessels.
+
+The thing to recognize when attempting to do battle is the difference between primary and secondary weapons. A primary weapon is usually one that doesn’t take any ammunition and can be fired quickly — for example, a laser or proton cannon. A secondary weapon is basically anything else, which usually means that it’s a weapon that requires ammunition or fuel to fire, and/or one that takes a while to reload. Primary weapons are always available, all the time; hitting the primary trigger key (which is the Spacebar by default) will fire all primary weapons at once.
+
+Secondary weapons, on the other hand, have to be selected individually by hitting the W key. (you can hold down the Option key as well to go backwards through your list of secondary weapons if you have a lot) The name of the currently-selected secondary weapon appears on the status display between the shield and fuel indicators and the navigation readout, along with the amount of ammunition remaining for that weapon, if applicable.
+
+ 
+
+
+
+Secondary weapons will fire when you hit the secondary trigger, which is the Shift key by default. If you’re not sure whether a weapon you’ve just purchased is a primary or secondary weapon, just try to select it with the W key — if you can’t find it, then it’s safe to assume it’s a primary weapon and will fire when you hit space. Also, if you’re worried about accidentally firing a powerful weapon and wasting its ammo — or destroying some passing freighter! — you can put your secondary weapons into safe mode by pressing S.
+
+Another important aspect of space combat is targeting other ships. If you’ve read the section on communicating with ships, you already know how to select a target. Just hit Tab until the desired ship is selected — a readout of that ship will appear on your status display, and a set of brackets will appear around the ship on your viewscreen.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+Those brackets will change color to show the other ship’s current status: red for a threatening ship, blue for friendly or neutral, and grey for disabled. (they will also turn green for fighters and escorts, but we won’t talk about that until a bit later)
+
+When you target a ship, you provide your weapons systems with important information that they need to function properly. In order for some weapons to guide properly, for instance, it is necessary for them to have a target specified — in fact, turreted weapons won’t fire without a valid target.
+
+Keep an eye on your sheild indicator during combat; if your sheilds get too low during combat, it may be time to think about running away so that you live to fight another day.  The shield indicator switches to an armor indicator when your shields go down and enemy fire begins to eat away at your hull. The armor indicator works much like the shield indicator: more color in the box represents more armor. The armor indicator is also shaded differently to help distinguish it from the shield indicator during the heat of battle.
+
+If you’re in a system that has floating asteroids, you can use them for cover in battles.  Although you cannot be damaged by  running your ship into an asteroid, a shrewd pilot can take out more powerful opponents by using them as shields in battle...
+
+Those are the basics of ship-to-ship combat. Some more advanced topics will be covered in a later section.
+
+Escape Pods
+Even with all the amenities I’d added onto her, the Journeyman was no match for the pirate Argosy. The dark freighter was many times bigger than my tiny shuttle, and its gun crews could bring their turrets to bear quicker than I could swing my craft around. My little ship put up a good fight, but I knew it was over when my shields failed with a crackle of fried electronics. As the smell of burnt insulation and the sound of overloaded and sizzling power couplings filled the cabin, I knew my ship was dying. It was then that I said a silent prayer of thanks to whatever had made me spend the extra credits to buy that Markin-Bater escape pod. I climbed in, sealed the hatch, and pulled on the eject handle as if my life depended on it. Hey, that’s pretty funny... I hope that when — if — somebody finds this, they won’t edit that part out.
+
+My poor battered shuttlecraft dwindled to a dot in the distance as the powerful fusion rockets propelled me and my escape pod away from the stricken vessel. The laser bolts that still pounded the shuttle’s side formed an eerie green ribbon connecting the pinpoint that was the shuttle to the larger dot of the pirate ship. Suddenly there was an explosion, brighter than the sun, and the speck of my shuttle became a rapidly-expanding cloud of ionized gas and metal fragments.
+
+I don’t know why the pirates didn’t board her before they blew her up — I guess maybe they scanned me and saw that I wasn’t carrying much of value, or maybe Renzan Lefnor just liked picking on harmless shuttlecraft. As I unwrapped a crunchy ration stick and tried to figure out where my present course would take me, I thought of all the systems I’d visited with the trusty Journeyman, and vowed to make Lefnor pay for his transgressions if I ever encountered his ship again.
+
+An escape pod can be your best friend in a tight spot. When your ship begins to break up — i.e. when you hear the shrill sound of the emergency klaxon — you can activate your escape pod, if you have one, by hitting Command-E. You’ll drift through space for a while, and will eventually wind up on a safe planet. By the way, one interesting consequence of using an escape pod is that your legal record will be erased in all systems, which can be handy when you’re on the run from the law.
+
+Buying New Ships
+I drifted for three days before a passing freighter picked me up. Man, I must’ve read that complimentary Markin-Bater brochure a hundred times. The freighter captain dropped me off in the Farla system, where I withdrew everything I had from my bank account in order to be able to afford a new ship. I’d made quite a pile of credits as a merchant during that year, so I decided to forego buying another shuttlecraft and move up to something bigger.
+
+Buying a new ship is similar to buying an upgrade to an existing ship. If a planet or space station has the capability to construct new ships, you can click on the Visit Shipyard button when you’re at the spaceport to access the shipyard dialog.
+
+ 
+
+
+
+In this dialog, you can click on any of the available ship types to see a picture and a brief description of that type of ship, along with its price before and after trade-in. You can also click on the Info button (or double-click on the ship icon) to see a detailed summary of the capabilities of a particular ship class.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To buy a new ship, just click on the Buy Ship button. You’ll be asked to name your new ship, and then it’s all yours.
+
+It took three days to sign all the papers and hire the crew of my new ship, a Maskirovka IPV-1 corvette. That trim little vessel was one sweet machine, whose every line and contour evoked images of speed and power. I also liked the size of its cargo hold — with this ship, I could make money as a mercenary or a merchant. I decided to call it the Avenger, in honor of the shuttlecraft I had lost. Renzan Lefnor better watch out if we cross paths again, I chuckled to myself.
+
+Advanced Missions
+I spent the evening before we pushed off in the Farla spaceport bar, relaxing with my new crew. I’d had enough command experience on the Loadstar to know that it’s important to get to know your crew members. One of my turret gunners and a couple of engineer’s mates were gathered around the slot machines, and my helmsman, navigator, and communications officer were lounging at the bar. I was sitting at one of the tables, swapping space stories with my new executive officer, when this guy came up and sat down across from us. He gave us this story about how his shipping company was running low on transport capacity that week, and how he had an extra shipload of parcels he needed to get to the settlement on Mirimas.
+
+I talked it over with my XO and agreed to help him out. It would be an easy job, we figured, and since I was running low on credits after buying my new ship, it would help pay the bills. Now that I look back on it, I realize that that was when all the troubles really started. Heck, I should’ve just stuck to being a simple trader...
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Many spaceports have a bar located in them. A spaceport bar is a good place to relax, gamble, hire an escort ship, check the latest news, and especially to find missions that aren’t normally offered through the mission computer. Bars serve as handy meeting places for clients and captains — whenever somebody has a job for a space captain to do, they invariably hang around the spaceport bar, searching for a likely-looking candidate. As you mess around in a bar, you may be approached by someone with a job for you to do. If their offer sounds good, you can accept their mission and carry it out just like one you’d get from the mission computer. If not, you can tell them to get lost. (by the way, the quantity and difficulty of the missions you’re offered in the bar tends to increase as you build your reputation)
+
+Escorts and Fighters
+We left the Farla system early the next morning, after loading the parcels aboard the Avenger. On the way to our rendezvous on Mirimas, we saw a couple of formidable-looking pirate ships harassing a convoy of freighters, but we had a deadline and couldn’t stop to lend assistance. We knew that the territory we would soon be passing through was crawling with Rebels and pirates, though, so at the next system we decided to stop and hire some temporary help to aid in our defense.
+
+There are several different ways you can have other ships fly with you and obey your orders. The first is by hiring escort ships at a spaceport bar. To do this, click on the Hire Escort button in the bar, and select the desired type of escort ship you wish to hire. Hiring an escort costs a certain initial fee, plus a small fee each day. To determine how much you’re paying your escorts, you can look at the player-info dialog. (hit P) If for some reason you don’t have enough credits to pay your escorts, they will begin to defect from your fleet.
+
+Another way to get escorts is by having them assigned to you through a mission you’ve accepted. In this case, you won’t have to pay your escorts, but they’ll only remain with you for the duration of the mission. A third way to get escorts is by capturing a disabled ship — see the next section for details.
+
+Escorts not only help you in combat situations, but they also add to your cargo capacity, so you can make a real killing hauling goods around if you have a few freighters in your fleet.  However any special cargo your need for a mission must always fit into your ship’s own cargo hold; no one else can be trusted with it.  Also keep in mind that pirates are more interested in large fleets or ships overflowing with cargo and credits.
+
+A final way to have ships fly with you is by launching fighters from your own ship. Certain types of ships have built-in fighter bays that can launch small, single-seat fighter craft, and others can be retrofitted with this technology. Fighters are launched just like any other secondary weapon, and cost nothing to operate, other than the cost of purchasing them. The main difference between fighters and “normal” escorts is that you can have a finer degree of control over your fighters’ actions: whereas escorts will only fight ships that are a threat to you, you can order your fighters to attack specific targets. Also, you can recall your fighters to your bay to be refueled, repaired, and rearmed.
+
+To control the ships in your fleet, use the following key commands:
+
+Key:      Effect on escorts:                     Effect on fighters:
+C         Recalls your escorts to the	           Recalls your fighters to the formation
+          formation for a short period of time   until you give them further orders
+
+Option-C	 No effect                              Orders your fighters to dock with
+                                                 your ship
+
+V         Orders your escorts to hold position   Orders your fighters to hold position
+
+F         No effect                              Orders your fighters to attack your
+                                                 current target
+
+So as not to confuse you, your targeting computer will automatically “skip over” your fighters and escorts when you’re cycling through the ships in the system by hitting Tab. However, if you still want to select them — say, to inspect or communicate with one of them — you can hold down the option key to force your targeting computer to include fighters and escorts when you hit Tab. You can use this if you want to fire one of the escorts you’ve hired: just hail the ship and click on the button that says Release Escort.
+
+We let the two hired Defenders go after we made it safely through the combat zone and into the Mirimas system. After we’d delivered the parcels and collected our payment — a handy little sum, if I do say so myself — we set out again to see what opportunities lay in store for us.
+
+If you don’t have enough room in your ship’s hold for some important cargo, you can jettison what you are currently carrying by hitting Command-K.  Hitting Option-Command-K will jettison only "normal" (non-mission related) cargo, which can be particularly useful when you want some more space in your cargo hold, but don’t want to send special mission related items into the void of space.
+
+On a more gruesome note, should you ever want to cause your ship to self-destruct, holding down Command-D will initiate the self-destruct sequence.  You must hold these keys down for a full 10 seconds for the self-destruct sequence to complete; letting up on them at any time before then will abort the self-destruct sequence.
+
+
+
+  
+
+
+

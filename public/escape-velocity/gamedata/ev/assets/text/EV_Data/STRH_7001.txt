@@ -1,0 +1,10 @@
+1	Greetings from the Rebellion.
+2	Greetings from a merchant of the Rebellion.
+3	Greetings from the Rebel Shipping League.
+4	Greetings from a merchant of Rebellion.
+5	Greetings from the Rebel Shipping League.
+6	Aid the cause by attacking the Confederation!
+7	Death to the Confederation!
+8	Down with the tyrants!
+9	Long live the Rebellion!
+10	Try heading to Rebel HQ on Palshife to get some extra upgrades for your ship.

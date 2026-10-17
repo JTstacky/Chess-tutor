@@ -1,0 +1,75 @@
+1	blaze cannon
+2	blaze turret
+3	rocket launcher
+4	rocket
+5	hunter missile launcher
+6	hunter missile
+7	neutron cannon
+8	neutron turret
+9	Voinian fighter bay
+10	Voinian heavy fighter
+11	UE fighter bay
+12	UE fighter
+13	layer of Dospect armour
+14	layer of Bronev plating
+15	needle jammer
+16	rocket turret
+17	turretted rocket
+18	UE cloaking device
+19	plasma siphon
+20	nebula penetration device
+21	Krait fighter bay
+22	Krait fighter
+23	mine layer
+24	space mine
+25	
+26	external fuel tank
+27	escape pod
+28	density scanner
+29	IFF decoder
+30	afterburner
+31	needle launcher
+32	needle missile
+33	sensor upgrade
+34	phase cannon
+35	rear phase cannon
+36	swivel phase cannon
+37	phase turret
+38	regional map
+39	SAD module launcher
+40	SAD module
+41	fuel scoop
+42	auto-refueller
+43	phased disruption beam
+44	Azdara bay
+45	Azdara
+46	Crescent fighter bay
+47	Crescent fighter
+48	Miranu defence system
+49	Miranu defence pod
+50	dispersal rocket launcher
+51	dispersal rocket
+52	thrust upgrade
+53	shield enhancer
+54	Zidagar Fighter bay
+55	Zidagar Fighter
+56	engine upgrade
+57	Emalgha cannon
+58	Emalgha turret
+59	freighter upgrade
+60	mass expansion
+61	cargo expansion
+62	shield generator
+63	ECM system
+64	RCS upgrade
+65	Azdgari upgrade
+66	pursuit missile launcher
+67	pursuit missile
+68	tractor beam
+69	repulsor beam
+70	experimental generator
+71	systems upgrade
+72	Zidagar ECM system
+73	SAE module launcher
+74	SAE module
+75	marine equipment

@@ -1,0 +1,6 @@
+1	Food:
+2	Ind:
+3	Med:
+4	LuxG:
+5	Met:
+6	Equ:

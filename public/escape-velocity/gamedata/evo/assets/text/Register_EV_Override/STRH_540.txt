@@ -1,0 +1,29 @@
+1	PO Box 23140 Rochester, NY 14692 Tel: 716.325.1910 Fax: 716.325.3665 AOL: AmbrosiaSW CIS: 74777,1147 Internet: help@AmbrosiaSW.com 
+2	Ambrosia Software, Inc. Electronic Mail Registration Form
+3	Product:
+4	Name:
+5	Company:
+6	Address:
+7	eMail:
+8	Phone:
+9	Fax:
+10	Comments:
+11	Price per copy:
+12	Number of copies:
+13	Quantity discount:
+14	Total:
+15	Just sending you a note!
+16	Check/cash/money order enclosed as payment.
+17	Please bill my 
+18	Account #: 
+19	Expires: 
+20	Signature: 
+21	Date: 
+22	Thank you for supporting shareware!
+23	Purchase Order
+24	 registration
+25	Save registration as...
+26	Please send this registration text to: America Online: AmbrosiaSW-or-     Compuserve: 74777,1147-or-       Internet: register@AmbrosiaSW.com
+27	Ambrosia Software, Inc. Federal ID#: 16-1443420
+28	AmbrosiaCD:
+29	$5.00 -- yes, send me the AmbrosiaCD!

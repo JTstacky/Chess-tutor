@@ -1,0 +1,24 @@
+1	Food
+2	Industrial
+3	Medical
+4	Luxury Goods
+5	Metal
+6	Equipment
+7	Passengers
+8	Criminal
+9	Drugs
+10	Ore Samples
+11	Munitions
+12	Ore
+13	Data
+14	Lumber
+15	Commandos
+16	Orders
+17	Documents
+18	Parcels
+19	Uridium
+20	Rebel Operative
+21	Confed Operative
+22	Garbage
+23	Prototype
+24	Kestrel Subassemblies

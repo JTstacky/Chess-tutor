@@ -1,0 +1,170 @@
+
+Plug Ins
+___________________________________
+Adding to the EV Override Universe, or creating your own.
+
+
+Plug-ins are one of EV Override's most important features, but what are they exactly?  How do you use them?  And how do you create your own?  This chapter will answer all of these questions, and many more.
+
+What is a plug-in?
+A plug-in is a document that contains new scenario data for EV Override, such as ships, weapons, missions, planets, etc.  A plug-in can build upon EV Override's scenario, or it can replace it entirely.  A plug-in can make EV Override more difficult, or it can allow you to cheat.  Basically, it can accomplish virtually anything...
+
+How do I use a plug-in?
+The EV Override installer created a folder named 'Plug-ins', which currently contains nothing but an empty sample plug-in.  If you want to try out a new plug-in, just drag it into this folder and then start the EV Override application.  (If EV Override is already active, you must restart it.)
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Third-party plug-ins are not shipped with the EV Override package, but there are many web sites where you can find them.  We suggest you browse the archives of the official EV Override site first — use one of the links in the 'Web Site URLs' folder.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+How do I design a plug-in of my own?
+To create a plug-in, you must first achieve a better understanding of how EV Override works...
+
+EV Override's scenario data is stored mainly in the resource fork of the files Override Data 1 & 2, Override Graphics, Override Music, Override Sounds and Override Titles.  Each aspect of the scenario, from mission briefings to ship specifications, is stored in a special group of resources.  (In this case, dësc and shïp, respectively.)  When EV Override loads a plug-in, it looks inside it for resources that correspond with the game's own.  If these exist, the version in the plug-in will be used: this is how you can alter EV Override's scenario.  All other resources in the plug-in will be loaded too, of course, but will not change EV Override's scenario, but add to it.
+
+Once you have grasped this basic concept, you need to download a resource editor, such as Apple's freeware ResEdit, and the EV Override Bible.  The latter is a manual that explains each resource group in detail.  It also includes templates that will enable ResEdit to edit the EV Override resources through a special interface.  The EV Override Bible is difficult material, but to master plug-in designing, you'll have to know it by heart. Study it and then study it again!
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ResEdit itself is fairly straightforward to use, but beginners may get lost in its technical approach.  If you really don't know what you're doing, play it safe and consult one of the ResEdit manuals or FAQs available online. You should be on your way in no time.
+
+If you prefer a simpler interface, you might want to try EV-Edit, a shareware editor designed specially for EV Override plug-ins.  It isn't as stable as ResEdit, however, but it does offer a few extra capabilities.  Using both ResEdit and EV-Edit is probably your best choice.
+
+Once you familiarize yourself with the basics of EV Override plug-in design, you can finally begin editing! Open a copy of the sample plug-in with the editor of your choice, and off you go!
+
+(Note: ResEdit, EV-Edit and the EV Override Bible are also available on the official EV Override web site.)
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+What should my plug-in offer?
+The choice is entirely up to you, of course, but there are a few ways to ensure your plug-in's success:
+
+- Many people dislike plug-ins that make EV Override easier, such as cheater plug-ins.  Plug-ins that make the game more difficult will generally keep people busy much longer.
+- If your plug-in includes missions, make sure that the story is realistic and intricate.  EV Override offers many ways to give people the feeling that they are really a part of the story.  A good example is EV Override's scenario.
+- New graphics will always make a good impression, but only when they are of a certain quality.  If you are not satisfied with your graphics, chances are that nobody else will be either.  If that is the case, then, unfortunately, your plug-in might just be better off without them.
+- Incorrect spelling or grammar is terrible for your plug-in's status.  If you think you lack the ability to find and correct your mistakes, it is advisable to find somebody who can help you out.
+
+Basically, go for a difficult, yet enjoyable plug-in with an involving story and good graphics.  If you have the time, try to design a whole new scenario from scratch — the best way to work your way into the EV Override history books!
+
+
+Where to go from here...
+Remember that the key to accomplishing something big in the world of EV Override plug-ins is practice and experimentation.  Talking to other plug-in designers can help you develop special techniques and brew up interesting ideas.  Check out how other plug-ins were put together.  Learn about the many hidden possibilities EV Override's engine offers.  Practice, experiment.
+
+Did I mention to read the EV Override Bible?
+
+Plug-in troubleshooting
+Many things can go wrong with running or designing a plug-in.  If you encounter a problem, consult the frequently asked questions below.
+
+Q: I just installed a new plug-in, but I don't see any effect!
+A: Some plug-ins are not noticeable immediately.  Often its new missions or ships are only activated when you complete a certain portion of EV Override's scenario.  The plug-ins documentation, if available, might shed some light as well.
+
+Q: I just installed a new plug-in, but it isn't working like it's supposed to!
+A: Chances are you are running more than one plug-in.  Always make sure there is only one third-party plug-in in the 'Plug-ins' folder, unless the scenario actually consists of multiple plug-ins.  The sample plug-in, however, may remain.
+
+Q: I started the EV Override application, but an out of memory message appeared while loading!
+A: Large EV Override plug-ins may require extra memory, but often the problem lies with a faulty plug-in resource.  If EV Override encounters a problem while loading a plug-in, it will always show an out of memory message.
+
+Q: I used ResEdit to open an EV Override resource, but all I get is a box full of hexadecimal gibberish!
+A: Have you installed the templates that come with the EV Override Bible?  Copying these to your plug-in or to ResEdit itself will solve this problem.
+
+Q: I created a really large plug-in, but suddenly it won't load anymore!  I'm absolutely sure everything checks out.
+A: You are probably using an older Mac.  The 680x0 resource manager doesn't allow as many resources in one file as the resource manager on a PPC does.  Split the plug-in into two smaller plug-ins, just as was done with the Override Data files.
+
+
+                                                                                            
+  
+
+
+

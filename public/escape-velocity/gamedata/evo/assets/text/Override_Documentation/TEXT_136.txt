@@ -1,0 +1,173 @@
+
+Unnofficial UE Training Manual
+___________________________________
+by Captain d'Erlon of the U.E.S. Fortitude.
+
+
+Congratulations
+If you are reading this you have presumably just passed your final examinations at the UE Academy, and have either been assigned to a warship or outpost, or you have decided to take the plunge and set out as an independent operative. Either way I do not merely wish you bon chance, but recommend to you this invaluable guide to survival in the universe.
+
+The first step is to put from your mind all the regulations and codes of practice which have been crammed into your head in the Academy. In my experience there is rarely time to think of appropriate regulations in survival situations, and when there is there is enough time to look them up as well.
+
+What follows are my opinions and advice regarding life in space in general, and space combat in particular. Take these words to heart, they could mean the difference between life and death, not to mention success and failure.
+
+Ships
+The Shuttlecraft.
+Many independent pilots will only be able to afford such a vessel as this at the beginning of their careers. Despite its simplicity of design and small size, there is much to be said for this simple vessel. It is capable of completing small deliveries in superb time - which is the best route for an independent captain to the beginnings of a fortune. Furthermore it has the speed and thrust to get you out of dangerous situations, so frontier runs and trading amongst the independent worlds is very feasible in this ship. Some pilots have attempted to turn this ship into a fighter by mounting several blaze cannons on it. I personally cannot recommend this practice, as real fighters will still outmanoeuvre you, and larger targets (especially Voinian vessels) will reduce your little ship to slag in moments.
+
+The Freighter.
+The Freighter is a highly efficient vessel for hauling cargo between the safer worlds of UE space. There its usefulness ends. The standard freighter is totally unarmed, and poorly armoured and shielded. Even if you equip it with as many weapons as it has room for, it remains slow and vulnerable - even a Krait will cause you serious troubles.
+ 
+
+
+
+
+
+
+
+The United Earth Fighter.
+While these little ships are basic things - weapons, cockpit, generators and fuel tanks held together by the barest smattering of hull - they are the most dangerous fighters, whose existence is confirmed, in the known galaxy. They are easily able to outmanoeuvre their Voinian counterparts, and the Renegade Krait is far less tough. Their effectiveness against the Voinians cannot be underestimated - there are confirmed reports of lone fighter pilots taking out Voinian Cruisers with enough patience, and pairs of fighters disable Voinian Frigates on an almost regular basis.
+
+If while piloting a UE Fighter you take a rocket hit and survive - don't panic. Your ship will be sent out of control by the rocket's impact, allow yourself to drift away from the centre of battle and re-engage the enemy slowly. Do not take unnecessary risks, as two consecutive rocket hits will invariably destroy a fighter.
+
+It should be unnecessary to point out that, for purposes other than combat, the UE Fighter is next to useless. There may be room for one or two passengers in the cockpit, but personally I would not like to be crammed into such a vehicle.
+
+The UE Fighter is not generally available to civilians - but in numerous special cases certain parties have been permitted to purchase them.
+
+The United Earth Destroyer.
+These vessels are the pride of the UE fleet; under the command of skilled captains they have proved time and again their superiority to Voinian vessels. Keep in mind that the Destroyer's advantage lies in its mobility - it allows you to dictate the course of the battle to your enemy. If your ship is armed with Hunter missiles, do not move in close where their longer range is wasted. If your destroyer mounts rocket launchers, then hoard them till the opportunity arises to use them to fullest effect.
+ 
+
+
+
+
+
+
+
+The United Earth Carrier.
+The Captain of a UE Carrier must always keep in mind his ship's battle role - to bring its 5 UE Fighters to battle, and then provide support with Hunter missile launchers. Although the Carrier is the toughest vessel in the UE fleet, it is not capable of defeating Voinian capital ships at short range, and even against lesser vessels such as the Renegade Turncoat it will suffer in the long run. Carriers must also be wary of enemy fighters, as their size and lack of mobility make them easy targets.
+
+UE warships are naturally not generally available to civilians - though in some rare instances, trusted independent captains have been permitted to purchase them.
+
+The Scoutship.
+This UE vessel was originally designed for exploration of the wider galaxy, but has also been made commercially available and its reasonably-sized cargo bay has given it some popularity as a courier vessel. The scoutship's greatest asset is its large fuel capacity, which not only allows it to make deliveries in good time but also, in combination with an afterburner, can greatly enhance its speed for extended periods. The scoutship can defend itself reasonably well but, as with the shuttle, attempts to use it as a fighter are not recommended.
+
+The Freight-courier.
+This is the most expensive and powerful vessel available to civilians in UE space. It is constructed exclusively by Frontier Express on the moon of Crockett. Ships such as this are vital to the war effort, delivering supplies to our border outposts. This cunningly designed vessel somehow combines good shielding, speed, cargo space and reasonable armament to produce a powerful multi-purpose vessel. The primary use of this ship is still making deliveries in hostile areas, but various independent captains have equipped it for bounty hunting, exploration or even piracy.
+
+Weaponry
+At the present there is little variety of weaponry available in UE space, so the choices before the average captain are not difficult. I shall quickly summarise the various weapons below.
+
+Blaze weapons in general, it should be remembered, are no match for Voinian neutron cannons - though they fire faster, neutrons are more accurate and a single blast inflicts about as much damage to shields as five blaze hits. Furthermore blaze cannons are less effective against armour than shields, so care should always be taken when attempting to fight heavily-armoured Voinian capital ships with primary weapons alone.
+
+ 
+
+
+
+
+
+
+
+
+Top UE scientists are constantly researching the Voinian neutron technology - yet the secret still eludes them. If ever it is discovered, the use of such weapons will probably be limited to military vessels.
+
+The Voinian rocket launcher is a much simpler weapon, and has long been in use by UE vessels. Rockets can be tricky to aim, especially against smaller targets, so they are generally used only by more manoeuvrable vessels, and are often saved for use against larger targets. Fighter pilots especially should be wary of being caught in the blast of their own rocket - an occurence which almost always cripples the little vessels.
+
+All graduates should be aware that Voinian capital ships now carry forward firing rocket turrets - staying out from immediately in front of them will not guarantee your safety, these weapons can target you anywhere in the vessel's 90° forward fire arc. UE command has no plans to copy this rocket turret considering it 'an inefficient use of resources'. Aside from neutrons, UE weapon designers are concentrating their efforts on more efficient guided weapons and anti-armour weapons.
+
+Hunter missiles are a vital weapon against the Voinians, as they allow UE ships to inflict damage while staying out of range of the enemy. Battles are rarely won with these weapons alone however, as even a full load of missiles is rarely enough to stop a Voinian capital ship. The sensitive guidance system of hunter missiles is easily distracted by even light sensor interference however, so these weapons should not be relied upon solely in such areas.
+ 
+
+
+
+
+
+
+
+
+Recent rumours of a new guided weapon in use by renegade ships are unsubstantiated - but there are reports of missiles being used to great effect in the high interference systems around Huron. Extra caution is advised in dealing with any renegade vessel suspected of being armed with such weapons.
+
+Amongst the items of the treaty of Dogovor was an agreement by both sides to abandon use of space mines - and this has for the most part been abided by. Various renegade factions have been known to make use of them however. A single space mine is enough to destroy or disable all but the toughest vessels so be extremely careful around these devices.
+
+Foes
+Rumours of more remote aliens will be dealt with in the second part of the manual, there are two foes near at hand whom you are likely to encounter - the Voinians and the Renegades. Tactics against each of these will be considered in turn, starting with the Voinians.
+
+The Voinians
+
+All Voinian ships, even Supply Ships and Fighters, are capable of inflicting heavy damage upon targets which enter and remain at short range with them. The secret then, is to stay out of close range as much as possible and, when short range weapons must be used, to move in and past on rapid attack runs. The Voinian's main weapons - rockets and neutrons - are slow-moving, so even ships as large as the UE Destroyer should be able to evade damage to some degree.
+
+It is highly inadvisable to engage Voinian ships when alone - one careless or unlucky attack pass, or an unfortunate rocket hit can result in a very sudden change in the state of the combat. Additionally it is hard for sensors to determine the extent of damage to Voinian armour - it is often impossible to tell whether a Voinian vessel is almost disabled or has only taken minor damage.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                  This is about as friendly as Voinian frigates get.
+
+
+One further useful note - the rockets used by Voinian fighters are still exactly the same calibre as those used by UE ships, so disabled Voinian fighters can be a good source of ammunition in the midst of battle.
+
+
+Renegades
+
+According to substantiated reports, renegade vessels are armed only with blaze weapons. However, as previously mentioned, rumours abound of some new guided weapon in use by them. Captains are likely to come across renegade craft in two different circumstances. Firstly if trying to get cargo safely past them and secondly if deliberately hunting them.
+
+In the first case the most dangerous craft is the Krait fighter, as no trading vessel is capable of outrunning it, and its speed also makes it hard for most such vessels to get to grips with it. The Helian is less threatening in this instance - it is easier to avoid and target, though tougher. In fact the Helian itself is often used as a trading vessel.
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                     Militia and renegadeKrait  class fighters clash.
+
+The Turncoat, a much larger, slower vessel, is not a great threat to traders on its own, being very easy to avoid. However each carries three Krait fighters, and this in addition to its own armament can make the Turncoat a threat even to entire trader convoys.
+
+Captains who deliberately invite confrontation with renegades are advised to caution. Though Kraits are destroyed quite easily, unless outmanoeuvred (a difficult proposition even for a UE Fighter) they will almost invariably cause some damage before their destruction. Helians can often be dealt with without cost if handled carefully, but in numbers they too will cause difficulty.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                Scoutship moves to protect defenseless frieghter from renegade attackers
+
+Turncoats should be avoided totally except by UE warships. A UE Destroyer should be able to destroy two or three Turncoats without extreme risk, and a Carrier one or two more, if Fighters are used well and the Turncoats are only engaged at short range one at a time by the Carrier. Smaller vessels will, however, almost invariably be the Turncoat's inferior. UE Fighters, especially in groups, are capable of defeating them, but casualties are common.
+
+Captains should be aware that the vessels used by renegades are not only in use by such groups. Krait fighters and Helians are in use by independent militia forces, Helians are often flown by traders, and a few bounty hunters even command Turncoats. Be careful to check the suspected ship's transponder signal carefully before opening fire.
+
+
+  
+
+
+

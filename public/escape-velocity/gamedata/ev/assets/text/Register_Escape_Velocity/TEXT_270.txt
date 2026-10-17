@@ -1,0 +1,2 @@
+How would you like to pay for ^0?
+Please choose the payment method you would like to use to pay for ^0.  If you choose to pay via credit card, please double-check that you enter your credit card information correctly so we can process your order with alacrity.  Click on the right arrow to continue.

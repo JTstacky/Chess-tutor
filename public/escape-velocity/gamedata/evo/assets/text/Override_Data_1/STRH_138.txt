@@ -1,0 +1,11 @@
+1	Harmless
+2	Mostly Harmless
+3	Fair
+4	Average
+5	Above Average
+6	Competent
+7	Noteworthy
+8	Excellent
+9	Dangerous
+10	Deadly
+11	Ultimate

@@ -1,0 +1,10 @@
+1	*
+2	*
+3	*
+4	*
+5	*
+6	Race you to North Tip station and back!
+7	Race you to South Tip station and back!
+8	Igadzra! Pah! They can't keep up with us!
+9	Zidagar! Bah! Just stay out from in front of 'em.
+10	Pay a visit to Veltes. Best engineers in the galaxy.

@@ -1,0 +1,54 @@
+1	laser cannons
+2	neutron blasters
+3	proton cannons
+4	torpedo launchers
+5	torpedoes
+6	missile racks
+7	missiles
+8	cargo pods
+9	laser turrets
+10	proton turrets
+11	Hawk fighter bays
+12	Hawk fighters
+13	mass expansions
+14	patrol ships
+15	Mantas
+16	Lightnings
+17	mass drivers
+18	shield capacitors
+19	shield boosters
+20	layers of armaplast
+21	layers of durasteel
+22	layers of tritanium
+23	thrust enhancements
+24	engine upgrades
+25	RCS upgrades
+26	external fuel tanks
+27	escape pods
+28	density scanners
+29	IFF decoders
+30	afterburners
+31	missile jammers
+32	rocket launchers
+33	heavy rockets
+34	bomb racks
+35	space bombs
+36	javelin pods
+37	javelin rockets
+38	regional maps
+39	particle beams
+40	cloaking devices
+41	Meizner ramscoops
+42	auto-refuellers
+43	Lightning bays
+44	rear laser turrets
+45	swivel laser cannons
+46	tractor beams
+47	flare launchers
+48	decoy flares
+49	forklifts
+50	patrol ship bays
+51	Manta bays
+52	gunboat bays
+53	sets of fake ID papers
+54	auto-eject systems

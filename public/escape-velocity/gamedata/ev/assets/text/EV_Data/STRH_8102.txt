@@ -1,0 +1,5 @@
+1	The brave actions of a mercenary captain have helped the Confederation military retreive a stolen weapon prototype.
+2	The Rebellion, with the help of a mercenary captain, has recently stolen sensitive shipbuilding data from the Confederation Navy.
+3	The Confederation Navy and a heroic mercenary captain recently managed to destroy a rogue alien ship left over from the Great War.
+4	The Rebellion and a heroic mercenary captain recently managed to destroy a rogue alien ship left over from the Great War.
+5	A dogged mercenary captain has uncovered the link between the Confederation, Astex Mining Industries, and an illegal dumping operation on Diphidia II.

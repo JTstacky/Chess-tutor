@@ -1,0 +1,64 @@
+1	Shuttle
+2	Freighter
+3	Freighter
+4	Courier
+5	Freighter
+6	Frigate
+7	Cruiser
+8	Fighter
+9	Fighter
+10	Fighter
+11	Fighter
+12	Transport
+13	Liner
+14	Destroyer
+15	Cruiser
+16	Kestrel
+17	Fighter
+18	Scoutship
+19	Corvette
+20	Fighter
+21	Fighter
+22	Fighter
+23	Cruiser
+24	Clipper
+25	Kestrel
+26	Carrier
+27	
+28	
+29	
+30	
+31	
+32	
+33	
+34	
+35	
+36	
+37	
+38	
+39	
+40	
+41	
+42	
+43	
+44	
+45	
+46	
+47	
+48	
+49	
+50	
+51	
+52	
+53	
+54	
+55	
+56	
+57	
+58	
+59	
+60	
+61	
+62	
+63	
+64	Escape Pod

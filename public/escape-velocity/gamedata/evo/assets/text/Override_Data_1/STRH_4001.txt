@@ -1,0 +1,32 @@
+1	food
+2	industrial goods
+3	medical supplies
+4	luxury goods
+5	metal
+6	equipment
+7	passengers
+8	defector
+9	scoutship pilot
+10	Saalian brandy
+11	UE agent
+12	ship description
+13	Anna Balashova
+14	orders
+15	documents
+16	renegade captain
+17	Admiral McPherson
+18	message
+19	ambassador
+20	marines
+21	probe
+22	fuzzes
+23	<classified>
+24	soil sample
+25	scientists, etc.
+26	sensor readings
+27	Munb leaves
+28	aligned crystals
+29	chemical weapons
+30	purple river eels
+31	colonists
+32	writ

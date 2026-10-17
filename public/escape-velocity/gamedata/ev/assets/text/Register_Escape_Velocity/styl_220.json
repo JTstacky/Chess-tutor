@@ -1,0 +1,379 @@
+[
+ {
+  "start": 0,
+  "height": 16,
+  "ascent": 12,
+  "font": 16383,
+  "face": 32,
+  "size": 12,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 15,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 271,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 2,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 290,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 400,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 415,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 453,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 463,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 473,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 478,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 490,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 493,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 513,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 516,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 564,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 575,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 617,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 619,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 625,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 633,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 718,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 726,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 750,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 776,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 796,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 821,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 825,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 832,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 0,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "start": 862,
+  "height": 12,
+  "ascent": 10,
+  "font": 3,
+  "face": 1,
+  "size": 9,
+  "color": [
+   0,
+   0,
+   0
+  ]
+ }
+]

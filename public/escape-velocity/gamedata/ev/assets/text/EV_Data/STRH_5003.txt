@@ -1,0 +1,20 @@
+1	Somebody help us! We’re under attack!
+2	We’re under attack! Someone help us!
+3	We’re being attacked! Someone please help us!
+4	We’re being attacked! Someone please assist us!
+5	Our ship is under attack - somebody please help!
+6	Our ship is under attack - anyone, please assist!
+7	Our ship is under attack - anyone, please respond!
+8	Mayday, Mayday! We’re under attack! Requesting immediate assistance!
+9	We’re under attack! Anyone who can hear me, please assist us!
+10	We’re under attack! Anyone who can hear me, please lend assistance!
+11	We’re under attack! Anyone who can hear me, please assist us!
+12	Mayday, Mayday! We’re under attack! Requesting immediate assistance!
+13	Our ship is under attack - anyone, please assist!
+14	We’re being attacked! Someone please assist us!
+15	Our ship is under attack - anyone, please assist!
+16	Somebody help us! We’re under attack!
+17	Our ship is under attack - anyone, please assist!
+18	Our ship is under attack - anyone, please respond!
+19	We’re being attacked! Someone please help us!
+20	Our ship is under attack - anyone, please assist!

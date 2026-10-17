@@ -1,0 +1,64 @@
+1	Rendelli StarDrive 805R cargo shuttle
+2	Allied Shipyards AS129 light freighter
+3	Allied Shipyards AS1300 bulk freighter
+4	Metroworks V7 courier
+5	CDX Starworks Argosy
+6	Terran Naval Yards FF-4237 frigate
+7	Terran Naval Yards CR-1095 heavy cruiser
+8	Terran Naval Yards P-361 patrol fighter
+9	CDX Starworks F/A-927E Rapier attack fighter
+10	Blazitron Industries F-563 Lightning fighter-bomber
+11	CDX Starworks I-287B Defender
+12	Krydanti Systems Mk. VI executive transport
+13	Centauri Spacelines luxury liner
+14	Rebel Destroyer
+15	Rebel Cruiser
+16	Atinoda Kestrel escort frigate
+17	Astrotech Space Industries Model 37B Manta light fighter
+18	Krydanti Systems Mk. XVII scoutship
+19	Maskirovka IPV-1 Corvette
+20	Terran Naval Yards G-564 missile gunboat
+21	Mastech F-5 Hawk light fighter
+22	alien fighter
+23	alien cruiser
+24	Aerostar C-35 Star Clipper Mk. IV
+25	Atinoda Kestrel escort frigate
+26	Rebel Escort Carrier
+27	
+28	
+29	
+30	
+31	
+32	
+33	
+34	
+35	
+36	
+37	
+38	
+39	
+40	
+41	
+42	
+43	
+44	
+45	
+46	
+47	
+48	
+49	
+50	
+51	
+52	
+53	
+54	
+55	
+56	
+57	
+58	
+59	
+60	
+61	
+62	
+63	
+64	escape pod

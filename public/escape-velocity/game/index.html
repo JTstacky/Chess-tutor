@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Escape Velocity</title>
+<style>
+  :root { --bg: #000; --bar: 0px; }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  body { display: flex; flex-direction: column; align-items: center; }
+  #controls {
+    width: 100%; box-sizing: border-box; padding: 4px 32px 4px 10px; position: relative;
+    background: #021; border-bottom: 1px solid #0a4; color: #8f8; font: 12px/1.5 Geneva, Verdana, sans-serif;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px;
+  }
+  #controls b { color: #fff; font-weight: normal; background: #133; border: 1px solid #286; border-radius: 3px; padding: 0 4px; }
+  #controls button { position: absolute; right: 6px; top: 3px; background: none; border: 0; color: #8f8; font-size: 16px; cursor: pointer; }
+  #show { position: fixed; top: 4px; right: 6px; z-index: 1; background: #021; color: #8f8; border: 1px solid #0a4; border-radius: 3px; font: 12px Geneva, Verdana, sans-serif; cursor: pointer; display: none; }
+  #credits { position: fixed; inset: 0; z-index: 3; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.7); }
+  #credits > div { max-width: min(92vw, 560px); max-height: 88vh; overflow-y: auto; box-sizing: border-box; padding: 14px 18px; background: #021; border: 1px solid #0a4;
+    border-radius: 6px; color: #cfc; font: 13px/1.5 Geneva, Verdana, sans-serif; }
+  #credits h2 { margin: 0 0 6px; font-size: 15px; color: #fff; } #credits p { margin: 0 0 8px; } #credits b { color: #fff; }
+  #credits button { margin-top: 4px; min-height: 36px; padding: 0 18px; background: #133; color: #dfd; border: 1px solid #286; border-radius: 4px; font: inherit; cursor: pointer; }
+  main { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  canvas {
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    width: min(100vw, calc((100vh - var(--bar)) * 4 / 3)); height: min(calc(100vh - var(--bar)), calc(100vw * 3 / 4));
+    background: #000; touch-action: none; outline: none;
+  }
+</style>
+</head>
+<body>
+<input id="kbd" autocomplete="off" autocapitalize="words" maxlength="24" aria-label="Pilot name" style="position:fixed;left:-1000px;top:0;opacity:0">
+<div id="controls">
+  <span><b>&uarr;</b> thrust</span><span><b>&larr;</b><b>&rarr;</b> turn</span><span><b>&darr;</b> reverse</span>
+  <span><b>Space</b> fire</span><span><b>Shift</b> secondary</span><span><b>W</b> pick secondary</span><span><b>S</b> safety</span><span><b>Z</b> afterburner</span>
+  <span><b>Tab</b> next target</span><span><b>R</b> nearest target</span><span><b>A</b> autopilot</span>
+  <span><b>L</b> land</span><span><b>1-4</b> select stellar</span><span><b>H</b> hyperspace mode</span><span><b>&#92;</b> next system</span><span><b>J</b> jump</span><span><b>~</b> nav off</span><span><b>M</b> map</span>
+  <span><b>Y</b> hail</span><span><b>B</b> board</span><span><b>U</b> cloak</span><span><b>Ctrl</b>+<b>K</b> jettison</span>
+  <span><b>P</b> player info</span><span><b>I</b> missions</span><span><b>F</b>/<b>C</b>/<b>V</b> escorts attack/formation/hold</span>
+  <span><b>Ctrl</b>+<b>E</b> eject</span><span><b>Ctrl</b>+<b>D</b> self-destruct</span><span><b>Esc</b> pause</span><span>(keys: Preferences)</span><span>art: <b id="art" role="button" tabindex="0" style="cursor:pointer" title="Switch between the AI-upscaled pictures and the original ones">HD</b></span><span><b id="creditsLink" role="button" tabindex="0" style="cursor:pointer">credits</b></span>
+  <button id="hide" title="Hide controls" aria-label="Hide controls">&times;</button>
+</div>
+<button id="show">Controls</button>
+<div id="credits" role="dialog" aria-label="Credits"><div>
+  <h2>Escape Velocity and Escape Velocity: Override</h2>
+  <p><b>Escape Velocity</b> (1996) by <b>Matt Burch</b>. &copy; 1996 Ambrosia Software, Inc.</p>
+  <p><b>Escape Velocity: Override</b> (1998) by <b>Matt Burch</b>, scenario design by <b>Peter Cartwright</b>. &copy; 1996-2000 Ambrosia Software, Inc.</p>
+  <p>Art by Matt Burch, Chris West, Peter Cartwright, Mark W. Lewis, Steve Kody and Adam Burch. Music by Killer Tracks &amp; Ambrosia Labs.
+    The full credits are in each game's About box on the title screen.</p>
+  <p>The games were released under an open licence. This browser recreation is an unofficial fan project, not affiliated with Ambrosia Software
+    or the original authors. The HD pictures are optional AI upscales of the original art. Fonts: Geneva 9 by Kelsey Higham (CC BY 3.0) and stand-ins
+    based on the Liberation fonts (SIL OFL 1.1). Full list: <a href="CREDITS.md" style="color:#8f8">CREDITS.md</a>.</p>
+  <button id="creditsClose">Close</button>
+</div></div>
+<main><canvas id="screen" width="640" height="480" tabindex="0"></canvas></main>
+<script>
+  // Control list above the game; the canvas shrinks to fit under it. Hidden state is remembered.
+  (() => {
+    const bar = document.getElementById('controls'), show = document.getElementById('show');
+    const fit = () => document.documentElement.style.setProperty('--bar', bar.style.display === 'none' ? '0px' : bar.offsetHeight + 'px');
+    const set = (on, keep = true) => { bar.style.display = on ? '' : 'none'; show.style.display = on ? 'none' : 'block'; if (keep) try { localStorage.setItem('evonline.controls', on ? '1' : '0'); } catch { } fit(); document.getElementById('screen').focus(); };
+    document.getElementById('hide').onclick = () => set(false); show.onclick = () => set(true);
+    // The key list starts hidden on touch screens (game/touch.js draws on-screen controls there).
+    let on = !matchMedia('(pointer: coarse)').matches; try { const v = localStorage.getItem('evonline.controls'); if (v !== null) on = v !== '0'; } catch { }
+    set(on, false); addEventListener('resize', fit);
+    const cr = document.getElementById('credits');
+    window.evCredits = on => { cr.style.display = on ? 'flex' : 'none'; };
+    document.getElementById('creditsLink').onclick = () => evCredits(true);
+    document.getElementById('creditsClose').onclick = () => { evCredits(false); document.getElementById('screen').focus(); };
+    cr.onclick = e => { if (e.target === cr) evCredits(false); };
+  })();
+</script>
+<script type="module" src="game/main.js"></script>
+</body>
+</html>

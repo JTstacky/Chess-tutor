@@ -1,0 +1,12 @@
+1	Local News: New Taranto barman gets funding to finish building his bar.
+2	D'Erlon strikes again - Battle at Vorik - News from the frontline at 2300.
+3	Bizarre News: Freighter captain reports seeing 'weird half-saucer ships' north of Saalia. Local brandy blamed.
+4	Top News: Planetoid prices fall again. Ganymede sold to Stellar Corp for 15,000 credits.
+5	Environmental News: Radical eco-group predicts galactic catastrophe will result from interstellar travel.
+6	Unidentified vessels spotted along eastern frontier. UE authorities claim they are new experimental craft.
+7	Top News: The Nadir raids Huron again. Bounty raised to 2 million credits.
+8	Financial News: Bank of Earth announces plans for a universal currency by the end of the century.
+9	Business News: Stellar Corp. buys up yet another old Earth corporation.
+10	Environmental News: Biologists estimate that there are now less than a tenth as many species on Earth as three hundred years ago.
+11	Local News: Sol Commander Jackson reports the asteroid belt has now been cleared of mines from the Battle of Sol.
+12	2000 - Admiral McPherson addresses the UE Federation, followed at 2030 by the UE President.

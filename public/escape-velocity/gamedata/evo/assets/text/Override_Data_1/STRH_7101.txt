@@ -1,0 +1,34 @@
+1	<OSN>: Greetings, <PSN>.
+2	<OSN>: Ahoy, <PSN>.
+3	<OSN>: Death to the Voinians!
+4	<OSN>: Down with the Voinians!
+5	<OSN>: You are making a terrible mistake.
+6	<OSN>: Prepare to die, foolish human!
+7	<OSN>: This time we shall destroy you, puny human!
+8	<OSN>: Prepare to die, <PN>!
+9	<OSN>: <PSN>, I’ve got a job for you. If you’re interested, hail me.
+10	Derelict vessel: This is an emergency distress call. We’ve been disabled by renegades and need immediate assistance ... Any ship please respond ...
+11	<OSN>: <PSN>, I’ve got some extra cargo I need delivered ... hail me if you’re interested.
+12	<OSN>: This time you die, <PN>!
+13	<OSN>: Free Liadon!
+14	<OSN>: <PN>, I have serious news. Hail me.
+15	<OSN>: Greetings fellow Zacha.
+16	<OSN>: I'll scatter you across the stars, you cowardly crassworm!
+17	<OSN>: Meet my latest inventions, <PSN>!
+18	<OSN>: Please understand that this isn't personal … I attack everyone!
+19	<OSN>: Go Support UE Search and Rescuse, Get LOST!
+20	<OSN>: Out of my way, dammit! My fries are getting cold!
+21	<OSN>: Do you know when the universe will close?
+22	<OSN>: AARGH!!!! My coffee machine has broken!
+23	<OSN>: Greetings from the Rocinante!
+24	<OSN>: Beware of the Voinians!
+25	<OSN>: All truisms are correct - except for this one.
+26	<OSN>: The only good Voinian is a dead Voinian.
+27	<OSN>: I shall unleash my Lemonious Funk upon thee!
+28	<OSN>: And yea, there was such a clamour that many space captains were roused from their sleep.
+29	<OSN>: I am the Barbarian Accountant! I am tougher than the IRS. Prepare to be boarded and audited.
+30	<OSN>: Prepare to be boarded, ye scurvy dogs!
+31	<OSN>: Isn't life insanely great?
+32	<OSN>: Just try it.
+33	<OSN>: Life is a great sunrise. I do not see why death should not be an even greater one.
+34	<OSN>: The Disco Bison LUVS disco music.

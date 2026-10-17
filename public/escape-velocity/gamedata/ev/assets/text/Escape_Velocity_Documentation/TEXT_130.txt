@@ -1,0 +1,74 @@
+
+Introduction
+___________________________________
+Welcome to the world of Escape Velocity
+
+
+My name is Robert Jaansen, but everybody calls me Scumdog. It’s a nickname I picked up plying the trade routes across the pirate-infested combat zones between… ah, but I’m getting ahead of myself. I still have a few hours before my backup life support system gives out completely, so I can indulge in a bit of melodramatic exposition. That is, if the power cell in this recorder doesn’t run out first...
+
+Ahem. I guess I’ll start at the beginning. I grew up on an agricultural plantation on Deneb III, and I thought that being a farmer was going to be my one and only career. Then, when I was only nineteen, the Great War came and changed everything. My friends and I, doing our duty to protect the planet of our birth, went down to the recruiting station and signed up. When the Deneb III militia — and all the local militias of all the planets mankind had colonized — was absorbed into the newly-formed Confederation the next month, we all became privates in the Confederation military. Most of my friends were picked for the Confed Marines, while I was selected for fighter school — probably because of my reflexes. They all made fun of me because they thought I was going to miss out on all the action. I guess they were right — I never saw them again, and three months later I heard that their entire company had been wiped out when the ground assault against the alien refueling base on New Washington had walked right into an ambush.
+
+In the early years of the War, I was assigned to fly an F-37 Manta light fighter — one that had been requisitioned from some planet’s militia forces, I’ll bet — for the 93rd Fighter Wing, on patrol around the perimeter of the Core Worlds. This was before the Confederation Navy really had any ships that were up to par with their alien counterparts, you understand, so what were mostly rear-guard patrols at first for me rapidly turned into last-ditch front-line defenses of the Core Worlds, as those damned aliens moved closer and closer to the heart of our little sphere of inhabited systems. It was only when we were able to bring our new series of warships into full production that we were finally able to turn the tide.
+
+After I punched out of my Manta during the Battle of Sirius, I was given a medal and transferred to the 357th Fighter Wing, flying one of the new Confed patrol ships from the heavy cruiser U.S.S. Saratoga. We kicked alien ass all the way back to the fringe worlds during my tour on the Saratoga, and when the War ended I had over fifty kills to my name.
+
+It was after the end of the War that I decided I’d had enough of military life, and signed up as first mate of the civilian ore freighter Loadstar. I saw the galaxy while serving aboard that ship, and learned everything I could about the life of a merchant captain. I learned so much, in fact, that when I had finally saved up a substantial pile of credits I decided to invest it in a ship of my own. And that’s where things started to get really interesting...
+
+Welcome
+Welcome to Escape Velocity! This document will guide you through the basics of playing the game. After reading through it, you should have enough information to go out and conquer the galaxy — after some practice, of course.
+
+Note: Most of the controls in Escape Velocity can be changed to other keys than the ones presented here. These instructions will refer to the default key setup to avoid confusion:
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This dialog can be brought up by clicking on the Preferences… panel on EV’s main screen.  To change a key, simply click on the box next to the command so it is hilited and press the key you’d like to use for that command.  Clicking on the Game Speed… button brings up a dialog box that allows you to set the relative speed of the real-time action in Escape Velocity:
+
+ 
+
+
+
+
+
+
+
+
+
+Note: The Caps Lock key causes time in Escape Velocity to speed up by a factor of 2.  This can be useful if you want to get somewhere in a hurry, or if you're running Escape Velocity on a slower Macintosh.
+
+
+  
+
+
+

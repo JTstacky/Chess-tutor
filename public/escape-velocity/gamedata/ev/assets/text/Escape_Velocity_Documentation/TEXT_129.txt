@@ -1,0 +1,76 @@
+
+Table of Contents
+___________________________________
+Click on the blue “Go To” button to jump to a chapter.
+
+Chapter 1 - Welcome to Escape Velocity
+
+               • Welcome Escape Velocity 
+               • About this Manual
+               • Navigating this Document
+
+Chapter 2 - Table of Contents
+
+               • You are here!
+
+Chapter 3 - Introduction
+
+                 • Captain Scumdog             
+               • Introduction
+               • Default Key Setup
+
+Chapter 4 - Escape Velocity Basics
+
+                 • Flight Controls
+               • Landing
+               • Commodity Exchange
+
+Chapter 5 - Exploring
+
+                 • Communication
+               • Player and Starship information
+               • Hyperspacing
+
+Chapter 6 - Nuts and Bolts
+
+                 • Refueling
+               • Advanced Navigation
+               • Basic Missions
+               • Upgrades
+
+Chapter 7 - Into the Maelstrom
+
+                 • Combat
+               • Escape Pods
+               • Buying New Ships
+               • Advanced Missions
+               • Escorts and Fighters
+
+Chapter 8 - Down and Dirty
+                • Plundering Ships
+                 • Bribery
+                 • Dominating Planets
+
+Chapter 9 - Epilogue
+
+                 • Captain Scumdog's Refrain
+
+
+
+Chapter 10 - Troubleshooting
+
+            • Common problems explained
+
+
+
+Chapter 11 - Registration and Contact Info.
+
+                 • Shareware?
+               • Why should I register (pay for) Escape Velocity?
+               • Registering your copy of Escape Velocity
+               • About Ambrosia Software, Inc.
+               • Contact Information
+
+  
+
+

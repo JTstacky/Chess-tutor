@@ -1,0 +1,10 @@
+1	*
+2	*
+3	*
+4	*
+5	*
+6	Take care! This area is plagued by renegades!
+7	Good morning.
+8	Be careful. Renegades become ever more numerous deep in the asteroid belt.
+9	*
+10	*

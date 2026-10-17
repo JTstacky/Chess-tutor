@@ -1,0 +1,47 @@
+1	Shuttle
+2	Freighter
+3	UE Fighter
+4	UE Destroyer
+5	UE Carrier
+6	Supply Ship
+7	Voinian Fighter
+8	Voinian Frigate
+9	Voinian Cruiser
+10	Scoutship
+11	Freight-courier
+12	Voinian Dreadnought
+13	Voinian Interceptor
+14	Krait
+15	Turncoat
+16	Helian
+17	UE Cruiser
+18	The Nadir
+19	Miranu Courier
+20	Miranu Freighter
+21	Miranu H. Freighter
+22	Crescent Fighter
+23	Arada
+24	Crescent Warship
+25	Zidara
+26	Azdara
+27	Igazra
+28	Azdgari Warship
+29	Renegade Arada
+30	Azdgari Arada
+31	Zidagar Fighter
+32	Emalgha Fighter
+33	Emalgha Freighter
+34	Emalgha Warship
+35	Miranu Gunship
+36	Merchant Arada
+37	Igadzra Arada
+38	Zachit Arada
+39	Zachit Fighter
+40	Strange Asteroid
+41	Prototype Azdara
+42	Enhanced Azdara
+43	Enhanced Arada
+44	Turncoat
+45	Igazra
+46	Lazira
+47	Courier

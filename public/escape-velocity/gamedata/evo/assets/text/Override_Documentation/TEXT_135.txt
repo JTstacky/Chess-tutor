@@ -1,0 +1,78 @@
+
+Down and Dirty
+___________________________________
+Giving in to the dark side
+
+
+Plundering Ships
+If you manage to disable an opponent’s ship, you can board and plunder it for your own personal gain. (you are also sometimes required to board a disabled ship as part of a mission) To board a ship, you must first disable it, and then you must maneuver your ship so you are above the other, pointing roughly the same direction as the enemy, and moving at roughly the same velocity. When you’ve achieved all this, hit B to board the other ship.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+When you’ve successfully boarded a ship, the following dialog box will appear:
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+The top portion of the plunder dialog displays how much cargo, credits, ammo, and fuel is on board your opponent’s ship, along with the odds of capturing it. (see below) At any time, you can hit the Abort button to close the dialog and disengage your airlock from the target ship. The Cargo, Credits, Ammo, and Fuel buttons, when clicked on, will instruct your crew to take things from the target ship.
+
+Every ship is equipped with a security self-destruct mechanism, to prevent them from being boarded or captured by enemies. Every time you take something from the target ship, you increase your chances of setting off the self-destruct and detonating the ship.
+
+When you click on the Capture Ship button, your ship’s crew will attempt to overpower the target ship’s crew and take over the ship. If you have any large warships in your fleet, some of their crew members will assist in the capture operation as well. If you are successful in capturing the ship, you will have the option of assigning to your fleet of escorts, or using it as your own ship. Unlike hired escorts, captured escorts don’t have to be paid.
+
+Bribery
+Some planets and space stations in the Override universe just won’t let you visit them — either you’ve done something to annoy them, or you aren’t considered worthy of being given landing clearance. Either way, sometimes a little monetary persuasion can help you get where you want to go. To offer a spaceport a bribe, you first have to communicate with its traffic-control facility. To do this, make sure you have a planet or station selected, but with no ship selected, and hit Y.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Clicking on the Offer Bribe button will attempt to offer the spaceport officials a bribe. If they are willing to take your credits, you can sometimes negotiate a smaller fee. If they are unwilling to take a bribe and tell you to leave, you can sometimes still land. Just try again on a different day — maybe a different officer will be on duty.
+
+Dominating Planets
+If you’re feeling really evil, you might want to try to dominate a planet in order to collect tribute from its frightened inhabitants. To attempt this, all you have to do is hail the planet and click on the Demand Tribute button. If you’re only a weakling space jockey, unknown in the galaxy, the planet will probably just laugh at you and tell you to get lost.
+
+ 
+
+
+
+However, if you’ve built up a reputation for evil deeds, the planet will send out its defense fleet to do battle with you. Wave after wave of defense ships will attempt to destroy you. Generally, the more advanced the planet, the bigger and tougher the defense fleet.
+
+At any rate, once you’ve destroyed a planet’s defense fleet, you can hail the planet again and demand tribute a second time — they will acquiesce and agree to pay you a small fee each day. Beware, though, as you will be a wanted criminal in dozens of systems, due to your nefarious deeds. You can determine exactly how much you’re getting from planetary tribute by looking at the “General” section of the player-info dialog, (hit P) assuming you’ve managed to take over at least one planet.
+
+
+  
+
+
+

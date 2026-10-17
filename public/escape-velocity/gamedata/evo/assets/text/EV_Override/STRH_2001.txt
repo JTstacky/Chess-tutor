@@ -1,0 +1,9 @@
+1	Override Data
+2	Override Graphics
+3	Override Sounds
+4	Override Intro
+5	Override Music 1
+6	Override Music 2
+7	Override Prefs
+8	:Pilots:
+9	Last Pilot
