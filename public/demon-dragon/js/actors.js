@@ -129,7 +129,8 @@
       { name: 'Gilded Sword', tint: 0xffcf5a },
       { name: 'Shadow Blade', tint: 0x5b4a80 },
       { name: 'Greatsword', scale: [1.15, 1.4, 1.15] },
-      { name: 'Battle Axe', from: ['barbarian', '1H_Axe'], scale: [0.8, 0.8, 0.8] },
+      // KayKit's barbarian axe mesh carries his tankard too (the piece whose top is below -0.1).
+      { name: 'Battle Axe', from: ['barbarian', '1H_Axe'], scale: [0.8, 0.8, 0.8], trim: (box) => box.max.y < -0.1 },
     ],
     // Every head but the helm replaces the knight's whole head: a KayKit head (and its hat)
     // from the townsfolk, skinned to the knight's own bones.
@@ -137,9 +138,10 @@
       { name: 'Knight Helm' },
       // A whole round bear's head, built from a few spheres on the head bone.
       { name: 'Bear Head', bear: true, crownY: 0.9 },
-      { name: 'Wizard', head: ['mage', 'Mage_Head'], hat: ['mage', 'Mage_Hat'], crownY: 0.9 },
-      { name: 'Rogue', head: ['rogue', 'Rogue_Head'], crownY: 0.9 },
-      { name: 'Hooded Rogue', head: ['rogue_hooded', 'Rogue_Head_Hooded'], crownY: 0.9 },
+      { name: 'Wizard', head: ['mage', 'Mage_Head'], hat: ['mage', 'Mage_Hat'], drop: 0.45, crownY: 0.75 },
+      { name: 'Rogue', head: ['rogue', 'Rogue_Head'], drop: 0.45, crownY: 0.75 },
+      // Its hood hangs to the knees behind (KayKit's rogue wears it over a cloak): cut below the chin.
+      { name: 'Hooded Rogue', head: ['rogue_hooded', 'Rogue_Head_Hooded'], below: -0.15, drop: 0.45, crownY: 0.75 },
     ],
   };
   const lookParts = (code) => {
@@ -191,12 +193,36 @@
     m.customProgramCacheKey = () => 'knight-palette';
     return m;
   }
+  // A mesh's geometry without the separate pieces (connected parts) that trim(box) picks out.
+  const trimmedGeo = new Map();
+  function withoutParts(geo, trim) {
+    if (!trimmedGeo.has(geo)) {
+      const pos = geo.attributes.position, idx = geo.index;
+      const root = Array.from({ length: pos.count }, (_, i) => i);
+      const find = (i) => (root[i] === i ? i : (root[i] = find(root[i])));
+      const join = (a, b) => { root[find(a)] = find(b); };
+      const at = new Map();
+      for (let i = 0; i < pos.count; i++) {
+        const k = pos.getX(i).toFixed(4) + ',' + pos.getY(i).toFixed(4) + ',' + pos.getZ(i).toFixed(4);
+        if (at.has(k)) join(i, at.get(k)); else at.set(k, i);
+      }
+      for (let t = 0; t < idx.count; t += 3) { join(idx.getX(t), idx.getX(t + 1)); join(idx.getX(t), idx.getX(t + 2)); }
+      const boxes = new Map(), p = new V3();
+      for (let i = 0; i < pos.count; i++) { const r = find(i); if (!boxes.has(r)) boxes.set(r, new THREE.Box3()); boxes.get(r).expandByPoint(p.fromBufferAttribute(pos, i)); }
+      const keep = [];
+      for (let t = 0; t < idx.count; t += 3) if (!trim(boxes.get(find(idx.getX(t))))) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+      const out = geo.clone();
+      out.setIndex(keep);
+      trimmedGeo.set(geo, out);
+    }
+    return trimmedGeo.get(geo);
+  }
   // A prop from another KayKit character, hung on this knight's bone of the same name.
-  function borrow([asset, name], bone) {
+  function borrow([asset, name], bone, trim) {
     const src = A[asset] && A[asset].scene.getObjectByName(name);
     if (!src || !bone) return null;
     const o = prepare(src.clone());
-    o.traverse((x) => { if (x.isMesh) x.material = x.material.clone(); });
+    o.traverse((x) => { if (x.isMesh) { x.material = x.material.clone(); if (trim && x.geometry.index) x.geometry = withoutParts(x.geometry, trim); } });
     bone.add(o);
     return o;
   }
@@ -205,12 +231,19 @@
   // A whole head from a KayKit character. They are weighted to the head bone alone, so the
   // geometry is moved into head-bone space once and shared, and hung on the head as a prop.
   const headGeo = new Map();
-  function borrowHead([asset, name]) {
-    const key = asset + '/' + name;
+  function borrowHead([asset, name], below) {
+    const key = asset + '/' + name + '/' + below;
     if (!headGeo.has(key)) {
       const src = A[asset] && A[asset].scene.getObjectByName(name);
       const i = src && src.isSkinnedMesh ? src.skeleton.bones.findIndex((b) => b.name === 'head') : -1;
-      headGeo.set(key, i < 0 ? null : [src.geometry.clone().applyMatrix4(src.skeleton.boneInverses[i].clone().multiply(src.bindMatrix)), src.material]);
+      const geo = i < 0 ? null : src.geometry.clone().applyMatrix4(src.skeleton.boneInverses[i].clone().multiply(src.bindMatrix));
+      // below: drop triangles reaching under that height (head-bone space), e.g. a hood's long tail.
+      if (geo && below != null) {
+        const y = geo.attributes.position, idx = geo.index, keep = [];
+        for (let t = 0; t < idx.count; t += 3) if (Math.min(y.getY(idx.getX(t)), y.getY(idx.getX(t + 1)), y.getY(idx.getX(t + 2))) >= below) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+        geo.setIndex(keep);
+      }
+      headGeo.set(key, geo && [geo, src.material]);
     }
     const hit = headGeo.get(key);
     return hit && prepare(new THREE.Mesh(hit[0], hit[1]));
@@ -250,20 +283,10 @@
     return g;
   }
   // In head-bone space: the knight's whole head (height, radius) and, narrower and lower, his
-  // steel collar (height, radius) are not drawn; the new head sits HEAD_DROP lower in their place.
+  // steel collar (height, radius) are not drawn; the new head sits lower in their place (its
+  // drop, or HEAD_DROP), low enough that the chin closes the trimmed armour: no collar under it.
   const HEAD_CUT = [-0.05, 1.25, -0.45, 0.95];
   const HEAD_DROP = 0.3;
-  // A leather collar under a person's head closes the trimmed armour (the bear's jaw does that).
-  let neckGeo = null, neckMat = null;
-  function neckPiece() {
-    neckGeo = neckGeo || new THREE.SphereGeometry(1, 16, 10);
-    neckMat = neckMat || G.toon(0x6b4630);
-    const n = new THREE.Mesh(neckGeo, neckMat);
-    n.position.y = -0.45;
-    n.scale.set(0.45, 0.18, 0.42);
-    n.castShadow = true;
-    return n;
-  }
   function dressKnight(model, code, crowned) {
     const L = lookParts(code), pal = KNIGHT_LOOKS.colors[L.c], wpn = KNIGHT_LOOKS.weapons[L.w];
     const pick = KNIGHT_LOOKS.heads[L.h];
@@ -284,7 +307,7 @@
     }
     if (shield && pal.cloth) shield.traverse((x) => { if (x.isMesh) { x.material = x.material.clone(); x.material.color.set(pal.cloth).lerp(new THREE.Color(0xffffff), 0.45); } });
     if (sword && wpn.from) {
-      const w = borrow(wpn.from, sword.parent);
+      const w = borrow(wpn.from, sword.parent, wpn.trim);
       if (w) { sword.visible = false; sword = w; }
     }
     if (sword) {
@@ -294,11 +317,10 @@
     }
     if ((head.head || head.bear) && headBone) {
       const seat = new THREE.Group();
-      seat.position.y = -HEAD_DROP;
+      seat.position.y = -(head.drop || HEAD_DROP);
       headBone.add(seat);
-      const h = head.bear ? bearHead() : borrowHead(head.head);
+      const h = head.bear ? bearHead() : borrowHead(head.head, head.below);
       if (h) seat.add(h);
-      if (!head.bear) headBone.add(neckPiece());
       if (head.hat) borrow(head.hat, seat);
     }
     return sword;

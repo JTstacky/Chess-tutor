@@ -132,13 +132,20 @@
     });
   }
 
-  // Roguelite level-up: three upgrade cards; arrows/stick + A, or a tap, keeps one.
+  // Roguelite level-up: upgrade cards. Only a tap or click on a card keeps one (or a gamepad's
+  // Start on the highlighted card): the move, attack and dodge controls never pick, since level-ups
+  // land mid-fight. Taps in the first moments are ignored too, in case one was meant for a swing.
+  const PERK_GRACE = 500; // ms
   function pickPerk(title, options) {
     return new Promise((resolve) => {
       const box = $('perks');
       box.innerHTML = `<div class="ptitle">${title}</div><div class="pcards"></div>`;
       const cards = box.querySelector('.pcards');
-      const pick = (i) => { Sfx.play('select'); box.classList.remove('on'); dlg = null; resolve(i); };
+      const opened = performance.now();
+      const pick = (i) => {
+        if (performance.now() - opened < PERK_GRACE) return;
+        Sfx.play('select'); box.classList.remove('on'); dlg = null; resolve(i);
+      };
       options.forEach((p, i) => {
         const b = document.createElement('button');
         b.type = 'button';
@@ -148,14 +155,14 @@
         b.addEventListener('click', (e) => { e.stopPropagation(); pick(i); });
         cards.appendChild(b);
       });
-      dlg = { typing: false, choices: true, sel: 0 };
-      dlg.pick = () => pick(dlg.sel);
+      // No card is highlighted until a gamepad or the arrow keys move to one (Start then takes it).
+      dlg = { typing: false, choices: true, sel: -1, tapOnly: true };
+      dlg.pick = () => { if (dlg.sel >= 0) pick(dlg.sel); };
       dlg.move = (step) => {
-        dlg.sel = (dlg.sel + step + options.length) % options.length;
+        dlg.sel = dlg.sel < 0 ? 0 : (dlg.sel + step + options.length) % options.length;
         [...cards.children].forEach((b, i) => b.classList.toggle('sel', i === dlg.sel));
       };
       box.classList.add('on');
-      dlg.move(0);
     });
   }
 
@@ -180,6 +187,7 @@
 
   function advance() {
     if (!dlg) return false;
+    if (dlg.tapOnly) return true; // upgrade cards: only a tap on a card picks
     if (dlg.typing) dlg.finish();
     else if (dlg.choices) dlg.pick();
     else { Sfx.play('select'); dlg.resolve(); }
@@ -375,6 +383,7 @@
       if (dlg.side && (edge(14) || edge(15))) dlg.side(padWas[14] ? -1 : 1);
       else if (dlg.choices && !dlg.typing && (edge(12) || edge(14))) dlg.move(-1);
       else if (dlg.choices && !dlg.typing && (edge(13) || edge(15))) dlg.move(1);
+      else if (dlg.tapOnly) { if (edge(9)) dlg.pick(); }
       else if (edge(0) || edge(1) || edge(2) || edge(3)) advance();
       return;
     }
