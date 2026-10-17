@@ -10,6 +10,9 @@
 // - menu: the rarer commands (jettison, escorts, nav, cloak, self-destruct, art).
 // - tapping a ship on the playfield targets it.
 // - off the flight layer, dragging a finger scrolls lists and text like the mouse wheel.
+// - off the flight layer, the top dialog's buttons (Buy, Sell, Done, Leave...) are repeated as big buttons in the
+//   free strip beside or below the picture, and a tap near a small button on the picture counts as hitting it
+//   (UI.click slop). The original screens themselves are drawn unchanged.
 // The clusters sit in the free space beside (landscape) or below (portrait) the 4:3 game picture when
 // there is room, otherwise over the playfield, never over the status bar.
 import { CMD } from '../engine/input.js';
@@ -41,7 +44,17 @@ const CSS = `
   touch-action: none; }
 #tc .menu button.on { background: #2a6a2a; }
 #tc .menu button.red { background: #411; border-color: #a44; color: #fdd; }
-#tc .menu button.close { grid-column: 1 / -1; background: #021; }
+@media (max-height: 440px) { #tc .menu h3 { display: none; } #tc .menu button { min-height: 40px; } #tc .menu .grid { gap: 6px; padding: 8px; } }
+#tc .menu button.close { grid-column: 1 / -1; background: #021; position: sticky; top: -12px; z-index: 1; }
+#tcdock { position: fixed; z-index: 2; display: none; gap: 8px; box-sizing: border-box; padding: 8px; overflow-y: auto; user-select: none;
+  -webkit-user-select: none; touch-action: manipulation; }
+#tcdock.col { flex-direction: column; justify-content: center; }
+#tcdock.row { flex-wrap: wrap; align-content: center; justify-content: center; }
+#tcdock button { min-height: 46px; padding: 4px 10px; background: #133; color: #efe; border: 1px solid #3a8; border-radius: 6px;
+  font: 600 15px Geneva, Verdana, sans-serif; touch-action: manipulation; }
+#tcdock.row button { flex: 1 1 110px; max-width: 200px; }
+#tcdock button.on { background: #2a6a2a; }
+#tcdock button:disabled { opacity: 0.35; }
 `;
 
 // Right cluster, measured from its bottom-right corner in units of u (x leftwards, y upwards):
@@ -89,6 +102,7 @@ export class Touch {
     this.menu = el('div', 'menu', root);
     this.menu.addEventListener('pointerdown', e => { if (e.target === this.menu) this.closeMenu(); });
     this.bindPad();
+    this.dockEl = el('div', '', document.body); this.dockEl.id = 'tcdock'; this.dockSig = ''; this.dockList = [];
     // The first touch anywhere turns the layer on; a mouse or pen never does.
     addEventListener('pointerdown', e => { if (e.pointerType === 'touch' && !this.active) { this.active = true; this.layout(); } }, true);
     // Off the flight layer (spaceport, dialogs, map) a finger dragged up or down scrolls like the mouse wheel.
@@ -236,7 +250,16 @@ export class Touch {
     const flying = this.active && a.screen?.flight && P && !a.dialogs.length && !a.anim;
     this.root.style.display = flying ? 'block' : 'none';
     const sh = document.getElementById('show'); if (sh && this.active) sh.style.visibility = flying ? 'hidden' : '';   // the key-list button is no use in touch flight
-    if (!flying) { this.holds.clear(); this.stick = null; this.stickEl.style.display = this.knobEl.style.display = 'none'; if (this.menuOpen) this.closeMenu(); return; }
+    if (!flying) {
+      this.holds.clear(); this.stick = null; this.stickEl.style.display = this.knobEl.style.display = 'none'; if (this.menuOpen) this.closeMenu();
+      if (this.active) {
+        const key = `${innerWidth}x${innerHeight}`;
+        if (this.layoutFor?.split(':')[0] !== key) { this.layoutFor = key; this.layout(); }
+      }
+      this.dock();
+      return;
+    }
+    this.dock(true);
     const D = g.data, own = g.pilot.outfits, dying = P.death > 0, paused = a.paused;
     const T = P.target >= 0 ? g.ships[P.target] : null;
     const show = {
@@ -259,6 +282,55 @@ export class Touch {
     this.pad.style.display = paused ? 'none' : 'block';
   }
 
+  // Tap slop for UI.click, in canvas pixels: about 22 screen px at the current scale, at most 16.
+  slop() {
+    const c = this.app.canvas, k = c.getBoundingClientRect().width / c.width || 1;
+    return Math.round(Math.min(16, Math.max(6, 22 / k)));
+  }
+
+  // ---------- big-button panel for shops and dialogs ----------
+  dock(hide = false) {
+    const D = this.dockEl, ui = this.app.ui;
+    const strip = hide || !this.active || !ui ? null : this.dockStrip();
+    const top = strip ? ui.topLayer() : 0;
+    const list = strip ? ui.buttons.filter(b => b.label && b.at > top).sort((a, b) => a.y - b.y || a.x - b.x) : [];
+    if (!list.length) { if (D.style.display !== 'none') { D.style.display = 'none'; this.dockSig = ''; } return; }
+    this.dockList = list;
+    const sig = strip.key + '|' + list.map(b => b.label + (b.enabled ? '' : '~')).join('|');
+    if (sig === this.dockSig) return;
+    this.dockSig = sig;
+    D.className = strip.col ? 'col' : 'row';
+    Object.assign(D.style, { display: 'flex', left: strip.x + 'px', top: strip.y + 'px', width: strip.w + 'px', height: strip.h + 'px' });
+    D.innerHTML = '';
+    list.forEach((b, i) => {
+      const e = el('button', '', D); e.textContent = b.label; e.disabled = !b.enabled;
+      e.addEventListener('pointerdown', ev => { ev.preventDefault(); e.classList.add('on'); this.buzz(); this.app.assets?.unlock(); });
+      const up = ev => {
+        e.classList.remove('on'); if (ev.type !== 'pointerup') return;
+        const cur = this.dockList[i];   // the closures change every frame: take this frame's
+        if (cur && cur.label === b.label && cur.enabled) { cur.onClick?.(); this.app.canvas.focus(); }
+      };
+      e.addEventListener('pointerup', up); e.addEventListener('pointercancel', up); e.addEventListener('pointerleave', () => e.classList.remove('on'));
+    });
+  }
+  // The largest free strip around the game picture, or null when there is none worth using (a tablet's
+  // picture is big enough to tap directly).
+  dockStrip() {
+    const W = innerWidth, H = innerHeight, c = this.app.canvas.getBoundingClientRect();
+    const opts = [
+      { col: true, x: c.right, y: 0, w: W - c.right, h: H },
+      { col: true, x: 0, y: 0, w: c.left, h: H },
+      { col: false, x: 0, y: c.bottom, w: W, h: H - c.bottom },
+      { col: false, x: 0, y: 0, w: W, h: c.top },
+    ].filter(o => o.col ? o.w >= 120 : o.h >= 110);
+    if (!opts.length) return null;
+    const o = opts.sort((a, b) => b.w * b.h - a.w * a.h)[0];
+    if (o.col) o.w = Math.min(o.w, 260), o.x = o.x === 0 ? c.left - o.w : o.x;
+    else o.h = Math.min(o.h, 220), o.y = o.y === 0 ? c.top - o.h : o.y;
+    o.key = [o.x, o.y, o.w, o.h].map(Math.round).join(',');
+    return o;
+  }
+
   // ---------- menu ----------
   openMenu() {
     const a = this.app, g = a.game, P = g.player, D = g.data, own = g.pilot.outfits;
@@ -276,6 +348,7 @@ export class Touch {
       b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
     };
     const cmd = c => () => this.press(c);
+    item('Close ✕', () => { }, { cls: 'close' });   // first and sticky, so it is reachable on a short screen
     head('Navigation');
     item('Next system', () => { if (g.navMode !== 3) this.press(CMD.HYPER_MODE); this.press(CMD.HYPER_SELECT); });
     item('Nearest planet', cmd(CMD.NAV_NEAREST));
@@ -305,7 +378,6 @@ export class Touch {
     if (document.fullscreenEnabled) item(document.fullscreenElement ? 'Leave full screen' : 'Full screen',
       () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.({ navigationUI: 'hide' }).catch(() => { }));
     item('Credits', () => globalThis.evCredits?.(true));
-    item('Close', () => { }, { cls: 'close' });
   }
   closeMenu() { this.menuOpen = false; this.menu.style.display = 'none'; this.menu.innerHTML = ''; for (const [k, c] of this.holds) if (c === CMD.DESTRUCT) this.holds.delete(k); }
 }

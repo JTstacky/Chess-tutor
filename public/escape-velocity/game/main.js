@@ -39,7 +39,7 @@ class App {
     canvas.addEventListener('pointermove', e => { const p = this.toLogical(e); this.ui.mouse.x = p.x; this.ui.mouse.y = p.y; });
     canvas.addEventListener('pointerdown', e => {
       this.assets?.unlock(); const p = this.toLogical(e); this.ui.mouse.x = p.x; this.ui.mouse.y = p.y; this.ui.mouse.down = true;
-      this.ui.click(p.x, p.y);
+      this.ui.click(p.x, p.y, e.pointerType === 'touch' ? this.touch?.slop() ?? 0 : 0);
     });
     canvas.addEventListener('pointerup', e => { if (this.ui) { this.ui.mouse.down = false; const f = this.ui.up; this.ui.up = null; f?.(); } });
     canvas.addEventListener('wheel', e => { if (this.wheel(Math.sign(e.deltaY), this.toLogical(e))) e.preventDefault(); }, { passive: false });

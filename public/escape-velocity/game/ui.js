@@ -12,27 +12,56 @@ export const BTN = {
   BACK_ROOM: 7102, BET_1000: 7104, BET_5000: 7106, USE_AS_ESCORT: 7112, USE_AS_SHIP: 7114, BRIBE_WIDE: 7070,
 };
 
+// The words on each button picture (identical in EV and Override, read off PICT 7000-7118), for the touch
+// button panel (game/touch.js). The arrow and +/- pictures get symbols.
+const BTN_LABEL = {
+  7000: 'Leave', 7002: 'Buy', 7004: 'Sell', 7006: 'Buy Ship', 7008: 'Leave', 7010: 'Done', 7012: 'Done', 7014: 'Leave',
+  7016: 'Refuel Ship', 7018: 'Commodity Exchange', 7020: 'Outfit Ship', 7022: 'Visit Shipyard', 7024: '\u2212', 7026: '+',
+  7028: '\u25B2', 7030: '\u25BC', 7032: 'Mission Computer', 7034: 'End Communication', 7036: 'Greetings', 7038: 'General',
+  7040: 'Request Assistance', 7042: 'Offer Bribe', 7044: 'Cargo', 7046: 'Extras', 7048: 'Beg For Mercy', 7050: 'Accept Mission',
+  7052: 'Cancel', 7054: 'Okay', 7064: 'Hire Escort', 7070: 'Offer Bribe', 7072: 'Select', 7074: 'Cancel', 7076: 'Abort',
+  7078: 'Cargo', 7080: 'Credits', 7082: 'Ammo', 7084: 'Demand Tribute', 7086: 'Fuel', 7088: 'Capture Ship', 7090: 'Spaceport Bar',
+  7092: 'Abort Mission', 7094: 'Gamble', 7096: 'Watch Holo-Vid', 7100: 'Hire An Escort', 7102: 'Back Room', 7104: 'Bet 1000',
+  7106: 'Bet 5000', 7108: 'Yes', 7110: 'No', 7112: 'Use As Escort', 7114: 'Use As My Ship', 7116: 'Info', 7118: 'Clear Route',
+};
+
 export class UI {
-  constructor(assets) { this.assets = assets; this.regions = []; this.mouse = { x: -1, y: -1, down: false }; this.hoverCursor = false; }
-  begin() { this.regions = []; this.hoverCursor = false; }
+  constructor(assets) { this.assets = assets; this.regions = []; this.buttons = []; this.mouse = { x: -1, y: -1, down: false }; this.hoverCursor = false; }
+  // buttons: this frame's labelled buttons in drawing order; "at" is the number of hit regions before each, so
+  // the touch panel can keep only the top layer's (those after the topmost full-screen blocker).
+  begin() { this.regions = []; this.buttons = []; this.hoverCursor = false; }
   hit(x, y, w, h, onClick) {
     this.regions.push({ x, y, w, h, onClick });
     const over = this.mouse.x >= x && this.mouse.x < x + w && this.mouse.y >= y && this.mouse.y < y + h;
     if (over && onClick) this.hoverCursor = true;
     return over;
   }
-  click(x, y) {
-    for (let i = this.regions.length - 1; i >= 0; i--) {
-      const r = this.regions[i];
-      if (x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h) { if (r.onClick) { r.onClick(x - r.x, y - r.y); return true; } return false; }
+  // slop (touch only): when the tap lands on nothing, or only on a full-screen blocker, the nearest clickable
+  // region of the top layer within slop px takes it, so small buttons and arrows are easier to hit with a finger.
+  click(x, y, slop = 0) {
+    let top = -1;
+    for (let i = this.regions.length - 1; i >= 0; i--) { const r = this.regions[i]; if (x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h) { top = i; break; } }
+    const T = this.regions[top];
+    if (slop > 0 && (!T || blocker(T))) {
+      let best = null, bd = slop;
+      for (let i = top + 1; i < this.regions.length; i++) {
+        const r = this.regions[i]; if (!r.onClick || blocker(r)) continue;
+        const dx = Math.max(r.x - x, 0, x - (r.x + r.w - 1)), dy = Math.max(r.y - y, 0, y - (r.y + r.h - 1)), d = Math.hypot(dx, dy);
+        if (d <= bd) { bd = d; best = r; }
+      }
+      if (best) { best.onClick(Math.min(best.w - 1, Math.max(0, x - best.x)), Math.min(best.h - 1, Math.max(0, y - best.y))); return true; }
     }
+    if (T?.onClick) { T.onClick(x - T.x, y - T.y); return true; }
     return false;
   }
+  topLayer() { let b = -1; this.regions.forEach((r, i) => { if (blocker(r)) b = i; }); return b; }
 
   // Original button art: grey normally, green under the mouse; dimmed when disabled.
   button(ctx, id, x, y, onClick, enabled = true) {
     const im = this.assets.pict(id), w = im?.width ?? 120, h = im?.height ?? 25;
-    const over = this.hit(x, y, w, h, enabled ? () => { this.assets.play(600); onClick(); } : null) && enabled;
+    const act = enabled ? () => { this.assets.play(600); onClick(); } : null;
+    this.buttons.push({ label: BTN_LABEL[id] ?? null, x, y, w, h, onClick: act, enabled, at: this.regions.length });
+    const over = this.hit(x, y, w, h, act) && enabled;
     const img = over ? (this.assets.pict(id + 1) ?? im) : im;
     ctx.globalAlpha = enabled ? 1 : 0.35;
     if (img) ctx.drawImage(img, x, y); else { ctx.fillStyle = '#555555'; ctx.fillRect(x, y, w, h); }
@@ -115,6 +144,7 @@ export class UI {
     return r.y + 16 * lines.length;
   }
   macButton(ctx, label, r, onClick, isDefault = false, enabled = true) {
+    this.buttons.push({ label, x: r.x, y: r.y, w: r.w, h: r.h, onClick: enabled ? onClick : null, enabled, at: this.regions.length });
     const over = this.hit(r.x, r.y, r.w, r.h, enabled ? onClick : null);
     const pressed = over && this.mouse.down && enabled;
     const rr = (x, y, w, h, rad, fill, stroke) => {
@@ -149,5 +179,6 @@ export class UI {
     if (caret && !selected) ctx.fillRect(r.x + Math.round(w) + 1, r.y + 1, 1, r.h - 2);
   }
 }
+const blocker = r => r.x <= 0 && r.y <= 0 && r.w >= 640 && r.h >= 480;
 export const MAC_FONT = '12px EVSys, Charcoal, Chicago, Tahoma, sans-serif';
 export { GREEN, DIM, FONT, FONT_SMALL };
