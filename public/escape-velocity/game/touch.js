@@ -16,7 +16,7 @@
 // The clusters sit in the free space beside (landscape) or below (portrait) the 4:3 game picture when
 // there is room, otherwise over the playfield, never over the status bar.
 import { CMD } from '../engine/input.js';
-import { wrap } from '../engine/trig.js';
+import { wrap, bearing } from '../engine/trig.js';
 import { MOD } from '../engine/data.js';
 import { hasOutfit, isDisabled } from '../engine/ships.js';
 import { VIEW_W, VIEW_H, BAR_BLOCK } from './flight.js';
@@ -76,6 +76,9 @@ const WIDE = {
 };
 const WIDE_W = 6.0, WIDE_H = 3.65;
 const TOP = ['menu', 'pause', 'map', 'info', 'msn'];
+// The target button's icon: a crosshair (ring, four ticks, centre dot) in the button's text colour.
+const CROSSHAIR = '<svg viewBox="0 0 24 24" width="62%" height="62%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' +
+  '<circle cx="12" cy="12" r="7"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>';
 
 export class Touch {
   constructor(app) {
@@ -93,7 +96,7 @@ export class Touch {
     def('eject', 'EJECT', { cmd: CMD.EJECT, cls: 'red' });
     def('sec', 'SEC', { held: CMD.FIRE_SECONDARY });
     def('wpn', 'NEXT<br>WPN', { cmd: CMD.SELECT_SECONDARY });
-    def('tgt', 'TGT', { fn: () => this.target() });
+    def('tgt', CROSSHAIR, { fn: () => this.target() }); this.b.tgt.setAttribute('aria-label', 'Target');
     def('ab', 'BURN', { held: CMD.AFTERBURNER });
     def('board', 'BOARD', { cmd: CMD.BOARD });
     def('cloak', 'CLOAK', { cmd: CMD.CLOAK });
@@ -210,16 +213,34 @@ export class Touch {
       if (P && g.targetable(t)) { P.target = t.slot; g.emit({ type: 'sound', id: 150 }); }   // as the target keys (game.closestTarget)
       this.pickSlot = null;
     }
-    if (!P || !s) return;
+    if (!P) return;
+    if ([...this.holds.values()].includes(CMD.REVERSE)) return this.brake(input, P);
+    if (!s) return;
     const dx = s.x - s.ox, dy = s.y - s.oy, m = Math.hypot(dx, dy), r = this.stickR;
     if (m < 0.18 * r) return;
     if (m > 0.55 * r) input.held.add(CMD.ACCELERATE);
-    // AUTO and REV steer by themselves; the stick is then only the throttle
-    if (input.held.has(CMD.AUTOPILOT) || input.held.has(CMD.REVERSE)) return;
+    // AUTO steers by itself; the stick is then only the throttle
+    if (input.held.has(CMD.AUTOPILOT)) return;
     const want = wrap(Math.round(Math.atan2(dx, -dy) * 180 / Math.PI));
     const diff = wrap(want - P.facing), turn = Math.max(1, P.stats.turn);
     if (diff > turn / 2 && diff < 180) input.held.add(CMD.RIGHT);
     else if (diff >= 180 && 360 - diff > turn / 2) input.held.add(CMD.LEFT);
+  }
+  // REV held on the touch screen: the engine's Reverse turns the ship against its drift (as the key does), and
+  // once it points that way this also thrusts, until the ship has all but stopped (under half a step's thrust,
+  // so it never overshoots into drifting the other way). The stick is ignored meanwhile.
+  brake(input, P) {
+    input.held.delete(CMD.ACCELERATE);
+    const st = P.stats, v = Math.hypot(P.vx, P.vy);
+    if (v <= st.accel / 2) return;
+    const back = wrap(bearing(0, 0, 100 * P.vx, 100 * P.vy) + 180), d = wrap(P.facing - back), turn = Math.max(1, st.turn);
+    // Reverse only turns the ship while a velocity component is at least 0.05 (game.js stepPlayer); below that,
+    // turn it with Left/Right, which the engine applies when nothing else is steering
+    if (Math.abs(P.vx) < 0.05 && Math.abs(P.vy) < 0.05) {
+      if (d > turn / 2 && d <= 180) input.held.add(CMD.LEFT);
+      else if (d > 180 && 360 - d > turn / 2) input.held.add(CMD.RIGHT);
+    }
+    if (Math.min(d, 360 - d) <= turn) input.held.add(CMD.ACCELERATE);
   }
 
   // ---------- layout ----------
