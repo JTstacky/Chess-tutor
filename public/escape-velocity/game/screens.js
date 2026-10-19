@@ -383,8 +383,9 @@ export class TradeDialog extends Dialog {
     // aboard (FUN_10063194). Item 1 is the small Leave (PICT 7000), as in the running original (orig-77).
     const canBuy = !!row && (row.c || row.j?.buy) && g.pilot.credits >= row.price && port.cargoCapacity(g) > port.cargoUsed(g);
     const canSell = !!row && row.own > 0 && (row.c || row.j?.sell);
-    if (canBuy) ui.buttonIn(ctx, BTN.BUY, this.r(13), () => this.buy(row, step));
-    if (canSell) ui.buttonIn(ctx, BTN.SELL, this.r(14), () => this.sell(row, step));
+    const rep = { repeat: true }, modern = this.app.modern;
+    if (canBuy) { ui.buttonIn(ctx, BTN.BUY, this.r(13), () => this.buy(row, step), true, rep); if (modern) ui.extra('Buy Max', () => this.buy(row, 1e9)); }
+    if (canSell) { ui.buttonIn(ctx, BTN.SELL, this.r(14), () => this.sell(row, step), true, rep); if (modern) ui.extra('Sell All', () => this.sell(row, 1e9)); }
     ui.buttonIn(ctx, BTN.LEAVE, this.r(1), () => { this.app.save(); this.close(); });
   }
   buy(row, step) { const g = this.game, P = g.data.spob[g.landed]; const r = row.c ? port.buyCommodity(g, P, row.c.i, step) : port.buyJunk(g, P, row.j.j.id, step); this.note = r.msg ?? ''; }
@@ -511,15 +512,16 @@ export class OutfitDialog extends Dialog {
       this.textBox(ctx, ui, 'desc', this.r(6), D.descs[3000 + o.index] ?? '', WHITE, 12, FONT, 10);
     }
     ui.buttonIn(ctx, BTN.LEAVE, this.r(1), () => this.leave());
-    if (buy) ui.buttonIn(ctx, BTN.BUY, this.r(7), () => this.trade(it, true));
-    if (sell) ui.buttonIn(ctx, BTN.SELL, this.r(4), () => this.trade(it, false));
+    const rep = { repeat: true }, modern = this.app.modern;
+    if (buy) { ui.buttonIn(ctx, BTN.BUY, this.r(7), () => this.trade(it, true), true, rep); if (modern) ui.extra('Buy Max', () => this.trade(it, true, 10000)); }
+    if (sell) { ui.buttonIn(ctx, BTN.SELL, this.r(4), () => this.trade(it, false), true, rep); if (modern) ui.extra('Sell All', () => this.trade(it, false, 10000)); }
     if (nav.up) ui.buttonIn(ctx, BTN.UP, this.r(10), () => { this.scroll -= 4; this.sel = null; });
     if (nav.down) ui.buttonIn(ctx, BTN.DOWN, this.r(11), () => { this.scroll += 4; this.sel = null; });
   }
   // 0x10041f60: the purchase repeats (x5 / x10) while ev_outfit_can_buy still allows it
-  trade(it, buying) {
+  trade(it, buying, n = multiple()) {
     const g = this.game, P = g.data.spob[g.landed];
-    for (let i = multiple(); i > 0; i--) {
+    for (let i = n; i > 0; i--) {
       if (buying ? !this.canBuy(it) : !this.canSell(it)) break;
       (buying ? port.buyOutfit : port.sellOutfit)(g, P, it.o.id, this.sp.visit);
     }
@@ -1409,6 +1411,22 @@ export class MapDialog extends Dialog {
     }
     this.sel = hit;
     if (sysLinks(D.syst[g.system]).includes(hit)) { g.navSys = hit; g.route = [hit]; g.navMode = 3; }   // l.22494
+    else if (this.app.modern && hit !== g.system) { const r = this.routeTo(hit); if (r) g.setRoute(r); }
+  }
+  // Modern rules (re-gaps #66): the shortest route to a system further away, by the same hops Shift-click allows
+  // (links in play, never two unexplored systems in a row). Null when there is none.
+  routeTo(dest) {
+    const g = this.game, D = this.data, from = g.system, prev = new Map([[from, -1]]), q = [from];
+    while (q.length) {
+      const a = q.shift(); if (a === dest) break;
+      for (const b of sysLinks(D.syst[a])) {
+        if (prev.has(b) || !this.exists(b) || (a !== from && this.level(a) <= 0 && this.level(b) <= 0)) continue;
+        prev.set(b, a); q.push(b);
+      }
+    }
+    if (!prev.has(dest)) return null;
+    const r = []; for (let x = dest; x !== from; x = prev.get(x)) r.unshift(x);
+    return r;
   }
   drawPanes(ctx) {
     const g = this.game, D = this.data, p = g.pilot, id = this.sel, S = D.syst[id], lv = this.level(id);
@@ -1461,6 +1479,14 @@ export class MapDialog extends Dialog {
       const goods = [0, 1, 2, 3, 4, 5].filter(c => ports.some(P => D.spobFlag(P, SPOB.TRADE) && ((P.Flags >>> (28 - 4 * c)) & 0xf)));
       goods.forEach((c, k) => put(D.str(4000, c), L + 15, T + 168 + 12 * k));
       if (!goods.length) put('None', L + 15, T + 168);
+      // Modern rules (re-gaps #66): the levels and prices last seen at this system's ports, right-aligned
+      // on each good's line, and the day they were seen on the heading's line.
+      const seen = this.app.modern ? ports.map(P => p.prices?.[P.id]).filter(Boolean).sort((a, b) => b.seen - a.seen) : [];
+      if (seen.length) {
+        const rt = (t, y, c = WHITE) => put(t, L + Rp.w - 8 - ctx.measureText(t).width, y, c), n = seen[0].seen;
+        rt(`${Math.trunc(n / 100) % 100}/${n % 100}`, T + 155, MAP.GREY);
+        goods.forEach((c, k) => { const x = seen.find(s => s.c[c])?.c[c]; if (x) rt(`${x[0]} ${x[1]}`, T + 168 + 12 * k, x[0] === 'Low' ? '#66ff66' : x[0] === 'High' ? '#ffcc66' : WHITE); });
+      }
     }
     put('Services:', L + 10, T + 250, MAP.LABEL);
     const svc = [[SPOB.TRADE, 'Trading'], [SPOB.OUTFIT, 'Outfitting'], [SPOB.SHIPYARD, 'Shipyard']].filter(([f]) => ports.some(P => D.spobFlag(P, f)));

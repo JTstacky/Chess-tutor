@@ -4,6 +4,7 @@ import { MOD, SPOB } from '../engine/data.js';
 import { freeCargo } from '../engine/missions.js';
 import { addPolar, bearing } from '../engine/trig.js';
 import { modSum } from '../engine/encounters.js';
+import { friendlyToPlayer } from '../engine/ai.js';
 
 export const VIEW_W = 496, VIEW_H = 480, BAR_X = 496;
 // Full-screen layout (main.js, re-gaps #65): the bar's three parts side by side in the top-right corner, as
@@ -223,6 +224,7 @@ export class FlightView {
       const sp = D.sprite(T.type);
       this.brackets(ctx, T.x + ox, T.y + oy, Math.max(sp?.w ?? 24, sp?.h ?? 24) / 2 + 3, game.hostileToPlayer(T) ? '#e00000' : GREEN);
     }
+    if (this.modern && P) this.edgeArrows(ctx, game, ox, oy, VIEW_W, VIEW_H, full);
     // message: TETextBox, system font 12, white, top-left aligned (measured in the original: left edge
     // x=26, cap tops at 408 so the first baseline is y=417, 16 px lines; the breaks of orig-37/53/65 need
     // a wrap width of 418-424 px with the EVSys stand-in)
@@ -241,6 +243,43 @@ export class FlightView {
     this.drawBar(bc, game);
     const x0 = W - BAR_BLOCK.w;
     BAR_PARTS.forEach(([t, h], i) => ctx.drawImage(b, 0, t, 144, h, x0 + 144 * i, 0, 144, h));
+  }
+
+  // Modern rules (re-gaps #67), RECONSTRUCTED: an arrow at the edge of the playfield for each stellar in the
+  // system that is off-screen (white) and for the targeted ship when it is (red hostile, green friendly, orange
+  // neutral). The status bar's corner counts as off-screen, and the arrows stop at its edge, so none hides
+  // under it.
+  edgeArrows(ctx, game, ox, oy, W, H, full) {
+    const D = game.data, P = game.player, m = 14; this.arrows = [];
+    const bw = full ? BAR_BLOCK.w : 0, bh = full ? BAR_BLOCK.h : 0;
+    const shown = (x, y, r) => x > -r && y > -r && x < W + r && y < H + r && !(x - r > W - bw && y + r < bh);
+    // where the line from the ship to the object leaves the playfield (inset by m); a point under the status bar
+    // moves to the bar's nearer edge, below it or to its left
+    const L = m, R = W - m, T = m, B = H - m, BX = W - bw - m, BY = bh + m, cx = W / 2, cy = H / 2;
+    const arrow = (x, y, color, size) => {
+      const dx = x - cx, dy = y - cy;
+      const t = Math.min(dx > 0 ? (R - cx) / dx : dx < 0 ? (L - cx) / dx : Infinity, dy > 0 ? (B - cy) / dy : dy < 0 ? (T - cy) / dy : Infinity);
+      if (!isFinite(t)) return;
+      let px = cx + t * dx, py = cy + t * dy;
+      if (bw && px > BX && py < BY) { if (BY - py < px - BX) py = BY; else px = BX; }
+      const a = Math.atan2(dy, dx);
+      this.arrows.push({ x: Math.round(px), y: Math.round(py), color });   // for tests/qol-check.mjs
+      ctx.save(); ctx.translate(Math.round(px), Math.round(py)); ctx.rotate(a);
+      ctx.beginPath(); ctx.moveTo(size, 0); ctx.lineTo(-size * 0.7, -size * 0.7); ctx.lineTo(-size * 0.3, 0); ctx.lineTo(-size * 0.7, size * 0.7); ctx.closePath();
+      ctx.fillStyle = color; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.restore();
+    };
+    for (const sp of D.spobs(game.system)) {
+      if (!game.spobInPlay(sp.id)) continue;
+      const x = sp.xPos + ox, y = sp.yPos + oy, r = (D.sprite(300 + sp.Type)?.w ?? 60) / 2;
+      if (!shown(x, y, r)) arrow(x, y, game.navSpob === sp.id ? '#ffffff' : '#c8c8c8', game.navSpob === sp.id ? 9 : 7);
+    }
+    const t = P.target >= 0 ? game.ships[P.target] : null;
+    if (t?.alive) {
+      const x = t.x + ox, y = t.y + oy, r = (D.sprite(t.type)?.w ?? 24) / 2;
+      const color = game.hostileToPlayer(t) ? '#ff2020' : friendlyToPlayer(game, t) ? '#20ff20' : '#ff9a00';
+      if (!shown(x, y, r)) arrow(x, y, color, 11);
+    }
   }
 
   brackets(ctx, x, y, r, color) {

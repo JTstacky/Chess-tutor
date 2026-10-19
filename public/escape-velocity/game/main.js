@@ -3,6 +3,9 @@ import { GameData } from '../engine/data.js';
 import { Game, STEPS_PER_SECOND } from '../engine/game.js';
 import { newPilot, rebuildNebulae } from '../engine/pilot.js';
 import { CMD } from '../engine/input.js';
+import { Assist } from '../engine/assist.js';
+import { commodityPrices } from '../engine/spaceport.js';
+import { CloudSaves } from './cloud.js';
 import { Assets } from './assets.js';
 import { Keyboard } from './keys.js';
 import { loadPrefs, savePrefs, volumeGain } from './prefs.js';
@@ -10,7 +13,7 @@ import { Touch } from './touch.js';
 import { FlightView, cloakTint, loadGeneva9 } from './flight.js';
 import { UI } from './ui.js';
 import { HDArt, artSetting, saveArtSetting } from './hdart.js';
-import { TitleScreen, SpaceportScreen, MapDialog, InfoDialog, MissionInfoDialog, ShipCommDialog, PlanetCommDialog, PlunderDialog, NoticeDialog } from './screens.js';
+import { TitleScreen, SpaceportScreen, MapDialog, InfoDialog, MissionInfoDialog, ShipCommDialog, PlanetCommDialog, PlunderDialog, NoticeDialog, ConfirmDialog } from './screens.js';
 
 const GAME = new URLSearchParams(location.search).get('game') === 'evo' ? 'evo' : 'ev';
 // Screen layout (docs/re-gaps.md #65): "full" fills the window. The flight playfield is the whole canvas, with the
@@ -22,6 +25,16 @@ function layoutSetting() {
   const q = new URLSearchParams(location.search).get('layout');
   if (q === 'classic' || q === 'full') { try { localStorage.setItem(LAYOUT_KEY, q); } catch { } return q; }
   try { return localStorage.getItem(LAYOUT_KEY) === 'classic' ? 'classic' : 'full'; } catch { return 'full'; }
+}
+// Rules (docs/re-gaps.md #66): "modern" adds the quality-of-life helpers (autopilot for landing and leaving a
+// system's gravity, map routes to any known system, held Buy/Sell buttons, Max buttons, remembered prices,
+// load the last save after death). "classic" is the original's behaviour. ?rules=classic|modern picks one and
+// is remembered.
+const RULES_KEY = 'evonline.rules';
+function rulesSetting() {
+  const q = new URLSearchParams(location.search).get('rules');
+  if (q === 'classic' || q === 'modern') { try { localStorage.setItem(RULES_KEY, q); } catch { } return q; }
+  try { return localStorage.getItem(RULES_KEY) === 'classic' ? 'classic' : 'modern'; } catch { return 'modern'; }
 }
 const STEP_MS = 1000 / STEPS_PER_SECOND;
 
@@ -40,19 +53,32 @@ class Saves {
 class App {
   constructor(canvas) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d');
-    this.keyboard = new Keyboard(window); this.saves = new Saves(GAME);
+    this.keyboard = new Keyboard(window); this.localSaves = this.saves = new Saves(GAME);
+    // signed in, pilots live on the server (game/cloud.js, docs/cloud.md); signed out, in this browser
+    this.cloud = new CloudSaves(GAME);
+    this.cloud.onConflict = name => {
+      if (this.game?.pilot?.name !== name) return;
+      this.openDialog(new NoticeDialog(this, `“${name}” was saved from another device after this game loaded it, so this game has stopped saving it. Pick the pilot again on the pilot screen to carry on from the newer save.`));
+    };
     this.screen = null; this.dialogs = []; this.game = null; this.pilot = null;
     this.acc = 0; this.last = performance.now(); this.paused = false; this.shift = false; this.anim = null;
     this.frameT = { x: 0, y: 0, s: 1 };   // where the current screen's or dialog's own coordinates sit on the canvas
     this.setLayout(layoutSetting());
+    this.assist = new Assist(); this.setRules(rulesSetting());
+    // A phone switching apps (or a hidden tab) pauses the flight instead of flying on unattended.
+    document.addEventListener('visibilitychange', () => { if (document.hidden && this.screen?.flight && this.game && !this.paused) { this.paused = true; this.keyboard.clear(); } });
     this.keyboard.onKey(e => this.onKey(e));
     addEventListener('keydown', e => { if (e.key === 'Shift') this.shift = true; });
     addEventListener('keyup', e => { if (e.key === 'Shift') this.shift = false; });
     canvas.addEventListener('pointermove', e => { const p = this.toLogical(e); this.ui.mouse.x = p.x; this.ui.mouse.y = p.y; });
     canvas.addEventListener('pointerdown', e => {
       this.assets?.unlock(); const p = this.toLogical(e); this.ui.mouse.x = p.x; this.ui.mouse.y = p.y; this.ui.mouse.down = true;
-      this.ui.click(p.x, p.y, e.pointerType === 'touch' ? this.touch?.slop() ?? 0 : 0);
+      const slop = e.pointerType === 'touch' ? this.touch?.slop() ?? 0 : 0, r = this.ui.click(p.x, p.y, slop);
+      if (r?.repeat && this.modern) this.holdRepeat(() => this.ui.click(p.x, p.y, slop)?.repeat);
     });
+    // any lift ends a held button's repeat, even when the button under the finger was rebuilt meanwhile
+    for (const t of ['pointerup', 'pointercancel']) addEventListener(t, () => this.holdRepeat(null));
+    canvas.addEventListener('pointerleave', () => this.holdRepeat(null));
     canvas.addEventListener('pointerup', e => { if (this.ui) { this.ui.mouse.down = false; const f = this.ui.up; this.ui.up = null; f?.(); } });
     canvas.addEventListener('wheel', e => { if (this.wheel(Math.sign(e.deltaY), this.toLogical(e))) e.preventDefault(); }, { passive: false });
   }
@@ -73,6 +99,12 @@ class App {
     await this.assets.preloadPicts([8000, 8002, 128, 8200, 9000, 9001, ...Array.from({ length: 17 }, (_, i) => 8300 + i)]);
     this.assets.preloadSprites(Object.keys(this.data.sprites).map(Number));
     this.flight = new FlightView(this.assets);
+    if (this.cloud.signedIn) {
+      this.status('Loading your pilots...');
+      try { await Promise.race([this.cloud.load(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 8000))]); }
+      catch (e) { this.cloud.status = 'Can’t reach the server: online pilots aren’t available right now.'; }
+      if (this.cloud.signedIn) this.saves = this.cloud;
+    }
     this.pilot = this.saves.last();
     this.screen = new TitleScreen(this);
     requestAnimationFrame(t => this.frame(t));
@@ -102,6 +134,29 @@ class App {
     const b = document.getElementById('layout'); if (b) { b.textContent = this.full ? 'Full screen' : 'Classic'; b.onclick = () => this.setLayout(this.full ? 'classic' : 'full'); }
     dispatchEvent(new Event('resize'));
   }
+  // Remembered prices (re-gaps #66): each landing notes the commodity levels and prices seen there, in the pilot
+  // file, so the map can show them later under modern rules. The original kept no such record.
+  notePrices(g) {
+    const P = g.data.spob[g.landed]; if (!P || !g.data.spobFlag(P, 0x2)) return;
+    const d = g.pilot.date;
+    (g.pilot.prices ??= {})[P.id] = { seen: d.y * 10000 + d.m * 100 + d.d, c: commodityPrices(g, P).map(c => c && [c.level, c.price]) };
+  }
+  // Modern rules: a held Buy or Sell repeats, slowly at first and then faster. fn returns false to stop.
+  // holdRepeat(null) stops it. Returns whether anything repeated, for the touch panel.
+  holdRepeat(fn) {
+    clearTimeout(this.repeatT); const did = !!this.repeated; this.repeated = false; this.holding = !!fn;
+    if (!fn) return did;
+    let n = 0;
+    const tick = () => { if (!fn()) return; this.repeated = true; n++; this.repeatT = setTimeout(tick, n < 5 ? 160 : n < 15 ? 90 : 45); };
+    this.repeatT = setTimeout(tick, 420);
+    return did;
+  }
+  setRules(v) {
+    this.modern = v !== 'classic';
+    try { localStorage.setItem(RULES_KEY, this.modern ? 'modern' : 'classic'); } catch { }
+    if (!this.modern && this.game) this.assist.stop(this.game);
+    const b = document.getElementById('rules'); if (b) { b.textContent = this.modern ? 'Modern' : 'Classic'; b.onclick = () => this.setRules(this.modern ? 'classic' : 'modern'); }
+  }
   // Canvas size for this frame. Classic: the screen's own size. Full: the window's shape, 480 canvas pixels on the
   // short side in flight (the original's height), and just big enough to hold the screen otherwise.
   canvasSize(flight, w0, h0) {
@@ -125,14 +180,21 @@ class App {
   // ---------- flow ----------
   // FUN_1004ef64: the two naming dialogs, then the pilot is saved and the title screen shows it.
   newPilot(name, strict = false, shipName) {
-    this.pilot = newPilot(this.data, name, new Date(), { strict, shipName });
+    this.pilot = this.makePilot(name, strict, shipName);
     this.saves.put(this.pilot);
+  }
+  makePilot(name, strict = false, shipName) { return newPilot(this.data, name, new Date(), { strict, shipName }); }
+  // Switch between the account's online pilots and this browser's.
+  useCloud(on) {
+    this.saves = on && this.cloud.signedIn ? this.cloud : this.localSaves;
+    this.pilot = this.saves.last();
+    if (this.pilot) rebuildNebulae(this.data, this.pilot);
   }
   loadPilot(name) { this.pilot = this.saves.get(name); if (this.pilot) rebuildNebulae(this.data, this.pilot); }
   enterShip() {
     if (!this.pilot || this.pilot.killed) return;
     this.assets.stopMusic();
-    this.game = new Game(this.data, structuredClone(this.pilot), { speed: this.prefs.speed });
+    this.game = new Game(this.data, structuredClone(this.pilot), { speed: this.prefs.speed }); this.assist.mode = null;
     delete this.pilot.fresh;
     this.game.enterSpace();
     this.dialogs = [];
@@ -181,6 +243,7 @@ class App {
         // full layout: render draws the whole frame where it was, and the spaceport's own backdrop is left blank
         if (this.full) { this.backdropFull = b; this.backdrop = Object.assign(document.createElement('canvas'), { width: 640, height: 480 }); }
         else this.backdropFull = null;
+        this.notePrices(g);
         this.save(); this.dialogs = []; this.screen = new SpaceportScreen(this); this.assets.play(390); break;
       }
       // Back to the title, whose pilot box now reads "<name> / has been killed" (FUN_1004cf20 asks
@@ -190,6 +253,11 @@ class App {
         if (e.deleteFile) this.saves.remove(this.pilot.name);
         this.pilot = { ...this.pilot, killed: true };
         this.game = null; this.dialogs = []; this.screen = new TitleScreen(this);
+        // Modern rules: offer the last save straight away instead of the trip through the pilot list.
+        if (this.modern && !e.deleteFile && this.saves.get(this.pilot.name)) {
+          const name = this.pilot.name;
+          this.openDialog(new ConfirmDialog(this, 'Your ship has been destroyed. Load your last save and launch again?', () => { this.loadPilot(name); this.enterShip(); }));
+        }
         break;
       case 'autosave': this.game.syncPilot(); this.game.pilot.spob = e.spob; this.pilot = this.game.pilot.toJSON(); this.saves.put(this.pilot); break;
       case 'ui':
@@ -214,7 +282,7 @@ class App {
       this.acc += dt;
       while (this.acc >= STEP_MS) {
         this.acc -= STEP_MS;
-        const input = this.keyboard.take(); this.touch.apply(input);
+        const input = this.keyboard.take(); this.touch.apply(input); if (this.modern) this.assist.apply(this.game, input);
         this.game.step(input);
         for (const e of this.game.drainEvents()) this.handle(e);
         this.flight.tick();
@@ -240,7 +308,7 @@ class App {
     ctx.save();
     if (flight) {
       if (this.hd) this.hd.sprites = !this.game.pilot.cloaked;   // the cloak tint recolours the main canvas only
-      this.flight.draw(ctx, this.game, w, h, this.full);
+      (this.flight.modern = this.modern, this.flight.draw(ctx, this.game, w, h, this.full));
       if (this.anim) this.drawLaunch(ctx, dt, w, h);
       if (this.paused) this.ui.text(ctx, 'PAUSED (F1 to resume)', this.full ? w / 2 : 248, this.full ? h / 2 - 10 : 230, '#ffffff', 'center');
       if (this.dialogs.length) frame(640, 480);

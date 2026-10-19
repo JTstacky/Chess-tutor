@@ -30,8 +30,8 @@ export class UI {
   // buttons: this frame's labelled buttons in drawing order; "at" is the number of hit regions before each, so
   // the touch panel can keep only the top layer's (those after the topmost full-screen blocker).
   begin() { this.regions = []; this.buttons = []; this.hoverCursor = false; }
-  hit(x, y, w, h, onClick) {
-    this.regions.push({ x, y, w, h, onClick });
+  hit(x, y, w, h, onClick, repeat = false) {
+    this.regions.push({ x, y, w, h, onClick, repeat });
     const over = this.mouse.x >= x && this.mouse.x < x + w && this.mouse.y >= y && this.mouse.y < y + h;
     if (over && onClick) this.hoverCursor = true;
     return over;
@@ -49,19 +49,20 @@ export class UI {
         const dx = Math.max(r.x - x, 0, x - (r.x + r.w - 1)), dy = Math.max(r.y - y, 0, y - (r.y + r.h - 1)), d = Math.hypot(dx, dy);
         if (d <= bd) { bd = d; best = r; }
       }
-      if (best) { best.onClick(Math.min(best.w - 1, Math.max(0, x - best.x)), Math.min(best.h - 1, Math.max(0, y - best.y))); return true; }
+      if (best) { best.onClick(Math.min(best.w - 1, Math.max(0, x - best.x)), Math.min(best.h - 1, Math.max(0, y - best.y))); return best; }
     }
-    if (T?.onClick) { T.onClick(x - T.x, y - T.y); return true; }
+    if (T?.onClick) { T.onClick(x - T.x, y - T.y); return T; }
     return false;
   }
   topLayer() { let b = -1; this.regions.forEach((r, i) => { if (blocker(r)) b = i; }); return b; }
 
   // Original button art: grey normally, green under the mouse; dimmed when disabled.
-  button(ctx, id, x, y, onClick, enabled = true) {
+  // o.repeat: under modern rules the button repeats while held (main.js, touch.js).
+  button(ctx, id, x, y, onClick, enabled = true, o = {}) {
     const im = this.assets.pict(id), w = im?.width ?? 120, h = im?.height ?? 25;
     const act = enabled ? () => { this.assets.play(600); onClick(); } : null;
-    this.buttons.push({ label: BTN_LABEL[id] ?? null, x, y, w, h, onClick: act, enabled, at: this.regions.length });
-    const over = this.hit(x, y, w, h, act) && enabled;
+    this.buttons.push({ label: BTN_LABEL[id] ?? null, x, y, w, h, onClick: act, enabled, at: this.regions.length, repeat: !!o.repeat });
+    const over = this.hit(x, y, w, h, act, !!o.repeat) && enabled;
     const img = over ? (this.assets.pict(id + 1) ?? im) : im;
     ctx.globalAlpha = enabled ? 1 : 0.35;
     if (img) ctx.drawImage(img, x, y); else { ctx.fillStyle = '#555555'; ctx.fillRect(x, y, w, h); }
@@ -69,10 +70,16 @@ export class UI {
     return w;
   }
 
+  // A button that exists only in the touch panel (game/touch.js), never on the original screen: it sorts just
+  // after the button drawn before it. Modern rules only (re-gaps #66).
+  extra(label, onClick, enabled = true) {
+    const p = this.buttons.at(-1) ?? { x: 0, y: 0 };
+    this.buttons.push({ label, x: p.x + 0.5, y: p.y, w: 0, h: 0, onClick: enabled ? onClick : null, enabled, at: this.regions.length - 1 });
+  }
   // A button picture centred in a dialog item rectangle.
-  buttonIn(ctx, id, r, onClick, enabled = true) {
+  buttonIn(ctx, id, r, onClick, enabled = true, o = {}) {
     const im = this.assets.pict(id), w = im?.width ?? r.w, h = im?.height ?? 25;
-    return this.button(ctx, id, Math.round(r.x + (r.w - w) / 2), Math.round(r.y + (r.h - h) / 2), onClick, enabled);
+    return this.button(ctx, id, Math.round(r.x + (r.w - w) / 2), Math.round(r.y + (r.h - h) / 2), onClick, enabled, o);
   }
   // Image scaled to fit inside a rectangle, centred.
   fit(ctx, im, r, upscale = false) {

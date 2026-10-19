@@ -1,9 +1,10 @@
 // Pilot screen: one panel to pick, create, delete and launch pilots, like an MMO's character select.
 // It replaces the title screen's Mac dialogs (New Pilot DLOG 3100, the ship-name DLOG 3001, the replace
 // question DLOG 3002 and the Standard File "Open Pilot" picker). RECONSTRUCTED: docs/re-gaps.md #64.
-// It is a DOM overlay over the title art, with real <input> fields, so phone keyboards work. Pilots are
-// still the browser's local saves (app.saves). The title screen's Enter Ship, Set Prefs, Quit and About are
-// unchanged.
+// It is a DOM overlay over the title art, with real <input> fields, so phone keyboards work. Signed out,
+// pilots are the browser's local saves; signed in to an account (game/cloud.js, docs/cloud.md), they are the
+// account's online pilots, shared by every device. The title screen's Enter Ship, Set Prefs, Quit and About
+// are unchanged.
 import { combatRating, shortDate, DEFAULT_PILOT_NAMES, DEFAULT_SHIP_NAMES } from '../engine/pilot.js';
 
 const CSS = `
@@ -35,6 +36,15 @@ const CSS = `
 #pilots .confirm { margin: 0 0 8px; padding: 8px; border: 1px solid #a44; border-radius: 4px; background: #200; color: #fdd; }
 #pilots .confirm p { margin: 0 0 8px; }
 #pilots .msg { min-height: 1.2em; color: #fd8; font-size: 13px; margin: 0 0 6px; }
+#pilots .acct { margin: 0 0 12px; padding: 8px 10px; border: 1px solid #0a4; border-radius: 4px; background: #010; }
+#pilots .acct p { margin: 0 0 6px; } #pilots .acct b { color: #fff; }
+#pilots .acct form { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+#pilots .acct form .row, #pilots .acct form .msg, #pilots .acct form .wide { grid-column: 1 / -1; }
+@media (max-width: 600px) { #pilots .acct form { grid-template-columns: 1fr; } }
+#pilots input[type=password] { display: block; box-sizing: border-box; width: 100%; min-height: 40px; margin-top: 3px; padding: 6px 8px; background: #000; color: #fff;
+  border: 1px solid #3a8; border-radius: 4px; font: 16px Geneva, Verdana, sans-serif; }
+#pilots .code { font: 700 20px/1.5 ui-monospace, Consolas, monospace; color: #fff; letter-spacing: .05em; user-select: all; margin: 4px 0 8px; }
+#pilots a.link { color: #8f8; cursor: pointer; text-decoration: underline; }
 `;
 
 const el = (tag, props = {}, parent) => { const e = Object.assign(document.createElement(tag), props); parent?.append(e); return e; };
@@ -64,14 +74,13 @@ export class PilotPanel {
     const head = el('header', {}, pp);
     el('h2', { textContent: 'Pilots' }, head);
     el('button', { textContent: 'Close ✕', onclick: () => this.close() }, head);
-    // ACCOUNT LOGIN SLOT (docs/mmo-accounts.md). When the online server exists, a username + password form
-    // (with sign-up and the one-time recovery code) goes here, above the columns. The list below then shows
-    // the account's server-side pilots (up to MAX_PILOTS = 3) instead of app.saves, and Create/Delete call the
-    // server. Single-player keeps using the local saves as now.
+    // the account box: sign in, create an account, recover a password, or who is signed in
+    this.acct = el('div', { className: 'acct' }, pp);
+    this.acctMode = null;     // null, 'login', 'signup', 'recover' or { code } after sign-up or recovery
     const cols = el('div', { className: 'cols' }, pp);
 
     const left = el('section', {}, cols);
-    el('h3', { textContent: 'Your pilots' }, left);
+    this.listHead = el('h3', { textContent: 'Your pilots' }, left);
     this.list = el('ul', {}, left);
     this.leftConfirm = el('div', {}, left);
     const row = el('div', { className: 'row' }, left);
@@ -96,11 +105,69 @@ export class PilotPanel {
     this.createBtn = el('button', { className: 'go', type: 'submit', textContent: 'Create pilot' }, form);
     for (const i of [this.nameIn, this.shipIn]) i.addEventListener('input', () => this.refresh());
     this.nameIn.value = pick(DEFAULT_PILOT_NAMES); this.shipIn.value = pick(DEFAULT_SHIP_NAMES);
+    this.renderAccount();
     this.refresh();
   }
 
+  // ---------- account ----------
+  renderAccount() {
+    const app = this.app, c = app.cloud, box = this.acct, mode = this.acctMode;
+    box.replaceChildren();
+    if (mode?.code) {
+      el('p', { textContent: 'Your recovery code. Write it down or save it somewhere safe: it is the only way back into the account if you forget your password, and it won’t be shown again.' }, box);
+      el('div', { className: 'code', textContent: mode.code }, box);
+      el('button', { className: 'go', textContent: 'I’ve saved it', onclick: () => { this.acctMode = null; this.renderAccount(); } }, el('div', { className: 'row' }, box));
+      return;
+    }
+    if (c.signedIn) {
+      const t = el('p', {}, box);
+      t.append('Signed in as ', el('b', { textContent: c.user }), ` · online pilots: ${c.used ?? 0} of ${c.max ?? 3} (both games together)`);
+      if (c.status) el('p', { className: 'msg', textContent: c.status }, box);
+      const row = el('div', { className: 'row' }, box);
+      el('button', { textContent: 'Sign out', onclick: async () => { await c.logout(); app.useCloud(false); this.sel = app.pilot?.name ?? null; this.renderAccount(); this.refresh(); } }, row);
+      return;
+    }
+    if (!mode) {
+      el('p', { textContent: 'Sign in to keep your pilots online, on every device, with one account for both games. Without an account, pilots stay in this browser.' }, box);
+      const row = el('div', { className: 'row' }, box);
+      el('button', { className: 'go', textContent: 'Sign in', onclick: () => this.accountForm('login') }, row);
+      el('button', { textContent: 'Create account', onclick: () => this.accountForm('signup') }, row);
+      return;
+    }
+    const f = el('form', {}, box);
+    const field = (label, type, name, auto) => { const l = el('label', { textContent: label }, f); return el('input', { type, name, autocomplete: auto, spellcheck: false, autocapitalize: 'off', required: true }, l); };
+    const user = field('Username', 'text', 'username', 'username');
+    if (mode === 'signup') user.maxLength = 20;
+    const code = mode === 'recover' ? field('Recovery code', 'text', 'recovery', 'off') : null;
+    const pass = field(mode === 'login' ? 'Password' : 'New password', 'password', 'password', mode === 'login' ? 'current-password' : 'new-password');
+    const pass2 = mode === 'login' ? null : field('Password again', 'password', 'password2', 'new-password');
+    if (mode !== 'login') el('p', { className: 'note wide', textContent: 'Usernames: 3 to 20 letters, digits, _ . or -. Passwords: at least 10 characters.' }, f);
+    const msg = el('p', { className: 'msg' }, f);
+    const row = el('div', { className: 'row' }, f);
+    const go = el('button', { className: 'go', type: 'submit', textContent: mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password' }, row);
+    el('button', { type: 'button', textContent: 'Cancel', onclick: () => { this.acctMode = null; this.renderAccount(); } }, row);
+    if (mode === 'login') { const a = el('p', { className: 'note wide' }, f); el('a', { className: 'link', textContent: 'Forgot your password? Use your recovery code.', onclick: () => this.accountForm('recover') }, a); }
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (pass2 && pass.value !== pass2.value) { msg.textContent = 'The two passwords differ.'; return; }
+      go.disabled = true; msg.textContent = mode === 'login' ? 'Signing in…' : 'One moment…';
+      try {
+        let shown = null;
+        if (mode === 'login') await c.login(user.value.trim(), pass.value);
+        else if (mode === 'signup') shown = await c.signup(user.value.trim(), pass.value);
+        else shown = await c.recover(user.value.trim(), code.value, pass.value);
+        app.useCloud(true); this.sel = app.pilot?.name ?? null;
+        this.acctMode = shown ? { code: shown } : null;
+        this.renderAccount(); this.refresh();
+      } catch (err) { msg.textContent = err.message; go.disabled = false; }
+    });
+    user.focus();
+  }
+  accountForm(mode) { this.acctMode = mode; this.renderAccount(); }
+
   refresh() {
     const app = this.app, D = app.data, list = app.saves.list();
+    this.listHead.textContent = app.saves.online ? 'Your online pilots' : 'Pilots on this device';
     if (this.sel && !list.some(p => p.name === this.sel)) this.sel = list[0]?.name ?? null;
     this.list.replaceChildren();
     if (!list.length) el('li', { className: 'empty', textContent: 'No pilots yet. Create one on the right.' }, this.list);
@@ -138,10 +205,10 @@ export class PilotPanel {
 
   askDelete() {
     const name = this.sel; if (!name) return;
-    this.showConfirm(this.leftConfirm, `Delete the pilot “${name}”? This can’t be undone.`, 'Delete', () => {
-      this.app.saves.remove(name);
+    this.showConfirm(this.leftConfirm, `Delete the pilot “${name}”? This can’t be undone.`, 'Delete', async () => {
+      await this.app.saves.remove(name);
       if (this.app.pilot?.name === name) this.app.pilot = null;
-      this.sel = null; this.refresh();
+      this.sel = null; this.renderAccount(); this.refresh();
     });
   }
 
@@ -151,13 +218,20 @@ export class PilotPanel {
     const name = this.nameIn.value.trim().slice(0, 31), ship = this.shipIn.value.trim().slice(0, 31), strict = this.strictIn.checked;
     if (!name) { this.msg.textContent = 'Enter a pilot name.'; this.nameIn.focus(); return; }
     if (!ship) { this.msg.textContent = 'Enter a ship name.'; this.shipIn.focus(); return; }
-    const make = () => {
-      this.app.newPilot(name, strict, ship);
+    const make = async () => {
+      if (this.app.saves.online) {
+        // online: the server checks the name and the account's pilot limit before the pilot exists
+        const sheet = this.app.makePilot(name, strict, ship);
+        this.createBtn.disabled = true; this.msg.textContent = 'Creating…';
+        try { await this.app.saves.create(sheet); } catch (e) { this.msg.textContent = e.message; this.createBtn.disabled = false; return; }
+        this.app.pilot = sheet; this.renderAccount();
+      } else this.app.newPilot(name, strict, ship);
       this.sel = name; this.msg.textContent = `${name} is ready. Press Launch to fly.`;
       this.nameIn.value = pick(DEFAULT_PILOT_NAMES); this.shipIn.value = pick(DEFAULT_SHIP_NAMES); this.strictIn.checked = false;
       this.refresh(); this.launchBtn.focus();
     };
-    if (this.app.saves.get(name)) this.showConfirm(this.rightConfirm, `A pilot named “${name}” already exists. Replace it with this new pilot?`, 'Replace', make);
+    // online, a taken name is refused by the server instead (names are unique across all accounts)
+    if (!this.app.saves.online && this.app.saves.get(name)) this.showConfirm(this.rightConfirm, `A pilot named “${name}” already exists. Replace it with this new pilot?`, 'Replace', make);
     else make();
   }
 

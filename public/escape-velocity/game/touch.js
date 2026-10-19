@@ -363,20 +363,26 @@ export class Touch {
     if (!list.length) { if (D.style.display !== 'none') { D.style.display = 'none'; this.dockSig = ''; } return; }
     this.dockList = list;
     const sig = strip.key + '|' + list.map(b => b.label + (b.enabled ? '' : '~')).join('|');
-    if (sig === this.dockSig) return;
+    if (sig === this.dockSig || this.app.holding) return;   // not while a button is held: rebuilt, it would lose the finger
     this.dockSig = sig;
     D.className = strip.col ? 'col' : 'row';
     Object.assign(D.style, { display: 'flex', left: strip.x + 'px', top: strip.y + 'px', width: strip.w + 'px', height: strip.h + 'px' });
     D.innerHTML = '';
     list.forEach((b, i) => {
       const e = el('button', '', D); e.textContent = b.label; e.disabled = !b.enabled;
-      e.addEventListener('pointerdown', ev => { ev.preventDefault(); e.classList.add('on'); this.buzz(); this.app.assets?.unlock(); });
+      // the closures change every frame, and the panel is rebuilt when its buttons change: take this frame's by label
+      const cur = () => this.dockList.find(c => c.label === b.label && c.enabled) ?? null;
+      e.addEventListener('pointerdown', ev => {
+        ev.preventDefault(); e.classList.add('on'); this.buzz(); this.app.assets?.unlock();
+        if (b.repeat && this.app.modern) this.app.holdRepeat(() => { const c = cur(); c?.onClick?.(); return !!c; });
+      });
       const up = ev => {
-        e.classList.remove('on'); if (ev.type !== 'pointerup') return;
-        const cur = this.dockList[i];   // the closures change every frame: take this frame's
-        if (cur && cur.label === b.label && cur.enabled) { cur.onClick?.(); this.app.canvas.focus(); }
+        e.classList.remove('on');
+        const repeated = this.app.holdRepeat(null);
+        if (ev.type !== 'pointerup' || repeated) return;
+        const c = cur(); if (c) { c.onClick?.(); this.app.canvas.focus(); }
       };
-      e.addEventListener('pointerup', up); e.addEventListener('pointercancel', up); e.addEventListener('pointerleave', () => e.classList.remove('on'));
+      e.addEventListener('pointerup', up); e.addEventListener('pointercancel', up); e.addEventListener('pointerleave', () => { e.classList.remove('on'); this.app.holdRepeat(null); });
     });
   }
   // The largest free strip around the game picture, or null when there is none worth using (a tablet's
@@ -442,6 +448,7 @@ export class Touch {
     item('Self-destruct (hold)', null, { held: CMD.DESTRUCT, cls: 'red' });
     item(`Art: ${a.art === 'hd' ? 'HD' : 'Original'}`, () => a.setArt(a.art === 'hd' ? 'original' : 'hd'));
     item(`Layout: ${a.full ? 'Full screen' : 'Classic'}`, () => a.setLayout(a.full ? 'classic' : 'full'));
+    item(`Rules: ${a.modern ? 'Modern' : 'Classic'}`, () => a.setRules(a.modern ? 'classic' : 'modern'));
     if (document.fullscreenEnabled) item(document.fullscreenElement ? 'Leave full screen' : 'Full screen',
       () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.({ navigationUI: 'hide' }).catch(() => { }));
     item('Credits', () => globalThis.evCredits?.(true));
