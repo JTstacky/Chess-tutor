@@ -8,6 +8,7 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         chess: resolve(import.meta.dirname, 'chess/index.html'),
+        account: resolve(import.meta.dirname, 'account/index.html'),
       },
     },
   },

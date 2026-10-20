@@ -16,7 +16,33 @@ body {
   display: flex;
   flex-direction: column;
 }
-.site-header { padding: 16px; display: flex; justify-content: center; }
+.site-header { padding: 16px; display: flex; justify-content: center; align-items: center; position: relative; }
+a.logo { text-decoration: none; }
+.account-chip { position: absolute; right: max(16px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); background: var(--card); color: var(--ink); text-decoration: none; padding: 6px 14px; border-radius: 999px; font-weight: 600; box-shadow: 0 3px 0 rgba(108, 78, 227, 0.25); white-space: nowrap; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+.account-chip:hover { background: #ece6ff; }
+.tier { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; vertical-align: middle; }
+.tier.full { background: #d9f5df; color: #1d6b31; }
+.tier.basic { background: #e9e5f7; color: var(--muted); }
+.account-panel { background: var(--card); border-radius: 24px; padding: 24px; max-width: 460px; margin: 8px auto 0; box-shadow: 0 8px 0 rgba(108, 78, 227, 0.25); }
+.account-panel h2 { margin: 0 0 8px; overflow-wrap: anywhere; }
+.account-panel p, .account-panel li { color: var(--muted); }
+.account-panel form { display: grid; gap: 10px; }
+.account-panel label { display: grid; gap: 4px; font-weight: 600; }
+.account-panel input { font: inherit; padding: 10px 12px; border: 2px solid #d8d0f7; border-radius: 12px; }
+.account-panel input:focus { outline: none; border-color: var(--brand); }
+.account-panel .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.account-panel .btn { font: inherit; font-weight: 600; font-size: 18px; border: 0; border-radius: 999px; padding: 10px 24px; background: var(--brand); color: #fff; cursor: pointer; }
+.account-panel > .btn { margin-top: 14px; }
+.account-panel .btn.ghost { background: #ece6ff; color: var(--brand); }
+.account-panel .btn:disabled { opacity: 0.6; }
+.account-panel .msg { color: #b3361f; min-height: 1.2em; margin: 0; }
+.account-panel .note { font-size: 14px; margin: 0; }
+.account-panel .code { font-size: 24px; font-weight: 700; letter-spacing: 1px; background: #fff7df; border-radius: 12px; padding: 12px; text-align: center; margin: 12px 0; overflow-wrap: anywhere; }
+.account-panel .tier-line .tier { font-size: 0.9rem; padding: 3px 12px; }
+.link { color: var(--brand); }
+.back { text-align: center; }
+.back a { color: var(--brand); font-weight: 600; }
+@media (max-width: 520px) { .site-header { flex-direction: column; gap: 8px; } .account-chip { position: static; transform: none; max-width: 90vw; } }
 .logo { font-size: 32px; font-weight: 700; color: var(--brand); }
 .logo span { color: var(--accent); }
 main { flex: 1; padding: 0 16px 32px; max-width: 900px; margin: 0 auto; width: 100%; }

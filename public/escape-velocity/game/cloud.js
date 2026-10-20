@@ -11,7 +11,8 @@
 const LIVE_API = 'https://ev-online-api.justintengyz.workers.dev';
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 export const API = (LOCAL && new URLSearchParams(location.search).get('api')) || LIVE_API;
-const TOKEN_KEY = 'evonline.session', USER_KEY = 'evonline.user';
+// One account for the whole of tenggames.com.au: the site's account page and the Retro Archive use these keys too.
+const TOKEN_KEY = 'evonline.session', USER_KEY = 'evonline.user', TIER_KEY = 'evonline.tier';
 
 export class CloudError extends Error { constructor(status, message) { super(message); this.status = status; } }
 
@@ -22,10 +23,15 @@ export class CloudSaves {
     this.lastKey = `evonline.${game}.cloudLast`;
     this.status = '';             // shown in the pilot panel
     this.onConflict = null;       // (name) => void: another device saved this pilot since we loaded it
-    try { this.token = localStorage.getItem(TOKEN_KEY); this.user = localStorage.getItem(USER_KEY); } catch { }
+    try { this.token = localStorage.getItem(TOKEN_KEY); this.user = localStorage.getItem(USER_KEY); this.tier = localStorage.getItem(TIER_KEY) ?? 'basic'; } catch { }
     addEventListener('pagehide', () => this.flushNow());
   }
   get signedIn() { return !!this.token; }
+  // Online pilots are for full accounts. A basic account (every new sign-up, until Justin upgrades it) keeps
+  // its pilots in this browser, like playing signed out.
+  get full() { return this.signedIn && this.tier === 'full'; }
+  // The tier can change on the server at any time (an upgrade), so it is checked again on start.
+  async refreshTier() { const j = await this.req('GET', '/api/me'); this.remember(this.token, j.username, j.tier); }
 
   async req(method, path, body) {
     let r;
@@ -37,18 +43,18 @@ export class CloudSaves {
     if (!r.ok) { const e = new CloudError(r.status, j.error ?? `Server error (${r.status}).`); e.body = j; throw e; }
     return j;
   }
-  remember(token, user) {
-    this.token = token; this.user = user;
-    try { localStorage.setItem(TOKEN_KEY, token); localStorage.setItem(USER_KEY, user); } catch { }
+  remember(token, user, tier = 'basic') {
+    this.token = token; this.user = user; this.tier = tier === 'full' ? 'full' : 'basic';
+    try { localStorage.setItem(TOKEN_KEY, token); localStorage.setItem(USER_KEY, user); localStorage.setItem(TIER_KEY, this.tier); } catch { }
   }
   forget() {
-    this.token = null; this.user = null; this.pilots.clear();
-    try { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); } catch { }
+    this.token = null; this.user = null; this.tier = 'basic'; this.pilots.clear();
+    try { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); localStorage.removeItem(TIER_KEY); } catch { }
   }
 
-  async signup(username, password) { const j = await this.req('POST', '/api/signup', { username, password }); this.remember(j.token, j.username); await this.load(); return j.recovery; }
-  async login(username, password) { const j = await this.req('POST', '/api/login', { username, password }); this.remember(j.token, j.username); await this.load(); }
-  async recover(username, recovery, password) { const j = await this.req('POST', '/api/recover', { username, recovery, password }); this.remember(j.token, j.username); await this.load(); return j.recovery; }
+  async signup(username, password) { const j = await this.req('POST', '/api/signup', { username, password }); this.remember(j.token, j.username, j.tier); if (this.full) await this.load(); return j.recovery; }
+  async login(username, password) { const j = await this.req('POST', '/api/login', { username, password }); this.remember(j.token, j.username, j.tier); if (this.full) await this.load(); }
+  async recover(username, recovery, password) { const j = await this.req('POST', '/api/recover', { username, recovery, password }); this.remember(j.token, j.username, j.tier); if (this.full) await this.load(); return j.recovery; }
   async logout() { await this.flush(); try { await this.req('POST', '/api/logout'); } catch { } this.forget(); }
 
   async load() {

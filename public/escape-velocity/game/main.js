@@ -101,9 +101,11 @@ class App {
     this.flight = new FlightView(this.assets);
     if (this.cloud.signedIn) {
       this.status('Loading your pilots...');
-      try { await Promise.race([this.cloud.load(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 8000))]); }
+      const load = async () => { await this.cloud.refreshTier(); if (this.cloud.full) await this.cloud.load(); };
+      try { await Promise.race([load(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 8000))]); }
       catch (e) { this.cloud.status = 'Can’t reach the server: online pilots aren’t available right now.'; }
-      if (this.cloud.signedIn) this.saves = this.cloud;
+      // a basic account plays with this browser's pilots
+      if (this.cloud.full) this.saves = this.cloud;
     }
     this.pilot = this.saves.last();
     this.screen = new TitleScreen(this);
@@ -186,7 +188,7 @@ class App {
   makePilot(name, strict = false, shipName) { return newPilot(this.data, name, new Date(), { strict, shipName }); }
   // Switch between the account's online pilots and this browser's.
   useCloud(on) {
-    this.saves = on && this.cloud.signedIn ? this.cloud : this.localSaves;
+    this.saves = on && this.cloud.full ? this.cloud : this.localSaves;
     this.pilot = this.saves.last();
     if (this.pilot) rebuildNebulae(this.data, this.pilot);
   }

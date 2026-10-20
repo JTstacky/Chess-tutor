@@ -121,14 +121,15 @@ export class PilotPanel {
     }
     if (c.signedIn) {
       const t = el('p', {}, box);
-      t.append('Signed in as ', el('b', { textContent: c.user }), ` · online pilots: ${c.used ?? 0} of ${c.max ?? 3} (both games together)`);
+      if (c.full) t.append('Signed in as ', el('b', { textContent: c.user }), ` · online pilots: ${c.used ?? 0} of ${c.max ?? 3} (both games together)`);
+      else t.append('Signed in as ', el('b', { textContent: c.user }), ' · basic account: your pilots stay in this browser. Online pilots on every device come with a full account.');
       if (c.status) el('p', { className: 'msg', textContent: c.status }, box);
       const row = el('div', { className: 'row' }, box);
       el('button', { textContent: 'Sign out', onclick: async () => { await c.logout(); app.useCloud(false); this.sel = app.pilot?.name ?? null; this.renderAccount(); this.refresh(); } }, row);
       return;
     }
     if (!mode) {
-      el('p', { textContent: 'Sign in to keep your pilots online, on every device, with one account for both games. Without an account, pilots stay in this browser.' }, box);
+      el('p', { textContent: 'One tenggames account for the whole site. With a full account your pilots are kept online, on every device. Without one, or with a basic account, pilots stay in this browser.' }, box);
       const row = el('div', { className: 'row' }, box);
       el('button', { className: 'go', textContent: 'Sign in', onclick: () => this.accountForm('login') }, row);
       el('button', { textContent: 'Create account', onclick: () => this.accountForm('signup') }, row);
