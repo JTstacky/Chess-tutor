@@ -82,3 +82,45 @@ a.game-card:hover { transform: translateY(-4px) rotate(-1deg); }
 .game-card .badge { align-self: center; margin-top: 10px; padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; color: #8a4b00; background: #ffe2b0; }
 .soon { opacity: 0.7; }
 footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px; }
+/* kids: big pictures and buttons (Escape Velocity/ev-online/docs/family-accounts.md) */
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: var(--size); height: var(--size); border-radius: 50%; font-size: calc(var(--size) * 0.58); line-height: 1; flex: none; }
+.account-chip .avatar { vertical-align: middle; }
+.account-panel.kids { max-width: 640px; text-align: center; }
+.big-title { font-size: clamp(28px, 7vw, 40px); text-align: center; }
+.kid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 16px 0; }
+.kid { font: inherit; background: none; border: 0; padding: 10px; border-radius: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink); }
+.kid:hover, .kid:focus-visible { background: #f1ecff; outline: none; }
+.kid-name { font-size: 26px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.pin-who { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pin-dots { display: flex; justify-content: center; gap: 16px; margin: 8px 0; }
+.pin-dots .dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--brand); }
+.pin-dots .dot.on { background: var(--brand); }
+.pin-dots.shake { animation: shake 0.4s; }
+@keyframes shake { 25% { transform: translateX(-12px); } 50% { transform: translateX(12px); } 75% { transform: translateX(-6px); } }
+.pin-pad { display: grid; grid-template-columns: repeat(3, minmax(72px, 96px)); gap: 12px; justify-content: center; margin: 8px auto 0; }
+.pin-key { font: inherit; min-height: 84px; border: 0; border-radius: 20px; background: #f1ecff; box-shadow: 0 4px 0 rgba(108, 78, 227, 0.3); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--ink); touch-action: manipulation; }
+.pin-key:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(108, 78, 227, 0.3); }
+.pin-key .pic { font-size: 36px; line-height: 1; }
+.pin-key .num { font-size: 18px; font-weight: 700; color: var(--muted); }
+.pin-key.small { font-size: 32px; background: #fff; }
+.account-panel .msg.big { font-size: 22px; font-weight: 600; text-align: center; }
+.account-panel .row.center { justify-content: center; }
+.account-panel .btn.huge, .account-panel a.btn.huge { font-size: 30px; padding: 16px 48px; text-decoration: none; display: inline-block; }
+.choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+.account-panel .choice-btn { font-size: 26px; padding: 24px 16px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.choice-btn .emoji { font-size: 64px; }
+.lead { font-size: 20px; }
+.code-form input { font: inherit; font-size: 40px; font-weight: 700; letter-spacing: 8px; text-align: center; text-transform: uppercase; width: 100%; max-width: 320px; margin: 8px auto; display: block; padding: 12px; border: 3px solid #d8d0f7; border-radius: 16px; }
+.avatar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; margin: 8px 0; }
+.avatar-pick { background: none; border: 3px solid transparent; border-radius: 50%; padding: 2px; cursor: pointer; display: flex; justify-content: center; }
+.avatar-pick.on { border-color: var(--brand); }
+.family { border-top: 2px solid #eee8ff; margin-top: 16px; padding-top: 8px; }
+.family h3 { margin: 8px 0; }
+.kid-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.kid-row .emoji { font-size: 36px; width: 48px; text-align: center; }
+.kid-info { display: grid; flex: 1; min-width: 0; }
+.kid-acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.account-panel .btn.small { font-size: 15px; padding: 6px 14px; }
+.account-panel .btn.danger { background: #ffe1db; color: #a12a12; }
+.account-panel .check { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.account-panel .check input { width: auto; }

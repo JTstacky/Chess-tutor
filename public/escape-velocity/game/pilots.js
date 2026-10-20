@@ -133,6 +133,8 @@ export class PilotPanel {
       const row = el('div', { className: 'row' }, box);
       el('button', { className: 'go', textContent: 'Sign in', onclick: () => this.accountForm('login') }, row);
       el('button', { textContent: 'Create account', onclick: () => this.accountForm('signup') }, row);
+      // kids sign in with their picture on the site's account page (docs/family-accounts.md); the session is shared
+      el('button', { textContent: 'Kids: tap your picture', onclick: () => { location.href = '/account/'; } }, row);
       return;
     }
     const f = el('form', {}, box);
