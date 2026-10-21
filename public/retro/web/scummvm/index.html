@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/tg-profile.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d14">
+  <title>Adventure Classics - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-scummvm-Cj7h1aJw.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-CZ4bKVuJ.js">
+  <link rel="modulepreload" crossorigin href="../../assets/preload-helper-BaNbYf_w.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-scummvm-D6Tp38hH.css">
+</head>
+<body>
+  <main id="app">
+    <section id="picker" class="panel">
+      <h1>Adventure Classics</h1>
+      <p id="status" role="status">Loading game files...</p>
+      <div id="games" class="games"></div>
+      <p class="hint">Click or tap to walk, look and use; right-click, long-press or tap with two fingers for the
+        other action. In a game: Ctrl+F5 or Menu for ScummVM's menu (save, load, options, quit), Esc skips a
+        cutscene, full stop skips a line of dialogue.</p>
+    </section>
+
+    <section id="play" hidden>
+      <nav id="pad" hidden aria-label="Movement">
+        <button type="button" class="pad-key" data-key="ArrowUp" aria-label="Up">&#9650;</button>
+        <button type="button" class="pad-key" data-key="ArrowLeft" aria-label="Left">&#9664;</button>
+        <button type="button" class="pad-key" data-key="ArrowRight" aria-label="Right">&#9654;</button>
+        <button type="button" class="pad-key" data-key="ArrowDown" aria-label="Down">&#9660;</button>
+      </nav>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+        <p id="play-status" aria-live="polite"></p>
+      </div>
+      <nav id="bar" aria-label="Game controls">
+        <button type="button" id="menu" disabled title="ScummVM menu (Ctrl+F5)">Menu</button>
+        <button type="button" id="skip" disabled title="Skip cutscene (Esc)">Skip</button>
+        <button type="button" id="line" disabled title="Skip line of dialogue (.)">Line</button>
+        <button type="button" id="save" disabled title="Save game">Save</button>
+        <button type="button" id="load" disabled title="Load game">Load</button>
+        <button type="button" id="fire" class="hold" data-key="Alt" hidden title="Throw the hammer (Alt)">Fire</button>
+        <button type="button" id="magic" class="hold" data-key="Control" hidden title="Magic (Ctrl)">Magic</button>
+        <button type="button" id="select" class="hold" data-key="Space" hidden title="Select item / talk (Space)">Use</button>
+        <button type="button" id="keys" title="On-screen keys">Keys</button>
+        <button type="button" id="fullscreen" title="Full screen">Full</button>
+      </nav>
+      <nav id="keypad" hidden aria-label="On-screen keys">
+        <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
+        <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
+        <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
+        <button type="button" data-key="Backspace" aria-label="Delete">&#9003;</button><button type="button" data-key="0">0</button><button type="button" data-key="Enter" aria-label="Enter">&#9166;</button>
+        <button type="button" data-key="Y">Y</button><button type="button" data-key="N">N</button><button type="button" id="keypad-close" aria-label="Hide keys">&#10005;</button>
+      </nav>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> <a href="https://www.scummvm.org/" rel="noopener">ScummVM</a> by the ScummVM Team
+      (see <a href="https://www.scummvm.org/credits/" rel="noopener">credits</a>), in our web build.
+      Licensed under the <a id="engine-licence" href="#">GNU GPL v3 or later</a>; the build's full source:
+      <a id="engine-source" href="#" download>scummvm-retro source (tar.gz)</a>.</p>
+    <p><strong>Games:</strong> The Secret of Monkey Island and Monkey Island 2 &copy; Lucasfilm Games / LucasArts;
+      Myst &copy; Cyan; Beneath a Steel Sky and Lure of the Temptress &copy; Revolution Software (freeware);
+      Flight of the Amazon Queen &copy; John Passfield and Steven Stamatiadis (freeware); God of Thunder &copy;
+      Ron Davis / Adept Software. The game files are the originals and are only served to approved accounts.</p>
+  </footer>
+</body>
+</html>
