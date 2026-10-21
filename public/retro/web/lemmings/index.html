@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Lemmings</title>
+  <script type="module" crossorigin src="../../assets/web-lemmings-NNd8X-vc.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-lemmings-U_Sh_qx3.css">
+</head>
+<body>
+  <main id="app" data-screen="loading">
+
+    <!-- Loading the game files -->
+    <section id="loading" class="screen">
+      <h1>Lemmings</h1>
+      <p id="load-status">Loading game files...</p>
+      <div class="bar"><div id="load-bar"></div></div>
+      <p id="load-error" class="error" hidden></p>
+    </section>
+
+    <!-- Game, rating and level picker -->
+    <section id="menu" class="screen">
+      <header class="menu-head">
+        <div class="games" id="game-picker" role="tablist" aria-label="Game"></div>
+        <button id="about-open" class="link" type="button">About</button>
+      </header>
+      <div class="groups" id="group-picker" role="tablist" aria-label="Rating"></div>
+      <div class="menu-body">
+        <ol class="levels" id="level-grid" aria-label="Levels"></ol>
+        <aside class="level-info">
+          <canvas id="preview" width="400" height="40" aria-hidden="true"></canvas>
+          <h2 id="level-name">&nbsp;</h2>
+          <dl id="level-stats"></dl>
+          <button id="start" class="primary" type="button" data-touch="start" disabled>Start</button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Playing -->
+    <section id="play" class="screen">
+      <div id="toolbar">
+        <button type="button" data-act="menu" title="Back to the level list (Esc)">Levels</button>
+        <span id="level-title"></span>
+        <button type="button" data-act="restart" title="Restart this level">Restart</button>
+        <button type="button" data-act="ff" title="Fast forward (F)">Fast &#9654;&#9654;</button>
+        <button type="button" data-act="music" title="Music on/off (M)">Music</button>
+      </div>
+      <div id="stage">
+        <canvas id="screen" width="320" height="200"></canvas>
+        <div id="overlay" hidden>
+          <div class="card">
+            <h2 id="overlay-title"></h2>
+            <p id="overlay-text"></p>
+            <div class="buttons">
+              <button id="overlay-go" class="primary" type="button" data-touch="overlay-go">Start</button>
+              <button id="overlay-menu" type="button" data-touch="overlay-menu">Levels</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="touch-bar" aria-label="Lemmings controls"></div>
+    </section>
+
+    <dialog id="about">
+      <h2>About</h2>
+      <p><strong>Lemmings</strong> &copy; 1991 and <strong>Oh No! More Lemmings</strong> &copy; 1991&ndash;92
+        DMA Design / Psygnosis. The original DOS game data is loaded privately from the owner's copy; it is not
+        part of this page.</p>
+      <p>Engine: <a href="https://github.com/tomsoftware/Lemmings.ts" rel="noopener">Lemmings.ts</a> by
+        Thomas Zeugner, MIT licence, in the Retro Archive's fork (in-memory files, frame-synced timer,
+        touch controls, the original's odd-table levels and skill rules).</p>
+      <p>AdLib music: DBOPL OPL emulator &copy; 2002&ndash;2015 The DOSBox Team, GNU General Public License 2 or
+        later (TypeScript port in Lemmings.ts). Lemmings.ts's licence also credits the OPL3 emulator by
+        Robson Cozendey (GNU LGPL 2.1 or later). Source: the engine fork on the upstream link above.</p>
+      <h3>Controls</h3>
+      <p><b>Mouse:</b> pick a skill on the panel, click a lemming to give it the skill. Drag or move to the
+        screen edge to scroll. Double-click the mushroom to nuke.<br>
+        <b>Keys:</b> F1/F2 release rate, F3&ndash;F10 or 1&ndash;8 skills, P or F11 pause, F12 nuke (press twice),
+        F fast forward, arrows scroll, Esc levels.<br>
+        <b>Touch:</b> tap a skill, then tap near a lemming (the box shows who got it). Drag to scroll.
+        Tap the nuke twice to confirm.</p>
+      <form method="dialog"><button class="primary" type="submit">Close</button></form>
+    </dialog>
+  </main>
+</body>
+</html>
