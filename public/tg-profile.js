@@ -143,13 +143,36 @@
     return;
   }
   if (onAccount) return;               // the account page drives switching itself
-  switchTo(current());
-  if (!canSync()) return;
-  syncDown().then(function (r) {
-    // another device saved newer progress: start the game again with it (once)
-    if (r === 'applied' && !sessionStorage.getItem('tg.reloaded')) { sessionStorage.setItem('tg.reloaded', '1'); location.reload(); }
+
+  // Keep this profile's games backed up while it plays.
+  function start() {
+    if (!canSync()) return;
+    var reloaded = sessionStorage.getItem('tg.reloaded');
+    sessionStorage.removeItem('tg.reloaded');
+    syncDown().then(function (r) {
+      // another device saved newer progress: start the game again with it (but never twice in a row)
+      if (r === 'applied' && !reloaded) { sessionStorage.setItem('tg.reloaded', '1'); location.reload(); }
+    }, function () { });
+    setInterval(function () { noteChange(); syncUp().catch(function () { }); }, 20000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { noteChange(); syncUp().catch(function () { }); } });
+    addEventListener('pagehide', function () { noteChange(); syncUp().catch(function () { }); });
+  }
+
+  var cur = current();
+  if (cur) { switchTo(cur); start(); return; }
+  // Signed in, but no profile id here: a sign-in from before profiles (or a game's own sign-in). Leave this
+  // device's games exactly as they are while we ask the server who it is, then carry on as that profile.
+  fetch(API + '/api/me', { headers: { Authorization: 'Bearer ' + token() } }).then(function (r) {
+    if (r.status === 401) { set('evonline.session', null); location.replace('/account/'); return null; }
+    return r.ok ? r.json() : null;
+  }).then(function (j) {
+    if (!j || j.stage !== 'profile') return;
+    var id = j.kind === 'guest' ? 'guest' : String(j.id);
+    if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) return;
+    set('tenggames.profileId', id);
+    var owner = get(OWNER);
+    if (owner === null || owner === '') { set(OWNER, id); start(); }    // the games here are this profile's
+    else if (owner !== id) { switchTo(id); location.reload(); }       // another profile's games were here
+    else start();
   }, function () { });
-  setInterval(function () { noteChange(); syncUp().catch(function () { }); }, 20000);
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { noteChange(); syncUp().catch(function () { }); } });
-  addEventListener('pagehide', function () { noteChange(); syncUp().catch(function () { }); });
 })();
