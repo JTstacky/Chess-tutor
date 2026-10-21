@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d14">
+  <title>Commander Keen - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-keen-KSQz98kI.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-LUpXUBId.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-keen-DtVTwhFR.css">
+</head>
+<body>
+  <main id="app">
+    <section id="picker" class="panel">
+      <h1>Commander Keen</h1>
+      <p id="status" role="status">Loading game files...</p>
+      <div id="episodes" class="episodes"></div>
+      <p class="hint desktop-only">Keys: arrows move, Ctrl jump, Alt pogo, Space fire, Enter status, Esc menu.</p>
+    </section>
+
+    <section id="play" hidden>
+      <div id="touch-left" class="touch-side"></div>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+      <div id="touch-right" class="touch-side"></div>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> <a href="https://github.com/gerstrong/Commander-Genius" rel="noopener">Commander Genius</a>
+      by Gerstrong, Zilem, Tulip, Albert Zeyer, Pelya, Elias Oenal, Gagster and the CG contributors, with Keen Dreams
+      support from <a href="https://github.com/NY00123/refkeen" rel="noopener">Reflection Keen</a> (NY00123).
+      Licensed under the <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" rel="noopener">GNU GPL v2</a>;
+      our web build's full source: <a id="engine-source" href="#" download>commander-genius-retro source (tar.gz)</a>.</p>
+    <p><strong>Game:</strong> Commander Keen is &copy; id Software / Apogee (Keen 1-3, 4-6) and Softdisk (Keen Dreams).
+      The game files are the originals and are only served to approved accounts.</p>
+  </footer>
+</body>
+</html>
