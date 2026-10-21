@@ -22,17 +22,24 @@ export const API = (LOCAL && new URLSearchParams(location.search).get('api')) ||
 const TOKEN_KEY = 'evonline.session', USER_KEY = 'evonline.user', TIER_KEY = 'evonline.tier';
 const KIND_KEY = 'tenggames.kind', AVATAR_KEY = 'tenggames.avatar', DEVICE_KEY = 'tenggames.device';
 const ACCOUNT_KEY = 'tenggames.account', ACCOUNT_USER_KEY = 'tenggames.account.user';
+// The playing profile's id ('guest' for guests). /tg-profile.js keeps each profile's game data apart by it, and
+// the Retro Archive keys its local saves by it. Don't rename it.
+const PROFILE_KEY = 'tenggames.profileId';
+// /tg-profile.js (loaded first on every page) puts each profile's game data in place; absent if storage is blocked.
+const vault = () => window.TGProfile;
 
 const read = k => { try { return localStorage.getItem(k); } catch { return null; } };
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch { } };
-const PROFILE_KEYS = [TOKEN_KEY, USER_KEY, TIER_KEY, KIND_KEY, AVATAR_KEY];
+const PROFILE_KEYS = [TOKEN_KEY, USER_KEY, TIER_KEY, KIND_KEY, AVATAR_KEY, PROFILE_KEY];
 
 export const account = {
   // the profile that is playing
   get token() { return read(TOKEN_KEY); },
   get user() { return read(USER_KEY); },
-  get tier() { return read(TIER_KEY) === 'full' ? 'full' : 'basic'; },
-  get kind() { return read(KIND_KEY) === 'kid' ? 'kid' : 'parent'; },
+  get tier() { const t = read(TIER_KEY); return t === 'full' || t === 'guest' ? t : 'basic'; },
+  get kind() { const k = read(KIND_KEY); return k === 'kid' || k === 'guest' ? k : 'parent'; },
+  get guest() { return this.signedIn && this.kind === 'guest'; },
+  get profileId() { return read(PROFILE_KEY); },
   get avatar() { return read(AVATAR_KEY); },
   get signedIn() { return !!this.token; },          // a profile is picked: the site is open
   get full() { return this.signedIn && this.tier === 'full'; },
@@ -46,8 +53,10 @@ export const account = {
   set device(t) { write(DEVICE_KEY, t); },
 
   remember(j) {
-    write(TOKEN_KEY, j.token ?? this.token); write(USER_KEY, j.username); write(TIER_KEY, j.tier === 'full' ? 'full' : 'basic');
-    write(KIND_KEY, j.kind === 'kid' ? 'kid' : 'parent'); write(AVATAR_KEY, j.avatar ?? null);
+    write(TOKEN_KEY, j.token ?? this.token); write(USER_KEY, j.username);
+    write(TIER_KEY, j.tier === 'full' || j.tier === 'guest' ? j.tier : 'basic');
+    write(KIND_KEY, j.kind === 'kid' || j.kind === 'guest' ? j.kind : 'parent'); write(AVATAR_KEY, j.avatar ?? null);
+    if (j.kind === 'guest') write(PROFILE_KEY, 'guest'); else if (j.id != null) write(PROFILE_KEY, String(j.id));
   },
   rememberAccount(j) { write(ACCOUNT_KEY, j.accountToken); write(ACCOUNT_USER_KEY, j.username); this.forgetProfile(); },
   forgetProfile() { for (const k of PROFILE_KEYS) write(k, null); },
@@ -76,6 +85,7 @@ export const account = {
   async recover(username, recovery, password) { const j = await this.req('POST', '/api/recover', { username, recovery, password, profiles: true }); this.rememberAccount(j); return j; },
   // Sign out of the account on this device: every profile picked here ends too.
   async logout() {
+    try { await vault()?.signOut(); } catch { }        // back up this profile's games, leave none behind
     const as = this.signedIn ? 'profile' : this.hasAccount ? 'account' : null;
     if (as) try { await this.req('POST', '/api/logout', null, { as }); } catch { }
     this.forget();
@@ -89,13 +99,22 @@ export const account = {
   // profiles
   async profiles() { return (await this.req('GET', '/api/profiles', null, { as: this.hasAccount ? 'account' : 'profile' })).profiles; },
   async selectProfile(id, pin) {
+    await this.flush();
     const j = await this.req('POST', '/api/profiles/select', { id, pin }, { as: 'account' });
-    this.remember(j); return j;
+    this.remember(j); await this.arrive(); return j;
   },
+  // Play as a guest: no account, no saves, the free games only.
+  async guestLogin() { await this.flush(); const j = await this.req('POST', '/api/guest', null, { as: 'none' }); this.remember(j); await this.arrive(); return j; },
+  // before leaving a profile: back its games up online
+  async flush() { if (this.signedIn && !this.guest) try { await vault()?.syncUp(); } catch { } },
+  // after picking one: its games on this device, then the newest online copy
+  async arrive() { const v = vault(); if (!v) return; v.switchTo(this.profileId ?? ''); try { await v.syncDown(); } catch { } },
   async leaveProfile() {
-    if (!this.hasAccount) return this.logout();          // an old linked-device kid session: just end it
-    try { await this.req('POST', '/api/profiles/leave'); } catch { }
-    this.forgetProfile();
+    if (!this.hasAccount && !this.device) return this.logout();   // a guest or old-style sign-in: just end it
+    await this.flush();
+    if (this.hasAccount) { try { await this.req('POST', '/api/profiles/leave'); } catch { } }
+    else { try { await this.req('POST', '/api/logout'); } catch { } }   // an old linked-device kid session
+    this.forgetProfile(); vault()?.switchTo('');
   },
   setProfileLock(password, pin) { return this.req('PUT', '/api/profile-lock', { password, pin }); },
 
@@ -109,7 +128,7 @@ export const account = {
   unlinkDevice(id) { return this.req('DELETE', `/api/family/devices/${id}`); },
   async linkWithCode(code, label) { const j = await this.req('POST', '/api/device/link', { code, label }, { as: 'none' }); this.device = j.deviceToken; },
   async kids() { return (await this.req('GET', '/api/device/kids', null, { as: 'device' })).kids; },
-  async kidLogin(kid, pin) { const j = await this.req('POST', '/api/device/kid-login', { kid, pin }, { as: 'device' }); this.remember(j); },
+  async kidLogin(kid, pin) { await this.flush(); const j = await this.req('POST', '/api/device/kid-login', { kid, pin }, { as: 'device' }); this.remember(j); await this.arrive(); },
   async setAvatar(avatar) { await this.req('PUT', '/api/me/avatar', { avatar }); write(AVATAR_KEY, avatar); },
 };
 
@@ -132,6 +151,7 @@ export function mountAccountChip(header) {
     if (!account.signedIn) { a.textContent = account.hasAccount || account.device ? 'Who’s playing?' : 'Sign in'; return; }
     const name = document.createElement('b'); name.textContent = account.user;
     a.append(account.avatar ? avatarEl(account.avatar, 30) : '👤 ', ' ', name);
+    if (account.guest) { a.append(' '); const t = document.createElement('span'); t.className = 'tier basic'; t.textContent = 'Guest'; a.append(t); return; }
     if (!account.kid) {
       const tier = document.createElement('span'); tier.className = 'tier ' + account.tier; tier.textContent = account.full ? 'Full' : 'Basic';
       a.append(' ', tier);

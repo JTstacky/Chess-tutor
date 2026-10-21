@@ -30,6 +30,7 @@ async function render() {
   if (['login', 'signup', 'recover'].includes(view)) return grownUpForm(view);
   if (view === 'kid-help') return kidHelp();
   if (view === 'lock') return lockForm();
+  if (account.guest) return guestHome();
   if (account.kid) return kidHome();
   if (account.signedIn) return view?.addKid || view?.editKid ? kidForm(view.editKid) : grownUpHome();
   if (account.hasAccount) return profilePicker();
@@ -143,6 +144,15 @@ function kidHome() {
   btn('Switch profile', async () => { await account.leaveProfile(); chip(); go(null); }, row2, 'btn ghost');
 }
 
+function guestHome() {
+  box.classList.add('kids');
+  el('h2', { className: 'big-title', textContent: 'Playing as a guest' }, box);
+  el('p', { className: 'lead', textContent: 'You can play the free games. Nothing is saved: sign in to keep your progress.' }, box);
+  const row = el('div', { className: 'row center' }, box);
+  el('a', { className: 'btn huge', href: nextPage, textContent: 'Play! ▶' }, row);
+  btn('Sign in instead', async () => { await account.logout(); chip(); go('login'); }, el('div', { className: 'row center' }, box), 'btn ghost');
+}
+
 function avatarPicker(current, onPick, onCancel, parent = box) {
   el('h2', { textContent: 'Pick a picture' }, parent);
   const grid = el('div', { className: 'avatar-grid' }, parent);
@@ -211,6 +221,13 @@ function grownUpForm(mode) {
     el('a', { className: 'link', href: '#', textContent: 'Forgot your password?', onclick: e => { e.preventDefault(); go('recover'); } }, p);
     p.append(' · ');
     el('a', { className: 'link', href: '#', textContent: 'I’m a kid', onclick: e => { e.preventDefault(); go('kid-help'); } }, p);
+    const g = el('div', { className: 'row' }, box);
+    const gb = btn('Play as a guest', async () => {
+      gb.disabled = true;
+      try { await account.guestLogin(); chip(); location.assign(nextPage); }
+      catch (e2) { gb.disabled = false; msg.textContent = e2.message; }
+    }, g, 'btn ghost wide');
+    el('p', { className: 'note', textContent: 'Guests play the free games. Nothing is saved.' }, box);
   }
   // Check the easy things here, with the message right by the button, before asking the server.
   const problem = () => {
