@@ -124,3 +124,8 @@ footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px
 .account-panel .btn.danger { background: #ffe1db; color: #a12a12; }
 .account-panel .check { display: flex; align-items: center; gap: 8px; font-weight: 500; }
 .account-panel .check input { width: auto; }
+/* profiles (Netflix-style picker) */
+.avatar.grown { background: #e6e0ff; }
+.account-panel .or { text-align: center; margin: 18px 0 6px; font-weight: 600; color: #6b6290; }
+.account-panel .btn.wide { flex: 1; }
+.account-panel .note.warn { background: #fff4d6; border-radius: 10px; padding: 8px 12px; }

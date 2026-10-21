@@ -95,8 +95,9 @@
     </main>
     <footer>© Teng Games</footer>
     <script type="module">
-      import { mountAccountChip } from '/src/site/auth.js';
-      mountAccountChip(document.querySelector('.site-header'));
+      import { mountAccountChip, requireProfile } from '/src/site/auth.js';
+      // Sign in and pick a profile first (the server-side gate is the real lock: Teng Games Accounts/docs/PROFILES.md).
+      if (requireProfile()) mountAccountChip(document.querySelector('.site-header'));
     </script>
   </body>
 </html>
