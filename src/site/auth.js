@@ -84,8 +84,11 @@ export const account = {
   async login(username, password) { const j = await this.req('POST', '/api/login', { username, password, profiles: true }); this.rememberAccount(j); return j; },
   async recover(username, recovery, password) { const j = await this.req('POST', '/api/recover', { username, recovery, password, profiles: true }); this.rememberAccount(j); return j; },
   // Sign out of the account on this device: every profile picked here ends too.
-  async logout() {
-    try { await vault()?.signOut(); } catch { }        // back up this profile's games, leave none behind
+  // mode: undefined (only if all progress is backed up), 'keep' (keep what isn't on this device) or 'delete'
+  async logout(mode) {
+    // back up this profile's games and leave none behind; refuse if they aren't backed up (unless a mode says)
+    const v = vault();
+    if (v && !(await v.signOut(mode))) throw Object.assign(new Error('Progress on this device isn’t backed up yet.'), { code: 'unsynced' });
     const as = this.signedIn ? 'profile' : this.hasAccount ? 'account' : null;
     if (as) try { await this.req('POST', '/api/logout', null, { as }); } catch { }
     this.forget();
@@ -106,15 +109,20 @@ export const account = {
   // Play as a guest: no account, no saves, the free games only.
   async guestLogin() { await this.flush(); const j = await this.req('POST', '/api/guest', null, { as: 'none' }); this.remember(j); await this.arrive(); return j; },
   // before leaving a profile: back its games up online
-  async flush() { if (this.signedIn && !this.guest) try { await vault()?.syncUp(); } catch { } },
+  async flush() { if (this.signedIn && !this.guest) try { await vault()?.sync(); } catch { } },
   // after picking one: its games on this device, then the newest online copy
-  async arrive() { const v = vault(); if (!v) return; v.switchTo(this.profileId ?? ''); try { await v.syncDown(); } catch { } },
+  async arrive() {
+    const v = vault(); if (!v) return;
+    if (!(await v.switchTo(this.profileId ?? ''))) throw new Error('This device couldn’t put the last player’s games aside (is its storage full?). Ask a grown-up.');
+    if (this.accountUser && !this.guest) try { await v.forgetOtherAccounts(this.accountUser.trim().toLowerCase()); } catch { }
+    try { await v.sync(); } catch { }
+  },
   async leaveProfile() {
     if (!this.hasAccount && !this.device) return this.logout();   // a guest or old-style sign-in: just end it
     await this.flush();
     if (this.hasAccount) { try { await this.req('POST', '/api/profiles/leave'); } catch { } }
     else { try { await this.req('POST', '/api/logout'); } catch { } }   // an old linked-device kid session
-    this.forgetProfile(); vault()?.switchTo('');
+    this.forgetProfile(); try { await vault()?.switchTo(''); } catch { }
   },
   setProfileLock(password, pin) { return this.req('PUT', '/api/profile-lock', { password, pin }); },
 

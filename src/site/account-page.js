@@ -12,11 +12,31 @@ const btn = (text, onclick, parent, cls = 'btn') => el('button', { className: cl
 let view = null;
 let seq = 0;              // each render bumps it; a slow render that was overtaken stops drawing
 const go = v => { view = v; render(); };
+// Sign out of this device; if the playing profile's progress isn't backed up yet, ask first.
+async function signOut(mode) {
+  try { await account.logout(mode); chip(); go(null); }
+  catch (e) {
+    if (e.code !== 'unsynced') throw e;
+    box.replaceChildren();
+    el('h2', { textContent: 'Not backed up yet' }, box);
+    el('p', { textContent: 'Some game progress on this device isn’t saved online yet (is the internet down?).' }, box);
+    const row = el('div', { className: 'row' }, box);
+    btn('Try again', () => signOut(), row);
+    btn('Sign out, keep it on this device', () => signOut('keep'), row, 'btn ghost');
+    el('p', { className: 'note', textContent: 'Kept progress is saved online the next time that profile plays here.' }, box);
+    const row2 = el('div', { className: 'row' }, box);
+    const del = btn('Sign out and delete it', () => { if (!del.dataset.sure) { del.dataset.sure = '1'; del.textContent = 'Delete it for good?'; return; } signOut('delete'); }, row2, 'btn ghost danger');
+    btn('Cancel', () => go(null), row2, 'btn ghost');
+  }
+}
 
 // Where to go after picking a profile: the page that sent us here (same site only), or the games.
 const nextPage = (() => {
-  const n = new URLSearchParams(location.search).get('next') ?? '';
-  return /^\/(?!\/)[^\\]*$/.test(n) && !n.startsWith('/account') ? n : '/';
+  try {
+    const u = new URL(new URLSearchParams(location.search).get('next') ?? '/', location.origin);
+    if (u.origin === location.origin && !u.pathname.startsWith('/account')) return u.pathname + u.search + u.hash;
+  } catch { }
+  return '/';
 })();
 
 async function render() {
@@ -57,7 +77,7 @@ async function profilePicker() {
   const grown = list.find(p => p.kind === 'parent');
   const row = el('div', { className: 'row center' }, box);
   if (grown) btn('Manage profiles', () => pick(grown, { manage: true }), row, 'btn ghost');
-  btn('Sign out', async () => { await account.logout(); chip(); go(null); }, row, 'btn ghost');
+  btn('Sign out', () => signOut(), row, 'btn ghost');
 }
 
 async function pick(p, { manage = false } = {}) {
@@ -150,7 +170,7 @@ function guestHome() {
   el('p', { className: 'lead', textContent: 'You can play the free games. Nothing is saved: sign in to keep your progress.' }, box);
   const row = el('div', { className: 'row center' }, box);
   el('a', { className: 'btn huge', href: nextPage, textContent: 'Play! ▶' }, row);
-  btn('Sign in instead', async () => { await account.logout(); chip(); go('login'); }, el('div', { className: 'row center' }, box), 'btn ghost');
+  btn('Sign in instead', async () => { await account.logout('delete'); chip(); go('login'); }, el('div', { className: 'row center' }, box), 'btn ghost');
 }
 
 function avatarPicker(current, onPick, onCancel, parent = box) {
@@ -305,6 +325,21 @@ async function grownUpHome() {
   }
   if (fam.kids.length < 8) btn('+ Add a kid', () => go({ addKid: true }), famBox);
 
+  // Game progress this device had from before profiles: the grown-up gives it to a profile, or deletes it.
+  const legacy = await window.TGProfile?.legacy();
+  if (legacy && my === seq) {
+    const lb = el('section', { className: 'family' }, box);
+    el('h3', { textContent: 'Older progress on this device' }, lb);
+    el('p', { className: 'note', textContent: `This device has game progress from before profiles (${Object.keys(legacy).length} saved items). Whose is it?` }, lb);
+    const row = el('div', { className: 'row' }, lb);
+    const all = [{ id: account.profileId, name: account.user + ' (you)' }, ...fam.kids.map(k => ({ id: String(k.id), name: k.nickname }))];
+    for (const p of all) btn(p.name, async () => { await window.TGProfile.giveLegacy(p.id); render(); }, row, 'btn small');
+    const del = btn('Delete it', async () => {
+      if (!del.dataset.sure) { del.dataset.sure = '1'; del.textContent = 'Delete it for good?'; return; }
+      await window.TGProfile.dropLegacy(); render();
+    }, row, 'btn small danger');
+  }
+
   // Devices linked the older way (before sign-in + profiles). Nothing new needs linking now.
   if (fam.devices.length) {
     const devBox = el('section', { className: 'family' }, box);
@@ -321,7 +356,7 @@ async function grownUpHome() {
   }
 
   const out = el('div', { className: 'row' }, box);
-  btn('Sign out of this device', async () => { await account.logout(); chip(); go(null); }, out, 'btn ghost');
+  btn('Sign out of this device', () => signOut(), out, 'btn ghost');
 }
 
 // The grown-up profile's own PIN, so kids can't open it. Needs the account password.
@@ -388,5 +423,10 @@ function kidForm(kid) {
 const header = document.querySelector('.site-header');
 const chip = () => { header.querySelector('.account-chip')?.remove(); mountAccountChip(header); };
 chip();
-render();
+// A game page sent us here to switch profile or apply newer progress from another device: do it, then go back.
+const params = new URLSearchParams(location.search);
+if ((params.has('switch') || params.has('sync')) && account.signedIn) {
+  el('h2', { className: 'big-title', textContent: 'One moment…' }, box);
+  account.arrive().then(() => location.replace(nextPage), e => { box.replaceChildren(); el('p', { className: 'msg big', textContent: e.message }, box); });
+} else render();
 account.refresh().then(() => { chip(); if (!view) render(); }, () => { if (!view) render(); });
