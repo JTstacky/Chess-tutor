@@ -19,6 +19,7 @@
     </header>
     <main>
       <h1>Pick a game!</h1>
+      <nav class="game-nav" aria-label="Game collections"><a href="#retro-classics">Retro classics ↓</a><a href="/retro/">Browse the Retro Archive →</a></nav>
       <div class="games">
         <a class="game-card chess" href="/chess/">
           <div class="art"><img class="icon" src="/icons/chess.webp" alt="" width="96" height="96" decoding="async" /></div>
@@ -93,9 +94,16 @@
           <p>Watch this space!</p>
         </div>
       </div>
+      <section id="retro-classics" aria-labelledby="retro-heading">
+        <h2 id="retro-heading">Retro classics</h2>
+        <p class="collection-note">Classic games, ready to play in your browser. Full-account games are available to approved accounts.</p>
+        <div class="games" id="retro-games"></div>
+        <p class="back"><a href="/retro/">Browse all retro games →</a></p>
+      </section>
     </main>
     <footer>© Teng Games</footer>
     <script type="module">
+      import './src/site/retro-catalog.js';
       import { mountAccountChip, requireProfile } from '/src/site/auth.js';
       // Sign in and pick a profile first (the server-side gate is the real lock: Teng Games Accounts/docs/PROFILES.md).
       if (requireProfile()) mountAccountChip(document.querySelector('.site-header'));

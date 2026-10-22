@@ -131,3 +131,11 @@ footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px
 .account-panel .note.warn { background: #fff4d6; border-radius: 10px; padding: 8px 12px; }
 /* game icons (made with local ComfyUI: E:AIGamesGame Icons) */
 .art img.icon { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); object-fit: cover; }
+
+.game-nav { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin:-8px 0 24px; }
+.game-nav a { padding:12px 18px; border-radius:999px; background:var(--brand); color:white; text-decoration:none; font-weight:600; }
+#retro-classics { margin-top:48px; scroll-margin-top:20px; }
+#retro-heading { text-align:center; font-size:32px; margin-bottom:8px; }
+.collection-note { text-align:center; color:var(--muted); margin-bottom:24px; }
+.retro .art { background:linear-gradient(135deg,#302459,#7754b7); border-radius:16px; width:100%; }
+.retro h3 { font-size:24px; margin:12px 0 0; }
