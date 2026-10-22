@@ -19,6 +19,10 @@
     location.replace('https://' + location.host + location.pathname + location.search + location.hash);
     return;
   }
+  // Shared controller controls are independent of account storage and game builds.
+  var controllerScript = document.createElement('script');
+  controllerScript.src = '/tg-controller.js'; controllerScript.defer = true;
+  document.head.appendChild(controllerScript);
   var API = 'https://ev-online-api.justintengyz.workers.dev';
   var SITE_KEY = /^(evonline\.|tenggames\.|tg\.)/;
   var OWNER = 'tg.owner', OWNER_ACCOUNT = 'tg.owner.account', PARTIAL = 'tg.partial';

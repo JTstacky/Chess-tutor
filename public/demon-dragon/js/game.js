@@ -367,8 +367,13 @@
   const padWas = {};
   function pollPad() {
     requestAnimationFrame(pollPad);
-    const gp = navigator.getGamepads ? [...navigator.getGamepads()].find((g) => g && g.connected) : null;
-    if (!gp) return;
+    let gp = navigator.getGamepads ? [...navigator.getGamepads()].find((g) => g && g.connected) : null;
+    if (!gp || document.hidden || window.TGController?.suspended) {
+      if (padStick.x || padStick.z) { padStick.x = padStick.z = 0; pushInput(); }
+      for (const i in padWas) padWas[i] = false;
+      return;
+    }
+    gp = window.TGController?.filterPad(gp) || gp;
     let x = gp.axes[0] || 0, z = gp.axes[1] || 0;
     const b = (i) => !!(gp.buttons[i] && gp.buttons[i].pressed);
     if (b(14)) x = -1;

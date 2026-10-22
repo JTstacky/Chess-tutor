@@ -76,6 +76,7 @@ class Input {
   }
 
   padFrame(pad) {
+    pad = window.TGController?.filterPad(pad) || pad;
     const f = emptyFrame();
     const b = (i) => pad.buttons[i] && pad.buttons[i].pressed;
     const ax = pad.axes[0] || 0;
