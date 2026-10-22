@@ -234,7 +234,7 @@ function grownUpForm(mode) {
   if (mode === 'recover' && setupUser && setupCode) { user.value = setupUser; code.value = setupCode; }
   const pass = field(mode === 'login' ? 'Password' : 'New password', 'password', 'password', mode === 'login' ? 'current-password' : 'new-password');
   const pass2 = mode === 'login' ? null : field('Password again', 'password', 'password2', 'new-password');
-  if (mode !== 'login') el('p', { className: 'note', textContent: 'Username: 2 to 30 letters, numbers or spaces (not an email address). Password: at least 8 characters.' }, f);
+  if (mode !== 'login') el('p', { className: 'note', textContent: 'Username: 3 to 30 letters, numbers or spaces (not an email address). Password: at least 8 characters.' }, f);
   const msg = el('p', { className: 'msg', role: 'status', ariaLive: 'assertive' }, f);
   const row = el('div', { className: 'row' }, f);
   const submit = el('button', { className: 'btn', type: 'submit', textContent: mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Make account' : 'Reset password' }, row);
@@ -259,7 +259,7 @@ function grownUpForm(mode) {
     const u = user.value.trim();
     if (!u) return 'Type a username.';
     if (mode !== 'login' && u.includes('@')) return 'Use a username, not an email address. We don’t need your email.';
-    if (mode !== 'login' && (u.length < 2 || u.length > 30)) return 'Usernames are 2 to 30 characters.';
+    if (mode !== 'login' && !(mode === 'recover' && u.toLowerCase() === 'jt') && (u.length < 3 || u.length > 30)) return 'Usernames are 3 to 30 characters.';
     if (code && !code.value.trim()) return 'Type your recovery code.';
     if (!pass.value) return 'Type a password.';
     if (mode !== 'login' && pass.value.length < 8) return 'Passwords are at least 8 characters.';
