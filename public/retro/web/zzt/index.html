@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/tg-profile.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d14">
+  <title>ZZT - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-zzt-vY-EtaYZ.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-CNVK96x1.js">
+  <link rel="modulepreload" crossorigin href="../../assets/preload-helper-BaNbYf_w.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-zzt-D9m_m4Zf.css">
+</head>
+<body>
+  <main id="app">
+    <section id="picker" class="panel">
+      <h1>ZZT</h1>
+      <p id="status" role="status">Loading game files...</p>
+      <div id="worlds" class="worlds"></div>
+      <p class="hint desktop-only">Keys: arrows move, Shift+arrow shoots, T torch, P pause, S save, Esc or Q quit.
+        On the title screen: P play, W pick a world, R restore a game, A about, H high scores.</p>
+    </section>
+
+    <section id="play" hidden>
+      <div id="touch-left" class="touch-side"></div>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+        <input id="kbd" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Type here" tabindex="-1">
+      </div>
+      <div id="touch-right" class="touch-side"></div>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> our web build of <a href="https://github.com/asiekierka/libzoo" rel="noopener">libzoo</a>
+      by Adrian Siekierka (asiekierka), a C re-implementation of the
+      <a href="https://github.com/asiekierka/reconstruction-of-zzt" rel="noopener">Reconstruction of ZZT</a>,
+      both MIT licensed; our fork adds the web frontend, ZZT's own title screen, prompts and high scores.</p>
+    <p><strong>Game:</strong> ZZT (1991) and Super ZZT (1992) are &copy; Epic MegaGames, Inc. (Tim Sweeney). Epic's
+      licence allows them to be copied and distributed at no cost in their original form; they are not public domain
+      and are only served to signed-in accounts.</p>
+  </footer>
+</body>
+</html>

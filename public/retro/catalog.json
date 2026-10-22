@@ -91,6 +91,16 @@
       "publishedAt": "2026-10-22T07:56:52.845Z"
     },
     {
+      "id": "zzt",
+      "title": "ZZT",
+      "year": 1991,
+      "developer": "Potomac Computer Systems / Epic MegaGames (Tim Sweeney)",
+      "blurb": "Tim Sweeney's ZZT (Town, Caves, Dungeons, City, Tour and Demo) on our own engine, crisp 80x25 text on any screen, with touch controls and saved games. Super ZZT is coming later.",
+      "tier": "B",
+      "licence": "Engine: libzoo fork (MIT), based on the Reconstruction of ZZT / Super ZZT (MIT). Game data: ZZT 3.2 and Super ZZT 2.0 as Epic MegaGames distributed them; Epic's licence allows no-cost copying and distribution in original form (it must not be called freeware).",
+      "publishedAt": "2026-10-22T23:26:33.981Z"
+    },
+    {
       "id": "omf",
       "title": "One Must Fall 2097",
       "year": 1994,
@@ -98,7 +108,7 @@
       "blurb": "The robot fighting game: one player against the computer, two players on one keyboard, and tournament mode with saved pilots, on the OpenOMF engine with touch controls.",
       "tier": "B",
       "licence": "Engine: OpenOMF fork (MIT) with libxmp (LGPL-2.1-or-later), ENet (MIT), libConfuse (ISC), SDL2 and SDL2_mixer (zlib); the fork's source is linked from the page. Game data: the original 2.1 CD release (Epic's limited use licence forbids copying), so the files load for full accounts only.",
-      "publishedAt": "2026-10-22T23:23:25.304Z"
+      "publishedAt": "2026-10-22T23:27:11.493Z"
     }
   ]
 }
