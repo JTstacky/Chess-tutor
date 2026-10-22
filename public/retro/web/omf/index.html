@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/tg-profile.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d14">
+  <title>One Must Fall 2097 - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-omf-vTk7drs0.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-CNVK96x1.js">
+  <link rel="modulepreload" crossorigin href="../../assets/preload-helper-BaNbYf_w.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-omf-BqJ_NYHv.css">
+</head>
+<body>
+  <main id="app">
+    <section id="picker" class="panel">
+      <h1>One Must Fall 2097</h1>
+      <p class="sub">Diversions Entertainment / Epic MegaGames, 1994. The robot fighting game, on the OpenOMF engine.</p>
+      <p id="status" role="status">Loading game files...</p>
+      <div class="actions"><button type="button" id="play-button" hidden>Play</button></div>
+      <p class="hint desktop-only">Keys: arrows move (up jumps, down ducks, diagonals jump or duck forward and back),
+        Enter punches, right Shift kicks. Enter also confirms in menus; Esc goes back. Player 2 (two player game):
+        W A S D with Q E Z C diagonals, left Ctrl punches, left Shift kicks.</p>
+    </section>
+
+    <section id="play" hidden>
+      <div id="touch-left" class="touch-side"></div>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+      <div id="touch-right" class="touch-side"></div>
+      <div id="keypad" hidden></div>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> <a href="https://github.com/omf2097/openomf" rel="noopener">OpenOMF</a> by Tuomas Virtanen,
+      Andrew Thompson, Hunter and the OpenOMF contributors, under the <a id="engine-licence" href="#">MIT licence</a>
+      (our web fork's source: <a id="engine-source" href="#" download>openomf-retro source (tar.gz)</a>). Music plays through
+      <a href="https://github.com/libxmp/libxmp" rel="noopener">libxmp</a> 4.6.3 (LGPL-2.1-or-later); networking code links
+      <a href="https://github.com/lsalzman/enet" rel="noopener">ENet</a> (MIT) and the settings file is read with
+      <a href="https://github.com/libconfuse/libconfuse" rel="noopener">libConfuse</a> 3.3 (ISC). Sound through SDL2 and SDL2_mixer (zlib).</p>
+    <p><strong>Game:</strong> One Must Fall 2097 is &copy; 1994 Diversions Entertainment, published by Epic MegaGames.
+      The game files are the originals from the 2.1 CD release and are only served to approved accounts.</p>
+  </footer>
+</body>
+</html>

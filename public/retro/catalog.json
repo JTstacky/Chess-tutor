@@ -89,6 +89,16 @@
       "tier": "B",
       "licence": "Engine: cosmo-engine fork (GPL-2.0-or-later). Game data: Apogee's shareware episode 1 v1.20, whose VENDOR.DOC lets everyone copy and pass it around unchanged; it is served complete.",
       "publishedAt": "2026-10-22T07:56:52.845Z"
+    },
+    {
+      "id": "omf",
+      "title": "One Must Fall 2097",
+      "year": 1994,
+      "developer": "Diversions Entertainment; published by Epic MegaGames",
+      "blurb": "The robot fighting game: one player against the computer, two players on one keyboard, and tournament mode with saved pilots, on the OpenOMF engine with touch controls.",
+      "tier": "B",
+      "licence": "Engine: OpenOMF fork (MIT) with libxmp (LGPL-2.1-or-later), ENet (MIT), libConfuse (ISC), SDL2 and SDL2_mixer (zlib); the fork's source is linked from the page. Game data: the original 2.1 CD release (Epic's limited use licence forbids copying), so the files load for full accounts only.",
+      "publishedAt": "2026-10-22T23:23:25.304Z"
     }
   ]
 }
