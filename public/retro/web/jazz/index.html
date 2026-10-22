@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/tg-profile.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d14">
+  <title>Jazz Jackrabbit - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-jazz-BtepK1c_.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-CNVK96x1.js">
+  <link rel="modulepreload" crossorigin href="../../assets/preload-helper-BaNbYf_w.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-jazz-Dw8SXxQQ.css">
+</head>
+<body>
+  <main id="app">
+    <section id="picker" class="panel">
+      <h1>Jazz Jackrabbit</h1>
+      <p class="sub">Episode 1: Turtle Terror (shareware v1.1). Epic MegaGames, 1994.</p>
+      <p id="status" role="status">Loading game files...</p>
+      <div class="actions"><button type="button" id="play-button" hidden>Play</button></div>
+      <p class="hint desktop-only">Keys: arrows move, Space jumps, Alt fires, right Ctrl changes weapon, Enter confirms,
+        Esc opens the menu (save and load from there in a level), P pauses, F9 shows the stats.</p>
+    </section>
+
+    <section id="play" hidden>
+      <div id="touch-left" class="touch-side"></div>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+      <div id="touch-right" class="touch-side"></div>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> <a href="https://github.com/AlisterT/openjazz" rel="noopener">OpenJazz</a> by AJ Thomson,
+      Carsten Teibes and the OpenJazz contributors, with its bundled libxmp, miniz, argparse and stb. Licensed under the
+      <a id="engine-licence" href="#">GNU GPL v2 or later</a>; our web build's full source:
+      <a id="engine-source" href="#" download>openjazz-retro source (tar.gz)</a>.</p>
+    <p><strong>Game:</strong> Jazz Jackrabbit is &copy; 1994 Epic MegaGames. This is the shareware episode, which Epic's
+      licence lets online services distribute as long as no files are altered or removed; the files are the originals.</p>
+  </footer>
+</body>
+</html>
