@@ -139,3 +139,6 @@ footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px
 .collection-note { text-align:center; color:var(--muted); margin-bottom:24px; }
 .retro .art { background:linear-gradient(135deg,#302459,#7754b7); border-radius:16px; width:100%; }
 .retro h3 { font-size:24px; margin:12px 0 0; }
+
+.retro .art { height:180px; padding:10px; box-sizing:border-box; }
+.retro .art .retro-cover { width:100%; height:160px; object-fit:contain; filter:drop-shadow(0 4px 5px #0006); }

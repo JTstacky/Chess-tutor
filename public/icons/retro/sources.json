@@ -1,0 +1,38 @@
+{
+  "lemmings": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Lemmings%20(1991).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "pop": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Prince%20of%20Persia%20(1990).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "heroes2": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Heroes%20of%20Might%20and%20Magic%20II%20(Deluxe%20Edition)%20(1998).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "keen": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Commander%20Keen%201%20-%20Marooned%20on%20Mars%20(1990).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "tim": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Incredible%20Machine%2C%20The%20(1993).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "jazz": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Jazz%20Jackrabbit%20(1994).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "tyrian": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Tyrian%202000%20(1999).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "cosmo": {
+    "source": "https://raw.githubusercontent.com/libretro-thumbnails/DOS/master/Named_Boxarts/Cosmo's%20Cosmic%20Adventure%20-%20Forbidden%20Planet%20(1992).png",
+    "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "scummvm": {
+    "source": "https://github.com/scummvm/scummvm/blob/master/dists/android/store/scummvm_icon_512.png",
+    "description": "ScummVM project icon, representing the multi-game Adventure Classics collection."
+  }
+}

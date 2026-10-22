@@ -30,7 +30,7 @@ async function signOut(mode) {
     el('p', { className: 'note', textContent: 'Kept progress is saved online the next time that profile plays here.' }, box);
     const row2 = el('div', { className: 'row' }, box);
     const del = btn('Sign out and delete it', () => { if (!del.dataset.sure) { del.dataset.sure = '1'; del.textContent = 'Delete it for good?'; return; } signOut('delete'); }, row2, 'btn ghost danger');
-    btn('Cancel', () => go(null), row2, 'btn ghost');
+    btn('Back', () => go(null), row2, 'btn ghost');
   }
 }
 
@@ -191,7 +191,7 @@ function avatarPicker(current, onPick, onCancel, parent = box) {
     const b = el('button', { type: 'button', className: 'avatar-pick' + (id === current ? ' on' : ''), onclick: () => onPick(id) }, grid);
     b.append(avatarEl(id, 64)); b.setAttribute('aria-label', id);
   }
-  if (onCancel) btn('Cancel', onCancel, el('div', { className: 'row center' }, parent), 'btn ghost');
+  if (onCancel) btn('Back', onCancel, el('div', { className: 'row center' }, parent), 'btn ghost');
 }
 
 function kidHelp() {
@@ -389,7 +389,7 @@ function lockForm() {
     if (!pw.value) { msg.textContent = 'Type your password first.'; return; }
     try { await account.setProfileLock(pw.value, null); go(null); } catch (e) { msg.textContent = e.message; }
   }, row, 'btn ghost');
-  btn('Cancel', () => go(null), row, 'btn ghost');
+  btn('Back', () => go(null), row, 'btn ghost');
   f.addEventListener('submit', async e => {
     e.preventDefault();
     if (!/^\d{4}$/.test(pin.value)) { msg.textContent = 'A PIN is 4 numbers.'; return; }
@@ -417,7 +417,7 @@ function kidForm(kid) {
   const msg = el('p', { className: 'msg', role: 'status' }, f);
   const row = el('div', { className: 'row' }, f);
   el('button', { className: 'btn', type: 'submit', textContent: kid ? 'Save' : 'Add' }, row);
-  btn('Cancel', () => go(null), row, 'btn ghost');
+  btn('Back', () => go(null), row, 'btn ghost');
   f.addEventListener('submit', async e => {
     e.preventDefault();
     if (!avatar) { msg.textContent = 'Pick a picture.'; return; }
@@ -493,7 +493,7 @@ async function adminHome() {
     const password = el('input', { type: 'password', autocomplete: 'current-password', required: true, maxLength: 200 }, label);
     const message = el('p', { className: 'msg', role: 'status' }, f);
     const submit = el('button', { type: 'submit', className: 'btn', textContent: action === 'approve' ? 'Confirm approval' : action === 'reject' ? 'Confirm rejection' : action === 'reset' ? 'Confirm password reset' : 'Save access' }, f);
-    btn('Cancel', () => area.replaceChildren(), f, 'btn ghost');
+    btn('Back', () => area.replaceChildren(), f, 'btn ghost');
     f.addEventListener('submit', async e => {
       e.preventDefault(); submit.disabled = true; message.textContent = '';
       const body = { password: password.value }; password.value = '';

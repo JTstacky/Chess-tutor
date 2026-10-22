@@ -6,17 +6,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="theme-color" content="#000000">
-  <title>Lemmings</title>
+  <title>Lemmings</title>
   <script type="module" crossorigin src="../../assets/web-lemmings-fZMOaBOM.js"></script>
   <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
   <link rel="modulepreload" crossorigin href="../../assets/saves-CNVK96x1.js">
   <link rel="stylesheet" crossorigin href="../../assets/web-lemmings-U_Sh_qx3.css">
+<style>.tg-back{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;margin:4px;box-sizing:border-box;border:1px solid #b9a8ef;border-radius:10px;background:#29203e;color:#fff!important;font:600 15px/1.3 system-ui,sans-serif;text-decoration:none;touch-action:manipulation}.tg-back:focus-visible{outline:3px solid #ffce54;outline-offset:2px}</style>
 </head>
 <body>
   <main id="app" data-screen="loading">
 
     <!-- Loading the game files -->
-    <section id="loading" class="screen">
+    <section id="loading" class="screen"><a class="tg-back" href="/#retro-classics">&#8592; Back to games</a>
       <h1>Lemmings</h1>
       <p id="load-status">Loading game files...</p>
       <div class="bar"><div id="load-bar"></div></div>
@@ -25,7 +26,7 @@
 
     <!-- Game, rating and level picker -->
     <section id="menu" class="screen">
-      <header class="menu-head">
+      <header class="menu-head"><a class="tg-back" href="/#retro-classics">&#8592; Back to games</a>
         <div class="games" id="game-picker" role="tablist" aria-label="Game"></div>
         <button id="about-open" class="link" type="button">About</button>
       </header>
@@ -86,6 +87,6 @@
         Tap the nuke twice to confirm.</p>
       <form method="dialog"><button class="primary" type="submit">Close</button></form>
     </dialog>
-  </main>
+  </main>
 </body>
 </html>
