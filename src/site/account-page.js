@@ -53,6 +53,7 @@ async function render() {
   if (view?.pin) return pinPad(view);
   if (['login', 'signup', 'recover'].includes(view)) return grownUpForm(view);
   if (view === 'kid-help') return kidHelp();
+  if (view === 'admin' && account.signedIn) return adminHome();
   if (view === 'lock') return lockForm();
   if (account.guest) return guestHome();
   if (account.kid) return kidHome();
@@ -298,7 +299,9 @@ async function grownUpHome() {
   el('a', { className: 'btn', href: nextPage, textContent: 'Play ▶' }, top);
   btn('Switch profile', async () => { await account.leaveProfile(); chip(); go(null); }, top, 'btn ghost');
 
-  let fam; const my = seq;
+  const my = seq;
+  try { const me = await account.req('GET', '/api/me'); if (my !== seq) return; if (me.role === 'admin') btn('Manage all accounts', () => go('admin'), top, 'btn ghost'); } catch { }
+  let fam;
   const famBox = el('section', { className: 'family' }, box);
   el('h3', { textContent: 'Profiles' }, famBox);
   try { fam = await account.family(); } catch (e) { el('p', { className: 'msg', textContent: e.message }, famBox); return; }
@@ -435,3 +438,68 @@ if ((params.has('switch') || params.has('sync')) && account.signedIn) {
   account.arrive().then(() => location.replace(nextPage), e => { box.replaceChildren(); el('p', { className: 'msg big', textContent: e.message }, box); });
 } else render();
 account.refresh().then(() => { chip(); if (!view) render(); }, () => { if (!view) render(); });
+
+// ---------- site administrator ----------
+async function adminHome() {
+  el('h2', { textContent: 'Manage all accounts' }, box);
+  el('p', { className: 'note', textContent: 'Family accounts. Passwords are hashed and cannot be viewed. Reset links expire in one hour. Restricting a family blocks its profiles and online access; public guest play remains available.' }, box);
+  btn('Back to my account', () => go(null), box, 'btn ghost');
+  const list = el('div', {}, box), status = el('p', { className: 'msg', role: 'status' }, box), my = seq;
+  const more = btn('Load accounts', () => load(), box, 'btn ghost');
+  let after = 0;
+  async function load() {
+    more.disabled = true; status.textContent = '';
+    try {
+      const data = await account.req('GET', '/api/admin/accounts?after=' + after);
+      if (my !== seq) return;
+      for (const a of data.accounts) {
+        const row = el('section', { className: 'family' }, list);
+        el('h3', { textContent: a.username }, row);
+        el('p', { className: 'note', textContent: (a.suspended_at ? 'Restricted' : 'Active') + ' · ' + a.tier + ' access · ' + a.profiles + ' child profiles' }, row);
+        if (a.role === 'admin') { el('p', { textContent: 'Administrator — protected account' }, row); continue; }
+        const actions = el('div', { className: 'row' }, row);
+        const details = el('div', {}, row);
+        btn('Change access', () => edit(a, details, 'access'), actions, 'btn ghost');
+        btn('Reset password', () => edit(a, details, 'reset'), actions, 'btn ghost');
+      }
+      after = data.next; more.hidden = after == null; more.textContent = 'Load more';
+    } catch (e) { status.textContent = e.message; }
+    finally { more.disabled = false; }
+  }
+  function edit(a, area, action) {
+    area.replaceChildren();
+    const f = el('form', {}, area);
+    el('p', { textContent: action === 'reset' ? 'Reset ' + a.username + '? Their current password will stop working, their family will be signed out, and linked devices will be unlinked. Share the new one-use link privately. A restricted account must also be restored before it can use the link.' : 'Change access for ' + a.username + '? This signs the family out; saved progress is kept.' }, f);
+    let tier, restricted;
+    if (action === 'access') {
+      const l = el('label', { textContent: 'Game access' }, f); tier = el('select', {}, l);
+      for (const t of ['basic', 'full']) el('option', { value: t, textContent: t === 'full' ? 'Full — all games' : 'Basic — free games', selected: a.tier === t }, tier);
+      const r = el('label', { textContent: 'Account status' }, f); restricted = el('select', {}, r);
+      el('option', { value: 'false', textContent: 'Active', selected: !a.suspended_at }, restricted);
+      el('option', { value: 'true', textContent: 'Restricted — block sign-in and online access', selected: !!a.suspended_at }, restricted);
+    }
+    const label = el('label', { textContent: 'Your administrator password' }, f);
+    const password = el('input', { type: 'password', autocomplete: 'current-password', required: true, maxLength: 200 }, label);
+    const message = el('p', { className: 'msg', role: 'status' }, f);
+    const submit = el('button', { type: 'submit', className: 'btn', textContent: action === 'reset' ? 'Confirm password reset' : 'Save access' }, f);
+    btn('Cancel', () => area.replaceChildren(), f, 'btn ghost');
+    f.addEventListener('submit', async e => {
+      e.preventDefault(); submit.disabled = true; message.textContent = '';
+      const body = { password: password.value }; password.value = '';
+      if (action === 'access') { body.tier = tier.value; body.restricted = restricted.value === 'true'; }
+      try {
+        const result = await account.req('POST', '/api/admin/accounts/' + a.id + '/' + action, body);
+        if (action === 'access') { go('admin'); return; }
+        area.replaceChildren();
+        el('p', { textContent: 'Password reset. Copy this link and share it privately with ' + a.username + '. It expires in one hour and works once.' }, area);
+        const url = location.origin + '/account/#' + new URLSearchParams({ setup: a.username, recovery: result.recovery });
+        const link = el('input', { type: 'text', readOnly: true, value: url, ariaLabel: 'Private password reset link' }, area);
+        btn('Copy reset link', async () => { try { await navigator.clipboard.writeText(url); notice.textContent = 'Copied'; } catch { link.select(); notice.textContent = 'Select and copy the link'; } }, area, 'btn ghost');
+        const notice = el('p', { role: 'status' }, area);
+        btn('Hide link', () => area.replaceChildren(), area, 'btn ghost');
+      } catch (err) { message.textContent = err.message; submit.disabled = false; }
+    });
+    password.focus();
+  }
+  await load();
+}
