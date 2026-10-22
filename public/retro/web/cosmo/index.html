@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/tg-profile.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d14">
+  <title>Cosmo's Cosmic Adventure - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-cosmo-Dxy3epAt.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-CNVK96x1.js">
+  <link rel="modulepreload" crossorigin href="../../assets/preload-helper-BaNbYf_w.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-cosmo-NklaCygb.css">
+</head>
+<body>
+  <main id="app">
+    <section id="picker" class="panel">
+      <h1>Cosmo's Cosmic Adventure</h1>
+      <p id="status" role="status">Loading game files...</p>
+      <a id="signin" href="/account/" hidden>Sign in</a>
+      <div id="episodes" class="episodes"></div>
+      <p class="hint desktop-only">Keys: arrows move (up looks up and enters doors), Ctrl jump, Alt bomb, Esc or F1 menu (save and restore games), M music, S sound, Q quit.</p>
+    </section>
+
+    <section id="play" hidden>
+      <div id="touch-left" class="touch-side"></div>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+      <div id="touch-right" class="touch-side"></div>
+      <div id="keypad" hidden></div>
+      <div id="ended" hidden><span>The game has ended.</span><button type="button" id="again">Play again</button></div>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> <a href="https://github.com/yuv422/cosmo-engine" rel="noopener">cosmo-engine</a> by Eric Fry
+      and contributors, a reconstruction of the original game's engine, with its AdLib music emulation (Nuked OPL / DOSBox OPL
+      lineage) and PC speaker effects. Licensed under the <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" rel="noopener">GNU GPL v2</a>
+      or later; our web build's full source: <a id="engine-source" href="#" download>cosmo-engine-retro source (tar.gz)</a>
+      (<a id="engine-licence" href="#">licence</a>).</p>
+    <p><strong>Game:</strong> Cosmo's Cosmic Adventure &copy; 1992 Apogee Software, by Todd Replogle and Stephen Hornback.
+      Episode 1 is the shareware episode, which Apogee's VENDOR.DOC lets everyone copy and pass around unchanged;
+      the registered episodes 2 and 3 are only served to approved accounts.</p>
+  </footer>
+</body>
+</html>
