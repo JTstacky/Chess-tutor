@@ -109,6 +109,16 @@
       "tier": "B",
       "licence": "Engine: OpenOMF fork (MIT) with libxmp (LGPL-2.1-or-later), ENet (MIT), libConfuse (ISC), SDL2 and SDL2_mixer (zlib); the fork's source is linked from the page. Game data: the original 2.1 CD release (Epic's limited use licence forbids copying), so the files load for full accounts only.",
       "publishedAt": "2026-10-22T23:27:11.493Z"
+    },
+    {
+      "id": "openttd",
+      "title": "Transport Tycoon Deluxe (OpenTTD)",
+      "year": 1995,
+      "developer": "Chris Sawyer / MicroProse; OpenTTD by the OpenTTD team",
+      "blurb": "Build a transport empire of trains, trucks, ships and planes on the OpenTTD engine with the free OpenGFX graphics and OpenSFX sounds, touch-driven, with saves that follow you.",
+      "tier": "B",
+      "licence": "Engine: OpenTTD 15.3 fork (GPL-2.0). Data: OpenGFX 8.0 (GPL-2.0), OpenSFX 1.0.3 (CC BY-SA 3.0; other files GPL-2.0 / CDDL-1.1), OpenMSX 0.4.2 (GPL-2.0); no original Transport Tycoon Deluxe files are used.",
+      "publishedAt": "2026-10-22T23:27:22.191Z"
     }
   ]
 }

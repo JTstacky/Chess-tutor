@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/tg-profile.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d14">
+  <title>Transport Tycoon Deluxe (OpenTTD) - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-openttd-BVHj_oEf.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-CNVK96x1.js">
+  <link rel="modulepreload" crossorigin href="../../assets/preload-helper-BaNbYf_w.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-openttd-Cm-F4OeV.css">
+</head>
+<body>
+  <main id="app">
+    <section id="panel" class="panel">
+      <h1>Transport Tycoon Deluxe</h1>
+      <p class="sub">OpenTTD 15.3 with the free OpenGFX graphics and OpenSFX sounds, in your browser.</p>
+      <p id="status" role="status">Loading...</p>
+      <div id="options">
+        <label><input type="checkbox" id="sound"> Sound effects (OpenSFX, a 13 MB download, kept on this device)</label>
+      </div>
+      <p class="hint">Tap to click; drag the map to scroll (with a build tool selected, dragging builds); two fingers
+        pan and pinch to zoom; hold a finger for a right click (tooltips). Mouse: right-drag scrolls, wheel zooms,
+        F3 opens the save window (loading is in the main menu and the toolbar's disk menu), Esc closes windows,
+        Tab is fast forward.</p>
+      <p id="again" hidden><button type="button" id="play-again">Play again</button></p>
+    </section>
+
+    <section id="play" hidden>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+      <nav id="bar" aria-label="Game controls">
+        <button type="button" id="ctrl" title="Hold Ctrl for the next clicks (Ctrl+click actions)">Ctrl</button>
+        <button type="button" id="esc" title="Close window / cancel (Esc)">Esc</button>
+        <button type="button" id="save" title="Save game (F3)">Save</button>
+        <button type="button" id="load" title="Load game">Load</button>
+        <button type="button" id="size" title="Interface size">Size</button>
+        <button type="button" id="fullscreen" title="Full screen">Full</button>
+      </nav>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> <a href="https://www.openttd.org/" rel="noopener">OpenTTD</a> by the OpenTTD team
+      (see <a href="https://github.com/OpenTTD/OpenTTD/blob/master/CREDITS.md" rel="noopener">credits</a>), version
+      15.3, in our web build. Licensed under the <a id="engine-licence" href="#">GNU GPL v2</a>; the build's full
+      source: <a id="engine-source" href="#" download>openttd-retro source (tar.gz)</a>.</p>
+    <p><strong>Data:</strong> <a href="https://github.com/OpenTTD/OpenGFX" rel="noopener">OpenGFX</a> 8.0 base graphics
+      (GPL v2), <a href="https://github.com/OpenTTD/OpenSFX" rel="noopener">OpenSFX</a> 1.0.3 sound effects
+      (CC BY-SA 3.0; other files GPL v2 / CDDL 1.1) by their contributors. No files from the original Transport Tycoon
+      Deluxe are used. Transport Tycoon Deluxe is &copy; Chris Sawyer / MicroProse.</p>
+  </footer>
+</body>
+</html>
