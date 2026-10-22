@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/tg-profile.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#06070d">
+  <title>Tyrian 2000 - Retro Archive</title>
+  <script type="module" crossorigin src="../../assets/web-tyrian-BTODksf7.js"></script>
+  <link rel="modulepreload" crossorigin href="../../assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="../../assets/saves-CNVK96x1.js">
+  <link rel="modulepreload" crossorigin href="../../assets/preload-helper-BaNbYf_w.js">
+  <link rel="stylesheet" crossorigin href="../../assets/web-tyrian-BtL09az9.css">
+</head>
+<body>
+  <main id="app">
+    <section id="panel" class="panel">
+      <h1>Tyrian 2000</h1>
+      <p id="status" role="status">Loading game files...</p>
+      <p class="hint desktop-only">Keys: arrows fly, Space fire, Enter rear weapon mode, Ctrl / Alt sidekicks, P pause, Esc menu.
+        The mouse flies the ship too.</p>
+      <p class="hint touch-only">Touch: drag on the game to fly (the finger fires), buttons for the sidekicks, menus and pause.</p>
+      <p id="quit" hidden><button type="button" id="again">Play again</button></p>
+    </section>
+
+    <section id="play" hidden>
+      <div id="touch-left" class="touch-side"></div>
+      <div id="stage">
+        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+      <div id="touch-right" class="touch-side"></div>
+    </section>
+  </main>
+
+  <footer id="credits">
+    <p><strong>Engine:</strong> <a href="https://github.com/KScl/opentyrian2000" rel="noopener">OpenTyrian2000</a> by Kaito
+      Sinclaire, a fork of <a href="https://github.com/opentyrian/opentyrian" rel="noopener">OpenTyrian</a> by The OpenTyrian
+      Development Team. Licensed under the <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" rel="noopener">GNU GPL v2</a>
+      (<a id="engine-licence" href="#">licence text</a>); our web build's full source:
+      <a id="engine-source" href="#" download>opentyrian2000-retro source (tar.gz)</a>.</p>
+    <p><strong>Game:</strong> Tyrian 2000 is &copy; 1999 Eclipse Software and XSIV Games / Stealth Productions; Tyrian was
+      written by Jason Emery, with art by Daniel Cook and music by Alexander Brandon and Andras Molnar. The game files are
+      the originals and are only served to approved accounts.</p>
+  </footer>
+</body>
+</html>
