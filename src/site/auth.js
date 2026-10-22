@@ -80,9 +80,9 @@ export const account = {
     if (!r.ok) throw Object.assign(new Error(j.error ?? `Server error (${r.status}).`), { status: r.status });
     return j;
   },
-  async signup(username, password) { const j = await this.req('POST', '/api/signup', { username, password, profiles: true }); this.rememberAccount(j); return j; },
-  async login(username, password) { const j = await this.req('POST', '/api/login', { username, password, profiles: true }); this.rememberAccount(j); return j; },
-  async recover(username, recovery, password) { const j = await this.req('POST', '/api/recover', { username, recovery, password, profiles: true }); this.rememberAccount(j); return j; },
+  async signup(username, password) { const j = await this.req('POST', '/api/signup', { username, password, profiles: true }); if (j.pending) this.forget(); else this.rememberAccount(j); return j; },
+  async login(username, password) { const j = await this.req('POST', '/api/login', { username, password, profiles: true }); if (j.pending) this.forget(); else this.rememberAccount(j); return j; },
+  async recover(username, recovery, password) { const j = await this.req('POST', '/api/recover', { username, recovery, password, profiles: true }); if (j.pending) this.forget(); else this.rememberAccount(j); return j; },
   // Sign out of the account on this device: every profile picked here ends too.
   // mode: undefined (only if all progress is backed up), 'keep' (keep what isn't on this device) or 'delete'
   async logout(mode) {

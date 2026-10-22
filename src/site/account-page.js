@@ -49,6 +49,12 @@ async function render() {
   box.className = 'account-panel';
   const back = document.querySelector('.back');
   if (back) back.hidden = !account.signedIn;   // the games only open once a profile is picked
+  if (view?.pending) {
+    el('h2', { textContent: 'Waiting for approval' }, box);
+    el('p', { textContent: 'Your account has been created. Justin needs to approve it before you can sign in and use its profiles. Please sign in again after approval.' }, box);
+    if (view.code) recoveryCode(view.code, true, view.username); else btn('Back to sign in', () => go('login'), box);
+    return;
+  }
   if (view?.code) return recoveryCode(view.code);
   if (view?.pin) return pinPad(view);
   if (['login', 'signup', 'recover'].includes(view)) return grownUpForm(view);
@@ -208,7 +214,7 @@ function kidHelp() {
 const deviceName = () => /iPad/.test(navigator.userAgent) ? 'iPad' : /iPhone/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'Android device' : 'Computer';
 
 // ---------- grown-ups ----------
-function recoveryCode(code) {
+function recoveryCode(code, pending = false, username = account.accountUser) {
   el('h2', { textContent: 'Your recovery code' }, box);
   el('p', { textContent: 'Write it down or save it somewhere safe. It is the only way back into your account if you forget your password, and it won’t be shown again.' }, box);
   el('div', { className: 'code', textContent: code }, box);
@@ -216,17 +222,17 @@ function recoveryCode(code) {
   btn('Copy', async () => { try { await navigator.clipboard.writeText(code); copy.textContent = 'Copied ✓'; } catch { copy.textContent = 'Select and copy it'; } }, row, 'btn ghost');
   const copy = row.lastChild;
   btn('Save as a file', () => {
-    const a = el('a', { href: URL.createObjectURL(new Blob([`Teng Games recovery code for ${account.accountUser}\n${code}\n`], { type: 'text/plain' })), download: 'teng-games-recovery-code.txt' });
+    const a = el('a', { href: URL.createObjectURL(new Blob([`Teng Games recovery code for ${username}\n${code}\n`], { type: 'text/plain' })), download: 'teng-games-recovery-code.txt' });
     a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }, row, 'btn ghost');
-  btn('I’ve saved it ▶', () => go(null), el('div', { className: 'row' }, box));
+  btn('I’ve saved it ▶', () => go(pending ? { pending: true } : null), el('div', { className: 'row' }, box));
 }
 
 function grownUpForm(mode) {
   const title = mode === 'login' ? 'Sign in to Teng Games' : mode === 'signup' ? 'Make a family account' : 'Reset your password';
   el('h2', { textContent: title }, box);
   if (mode === 'login') el('p', { className: 'note', textContent: 'Grown-ups sign in once on each device. Then everyone picks their profile.' }, box);
-  if (mode === 'signup') el('p', { className: 'note', textContent: 'For grown-ups. No email or real name needed: pick a username. You add your kids’ profiles after.' }, box);
+  if (mode === 'signup') el('p', { className: 'note', textContent: 'For grown-ups. No email or real name needed: pick a username. New accounts need Justin’s approval before use. You add your kids’ profiles after approval.' }, box);
   const f = el('form', { noValidate: true }, box);
   const field = (label, type, name, auto) => { const l = el('label', { textContent: label }, f); return el('input', { type, name, autocomplete: auto, spellcheck: false, autocapitalize: 'off' }, l); };
   const user = field('Username', 'text', 'username', mode === 'signup' ? 'off' : 'username');
@@ -277,7 +283,7 @@ function grownUpForm(mode) {
       if (mode === 'login') j = await account.login(user.value.trim(), pass.value);
       else if (mode === 'signup') j = await account.signup(user.value.trim(), pass.value);
       else j = await account.recover(user.value.trim(), code.value, pass.value);
-      chip(); go(j.recovery ? { code: j.recovery } : null);
+      chip(); go(j.pending ? { pending: true, code: j.recovery, username: j.username } : j.recovery ? { code: j.recovery } : null);
     } catch (err) {
       msg.textContent = err.status === 401 && mode === 'login' ? 'Wrong username or password. New here? Make a family account below.' : err.message;
       msg.scrollIntoView({ block: 'nearest' }); submit.disabled = false;
@@ -455,11 +461,14 @@ async function adminHome() {
       for (const a of data.accounts) {
         const row = el('section', { className: 'family' }, list);
         el('h3', { textContent: a.username }, row);
-        el('p', { className: 'note', textContent: (a.suspended_at ? 'Restricted' : 'Active') + ' · ' + a.tier + ' access · ' + a.profiles + ' child profiles' }, row);
+        el('p', { className: 'note', textContent: (a.approval === 'pending' ? 'Waiting for approval' : a.approval === 'rejected' ? 'Not approved' : a.suspended_at ? 'Restricted' : 'Active') + ' · ' + a.tier + ' access · ' + a.profiles + ' child profiles' }, row);
         if (a.role === 'admin') { el('p', { textContent: 'Administrator — protected account' }, row); continue; }
         const actions = el('div', { className: 'row' }, row);
         const details = el('div', {}, row);
-        btn('Change access', () => edit(a, details, 'access'), actions, 'btn ghost');
+        if (a.approval !== 'approved') {
+          btn('Approve account', () => edit(a, details, 'approve'), actions);
+          if (a.approval === 'pending') btn('Reject request', () => edit(a, details, 'reject'), actions, 'btn ghost');
+        } else btn('Change access', () => edit(a, details, 'access'), actions, 'btn ghost');
         btn('Reset password', () => edit(a, details, 'reset'), actions, 'btn ghost');
       }
       after = data.next; more.hidden = after == null; more.textContent = 'Load more';
@@ -469,11 +478,13 @@ async function adminHome() {
   function edit(a, area, action) {
     area.replaceChildren();
     const f = el('form', {}, area);
-    el('p', { textContent: action === 'reset' ? 'Reset ' + a.username + '? Their current password will stop working, their family will be signed out, and linked devices will be unlinked. Share the new one-use link privately. A restricted account must also be restored before it can use the link.' : 'Change access for ' + a.username + '? This signs the family out; saved progress is kept.' }, f);
+    el('p', { textContent: action === 'approve' ? 'Approve ' + a.username + ' and grant the access selected below?' : action === 'reject' ? 'Reject the account request from ' + a.username + '? They will not be able to sign in. You can approve them later.' : action === 'reset' ? 'Reset ' + a.username + '? Their current password will stop working, their family will be signed out, and linked devices will be unlinked. Share the new one-use link privately. A restricted account must also be restored before it can use the link.' : 'Change access for ' + a.username + '? This signs the family out; saved progress is kept.' }, f);
     let tier, restricted;
-    if (action === 'access') {
+    if (action === 'access' || action === 'approve') {
       const l = el('label', { textContent: 'Game access' }, f); tier = el('select', {}, l);
       for (const t of ['basic', 'full']) el('option', { value: t, textContent: t === 'full' ? 'Full — all games' : 'Basic — free games', selected: a.tier === t }, tier);
+    }
+    if (action === 'access') {
       const r = el('label', { textContent: 'Account status' }, f); restricted = el('select', {}, r);
       el('option', { value: 'false', textContent: 'Active', selected: !a.suspended_at }, restricted);
       el('option', { value: 'true', textContent: 'Restricted — block sign-in and online access', selected: !!a.suspended_at }, restricted);
@@ -481,15 +492,17 @@ async function adminHome() {
     const label = el('label', { textContent: 'Your administrator password' }, f);
     const password = el('input', { type: 'password', autocomplete: 'current-password', required: true, maxLength: 200 }, label);
     const message = el('p', { className: 'msg', role: 'status' }, f);
-    const submit = el('button', { type: 'submit', className: 'btn', textContent: action === 'reset' ? 'Confirm password reset' : 'Save access' }, f);
+    const submit = el('button', { type: 'submit', className: 'btn', textContent: action === 'approve' ? 'Confirm approval' : action === 'reject' ? 'Confirm rejection' : action === 'reset' ? 'Confirm password reset' : 'Save access' }, f);
     btn('Cancel', () => area.replaceChildren(), f, 'btn ghost');
     f.addEventListener('submit', async e => {
       e.preventDefault(); submit.disabled = true; message.textContent = '';
       const body = { password: password.value }; password.value = '';
       if (action === 'access') { body.tier = tier.value; body.restricted = restricted.value === 'true'; }
+      const approvalAction = action === 'approve' || action === 'reject';
+      if (approvalAction) { body.approval = action === 'approve' ? 'approved' : 'rejected'; body.tier = tier?.value || a.tier; }
       try {
-        const result = await account.req('POST', '/api/admin/accounts/' + a.id + '/' + action, body);
-        if (action === 'access') { go('admin'); return; }
+        const result = await account.req('POST', '/api/admin/accounts/' + a.id + '/' + (approvalAction ? 'approval' : action), body);
+        if (action === 'access' || approvalAction) { go('admin'); return; }
         area.replaceChildren();
         el('p', { textContent: 'Password reset. Copy this link and share it privately with ' + a.username + '. It expires in one hour and works once.' }, area);
         const url = location.origin + '/account/#' + new URLSearchParams({ setup: a.username, recovery: result.recovery });
