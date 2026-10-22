@@ -14,6 +14,11 @@
 // Site keys (evonline.*, tenggames.*, tg.*) are never touched.
 (function () {
   'use strict';
+  // HTTP pages cannot call the secure account API. Upgrade before reading storage or showing a form.
+  if (location.protocol === 'http:' && /^(www\.)?tenggames\.com\.au$/.test(location.hostname)) {
+    location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+    return;
+  }
   var API = 'https://ev-online-api.justintengyz.workers.dev';
   var SITE_KEY = /^(evonline\.|tenggames\.|tg\.)/;
   var OWNER = 'tg.owner', OWNER_ACCOUNT = 'tg.owner.account', PARTIAL = 'tg.partial';
