@@ -10,7 +10,7 @@ const baseline=process.argv.includes('--baseline');
 const out=resolve('.qa/tim-layout-'+(baseline?'before':'after'));mkdirSync(out,{recursive:true});
 const files=readdirSync(root).map(path=>{const b=readFileSync(resolve(root,path));return{path,size:b.length,sha256:createHash('sha256').update(b).digest('hex')}});
 const browser=await chromium.launch({headless:true,channel:'chrome'}),results=[];
-const sizes=[[1280,800],[1024,768],[820,1180],[844,390],[667,375],[568,320],[390,844],[320,568],[750,750]];
+const sizes=[[1280,800],[1024,768],[820,1180],[844,390],[667,375],[568,320],[390,844],[320,568],[320,480],[750,750]];
 try{
   for(const[width,height]of sizes){
     const c=await browser.newContext({viewport:{width,height},hasTouch:true});
@@ -32,6 +32,14 @@ try{
       if(!baseline){
         assert.equal(failures.length,0,failures.join(', '));
         const cv=geometry.canvas,stage=geometry.stage;assert(cv.x>=stage.x-.5&&cv.y>=stage.y-.5&&cv.x+cv.w<=stage.x+stage.w+.5&&cv.y+cv.h<=stage.y+stage.h+.5,'canvas fits its reserved stage');
+        assert(Math.abs(cv.w-Math.min(stage.w,stage.h*640/448))<2,'canvas uses the largest available scale');
+        if(height>=width){
+          assert(cv.y>=64,'portrait canvas clears the top pause area');
+          assert(Math.abs(cv.y+cv.h-geometry.controls.y+8)<2,'portrait canvas is docked just above controls');
+        }
+        assert(geometry.controls.y+geometry.controls.h>=height-1,'controls are docked at the bottom');
+        assert(Math.max(...geometry.buttons.map(b=>b.y+b.h))>=height-9,'buttons use the bottom edge rather than centering in the sidebar');
+        assert.equal(await p.locator('#tg-pause-toggle').evaluate(el=>getComputedStyle(el).position),'static','Pause stays inside the bottom toolbar');
         for(const b of geometry.buttons){assert(b.h>=44,'44px touch target');assert(!(cv.x<b.x+b.w&&cv.x+cv.w>b.x&&cv.y<b.y+b.h&&cv.y+cv.h>b.y),'canvas overlaps toolbar');}
         assert.equal(geometry.buttons.length,8,'all seven native controls plus shared Pause are present');
         const point=await p.evaluate(()=>__tim.toClient(70,106));await p.touchscreen.tap(point.x,point.y);assert.equal(await p.evaluate(()=>__tim.state().screen),'play','in-canvas arrow responds at the scaled position');
