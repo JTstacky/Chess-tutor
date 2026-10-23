@@ -1,5 +1,8 @@
 // Uses the same catalogue as the Retro Archive publisher, so new releases appear here too.
-const root = document.getElementById('retro-games');
+// Guests don't see retro games at all: the section and its link are removed and the catalogue isn't fetched.
+const guest = document.documentElement.hasAttribute('data-tg-guest');
+if (guest) for (const n of document.querySelectorAll('#retro-classics, .game-nav')) n.remove();
+const root = guest ? null : document.getElementById('retro-games');
 const el = (tag, props, parent) => { const e = Object.assign(document.createElement(tag), props); parent.append(e); return e; };
 if (root) fetch('/retro/catalog.json').then(r => { if (!r.ok) throw Error('Catalogue unavailable'); return r.json(); }).then(({ games }) => {
   for (const game of games) {

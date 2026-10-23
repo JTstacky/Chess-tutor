@@ -118,6 +118,7 @@ class PartyGamepadControls {
     previous=b;
   }
   function setup(){
+    if(!document.body)return;   // the page is being replaced (e.g. tg-profile.js sent it elsewhere)
     button=document.createElement('button');button.type='button';button.textContent='Controller controls';button.id='tg-controller-help';
     button.style.cssText='position:fixed;right:8px;top:max(8px,env(safe-area-inset-top));z-index:10000;min-height:32px;padding:6px 10px;border:1px solid #aaa;border-radius:8px;background:#211b35dd;color:white;font:12px system-ui;cursor:pointer';
     panel=document.createElement('dialog');panel.setAttribute('aria-label','Controller controls');panel.style.cssText='max-width:460px;background:#211b35;color:white;border:2px solid #a38bef;border-radius:16px;padding:24px;font:16px/1.6 system-ui';

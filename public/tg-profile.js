@@ -252,6 +252,12 @@
   if (onAccount) return;                               // the account page switches and syncs itself
   if (!get(TOKEN)) { document.documentElement.style.visibility = 'hidden'; location.replace('/account/' + (here !== '/' ? '?next=' + encodeURIComponent(here) : '')); return; }
   var pid = get(PID);
+  // Guests don't see the Retro Archive at all (Justin, 2026-10-23): the home page hides it (data-tg-guest, site.css,
+  // retro-catalog.js) and any /retro/ address goes back to the home page.
+  if (pid === 'guest' || get('evonline.tier') === 'guest') {
+    document.documentElement.setAttribute('data-tg-guest', '');
+    if (/^\/retro(\/|$)/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace('/'); return; }
+  }
   if (pid && get(OWNER) !== pid) { goAccount('switch=1'); return; }   // another tab switched profile: switch there, come back
 
   // Another tab switching profile or signing out while this game runs: stop and reload, so nothing mixes.

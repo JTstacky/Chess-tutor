@@ -142,3 +142,6 @@ footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px
 
 .retro .art { height:180px; padding:10px; box-sizing:border-box; }
 .retro .art .retro-cover { width:100%; height:160px; object-fit:contain; filter:drop-shadow(0 4px 5px #0006); }
+
+/* Guests see no retro games (tg-profile.js marks the page before it draws; retro-catalog.js removes them). */
+html[data-tg-guest] #retro-classics, html[data-tg-guest] .game-nav { display: none !important; }
