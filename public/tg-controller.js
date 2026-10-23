@@ -16,13 +16,22 @@
     'arcane-arena': { native: true, help: 'Left stick: move · Right stick: aim · RT: fireball · A / B / X / Y / LB / RB: spells 2–7 · LT: self-explode · Start: ready / options · View: scores' },
     'battle-bots': { native: true, help: 'Left stick: move · Right stick: look · RT / LT: attacks · LB: bot ability · RB: pilot ability · Y: transform · B: taunt · A: jump' },
     'zeliard': { native: true, help: 'Left stick / D-pad: move · A: jump / confirm · X / RT: sword · B / LT: magic / back · Y / View: inventory · Start: pause' },
-    'demon-dragon': { native: true, help: 'Left stick / D-pad: move · B: sword · A: bolt · X: dodge · Y / bumpers: switch relic · Start: begin / confirm upgrade' },
+    'demon-dragon': { native: true, pause: true, help: 'Left stick / D-pad: move · B: sword · A: bolt · X: dodge · Y / bumpers: switch relic · Start: pause (confirm upgrade on upgrade cards)' },
+    'beast-binder': { buttons: ['ShiftLeft','KeyJ','Space','KeyF','KeyR','KeyG',null,'KeyJ',null,'Escape'], help: 'Left stick / D-pad: move · A: dash · B / RT: blade · X: net · Y: war horn · LB: recall · RB: charge · Start: pause' },
+    chess: { native: true, help: 'D-pad / left stick: choose a menu item · A: select · B: back · Start: pause and settings. Use the board with touch or a mouse.' },
+    omf: { pause: true, buttons: ['Enter','ShiftRight','Enter','ShiftRight',null,null,null,null,null,null], help: 'Left stick / D-pad: move · A / X: punch · B / Y: kick · Start: pause' },
+    zzt: { pause: true, buttons: ['Enter','ShiftLeft','KeyT','KeyP',null,null,null,null,'KeyS',null], help: 'Left stick / D-pad: move · Hold B and a direction: shoot · A: confirm · X: torch · Y: play · View: save · Start: pause' },
   };
+  // Every published game gets the same pause/settings navigation, including engines
+  // whose gameplay is designed for a mouse. Never invent gameplay bindings for those.
+  const pointerGames = ['heroes2','scummvm','openttd','tim','lemmings'];
+  if (pointerGames.includes(id)) profiles[id] = { native: true, pause: id !== 'lemmings', help: 'Use touch or a mouse for gameplay. Controller: Start opens the pause menu · D-pad / left stick chooses a menu item · A selects · B goes back.' };
   const profile = profiles[id];
   if (!profile) return;
+  if (['keen','jazz','cosmo','pop','tyrian','escape-velocity','battle-bots'].includes(id)) profile.pause = true;
   const empty = () => ({ buttons: [], axes: [0,0,0,0], connected: false });
-  const api = window.TGController = { state: empty(), profile: id, suspended: false };
-  api.filterPad = pad => !active || !armed || document.hidden || api.suspended ? { ...pad, axes:[0,0,0,0], buttons:pad.buttons.map(()=>({pressed:false,value:0})), connected:true, tgBlocked:true } : pad;
+  const api = window.TGController = { state: empty(), profile: id, suspended: false, paused: false };
+  api.filterPad = pad => !active || !armed || document.hidden || api.suspended || !settings.enabled ? { ...pad, axes:[0,0,0,0], buttons:pad.buttons.map(()=>({pressed:false,value:0})), connected:true, tgBlocked:true } : { ...pad, axes:pad.axes.map(v=>Math.abs(v)<settings.deadzone?0:v), buttons:pad.buttons, connected:pad.connected, index:pad.index, id:pad.id, mapping:pad.mapping };
 // Uses the site controller service without replacing keyboard/touch commands.
 class PartyGamepadControls {
   constructor(input) { this.input=input; this.was=[]; this.moving=false; this.sent=0; this.aim={x:1,y:0}; }
@@ -56,8 +65,86 @@ class PartyGamepadControls {
 }
 
   api.createPartyInput = input => new PartyGamepadControls(input);
-  const physical = new Set(), held = new Set();
-  let previous = [], active = true, armed = false, padId = null, panel, button, lastMenu = 0;
+  const physical = new Set(), held = new Set(), pointers = new Map(), touches = new Map();
+  window.addEventListener('pointerdown',e=>pointers.set(e.pointerId,e.target),true);
+  for(const type of ['pointerup','pointercancel'])window.addEventListener(type,e=>pointers.delete(e.pointerId),true);
+  window.addEventListener('touchstart',e=>{for(const touch of e.changedTouches)touches.set(touch.identifier,{target:e.target,touch});},true);
+  for(const type of ['touchend','touchcancel'])window.addEventListener(type,e=>{for(const touch of e.changedTouches)touches.delete(touch.identifier);},true);
+  let previous = [], active = true, armed = false, padId = null, panel, pausePanel, lastMenu = 0;
+  let settings = { enabled: true, deadzone: .22 };
+  try { const saved=JSON.parse(localStorage.getItem('tg.controller.settings')); if(saved)settings={enabled:saved.enabled!==false,deadzone:Math.max(.1,Math.min(.5,Number(saved.deadzone)||.22))}; } catch {}
+  const resumeWaiters = [];
+  api.waitForResume = () => api.paused ? new Promise(resolve=>resumeWaiters.push(resolve)) : Promise.resolve();
+  api.afterResume = callback => { if(api.paused)resumeWaiters.push(callback);else callback(); };
+  function resetInput() {
+    for(const code of physical)key(code,false);
+    physical.clear(); release(); armed=false;
+    for(const [pointerId,target] of [...pointers]){
+      if(target.closest?.('.tg-pause-dialog'))continue;
+      target.dispatchEvent(new PointerEvent('pointercancel',{pointerId,bubbles:true}));
+      try{target.releasePointerCapture(pointerId);}catch{}
+    }
+    pointers.clear();
+    for(const {target,touch} of [...touches.values()]){
+      try{target.dispatchEvent(new TouchEvent('touchcancel',{changedTouches:[touch],touches:[],targetTouches:[],bubbles:true}));}catch{}
+    }
+    touches.clear();
+    window.dispatchEvent(new CustomEvent('tg-input-reset'));
+  }
+  let resumeModule = null, pauseStarted = 0, nativeMenuPending = false, forwardingNativeKey = false;
+  const originalMenuGames=['keen','jazz','cosmo','pop','tyrian','omf'];
+  function setPaused(on) {
+    if(api.paused===on)return;
+    resetInput(); api.paused=on; api.suspended=on;
+    const ev=window.evApp;
+    if(on){
+      pauseStarted=performance.now();
+      if(ev){ev.paused=true;ev.keyboard.clear();}
+      resumeModule=(window.__retro||window.__pop||window.__heroes2)?.mod?.tgPause?.();
+    }else{
+      if(ev){ev.paused=false;ev.last=performance.now();ev.keyboard.clear();}
+      resumeModule?.();resumeModule=null;
+      for(const resolve of resumeWaiters.splice(0))resolve();
+    }
+    window.dispatchEvent(new CustomEvent('tg-pause',{detail:{paused:on,duration:on?0:performance.now()-pauseStarted}}));
+  }
+  function controllerContent(root, back) {
+    root.replaceChildren();
+    root.setAttribute('aria-label','Controller settings');
+    const title=document.createElement('h2');title.textContent='Controller settings';
+    const status=document.createElement('p');status.setAttribute('role','status');
+    let connected=false;try{connected=[...(navigator.getGamepads?.()||[])].some(p=>p?.connected&&p.mapping==='standard');}catch{}
+    status.textContent=connected?'Controller connected':'Connect a standard USB or Bluetooth controller, then press and release a button.';
+    const help=document.createElement('p');help.textContent=profile.help.replace('Start: menu','Start: pause');
+    const enabled=document.createElement('label');enabled.className='tg-setting';
+    const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=settings.enabled;checkbox.onchange=()=>{settings.enabled=checkbox.checked;saveSettings();resetInput();};enabled.append(checkbox,' Enable controller gameplay');
+    const deadzone=document.createElement('label');deadzone.className='tg-setting';deadzone.textContent='Stick dead zone ';
+    const range=document.createElement('input');range.type='range';range.min='10';range.max='50';range.step='1';range.value=String(Math.round(settings.deadzone*100));range.setAttribute('aria-label','Stick dead zone');
+    const value=document.createElement('output');value.textContent=range.value+'%';range.oninput=()=>{settings.deadzone=Number(range.value)/100;value.textContent=range.value+'%';saveSettings();};deadzone.append(range,value);
+    const note=document.createElement('p');note.textContent='Menus: D-pad or left stick to move, A to select, B to go back. Release held controls before returning to the game. Keyboard and touch controls stay available.';
+    const close=menuButton('Back',back);root.append(title,status,help,enabled,deadzone,note,close);checkbox.focus({preventScroll:true});root.scrollTop=0;
+  }
+  function saveSettings(){try{localStorage.setItem('tg.controller.settings',JSON.stringify(settings));}catch{}}
+  function menuButton(label, action){const b=document.createElement('button');b.type='button';b.textContent=label;b.className='tg-menu-action';b.onclick=action;return b;}
+  function pauseContent() {
+    pausePanel.replaceChildren();
+    pausePanel.setAttribute('aria-label','Pause menu');
+    const title=document.createElement('h2');title.textContent=id==='battle-bots'?'Game menu':'Paused';pausePanel.append(title);
+    if(id==='battle-bots'){const note=document.createElement('p');note.textContent='Online matches keep running while this menu is open.';pausePanel.append(note);}
+    pausePanel.append(menuButton('Resume',()=>pausePanel.close()),menuButton('Controller settings',()=>controllerContent(pausePanel,pauseContent)));
+    if(originalMenuGames.includes(id))pausePanel.append(menuButton('Original game menu',()=>{nativeMenuPending=true;pausePanel.close();}));
+    pausePanel.querySelector('button').focus();
+  }
+  api.openPause = () => {
+    if(!pausePanel||pausePanel.open)return;
+    setPaused(true);pauseContent();pausePanel.showModal();pausePanel.querySelector('button').focus();
+  };
+  let settingsOpener = null;
+  api.openSettings = () => {
+    if(panel.open)return;
+    settingsOpener=document.activeElement;resetInput();api.suspended=true;
+    controllerContent(panel,()=>panel.close());panel.showModal();panel.querySelector('input').focus({preventScroll:true});panel.scrollTop=0;
+  };
   const codes = { Space:[' ',32], Enter:['Enter',13], Escape:['Escape',27], Tab:['Tab',9], ControlLeft:['Control',17], ControlRight:['Control',17], ShiftLeft:['Shift',16], AltLeft:['Alt',18], ArrowUp:['ArrowUp',38], ArrowDown:['ArrowDown',40], ArrowLeft:['ArrowLeft',37], ArrowRight:['ArrowRight',39], F1:['F1',112] };
   function key(code, down) {
     const [name, number] = codes[code] || [code.replace('Key','').toLowerCase(), code.replace('Key','').charCodeAt(0)];
@@ -72,34 +159,60 @@ class PartyGamepadControls {
   window.addEventListener('focus',()=>{active=true;armed=false;});
   document.addEventListener('visibilitychange',()=>{if(document.hidden){armed=false;release();}});
   window.addEventListener('gamepaddisconnected',()=>{armed=false;release();});
-  function visible(el) { return el && !el.disabled && el.getClientRects().length && getComputedStyle(el).visibility!=='hidden'; }
+  function visible(el) { return el && !el.disabled && !el.closest('[hidden],.hidden') && el.getClientRects().length && getComputedStyle(el).visibility!=='hidden'; }
+  function menuRoot(){
+    if(panel?.open)return panel;
+    if(pausePanel?.open)return pausePanel;
+    // Query separately: a selector list returns document order, which can put a
+    // still-visible title screen before the options dialog layered over it.
+    for(const selector of ['#options','#pausemenu','[data-name="pause"]','#panel','#overlay:not([hidden])','.modal-backdrop','#picker','#welcome','#lobby','#title','#menu','#home','#screens']){
+      const root=[...document.querySelectorAll(selector)].reverse().find(el=>visible(el)&&el.querySelector('button,a[href],select,input'));
+      if(root)return root;
+    }
+  }
   function menu(b, axes, now) {
     // Only website menus, never in-game canvas menus or the live HUD.
-    const root = panel?.open ? panel : [...document.querySelectorAll('#picker, #panel, #welcome, #pausemenu, #options, #lobby, #title, #menu, #home, #screens')].find(visible);
+    const root = menuRoot();
     if (!visible(root)) return false;
-    const items=[...root.querySelectorAll('button,a[href],select')].filter(visible);
+    const items=[...root.querySelectorAll('button,a[href],select,input:not([type="hidden"])')].filter(visible);
     if (!items.length) return false;
-    const step=(b[13]||b[15]||axes[1]>.5||axes[0]>.5)?1:(b[12]||b[14]||axes[1]<-.5||axes[0]<-.5)?-1:0;
+    const selected=document.activeElement;
+    const horizontal=b[15]||axes[0]>.5?1:b[14]||axes[0]<-.5?-1:0;
+    if(horizontal&&items.includes(selected)&&now-lastMenu>220&&(selected.tagName==='SELECT'||selected.type==='range')){
+      if(selected.tagName==='SELECT')selected.selectedIndex=Math.max(0,Math.min(selected.options.length-1,selected.selectedIndex+horizontal));
+      else selected.value=String(Math.max(Number(selected.min),Math.min(Number(selected.max),Number(selected.value)+horizontal*Number(selected.step||1))));
+      selected.dispatchEvent(new Event('input',{bubbles:true}));selected.dispatchEvent(new Event('change',{bubbles:true}));lastMenu=now;return true;
+    }
+    const step=(b[13]||axes[1]>.5||horizontal>0)?1:(b[12]||axes[1]<-.5||horizontal<0)?-1:0;
     if(step && now-lastMenu>220){const i=items.indexOf(document.activeElement);items[(i+step+items.length)%items.length].focus();lastMenu=now;}
     if(b[0]&&!previous[0]) { const selected=items.includes(document.activeElement)?document.activeElement:items.find(x=>x.tagName==='BUTTON')||items[0];selected.click(); armed=false; }
-    if(b[1]&&!previous[1]){armed=false;if(panel?.open)panel.close();else items.find(x=>/back|cancel/i.test(x.textContent))?.click();}
+    if((b[1]&&!previous[1])||(b[9]&&!previous[9])){
+      armed=false;if(panel?.open)panel.close();
+      else if(pausePanel?.open){if(pausePanel.querySelector('h2').textContent==='Controller settings')pauseContent();else pausePanel.close();}
+      else items.find(x=>/back|cancel|resume|keep playing|close|done/i.test(x.textContent))?.click();
+    }
     return true;
   }
   function frame(now) {
     requestAnimationFrame(frame);
     let pad;try {pad=[...(navigator.getGamepads?.()||[])].find(p=>p?.connected&&p.mapping==='standard');}catch{}
-    const label=pad?'Controller connected':'Controller controls';
-    if(button && button.textContent!==label)button.textContent=label;
+    const status=(panel?.open?panel:pausePanel?.open?pausePanel:null)?.querySelector('[role=status]');
+    const label=pad?'Controller connected':'Connect a standard USB or Bluetooth controller, then press and release a button.';
+    if(status&&status.textContent!==label)status.textContent=label;
     if(!pad || !active || document.hidden){release(); previous=[];padId=null;return;}
-    const b=pad.buttons.map(x=>x.pressed||x.value>.5), axes=[0,1,2,3].map(i=>Math.abs(pad.axes[i]||0)<.22?0:Math.max(-1,Math.min(1,pad.axes[i])));
+    const b=pad.buttons.map(x=>x.pressed||x.value>.5), axes=[0,1,2,3].map(i=>Math.abs(pad.axes[i]||0)<settings.deadzone?0:Math.max(-1,Math.min(1,pad.axes[i])));
     if(padId!==pad.index+':'+pad.id){padId=pad.index+':'+pad.id;armed=false;release();}
     if(!armed){armed=!b.some(Boolean)&&!axes.some(Boolean);previous=b;return;}
-    const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)||document.activeElement?.isContentEditable;
-    api.suspended=typing||!!panel?.open;
+    const typing=/^(TEXTAREA)$/.test(document.activeElement?.tagName)||document.activeElement?.matches('input:not([type="checkbox"]):not([type="range"])')||document.activeElement?.isContentEditable;
+    api.suspended=typing||!!panel?.open||api.paused;
     if(typing){armed=false;release();previous=b;return;}
+    if(id==='chess'&&b[9]&&!previous[9]&&!menuRoot()){document.querySelector('#settings-btn')?.click();armed=false;previous=b;return;}
+    if(id==='lemmings'&&b[9]&&!previous[9]&&!menuRoot()){key('Escape',true);key('Escape',false);armed=false;previous=b;return;}
+    if(profile.pause && b[9]&&!previous[9]&&!panel?.open&&!pausePanel?.open&&!visible(document.querySelector('#sheet.on'))){api.openPause();previous=b;return;}
     const inMenu = menu(b,axes,now);
-    api.suspended = typing || !!panel?.open || inMenu;
+    api.suspended = typing || !!panel?.open || api.paused || inMenu || !settings.enabled;
     if(inMenu){release();previous=b;return;}
+    if(!settings.enabled){release();previous=b;return;}
     api.state={buttons:b,axes,connected:true};
     window.dispatchEvent(new CustomEvent('tg-controller-frame',{detail:api.state}));
     if(!profile.native){
@@ -119,13 +232,75 @@ class PartyGamepadControls {
   }
   function setup(){
     if(!document.body)return;   // the page is being replaced (e.g. tg-profile.js sent it elsewhere)
-    button=document.createElement('button');button.type='button';button.textContent='Controller controls';button.id='tg-controller-help';
-    button.style.cssText='position:fixed;right:8px;top:max(8px,env(safe-area-inset-top));z-index:10000;min-height:32px;padding:6px 10px;border:1px solid #aaa;border-radius:8px;background:#211b35dd;color:white;font:12px system-ui;cursor:pointer';
-    panel=document.createElement('dialog');panel.setAttribute('aria-label','Controller controls');panel.style.cssText='max-width:460px;background:#211b35;color:white;border:2px solid #a38bef;border-radius:16px;padding:24px;font:16px/1.6 system-ui';
-    const title=document.createElement('h2');title.textContent='Controller controls';const info=document.createElement('p');info.textContent=profile.help;
-    const note=document.createElement('p');note.textContent='Connect an Xbox, PlayStation or standard USB/Bluetooth controller. Press a button, then release the controls to activate it. Click or tap the game once if sound is muted.';
-    const close=document.createElement('button');close.textContent='Back';close.style.cssText='min-height:44px;padding:8px 24px';close.onclick=()=>panel.close();panel.append(title,info,note,close);document.body.append(button,panel);
-    button.onclick=()=>{release();panel.showModal();};panel.addEventListener('close',()=>{armed=false;api.suspended=false;});
+    const style=document.createElement('style');style.textContent=`
+      .tg-pause-dialog{box-sizing:border-box!important;position:fixed!important;inset:0!important;margin:auto!important;width:min(480px,calc(100% - 24px))!important;max-width:calc(100% - 24px)!important;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow:auto!important;background:#211b35!important;color:#fff!important;border:2px solid #a38bef!important;border-radius:16px!important;padding:20px!important;font:16px/1.5 system-ui!important;touch-action:pan-y!important;text-align:left!important;z-index:20000!important}
+      .tg-pause-dialog::backdrop{background:#080512b8}.tg-pause-dialog h2{font:700 24px/1.25 system-ui;margin:0 0 16px}.tg-pause-dialog p{margin:12px 0;overflow-wrap:anywhere}.tg-menu-action{box-sizing:border-box;position:static!important;display:block!important;min-height:44px!important;max-width:100%;padding:10px 16px!important;margin:8px 0!important;border:1px solid #b9a8ef!important;border-radius:9px!important;background:#33264e!important;color:#fff!important;font:600 16px/1.4 system-ui!important;cursor:pointer;touch-action:manipulation!important;white-space:normal!important}
+      .tg-menu-action:focus-visible,.tg-pause-dialog input:focus-visible{outline:3px solid #ffce54!important;outline-offset:2px}.tg-setting{display:flex!important;flex-wrap:wrap;align-items:center;gap:12px;margin:16px 0}.tg-setting input[type=checkbox]{width:24px;height:24px}.tg-setting input[type=range]{flex:1;min-width:100px;min-height:44px}.tg-setting output{min-width:3em}
+      #tg-pause-toggle{position:fixed!important;right:calc(8px + env(safe-area-inset-right));top:calc(8px + env(safe-area-inset-top));z-index:9999;font-size:14px!important;margin:0!important}
+      body[data-tg-game=demon-dragon] #tg-pause-toggle,body[data-tg-game=battle-bots] #tg-pause-toggle{top:calc(58px + env(safe-area-inset-top))}
+      body[data-tg-game=escape-velocity] #tg-pause-toggle{right:auto;left:calc(8px + env(safe-area-inset-left))}
+      body[data-tg-game=escape-velocity]:has(#tc[style*="display: block"]) #tg-pause-toggle{display:none!important}
+      nav #tg-pause-toggle,#toolbar #tg-pause-toggle{position:static!important}
+      body[data-tg-game=ninja-nab]:has(#screens .screen:not([hidden])) .rotate-hint,body[data-tg-game=mission-mars]:has(#pausemenu:not([hidden]),#options:not([hidden]),#help:not([hidden])) #rotate{display:none!important}
+      body[data-tg-game=ninja-nab] [data-name=pause]{overflow:auto;max-height:100dvh;box-sizing:border-box}
+    `;document.head.append(style);document.body.dataset.tgGame=id;
+    panel=document.createElement('dialog');panel.id='tg-controller-settings';panel.className='tg-pause-dialog';panel.setAttribute('aria-label','Controller settings');document.body.append(panel);
+    panel.addEventListener('close',()=>{resetInput();api.suspended=api.paused||!!menuRoot();settingsOpener?.focus();});
+    if(profile.pause){
+      pausePanel=document.createElement('dialog');pausePanel.id='tg-pause-menu';pausePanel.className='tg-pause-dialog';pausePanel.setAttribute('aria-label','Pause menu');document.body.append(pausePanel);
+      const launcher=menuButton('Pause',api.openPause);launcher.id='tg-pause-toggle';launcher.setAttribute('aria-label','Pause menu');
+      (document.querySelector('#toolbar, nav#bar, nav#controls')||document.body).append(launcher);
+      pausePanel.addEventListener('close',()=>{
+        setPaused(false);launcher.focus();
+        if(nativeMenuPending){
+          nativeMenuPending=false;
+          requestAnimationFrame(()=>{
+            forwardingNativeKey=true;key('Escape',true);
+            requestAnimationFrame(()=>{key('Escape',false);forwardingNativeKey=false;});
+          });
+        }
+      });
+      pausePanel.addEventListener('cancel',e=>{if(pausePanel.querySelector('h2').textContent==='Controller settings'){e.preventDefault();pauseContent();}});
+    }
+    // These roots belong to the games' existing pause/options screens. Observing
+    // rebuilt panels keeps the shared setting in place after tabs/round changes.
+    const nativeMenus = {'mission-mars':'#pausemenu .panel, #options .panel','arcane-arena':'#options .panel','hammerguys-party':'#options .panel','ninja-nab':'[data-name="pause"]','beast-binder':'#panel-inner','chess':'.modal-backdrop .modal-body','lemmings':'#overlay .buttons'};
+    let nativeMenuWasOpen=false;
+    function attach(){
+      const selector=nativeMenus[id];if(!selector)return;
+      const nativeMenuOpen=[...document.querySelectorAll(selector)].some(root=>visible(root));
+      if(nativeMenuOpen&&!nativeMenuWasOpen){resetInput();api.suspended=true;}
+      nativeMenuWasOpen=nativeMenuOpen;
+      for(const root of document.querySelectorAll(selector)){
+        if(id==='beast-binder'&&!/PAUSED/.test(root.textContent))continue;
+        if(id==='chess'&&!/settings/i.test(root.closest('.modal').querySelector('h2')?.textContent))continue;
+        if(id==='lemmings'&&document.querySelector('#overlay-title')?.textContent!=='Paused')continue;
+        if(root.querySelector('[data-tg-controller]'))continue;
+        const item=menuButton('Controller settings',api.openSettings);item.dataset.tgController='';root.append(item);
+      }
+      if(id==='ninja-nab'||id==='mission-mars')for(const root of document.querySelectorAll('.rotate-hint,#rotate')){
+        if(root.querySelector('[data-tg-pause]'))continue;
+        const button=menuButton('Pause menu',()=>{
+          if(id==='ninja-nab')document.querySelector('#pauseBtn')?.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
+          else document.querySelector('#btn-pause')?.click();
+        });button.dataset.tgPause='';root.append(button);
+      }
+    }
+    attach();new MutationObserver(attach).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','class','data-tg-pause']});
+    window.addEventListener('keydown',e=>{
+      if(forwardingNativeKey&&!e.isTrusted&&e.code==='Escape')return;
+      const dialog=panel.open?panel:pausePanel?.open?pausePanel:null;
+      if(dialog){
+        if(e.key==='Escape'){e.preventDefault();if(dialog===pausePanel&&dialog.querySelector('h2').textContent==='Controller settings')pauseContent();else dialog.close();}
+        // Keep keyboard activation/tabbing within the modal, away from gameplay.
+        e.stopImmediatePropagation();return;
+      }
+      if(e.repeat||e.target.matches?.('input,textarea,select,[contenteditable=true]'))return;
+      if(profile.pause&&e.code==='Escape'&&!pointerGames.includes(id)&&id!=='zzt'&&!(id==='escape-velocity'&&window.evApp?.dialogs.length)){
+        e.preventDefault();e.stopImmediatePropagation();api.openPause();
+      }
+      if(id==='chess'&&(e.code==='Escape')){e.preventDefault();e.stopImmediatePropagation();document.querySelector('#settings-btn')?.click();}
+    },true);
     requestAnimationFrame(frame);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();

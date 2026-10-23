@@ -408,7 +408,7 @@ function openSettings() {
   const row = (key: keyof typeof settings, label: string, sub = '') =>
     `<label class="toggle"><input type="checkbox" data-key="${key}" ${settings[key] ? 'checked' : ''}><span>${label}${sub ? `<small>${sub}</small>` : ''}</span></label>`;
   const m = showModal(
-    '⚙️ Settings',
+    'Pause and settings',
     `${row('sound', 'Sounds')}
      ${row('funMoves', 'Fun piece moves', 'Every piece has its own way of moving')}
      ${row('battles', 'Capture battles', 'Pieces have a battle on the board when one captures another. Tap to skip.')}
@@ -423,6 +423,7 @@ function openSettings() {
      <button class="btn danger reset">Reset all progress</button>`,
     [{ label: 'Done', primary: true, onClick: refreshCurrent }],
   );
+  m.dataset.tgPause = '';
   m.querySelectorAll<HTMLInputElement>('input[data-key]').forEach((i) =>
     i.addEventListener('change', () => {
       (settings as unknown as Record<string, boolean>)[i.dataset.key!] = i.checked;

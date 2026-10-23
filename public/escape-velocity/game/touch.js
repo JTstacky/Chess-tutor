@@ -105,7 +105,7 @@ export class Touch {
     def('auto', 'AUTO', { held: CMD.AUTOPILOT });
     def('rev', 'REV', { held: CMD.REVERSE });
     def('menu', '&#9776;', { fn: () => this.openMenu(), cls: 'small' });
-    def('pause', 'II', { fn: () => { this.app.paused = !this.app.paused; this.app.last = performance.now(); }, cls: 'small' });
+    def('pause', 'II', { fn: () => { if (window.TGController) window.TGController.openPause(); else { this.app.paused = !this.app.paused; this.app.last = performance.now(); } }, cls: 'small' });
     def('map', 'MAP', { cmd: CMD.MAP, cls: 'small' });
     def('info', 'INFO', { cmd: CMD.PLAYER_INFO, cls: 'small' });
     def('msn', 'MSN', { cmd: CMD.MISSION_INFO, cls: 'small' });

@@ -283,6 +283,7 @@
     pushInput();
   }
   function press(btn) {
+    if (window.TGController?.paused) return;
     Sfx.unlock();
     if (dlg) { if (btn === 'A') advance(); return; }
     if (level && !busy) level.press(btn);
@@ -314,6 +315,7 @@
     pushInput();
   });
   window.addEventListener('blur', () => clearInput());
+  window.addEventListener('tg-input-reset', () => clearInput());
 
   // Floating joystick: the base appears under the thumb, the knob follows it.
   const stickEl = $('stick'), baseEl = stickEl.querySelector('.base'), knobEl = stickEl.querySelector('.knob');

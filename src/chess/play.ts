@@ -773,7 +773,7 @@ export class PlayScreen {
 
   private tick() {
     const now = performance.now();
-    if (this.board.isBusy()) {
+    if (this.board.isBusy() || document.querySelector('[data-tg-pause]')) {
       // Clocks pause while a move or battle is animating.
       this.lastTick = now;
       return;

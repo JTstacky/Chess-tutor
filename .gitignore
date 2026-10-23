@@ -1,5 +1,7 @@
 node_modules
 dist
+.qa/
+.qa-*.mjs
 scripts/_e2e.mjs
 scripts/_e2e2.mjs
 scripts/_e2e3.mjs

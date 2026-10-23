@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "node scripts/controller-pause-engines.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
     "check:lessons": "node --experimental-strip-types scripts/check-lessons.mjs"
   },

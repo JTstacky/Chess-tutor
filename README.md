@@ -53,6 +53,10 @@ All state is saved in the browser's localStorage.
 
 ## Deploy (GitHub Pages + GoDaddy DNS)
 
+Controller settings are shared across the site and live inside game pause/options menus.
+See [the integration and verification notes](docs/CONTROLLER-PAUSE.md). The production build
+reapplies these hooks when a game's published files are refreshed.
+
 Every push to `main` builds and deploys via `.github/workflows/deploy.yml`.
 
 **Arcane Arena** (`public/arcane-arena/`), **Hammerguy's Party** (`public/hammerguys-party/`), **Mission Mars** (`public/mission-mars/`) and **Ninja Nab** (`public/ninja-nab/`) are developed in their own repos
