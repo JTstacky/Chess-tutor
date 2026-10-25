@@ -13,6 +13,7 @@ import { profile, resetProfile, saveProfile, saveSettings, settings } from './st
 import { pieceSrc, themeById, THEMES } from './themes';
 import { Timeline } from './timeline';
 import { confirmDialog, showModal } from './ui';
+import { onlineView } from './online';
 
 const app = document.getElementById('app')!;
 const backBtn = document.getElementById('back') as HTMLButtonElement;
@@ -31,8 +32,11 @@ getEngine();
 void loadOpenings();
 
 let current: HTMLElement | null = null;
+let online: Awaited<ReturnType<typeof onlineView>> | null = null;
+let openingOnline = false;
 let arenaTl: Timeline | null = null; // battle playing in the arena
 function show(view: HTMLElement) {
+  if (online && current === online.el && view !== online.el) { online.stop(); online = null; }
   if (current === play.el && view !== play.el) play.stop();
   if (current === lesson.el && view !== lesson.el) lesson.stop();
   if (current === puzzles.el && view !== puzzles.el) puzzles.stop();
@@ -68,7 +72,7 @@ function homeView(): HTMLElement {
       </div>
       <div class="menu-grid">
         <button class="menu-card c1" data-go="bots"><span>🤖</span><b>Play a Bot</b><small>Beat bots to unlock tougher ones</small></button>
-        <button class="menu-card c2" data-go="friend"><span>👫</span><b>Play a Friend</b><small>Two players, one device</small></button>
+        <button class="menu-card c2" data-go="friend"><span>👫</span><b>Play a Friend</b><small>Same device or private online invite</small></button>
         <button class="menu-card c3" data-go="learn"><span>📚</span><b>Learn</b><small>Openings, gambits and traps</small></button>
         <button class="menu-card c6" data-go="puzzles"><span>🧩</span><b>Puzzles</b><small>Hundreds of tactics at your level</small></button>
         <button class="menu-card c4" data-go="progress"><span>🏆</span><b>My Progress</b><small>Rating, wins and badges</small></button>
@@ -201,7 +205,8 @@ function friendSetupView(): HTMLElement {
   const v = el(`
     <section class="view setup" data-view="friend">
       <h2>Play a Friend</h2>
-      <p>Take turns on the same device. White moves first!</p>
+      <p>Take turns on the same device, or invite a friend to play online. White moves first!</p>
+      <button class="btn primary big online">Invite a friend online</button>
       <h3>Clock</h3>
       <div class="chips">${timeChips(lastTime)}</div>
       <h3>Theme</h3>
@@ -209,11 +214,20 @@ function friendSetupView(): HTMLElement {
       <button class="btn primary big start">Start game</button>
     </section>`);
   wireChips(v, 'time', (i) => (lastTime = Number(i)));
+  v.querySelector('.online')!.addEventListener('click', () => { void openOnline(); });
   wireThemes(v);
   v.querySelector('.start')!.addEventListener('click', () =>
     startGame({ mode: 'friend', playerColor: 'w', time: TIME_CONTROLS[lastTime], theme: lastTheme }),
   );
   return v;
+}
+
+async function openOnline() {
+  if (openingOnline) return;
+  openingOnline = true;
+  try { const next = await onlineView(); show(next.el); online = next; }
+  catch (e) { window.alert(e instanceof Error ? e.message : 'Could not load online play.'); }
+  finally { openingOnline = false; }
 }
 
 function startGame(cfg: GameConfig) {
@@ -448,3 +462,4 @@ function refreshCurrent() {
 }
 
 show(homeView());
+if (/^[a-f0-9]{32}$/.test(new URLSearchParams(location.hash.slice(1)).get('invite') || '')) void openOnline();

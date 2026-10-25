@@ -19,6 +19,8 @@
 //                4410 the host left · 4403 origin not allowed.
 
 import { DurableObject } from 'cloudflare:workers';
+import { inviteRequest } from './invites.js';
+export { InviteRoom } from './invites.js';
 
 const PATH = /^\/([a-z0-9-]{1,48})\/([A-Za-z]{4})\/?$/;
 
@@ -31,6 +33,7 @@ function allowed(origin, env) {
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
+    if (url.pathname.startsWith('/invite/')) return inviteRequest(req, env);
     if (url.pathname === '/' || url.pathname === '/health') {
       return new Response(JSON.stringify({ ok: true, service: 'tenggames-relay' }), {
         headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },

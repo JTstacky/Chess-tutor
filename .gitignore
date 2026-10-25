@@ -1,6 +1,8 @@
 node_modules
 dist
 .qa/
+.invite-relay-state/
+.invite-worker-build/
 .qa-*.mjs
 scripts/_e2e.mjs
 scripts/_e2e2.mjs
