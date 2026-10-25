@@ -23,3 +23,11 @@ class_name = "InviteRoom"
 [[migrations]]
 tag = "v2-invites"
 new_sqlite_classes = ["InviteRoom"]
+
+[[durable_objects.bindings]]
+name = "HEROES_JOBS"
+class_name = "HeroesJobs"
+
+[[migrations]]
+tag = "v3-nonplayer-server"
+new_sqlite_classes = ["HeroesJobs"]

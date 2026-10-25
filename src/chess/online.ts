@@ -22,7 +22,7 @@ export async function onlineView(): Promise<{ el: HTMLElement; stop: () => void 
   const board = new Board({ onMove(from, to, promotion) { if (canMove()) invite.send({ type: 'move', from, to, promotion, ply: chess.history().length }); } });
   board.setTheme(themeById(localStorage.getItem('tg-chess-theme') || undefined));
   el.querySelector('.board-host')!.append(board.el);
-  function connected() { return invite?.connected && room?.players.length === 2 && room.players.every(p => p.online) && !room.result; }
+  function connected() { return invite?.connected && room?.players.length === 2 && !room.result; }
   function canMove() { return connected() && chess.turn() === (invite.seat === 0 ? 'w' : 'b'); }
   function render() {
     const dests = new Map<Square, Square[]>();
@@ -32,7 +32,7 @@ export async function onlineView(): Promise<{ el: HTMLElement; stop: () => void 
     board.setState({ pieces: chess.board(), dests, movable: canMove() ? chess.turn() : null, check, lastMove: last || null });
     draw.disabled = resign.disabled = !connected(); decline.hidden = !connected() || room?.draw == null || room.draw === invite.seat;
     draw.textContent = room?.draw != null && room.draw !== invite.seat ? 'Accept draw' : room?.draw === invite.seat ? 'Draw offered' : 'Offer draw';
-    turn.textContent = room?.result || (!invite?.connected ? 'Offline. Reconnect to continue.' : room?.players.length !== 2 ? 'Waiting for your friend.' : room.players.some(p => !p.online) ? 'Waiting for the other player to reconnect.' : (chess.turn() === 'w' ? 'White' : 'Black') + ' to move' + (canMove() ? ' — your turn.' : '.') + (chess.isCheck() ? ' Check!' : ''));
+    turn.textContent = room?.result || (!invite?.connected ? 'Offline. Reconnect to continue.' : room?.players.length !== 2 ? 'Waiting for your friend.' : (chess.turn() === 'w' ? 'White' : 'Black') + ' to move' + (canMove() ? ' — your turn.' : ' Come back for your turn.') + (chess.isCheck() ? ' Check!' : ''));
     el.querySelector('.online-moves')!.textContent = history.map((m, i) => (i % 2 === 0 ? (i / 2 + 1) + '. ' : '') + m.san).join(' ');
   }
   const invite = window.TengInvite.mount({ game: 'chess', parent: el.querySelector('.online-lobby')!,
