@@ -64,7 +64,7 @@
         row.textContent = 'Player ' + (p.seat + 1) + (p.seat === api.seat ? ' (you)' : '') + (p.online ? ' · connected' : ' · offline') + (value.active === p.seat ? ' · current turn' : '');
         $('[data-roster]').append(row);
       }
-      if (options.game === 'heroes2') say(value.result || (!value.serverOnline ? (value.savedAt ? 'Your saved game is safe. Starting the game server…' : 'Starting the game server. This may take a minute…') : value.active < 0 ? 'The server is preparing the next turn.' : value.active === api.seat ? (value.phase === 'setup' ? 'Choose your scenario and start the game.' : 'Your turn. Progress is saved on the server.') : 'Player ' + (value.active + 1) + ' is next. Your screen is private; return for your turn.'));
+      if (options.game === 'heroes2') say(value.result || (value.runtimeRetryAt > Date.now() ? 'Heroes has reached its server runtime allowance. Your cloud save is safe. Play can resume after ' + new Date(value.runtimeRetryAt).toLocaleString() + '.' : !value.serverOnline ? (value.savedAt ? 'Your saved game is safe. Starting the game server…' : 'Starting the game server. This may take a minute…') : value.active < 0 ? 'The server is preparing the next turn.' : value.active === api.seat ? (value.phase === 'setup' ? 'Choose your scenario and start the game.' : 'Your turn. Progress is saved on the server.') : 'Player ' + (value.active + 1) + ' is next. Your screen is private; return for your turn.'));
       else say(value.result || (value.players.length < 2 ? 'Waiting for your friend to join once.' : value.active === api.seat ? 'Your turn. Your opponent can be offline.' : 'Waiting for your next turn. You can leave and come back.'));
       options.onState?.(value, api);
     }
