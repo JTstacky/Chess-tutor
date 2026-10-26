@@ -11,9 +11,9 @@
     var code = new URLSearchParams(location.hash.slice(1)).get('invite');
     if (!/^[a-f0-9]{32}$/.test(code || '')) code = null;
     var api = { panel: panel, seat: null, connected: false, room: null, send: send, close: close };
-    $('[data-note]').textContent = options.game === 'heroes2'
+    $('[data-note]').textContent = options.description || (options.game === 'heroes2'
       ? '2–6 full-account players. A non-player server runs the game and keeps its saves. Player 1 chooses the scenario; after that, each player sees and controls only their own turn, including human battles. Leave and return later with this link. No player needs to keep a browser open.'
-      : 'Two signed-in players. Player 1 is White. No clock: take your turn even when your opponent is offline, then come back later. The server keeps the game; this link does not expire.';
+      : 'Two signed-in players. Player 1 is White. No clock: take your turn even when your opponent is offline, then come back later. The server keeps the game; this link does not expire.');
     $('[data-count-label]').hidden = options.game !== 'heroes2' || !!code;
     // Keep solo play available while the separate online server is provisioned.
     // Local integration tests deliberately use their own private engine service.
@@ -64,7 +64,8 @@
         row.textContent = 'Player ' + (p.seat + 1) + (p.seat === api.seat ? ' (you)' : '') + (p.online ? ' · connected' : ' · offline') + (value.active === p.seat ? ' · current turn' : '');
         $('[data-roster]').append(row);
       }
-      if (options.game === 'heroes2') say(value.result || (value.runtimeRetryAt > Date.now() ? 'Heroes has reached its server runtime allowance. Your cloud save is safe. Play can resume after ' + new Date(value.runtimeRetryAt).toLocaleString() + '.' : !value.serverOnline ? (value.savedAt ? 'Your saved game is safe. Starting the game server…' : 'Starting the game server. This may take a minute…') : value.active < 0 ? 'The server is preparing the next turn.' : value.active === api.seat ? (value.phase === 'setup' ? 'Choose your scenario and start the game.' : 'Your turn. Progress is saved on the server.') : 'Player ' + (value.active + 1) + ' is next. Your screen is private; return for your turn.'));
+      if (options.game.startsWith('metal-slug')) say(value.players.length<2?'Waiting for your friend.':value.players.every(p=>p.online)?'Both players connected.':'Game paused. Waiting for the other player to return.');
+      else if (options.game === 'heroes2') say(value.result || (value.runtimeRetryAt > Date.now() ? 'Heroes has reached its server runtime allowance. Your cloud save is safe. Play can resume after ' + new Date(value.runtimeRetryAt).toLocaleString() + '.' : !value.serverOnline ? (value.savedAt ? 'Your saved game is safe. Starting the game server…' : 'Starting the game server. This may take a minute…') : value.active < 0 ? 'The server is preparing the next turn.' : value.active === api.seat ? (value.phase === 'setup' ? 'Choose your scenario and start the game.' : 'Your turn. Progress is saved on the server.') : 'Player ' + (value.active + 1) + ' is next. Your screen is private; return for your turn.'));
       else say(value.result || (value.players.length < 2 ? 'Waiting for your friend to join once.' : value.active === api.seat ? 'Your turn. Your opponent can be offline.' : 'Waiting for your next turn. You can leave and come back.'));
       options.onState?.(value, api);
     }
@@ -85,8 +86,10 @@
         if (create) code = Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join('');
         endpoint.pathname = '/invite/' + options.game + '/' + code; endpoint.search = create ? '?host=1&players=' + $('[data-count]').value : ''; endpoint.hash = '';
         socket = new WebSocket(endpoint.href, ['tg-invite', 'tg-auth.' + token]); socket.binaryType = 'arraybuffer';
+        var connection = socket;
         say('Connecting…');
         socket.onopen = function () {
+          if (socket !== connection) return;
           api.connected = true; clearInterval(heartbeat); heartbeat = setInterval(function () { if (socket.readyState === 1) socket.send('~'); }, 25000);
           location.hash = 'invite=' + code;
           var link = new URL(location.href); link.searchParams.delete('inviteRelay'); link.hash = 'invite=' + code;
@@ -98,6 +101,7 @@
           $('[data-share]').hidden = !navigator.share;
         };
         socket.onmessage = function (e) {
+          if (socket !== connection) return;
           if (e.data === '~') return;
           if (typeof e.data !== 'string') { options.onFrame?.(e.data, api); return; }
           var value; try { value = JSON.parse(e.data); } catch { return; }
@@ -106,6 +110,7 @@
           else options.onMessage?.(value, api);
         };
         socket.onclose = function (e) {
+          if (socket !== connection) return;
           clearInterval(heartbeat); api.connected = false;
           if (stopped) return;
           retry = e.code !== 4410 && e.code !== 4001;
@@ -126,7 +131,7 @@
     $('[data-create]').onclick = () => connect(true);
     $('[data-join]').onclick = $('[data-reconnect]').onclick = () => connect(false);
     $('[data-copy]').onclick = async () => { try { await navigator.clipboard.writeText($('[data-link]').value); say('Invite link copied.'); } catch { $('[data-link]').select(); say('Select and copy the invite link above.'); } };
-    $('[data-share]').onclick = async () => { try { await navigator.share({ title: 'Play ' + (options.game === 'chess' ? 'chess' : 'Heroes II') + ' on Teng Games', url: $('[data-link]').value }); } catch {} };
+    $('[data-share]').onclick = async () => { try { await navigator.share({ title: 'Play ' + (options.title || (options.game === 'chess' ? 'chess' : 'Heroes II')) + ' on Teng Games', url: $('[data-link]').value }); } catch {} };
     $('[data-leave]').onclick = close;
     window.addEventListener('pagehide', close, { once: true });
     return api;

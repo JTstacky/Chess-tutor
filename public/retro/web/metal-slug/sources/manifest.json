@@ -1,0 +1,26 @@
+{
+  "fbneo-source.tar.gz": {
+    "bytes": 23615588,
+    "sha256": "87546eac849cc47c72f1238f071ccd4efad5a7ad6c419f898709b970970c5bef"
+  },
+  "retroarch-source.tar.gz.part1": {
+    "bytes": 20971520,
+    "sha256": "45a0373d4b552239f507ed8e00259ef1e56e5d5d05397418e82771b32a8be25e"
+  },
+  "retroarch-source.tar.gz.part2": {
+    "bytes": 20971520,
+    "sha256": "f25797b655267f60d387db7bbe62b430d3795758bef431098b54be531eadf6cf"
+  },
+  "retroarch-source.tar.gz.part3": {
+    "bytes": 20971520,
+    "sha256": "0e2aa948ab28627e00ac77d532133616c1c140943fcefb3e3583a3942f48349d"
+  },
+  "retroarch-source.tar.gz.part4": {
+    "bytes": 8161892,
+    "sha256": "41dd8d9378fcbabe2d8b884dd5210e6cdc7f6ccf313f5fe7d735857031479517"
+  },
+  "web-integration-source.tar.gz": {
+    "bytes": 451763,
+    "sha256": "5351ca95a1f386779797ae7b097e55f114c1f27a5b949465d4e0e3fd9e6f29e3"
+  }
+}

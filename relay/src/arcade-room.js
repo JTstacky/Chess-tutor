@@ -9,9 +9,12 @@ export class ArcadeRoom extends DurableObject {
  locked(fn){const next=this.serial.catch(()=>{}).then(async()=>{await this.ready;return fn();});this.serial=next;return next;}
  fetch(req){return this.locked(()=>this.handleFetch(req));}
  async handleFetch(req){await this.ready;const url=new URL(req.url),profile=Number(req.headers.get('X-Player')),game=req.headers.get('X-Game');if(!Number.isSafeInteger(profile)||profile<=0||!/^metal-slug(?:-[2x3456])?$/.test(game||''))return new Response('Invalid player',{status:403});
-  if(!this.room){if(url.searchParams.get('host')!=='1')return new Response('Unknown invite',{status:404});this.room={game,players:[profile],generation:0};}
+  const prior=this.room?structuredClone(this.room):undefined;
+  if(!this.room){if(url.searchParams.get('host')!=='1')return new Response('Unknown invite',{status:404});this.room={id:url.pathname.split('/').pop(),game,players:[profile],generation:0};}
   if(this.room.game!==game)return new Response('Wrong game',{status:409});
   let seat=this.room.players.indexOf(profile);if(seat<0){if(this.room.players.length>=2)return new Response('Game is full',{status:403});seat=this.room.players.length;this.room.players.push(profile);}
+  const indexed=await this.env.HEROES_JOBS.get(this.env.HEROES_JOBS.idFromName('jobs')).fetch(new Request('https://internal/index',{method:'POST',body:JSON.stringify({...this.room,op:'index',active:-1,phase:'playing'})}));
+  if(!indexed.ok){this.room=prior;return new Response('Saved game limit reached',{status:409});}
   for(const w of this.sockets())if(w.deserializeAttachment()?.seat===seat)w.close(4001,'Opened in another tab');
   this.room.generation++;await this.ctx.storage.put('room',this.room);
   const [client,server]=Object.values(new WebSocketPair());server.serializeAttachment({seat,seq:-1,build:null});this.ctx.acceptWebSocket(server);this.send(server,{type:'welcome',seat});this.broadcast();return new Response(null,{status:101,webSocket:client,headers:{'Sec-WebSocket-Protocol':'tg-invite'}});
@@ -22,7 +25,7 @@ export class ArcadeRoom extends DurableObject {
   if(typeof raw!=='string'){if(!a.build||a.seat!==0||raw.byteLength<9||raw.byteLength>65536)return;const view=new DataView(raw);if(view.getUint32(0)!==this.room.generation)return;for(const peer of this.sockets())if(peer!==ws&&peer.deserializeAttachment()?.build===a.build)this.send(peer,raw);return;}
   if(raw.length>MAX*1.4)return;let m;try{m=JSON.parse(raw);}catch{return;}
   if(m.type==='ready'){
-   if(typeof m.build!=='string'||!/^[a-z0-9-]{5,100}$/.test(m.build))return;
+   if(typeof m.build!=='string'||!/^[a-z0-9.-]{5,100}$/.test(m.build))return;
    if(this.room.build&&this.room.build!==m.build){this.send(ws,{type:'error',message:'Game version changed. Reload both browsers.'});return;}
    const firstReady=!a.build;this.room.build=m.build;a.build=m.build;ws.serializeAttachment(a);await this.ctx.storage.put('room',this.room);
    if(firstReady&&a.seat===0&&this.room.parts){let data='';for(let i=0;i<this.room.parts;i++)data+=await this.ctx.storage.get('save:'+i);this.send(ws,{type:'checkpoint',data,build:this.room.build});}

@@ -31,7 +31,7 @@ async function originalsRequest(req, env) {
   return new Response(body, { headers: { 'content-type': 'application/octet-stream', 'cache-control': 'private, no-store' } });
 }
 export async function inviteRequest(req, env) {
-  const url = new URL(req.url), match = /^\/invite\/(chess|heroes2)\/([a-f0-9]{32})$/.exec(url.pathname);
+  const url = new URL(req.url), match = /^\/invite\/(chess|heroes2|metal-slug(?:-[2x3456])?)\/([a-f0-9]{32})$/.exec(url.pathname);
   const listing = url.pathname === '/games';
   if (!match && !listing) return json({ error: 'Unknown invite.' }, 404);
   const origin = req.headers.get('Origin'), origins = String(env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim());
@@ -51,12 +51,13 @@ export async function inviteRequest(req, env) {
   if (me.stage !== 'profile' || !Number.isSafeInteger(me.id) || me.tier === 'guest') return json({ error: 'Choose a signed-in profile.' }, 403);
   if (listing) {
     const response = await env.HEROES_JOBS.get(env.HEROES_JOBS.idFromName('jobs')).fetch(new Request('https://internal/index', { method: 'POST', body: JSON.stringify({ op: 'list', profile: me.id }) }));
-    const data = await response.json(); data.games = data.games.filter(g => g.game !== 'heroes2' || me.tier === 'full');
+    const data = await response.json(); data.games = data.games.filter(g => g.game === 'chess' || me.tier === 'full');
     const result = json(data); for (const [k, v] of Object.entries(cors)) result.headers.set(k, v); return result;
   }
-  if (match[1] === 'heroes2' && me.tier !== 'full') return json({ error: 'This game needs a full account.' }, 403);
+  if ((match[1] === 'heroes2' || match[1].startsWith('metal-slug')) && me.tier !== 'full') return json({ error: 'This game needs a full account.' }, 403);
   const headers = new Headers({ Upgrade: 'websocket', 'Sec-WebSocket-Protocol': 'tg-invite', 'X-Player': String(me.id), 'X-Game': match[1] });
-  return env.INVITES.get(env.INVITES.idFromName(match[1] + ':' + match[2])).fetch(new Request(url, { headers }));
+  const rooms=match[1].startsWith('metal-slug')?env.ARCADES:env.INVITES;
+  return rooms.get(rooms.idFromName(match[1] + ':' + match[2])).fetch(new Request(url, { headers }));
 }
 
 export class HeroesJobs extends DurableObject {
@@ -65,7 +66,7 @@ export class HeroesJobs extends DurableObject {
     const job = await req.json();
     if (job.op === 'list' && Number.isSafeInteger(job.profile)) return json({ games: [...(await this.ctx.storage.list({ prefix: 'player:' + job.profile + ':' })).values()].sort((a, b) => b.updated - a.updated) });
     if (job.op === 'index') {
-      if (!ROOM.test(job.id) || !['chess', 'heroes2'].includes(job.game) || !Array.isArray(job.players)) return json({}, 400);
+      if (!ROOM.test(job.id) || !/^(chess|heroes2|metal-slug(?:-[2x3456])?)$/.test(job.game) || !Array.isArray(job.players)) return json({}, 400);
       const key = 'game:' + job.game + ':' + job.id;
       if (!await this.ctx.storage.get(key)) {
         const all = [...(await this.ctx.storage.list({ prefix: 'game:' })).values()];
