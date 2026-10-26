@@ -16,7 +16,7 @@ async (page) => {
     await ctx.addInitScript(f => { localStorage.setItem('evonline.session', f.token); localStorage.setItem('evonline.tier', f.tier); localStorage.setItem('tenggames.profileId', String(f.id)); localStorage.setItem('tg.owner', String(f.id)); }, fixtures[index]);
     const p = await ctx.newPage(); p.on('pageerror', error => errors.push(error.message)); return p;
   }
-  async function tap(p, square) { const locator = p.locator('.squares [data-sq="' + square + '"]'); await locator.scrollIntoViewIfNeeded(); const r = await locator.boundingBox(); await p.mouse.click(r.x + r.width / 2, r.y + r.height / 2); }
+  async function tap(p, square) { await p.locator('.squares [data-sq="' + square + '"]').click(); await p.waitForTimeout(250); }
   try {
     const a = await device(0, 1280, 900), b = await device(8, 390, 844, true);
     await a.goto(S + '/chess/' + relay); await a.getByRole('button', { name: 'Play a Friend' }).click(); await a.getByRole('button', { name: 'Invite a friend online' }).click();
