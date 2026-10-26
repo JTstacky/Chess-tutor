@@ -7,11 +7,28 @@ const MAX_SAVE = 4 * 1024 * 1024, PART = 64000;
 export async function serviceRequest(req, env) {
   if (!env.HEROES_SERVICE_TOKEN || req.headers.get('Authorization') !== 'Bearer ' + env.HEROES_SERVICE_TOKEN) return json({ error: 'Service authentication required.' }, 403);
   const url = new URL(req.url);
+  if (url.pathname.startsWith('/service/heroes2/data/')) return originalsRequest(req, env);
   if (url.pathname === '/service/heroes2/jobs') return env.HEROES_JOBS.get(env.HEROES_JOBS.idFromName('jobs')).fetch(req);
   const id = url.pathname.match(/^\/service\/heroes2\/([a-f0-9]{32})$/)?.[1];
   if (!id) return json({ error: 'Not found.' }, 404);
   const headers = new Headers(req.headers); headers.set('X-Service', '1');
   return env.INVITES.get(env.INVITES.idFromName('heroes2:' + id)).fetch(new Request(req, { headers }));
+}
+async function originalsRequest(req, env) {
+  if (!env.HEROES_ORIGINALS) return json({ error: 'Originals not configured.' }, 503);
+  const game = await env.HEROES_ORIGINALS.get('game:heroes2', 'json');
+  if (!game) return json({ error: 'Originals unavailable.' }, 503);
+  const path = decodeURIComponent(new URL(req.url).pathname.slice('/service/heroes2/data/'.length));
+  if (path === 'manifest') return json({ files: game.files.map(({ path, size, sha256 }) => ({ path, size, sha256 })) });
+  const file = game.files.find(f => f.path === path); if (!file) return json({}, 404);
+  const kv = env.HEROES_ORIGINALS;
+  const body = new ReadableStream({ n: 0, async pull(controller) {
+    if (this.n >= file.chunks) return controller.close();
+    const bytes = await kv.get(`data:${file.sha256}:${this.n++}`, 'arrayBuffer');
+    if (!bytes) return controller.error(Error('Original-data chunk missing.'));
+    controller.enqueue(new Uint8Array(bytes));
+  } });
+  return new Response(body, { headers: { 'content-type': 'application/octet-stream', 'cache-control': 'private, no-store' } });
 }
 export async function inviteRequest(req, env) {
   const url = new URL(req.url), match = /^\/invite\/(chess|heroes2)\/([a-f0-9]{32})$/.exec(url.pathname);
@@ -27,7 +44,8 @@ export async function inviteRequest(req, env) {
   if ((!listing && !protocols.includes('tg-invite')) || !token) return json({ error: 'Pick a profile first.' }, 401);
   let me;
   try {
-    const r = await fetch((env.ACCOUNTS_API || 'https://ev-online-api.justintengyz.workers.dev') + '/api/me', { headers: { Authorization: 'Bearer ' + token }, signal: AbortSignal.timeout(10000) });
+    const request = new Request((env.ACCOUNTS_API || 'https://ev-online-api.justintengyz.workers.dev') + '/api/me', { headers: { Authorization: 'Bearer ' + token }, signal: AbortSignal.timeout(10000) });
+    const r = env.ACCOUNTS && !env.ACCOUNTS_API ? await env.ACCOUNTS.fetch(request) : await fetch(request);
     if (!r.ok) return json({ error: 'Sign in again.' }, 401); me = await r.json();
   } catch { return json({ error: 'Sign-in service unavailable.' }, 503); }
   if (me.stage !== 'profile' || !Number.isSafeInteger(me.id) || me.tier === 'guest') return json({ error: 'Choose a signed-in profile.' }, 403);
@@ -92,6 +110,9 @@ export class InviteRoom extends DurableObject {
     if (this.room.game !== 'heroes2') return;
     const r = await this.env.HEROES_JOBS.get(this.env.HEROES_JOBS.idFromName('jobs')).fetch(new Request('https://internal/jobs', { method: 'POST', body: JSON.stringify({ id: this.room.id, owner: this.room.players[0], ended: this.room.ended, online: this.room.ended ? 0 : this.sockets().filter(ws => this.seat(ws) != null).length }) }));
     if (!r.ok) throw Error('Game quota reached.');
+    if (this.env.HEROES_SERVER && !this.room.ended && this.sockets().some(ws => this.seat(ws) != null)) {
+      this.ctx.waitUntil(this.env.HEROES_SERVER.fetch('https://internal/wake', { method: 'POST', headers: { Authorization: 'Bearer ' + this.env.HEROES_SERVICE_TOKEN } }).then(r => { if (!r.ok) throw Error('Engine wake failed.'); }).catch(() => {}));
+    }
   }
   fetch(req) { return this.locked(() => this.handleFetch(req)); }
   async handleFetch(req) {

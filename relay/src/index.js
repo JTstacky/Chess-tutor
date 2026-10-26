@@ -36,7 +36,7 @@ export default {
     if (url.pathname.startsWith('/invite/') || url.pathname === '/games') return inviteRequest(req, env);
     if (url.pathname.startsWith('/service/heroes2/')) return serviceRequest(req, env);
     if (url.pathname === '/' || url.pathname === '/health') {
-      return new Response(JSON.stringify({ ok: true, service: 'tenggames-relay' }), {
+      return new Response(JSON.stringify({ ok: true, service: 'tenggames-relay', heroesAvailable: env.HEROES_ENABLED === 'true' }), {
         headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
       });
     }

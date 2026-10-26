@@ -5,6 +5,7 @@ main = "src/index.js"
 compatibility_date = "2026-09-01"
 
 [vars]
+HEROES_ENABLED = "false"
 # Pages allowed to use the relay (comma separated; "*" allows any).
 ALLOWED_ORIGINS = "https://tenggames.com.au,https://www.tenggames.com.au,https://jtstacky.github.io,http://localhost,http://127.0.0.1"
 
@@ -31,3 +32,15 @@ class_name = "HeroesJobs"
 [[migrations]]
 tag = "v3-nonplayer-server"
 new_sqlite_classes = ["HeroesJobs"]
+
+# Existing private original-data namespace; only the non-player service route
+# can read it. Player data routes and full-profile checks remain unchanged.
+[[kv_namespaces]]
+binding = "HEROES_ORIGINALS"
+id = "d2ff74421a464a83a3d03849bdb29f76"
+
+# Authenticate directly through the existing account Worker. A public Worker
+# fetch to another workers.dev service is not a supported same-account hop.
+[[services]]
+binding = "ACCOUNTS"
+service = "ev-online-api"

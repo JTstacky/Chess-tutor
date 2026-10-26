@@ -15,6 +15,20 @@
       ? '2–6 full-account players. A non-player server runs the game and keeps its saves. Player 1 chooses the scenario; after that, each player sees and controls only their own turn, including human battles. Leave and return later with this link. No player needs to keep a browser open.'
       : 'Two signed-in players. Player 1 is White. No clock: take your turn even when your opponent is offline, then come back later. The server keeps the game; this link does not expire.';
     $('[data-count-label]').hidden = options.game !== 'heroes2' || !!code;
+    // Keep solo play available while the separate online server is provisioned.
+    // Local integration tests deliberately use their own private engine service.
+    let heroesAvailable = options.game !== 'heroes2' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    if (!heroesAvailable) {
+      $('[data-create]').disabled = $('[data-join]').disabled = true;
+      (async () => {
+        try {
+          const r = await fetch('https://tenggames-relay.justintengyz.workers.dev/health', { cache: 'no-store' });
+          heroesAvailable = r.ok && (await r.json()).heroesAvailable === true;
+          $('[data-create]').disabled = $('[data-join]').disabled = !heroesAvailable;
+          if (!heroesAvailable) { $('[data-note]').textContent = 'Online Heroes is being set up. Solo play is available now.'; say('Online invitations will open when the separate game server is ready.'); }
+        } catch { say('Online Heroes is temporarily unavailable. Solo play is available.'); }
+      })();
+    }
     if (code) { $('[data-create]').hidden = true; $('[data-join]').hidden = false; $('[data-status]').textContent = 'You have been invited. Join when you are ready.'; }
     if (!code) {
       const saved = document.createElement('div'); saved.className = 'tg-saved-games'; panel.append(saved);
@@ -55,6 +69,7 @@
       options.onState?.(value, api);
     }
     async function connect(create) {
+      if (!heroesAvailable) return;
       if (socket && socket.readyState < 2) return;
       var token = localStorage.getItem('evonline.session');
       if (!token) { say('Sign in and choose a profile before joining.'); return; }
