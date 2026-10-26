@@ -5,7 +5,7 @@ main = "src/index.js"
 compatibility_date = "2026-09-01"
 
 [vars]
-HEROES_ENABLED = "false"
+HEROES_ENABLED = "true"
 # Pages allowed to use the relay (comma separated; "*" allows any).
 ALLOWED_ORIGINS = "https://tenggames.com.au,https://www.tenggames.com.au,https://jtstacky.github.io,http://localhost,http://127.0.0.1"
 

@@ -1,6 +1,6 @@
 # Persistent private game invites
 
-Chess invitations are live. The private Cloudflare Heroes host was deployed on 27 October 2026; online Heroes activation follows managed-host acceptance. Replaces the browser-host prototype.
+Chess and Heroes II invitations are enabled. The private Cloudflare Heroes host was deployed and accepted on 27 October 2026. Replaces the browser-host prototype.
 
 Chess: Play a Friend → Invite a friend online → Create invite → Copy invite link or Share. A second signed-in profile joins once. Player 1 is White; Player 2 is Black. The relay validates chess moves, promotion, castling, en passant and results, and supports resign/mutual draw. No clock. Take your turn with the opponent offline, leave and return later. Game links, seats and move history persist on the server without a 24-hour expiry.
 
@@ -12,7 +12,7 @@ Open the same link later, or use Your saved games under the same profile on anot
 
 The host runs at https://tenggames-heroes-server.justintengyz.workers.dev and connects to the existing relay through a private service binding. One basic instance runs one native game context. Offline adventure games park after a short grace period; complete cloud checkpoints survive container replacement. Battles and dialogs retain their live context. Waiting games load as the engine slot becomes available. Cold starts can take a minute.
 
-The image uses Debian chromium-headless-shell and contains no original commercial data or credentials. Originals are fetched and hash-verified through the existing private service route. The host exposes only authenticated aggregate health/wake, with no renderer, save or data proxy. Wake retries survive cold starts and container rollouts. Renderer crashes and stalled cleanup recover from cloud adventure checkpoints.
+The image uses Debian chromium-headless-shell and contains no original commercial data or credentials. Originals are fetched and hash-verified through the existing private service route. The host exposes only authenticated aggregate health/wake and administrative restart, with no renderer, save or data proxy. Wake retries survive cold starts and container rollouts. Renderer crashes and stalled cleanup recover from cloud adventure checkpoints.
 
 ## Implementation
 
