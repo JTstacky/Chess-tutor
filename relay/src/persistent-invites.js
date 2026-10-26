@@ -101,7 +101,7 @@ export class InviteRoom extends DurableObject {
   state() {
     const r = this.room;
     return { type: 'room', game: r.game, active: r.active, generation: r.generation, phase: r.phase, capacity: r.capacity, serverOnline: r.game === 'chess' || !!this.service(), savedAt: r.checkpoint?.at || null, persistent: true, ...(r.game === 'heroes2' && r.result ? { result: r.result } : {}),
-      players: r.players.map((_, seat) => ({ seat, online: this.online(seat) })), ...(r.game === 'chess' ? { moves: r.moves, result: r.result, draw: r.draw } : {}) };
+      players: r.players.map((_, seat) => ({ seat, online: this.online(seat) })), ...(r.game === 'heroes2' && r.runtimeRetryAt > Date.now() ? { runtimeRetryAt: r.runtimeRetryAt } : {}), ...(r.game === 'chess' ? { moves: r.moves, result: r.result, draw: r.draw } : {}) };
   }
   broadcast() { const s = this.state(); for (const ws of this.sockets()) this.send(ws, s); }
   async job() {
@@ -111,10 +111,20 @@ export class InviteRoom extends DurableObject {
     const r = await this.env.HEROES_JOBS.get(this.env.HEROES_JOBS.idFromName('jobs')).fetch(new Request('https://internal/jobs', { method: 'POST', body: JSON.stringify({ id: this.room.id, owner: this.room.players[0], ended: this.room.ended, online: this.room.ended ? 0 : this.sockets().filter(ws => this.seat(ws) != null).length }) }));
     if (!r.ok) throw Error('Game quota reached.');
     if (this.env.HEROES_SERVER && !this.room.ended && this.sockets().some(ws => this.seat(ws) != null) && !this.service()) {
+      if (this.room.runtimeRetryAt > Date.now()) { await this.ctx.storage.setAlarm(this.room.runtimeRetryAt); return; }
       // Cold starts and image rollouts can outlast the initial wake request.
       // Retry while a player is waiting; the saved game itself never expires.
       await this.ctx.storage.setAlarm(Date.now() + 20000);
-      this.ctx.waitUntil(this.env.HEROES_SERVER.fetch('https://internal/wake', { method: 'POST', headers: { Authorization: 'Bearer ' + this.env.HEROES_SERVICE_TOKEN } }).then(r => { if (!r.ok) throw Error('Engine wake failed.'); }).catch(() => {}));
+      this.ctx.waitUntil(this.env.HEROES_SERVER.fetch('https://internal/wake', { method: 'POST', headers: { Authorization: 'Bearer ' + this.env.HEROES_SERVICE_TOKEN } }).then(async r => {
+        if (r.status === 402) {
+          const value = await r.json();
+          if (!value.budgetLimited || !Number.isSafeInteger(value.retryAt) || value.retryAt <= Date.now()) throw Error('Invalid runtime allowance response.');
+          await this.locked(async () => {
+            this.room.runtimeRetryAt = value.retryAt; await this.save();
+            await this.ctx.storage.setAlarm(value.retryAt); this.broadcast();
+          });
+        } else if (!r.ok) throw Error('Engine wake failed.');
+      }).catch(() => {}));
     } else {
       await this.ctx.storage.deleteAlarm();
     }
@@ -135,6 +145,7 @@ export class InviteRoom extends DurableObject {
       for (const ws of this.sockets()) if (ws.deserializeAttachment()?.service) ws.close(4001, 'Service replaced.');
       const [client, server] = Object.values(new WebSocketPair()); this.ctx.acceptWebSocket(server); server.serializeAttachment({ service: true });
       // A service reconnect starts with all frames hidden, never an old turn.
+      delete this.room.runtimeRetryAt;
       this.room.active = -1; this.room.phase = 'recovering'; this.room.generation++;
       await this.save(); this.send(server, { type: 'service-welcome', generation: this.room.generation, capacity: this.room.capacity }); this.broadcast();
       return new Response(null, { status: 101, webSocket: client });

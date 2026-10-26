@@ -14,6 +14,8 @@ The host runs at https://tenggames-heroes-server.justintengyz.workers.dev and co
 
 The image uses Debian chromium-headless-shell and contains no original commercial data or credentials. Originals are fetched and hash-verified through the existing private service route. The host exposes only authenticated aggregate health/wake and administrative restart, with no renderer, save or data proxy. Wake retries survive cold starts and container rollouts. Renderer crashes and stalled cleanup recover from cloud adventure checkpoints.
 
+The owner approved an automatic runtime cutoff for a US$10 monthly target. Heroes reserves at most 60 server-hours in a rolling 31 days, in prepaid 15-minute leases that include startup/idle time and are not refunded on restart. Six hours initially cover earlier deployment/testing. Cloud and Node deadlines stop the server at expiry; exhausted runtime blocks starts without deleting saves. The relay stops frequent retries and shows the next availability time. Chess is unaffected. Cloudflare's existing alert is lowered to US$3 usage (about US$8 with the US$5 plan). This is a Heroes runtime guard, not an account-wide billing cap: other services, ancillary charges and taxes remain outside it.
+
 ## Implementation
 
 - `public/tg-invite.js` supplies the common lobby, 128-bit fragment invite links, sharing, persistent profile-private game list and reconnect/leave controls. There is no email, directory, public room listing or chat. Share sends through the user's own browser share sheet.
