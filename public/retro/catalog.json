@@ -119,6 +119,66 @@
       "tier": "B",
       "licence": "Engine: libzoo fork (MIT), based on the Reconstruction of ZZT / Super ZZT (MIT). Game data: ZZT 3.2 and Super ZZT 2.0 as Epic MegaGames distributed them; Epic's licence allows no-cost copying and distribution in original form (it must not be called freeware).",
       "publishedAt": "2026-10-22T23:31:14.219Z"
+    },
+    {
+      "id": "metal-slug",
+      "title": "Metal Slug",
+      "year": 1996,
+      "developer": "Nazca / SNK",
+      "tier": "B",
+      "blurb": "Original arcade action with touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
+      "licence": "Original game data: full accounts only. Engine: FinalBurn Neo (non-commercial license), RetroArch (GPL-3.0) and EmulatorJS (GPL-3.0).",
+      "publishedAt": "2026-10-26T19:50:39.112Z"
+    },
+    {
+      "id": "metal-slug-2",
+      "title": "Metal Slug 2",
+      "year": 1998,
+      "developer": "SNK",
+      "tier": "B",
+      "blurb": "Original arcade action with touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
+      "licence": "Original game data: full accounts only. Engine: FinalBurn Neo (non-commercial license), RetroArch (GPL-3.0) and EmulatorJS (GPL-3.0).",
+      "publishedAt": "2026-10-26T19:50:39.113Z"
+    },
+    {
+      "id": "metal-slug-x",
+      "title": "Metal Slug X",
+      "year": 1999,
+      "developer": "SNK",
+      "tier": "B",
+      "blurb": "Original arcade action with touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
+      "licence": "Original game data: full accounts only. Engine: FinalBurn Neo (non-commercial license), RetroArch (GPL-3.0) and EmulatorJS (GPL-3.0).",
+      "publishedAt": "2026-10-26T19:50:39.113Z"
+    },
+    {
+      "id": "metal-slug-3",
+      "title": "Metal Slug 3",
+      "year": 2000,
+      "developer": "SNK",
+      "tier": "B",
+      "blurb": "Original arcade action with touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
+      "licence": "Original game data: full accounts only. Engine: FinalBurn Neo (non-commercial license), RetroArch (GPL-3.0) and EmulatorJS (GPL-3.0).",
+      "publishedAt": "2026-10-26T19:50:39.113Z"
+    },
+    {
+      "id": "metal-slug-4",
+      "title": "Metal Slug 4",
+      "year": 2002,
+      "developer": "Mega Enterprise / Noise Factory",
+      "tier": "B",
+      "blurb": "Original arcade action with touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
+      "licence": "Original game data: full accounts only. Engine: FinalBurn Neo (non-commercial license), RetroArch (GPL-3.0) and EmulatorJS (GPL-3.0).",
+      "publishedAt": "2026-10-26T19:50:39.113Z"
+    },
+    {
+      "id": "metal-slug-5",
+      "title": "Metal Slug 5",
+      "year": 2003,
+      "developer": "SNK Playmore / Noise Factory",
+      "tier": "B",
+      "blurb": "Original arcade action with touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
+      "licence": "Original game data: full accounts only. Engine: FinalBurn Neo (non-commercial license), RetroArch (GPL-3.0) and EmulatorJS (GPL-3.0).",
+      "publishedAt": "2026-10-26T19:50:39.113Z"
     }
   ]
 }

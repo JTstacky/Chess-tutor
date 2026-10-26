@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><script src="/tg-profile.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Metal Slug engine credits · Teng Games</title>
+<style>body{max-width:760px;margin:2rem auto;padding:0 1rem;background:#101621;color:#eef4ff;font:18px/1.6 system-ui}a{color:#8bd8ff}code{overflow-wrap:anywhere}</style>
+</head><body><a href="./index.html">Back to Metal Slug</a><h1>Engine credits and source</h1>
+<p>Metal Slug and its original artwork, music and game data belong to their respective rights holders. Game data is supplied separately through the private full-account service.</p>
+<p>The browser engine uses the Neo Geo subset of <a href="https://github.com/EmulatorJS/FBNeo">FinalBurn Neo</a>, the <a href="https://github.com/EmulatorJS/RetroArch">EmulatorJS RetroArch frontend</a>, and <a href="https://github.com/EmulatorJS/EmulatorJS">EmulatorJS 4.2.3</a>. Copyright notices and applicable licenses are included with the corresponding sources below.</p>
+<ul><li><a href="./sources/fbneo-source.tar.gz">FinalBurn Neo source</a> — commit d5f072e147cfd01cb7c095470fd9c5c2697753d8.</li>
+<li>RetroArch source — commit 6dd4353937ef48b6ec0bfbdbb15d1c5992d86927: <a href="./sources/retroarch-source.tar.gz.part1">part 1</a>, <a href="./sources/retroarch-source.tar.gz.part2">part 2</a>, <a href="./sources/retroarch-source.tar.gz.part3">part 3</a>, <a href="./sources/retroarch-source.tar.gz.part4">part 4</a>.</li>
+<li><a href="./sources/web-integration-source.tar.gz">Browser integration, modified frontend and build scripts</a>.</li>
+<li><a href="./sources/manifest.json">Download sizes and SHA-256 checksums</a>.</li></ul>
+<h2>Building the engine</h2><p>Concatenate the four RetroArch parts in numerical order before extracting the gzip tar archive. Extract FinalBurn Neo into <code>/build/fbneo</code> and RetroArch into <code>/build/retroarch-neogeo</code>. Use Emscripten SDK 3.1.74. The integration archive includes <code>tools/build-metal-slug-neogeo.sh</code> with the exact compilation flags and <code>tools/prepare-metal-slug-neogeo.py</code> with the runtime instrumentation and packaging step (Python with py7zr). The build contains no original game data.</p>
+</body></html>
