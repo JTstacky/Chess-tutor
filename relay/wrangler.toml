@@ -5,7 +5,7 @@ main = "src/index.js"
 compatibility_date = "2026-09-01"
 
 [vars]
-HEROES_ENABLED = "false"
+HEROES_ENABLED = "true"
 # Pages allowed to use the relay (comma separated; "*" allows any).
 ALLOWED_ORIGINS = "https://tenggames.com.au,https://www.tenggames.com.au,https://jtstacky.github.io,http://localhost,http://127.0.0.1"
 
@@ -44,3 +44,17 @@ id = "d2ff74421a464a83a3d03849bdb29f76"
 [[services]]
 binding = "ACCOUNTS"
 service = "ev-online-api"
+
+# Non-player native engine, woken when a Heroes player reconnects.
+[[services]]
+binding = "HEROES_SERVER"
+service = "tenggames-heroes-server"
+
+
+[[durable_objects.bindings]]
+name = "ARCADES"
+class_name = "ArcadeRoom"
+
+[[migrations]]
+tag = "v4-arcade-coop"
+new_sqlite_classes = ["ArcadeRoom"]

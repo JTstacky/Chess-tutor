@@ -21,6 +21,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { inviteRequest, serviceRequest } from './persistent-invites.js';
 export { InviteRoom, HeroesJobs } from './persistent-invites.js';
+export { ArcadeRoom } from './arcade-room.js';
 
 const PATH = /^\/([a-z0-9-]{1,48})\/([A-Za-z]{4})\/?$/;
 
