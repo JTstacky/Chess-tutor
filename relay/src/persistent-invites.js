@@ -88,7 +88,7 @@ export class HeroesJobs extends DurableObject {
 export class InviteRoom extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env); this.env = env; this.rates = new Map(); this.serial = Promise.resolve();
-    this.ready = ctx.blockConcurrencyWhile(async () => { this.room = await ctx.storage.get('room'); await ctx.storage.deleteAlarm(); });
+    this.ready = ctx.blockConcurrencyWhile(async () => { this.room = await ctx.storage.get('room'); });
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('~', '~'));
   }
   locked(fn) { const next = this.serial.catch(() => {}).then(async () => { await this.ready; return fn(); }); this.serial = next; return next; }
@@ -110,8 +110,13 @@ export class InviteRoom extends DurableObject {
     if (this.room.game !== 'heroes2') return;
     const r = await this.env.HEROES_JOBS.get(this.env.HEROES_JOBS.idFromName('jobs')).fetch(new Request('https://internal/jobs', { method: 'POST', body: JSON.stringify({ id: this.room.id, owner: this.room.players[0], ended: this.room.ended, online: this.room.ended ? 0 : this.sockets().filter(ws => this.seat(ws) != null).length }) }));
     if (!r.ok) throw Error('Game quota reached.');
-    if (this.env.HEROES_SERVER && !this.room.ended && this.sockets().some(ws => this.seat(ws) != null)) {
+    if (this.env.HEROES_SERVER && !this.room.ended && this.sockets().some(ws => this.seat(ws) != null) && !this.service()) {
+      // Cold starts and image rollouts can outlast the initial wake request.
+      // Retry while a player is waiting; the saved game itself never expires.
+      await this.ctx.storage.setAlarm(Date.now() + 20000);
       this.ctx.waitUntil(this.env.HEROES_SERVER.fetch('https://internal/wake', { method: 'POST', headers: { Authorization: 'Bearer ' + this.env.HEROES_SERVICE_TOKEN } }).then(r => { if (!r.ok) throw Error('Engine wake failed.'); }).catch(() => {}));
+    } else {
+      await this.ctx.storage.deleteAlarm();
     }
   }
   fetch(req) { return this.locked(() => this.handleFetch(req)); }
@@ -215,7 +220,7 @@ export class InviteRoom extends DurableObject {
   }
   webSocketClose(ws, code, reason) { try { ws.close(code === 1005 || code === 1006 ? 1000 : code, reason); } catch {} return this.locked(async () => { if (this.room) { this.broadcast(); await this.job(); } }); }
   webSocketError(ws) { try { ws.close(1011, 'Connection lost.'); } catch {} return this.locked(async () => { if (this.room) { this.broadcast(); await this.job(); } }); }
-  async alarm() { /* Games and their saved turns do not expire. */ }
+  alarm() { return this.locked(async () => { if (this.room) await this.job(); }); }
 }
 function validInput(m) {
   if (['down', 'up', 'move'].includes(m.event)) return Number.isFinite(m.x) && Number.isFinite(m.y) && m.x >= 0 && m.x <= 1 && m.y >= 0 && m.y <= 1 && [0, 2].includes(m.button);
