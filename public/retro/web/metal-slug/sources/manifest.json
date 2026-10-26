@@ -3,6 +3,50 @@
     "bytes": 23615588,
     "sha256": "87546eac849cc47c72f1238f071ccd4efad5a7ad6c419f898709b970970c5bef"
   },
+  "flycast-build-source.tar.gz": {
+    "bytes": 352911,
+    "sha256": "c8c83b1faded38a3a114e65d5257265d5aeb3228f3978c1e7ea2f5b65ad7b984"
+  },
+  "flycast-retroarch-source.tar.gz.part1": {
+    "bytes": 20971520,
+    "sha256": "283f72a305cd0ff3366cda6cad1973245ebbb6231e5f995e1d9e106a8ef5d1bb"
+  },
+  "flycast-retroarch-source.tar.gz.part2": {
+    "bytes": 20971520,
+    "sha256": "57934a595eb93cd6be67cd202da4a1b65e39fec0d9ca6e9b9975f1223779a522"
+  },
+  "flycast-retroarch-source.tar.gz.part3": {
+    "bytes": 20971520,
+    "sha256": "836feedfa351d5c865f74694c5a249e3a6ab9a0e59d00319f6f5b1314aa765c2"
+  },
+  "flycast-retroarch-source.tar.gz.part4": {
+    "bytes": 8129634,
+    "sha256": "8651f1ae570c8a7657f6297bd5d194a4a12db2394892d4ba107bd4987af30a54"
+  },
+  "flycast-source.tar.gz.part1": {
+    "bytes": 20971520,
+    "sha256": "ba1c05fd9cc369910f9332f4cec3f52faccb9415d93a8a5ce03fff47b77dd4ef"
+  },
+  "flycast-source.tar.gz.part2": {
+    "bytes": 20971520,
+    "sha256": "84fbf7a2af77b4fede9a569dee6312251d011b3678b431854db379e1b7c2ee1c"
+  },
+  "flycast-source.tar.gz.part3": {
+    "bytes": 20971520,
+    "sha256": "f4c376cd39a30f6b16717fb1159f23ed3fae917b0a0d61d8a3007056686f09dd"
+  },
+  "flycast-source.tar.gz.part4": {
+    "bytes": 20971520,
+    "sha256": "73d617a02177ba598ac29d1cac0d1e4205090f45cca5156eb64ab0ff23813b81"
+  },
+  "flycast-source.tar.gz.part5": {
+    "bytes": 20971520,
+    "sha256": "c4c591613d0cc81476bb7a4a045fe39a5fac13411a0f4948318490ebfe86b2eb"
+  },
+  "flycast-source.tar.gz.part6": {
+    "bytes": 517793,
+    "sha256": "e9a0089c4ebb0a10ef486245e8af9b7e2201b3483da4382eaaab360066d4c421"
+  },
   "retroarch-source.tar.gz.part1": {
     "bytes": 20971520,
     "sha256": "45a0373d4b552239f507ed8e00259ef1e56e5d5d05397418e82771b32a8be25e"
@@ -20,7 +64,7 @@
     "sha256": "41dd8d9378fcbabe2d8b884dd5210e6cdc7f6ccf313f5fe7d735857031479517"
   },
   "web-integration-source.tar.gz": {
-    "bytes": 451971,
-    "sha256": "c64c66d0c90669f5e87779a293e12f4fc30a960b95bbc44eea58250fe857da29"
+    "bytes": 463637,
+    "sha256": "7757b9ee3529b45d569a7134b43f2ae43438288a1d96a97e2d2a909ed1a68925"
   }
 }

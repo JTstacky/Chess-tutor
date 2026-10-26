@@ -179,6 +179,16 @@
       "blurb": "Original arcade action with touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
       "licence": "Original game data: full accounts only. Engine: FinalBurn Neo (non-commercial license), RetroArch (GPL-3.0) and EmulatorJS (GPL-3.0).",
       "publishedAt": "2026-10-26T19:50:39.113Z"
+    },
+    {
+      "id": "metal-slug-6",
+      "title": "Metal Slug 6",
+      "year": 2006,
+      "developer": "SNK Playmore",
+      "tier": "B",
+      "blurb": "Original arcade action with five-button touch controls, device and cloud saves, and two-player online co-op through private friend invites.",
+      "licence": "Original game data: full accounts only. Engine: Flycast (GPL-2.0), RetroArch and EmulatorJS (GPL-3.0).",
+      "publishedAt": "2026-10-26T21:22:58.175Z"
     }
   ]
 }
