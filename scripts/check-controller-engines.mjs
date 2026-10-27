@@ -72,7 +72,7 @@ try {
         await p.locator('#overlay [data-tg-controller]').click();
       }else{
         await p.evaluate(()=>TGController.openPause());
-        await p.getByRole('button',{name:'Controller settings',exact:true}).click();
+        await p.getByRole('button',{name:'Settings',exact:true}).click();
       }
       await p.waitForTimeout(200);const count=await p.evaluate(()=>qaCounter());
       const canvas=p.locator('canvas:visible').first();

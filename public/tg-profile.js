@@ -19,6 +19,68 @@
     location.replace('https://' + location.host + location.pathname + location.search + location.hash);
     return;
   }
+  // Site-wide settings (tg.settings, one per device; the Settings menu in tg-controller.js changes them).
+  // They must hook audio and vibration here, before any game script creates its sound graph.
+  var TG = window.TGSettings = { volume: 1, vibration: true, setVolume: null, setVibration: null };
+  try {
+    var saved = JSON.parse(window.localStorage.getItem('tg.settings')) || {};
+    if (typeof saved.volume === 'number' && saved.volume >= 0 && saved.volume <= 1) TG.volume = saved.volume;
+    TG.vibration = saved.vibration !== false;
+  } catch (e) {}
+  (function () {
+    var refs = [], Ref = window.WeakRef;
+    var track = function (o) { if (Ref) refs.push(new Ref(o)); };
+    var each = function (fn) { refs = refs.filter(function (r) { var o = r.deref(); if (o) fn(o); return !!o; }); };
+    // Web Audio: whatever a game connects to the speakers goes through one gain node per audio context.
+    var AN = window.AudioNode, AD = window.AudioDestinationNode, Offline = window.OfflineAudioContext;
+    if (AN && AD) {
+      var connect = AN.prototype.connect, disconnect = AN.prototype.disconnect, gains = new WeakMap();
+      var live = function (dest) { return dest instanceof AD && !(Offline && dest.context instanceof Offline); };
+      AN.prototype.connect = function (dest) {
+        var args = Array.prototype.slice.call(arguments);
+        if (live(dest)) {
+          var g = gains.get(dest);
+          if (!g) { g = dest.context.createGain(); g.gain.value = TG.volume; g.tgMaster = true; connect.call(g, dest); gains.set(dest, g); track(g); }
+          if (this !== g) args[0] = g;
+        }
+        return connect.apply(this, args);
+      };
+      AN.prototype.disconnect = function (dest) {
+        var args = Array.prototype.slice.call(arguments);
+        if (live(dest) && gains.has(dest) && !this.tgMaster) args[0] = gains.get(dest);
+        return disconnect.apply(this, args);
+      };
+    }
+    // <audio>/<video>: the game's own volume, times the site volume.
+    var HM = window.HTMLMediaElement, vd = HM && Object.getOwnPropertyDescriptor(HM.prototype, 'volume'), raw = new WeakMap();
+    if (vd && vd.set) {
+      Object.defineProperty(HM.prototype, 'volume', { configurable: true, enumerable: vd.enumerable,
+        get: function () { return raw.has(this) ? raw.get(this) : vd.get.call(this); },
+        set: function (v) {
+          if (!(v >= 0 && v <= 1)) return vd.set.call(this, v);   // keep the browser's own error
+          if (!raw.has(this)) track(this);
+          raw.set(this, v); vd.set.call(this, v * TG.volume);
+        } });
+      var play = HM.prototype.play;
+      HM.prototype.play = function () { if (!raw.has(this)) this.volume = vd.get.call(this); return play.apply(this, arguments); };
+    }
+    TG.setVolume = function (v) {
+      TG.volume = Math.max(0, Math.min(1, v));
+      each(function (o) { if (o.tgMaster) o.gain.value = TG.volume; else if (raw.has(o)) vd.set.call(o, raw.get(o) * TG.volume); });
+    };
+    var vibrate = navigator.vibrate;
+    if (vibrate) navigator.vibrate = function () { return TG.vibration ? vibrate.apply(navigator, arguments) : false; };
+    TG.setVibration = function (on) { TG.vibration = !!on; if (!on && vibrate) vibrate.call(navigator, 0); };
+  })();
+  // Arcane Arena and Hammerguy's Party share an engine, and with it the sound keys aa-muted/aa-volume.
+  // Give Hammerguy's its own, so muting one game no longer mutes the other.
+  if (/^\/hammerguys-party\//.test(location.pathname) && window.Storage) {
+    var own = { 'aa-muted': 'hp-muted', 'aa-volume': 'hp-volume' }, SP = Storage.prototype;
+    ['getItem', 'setItem', 'removeItem'].forEach(function (m) {
+      var f = SP[m];
+      SP[m] = function (k) { var args = Array.prototype.slice.call(arguments); if (Object.prototype.hasOwnProperty.call(own, k)) args[0] = own[k]; return f.apply(this, args); };
+    });
+  }
   // Shared controller controls are independent of account storage and game builds.
   var controllerScript = document.createElement('script');
   controllerScript.src = '/tg-controller.js'; controllerScript.defer = true;

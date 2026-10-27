@@ -18,8 +18,37 @@ ensure('public/demon-dragon/js/gfx.js','if (window.TGController?.paused) return;
 ensure('public/demon-dragon/js/game.js','tg-input-reset', "  window.addEventListener('blur', () => clearInput());", "  window.addEventListener('blur', () => clearInput());\n  window.addEventListener('tg-input-reset', () => clearInput());");
 ensure('public/demon-dragon/js/game.js','if (window.TGController?.paused) return;', '  function press(btn) {', '  function press(btn) {\n    if (window.TGController?.paused) return;');
 ensure('public/zeliard/game/src/scenes/menus.js',"value: 'controller'", "      { label: 'Resume', value: 'resume' },", "      { label: 'Resume', value: 'resume' },\n      { label: 'Controller settings', value: 'controller' },");
+// The shared Settings page (sound, screen, controller) has the same name in every game.
+ensure('public/zeliard/game/src/scenes/menus.js',"{ label: 'Settings', value: 'controller' }", "{ label: 'Controller settings', value: 'controller' }", "{ label: 'Settings', value: 'controller' }");
 ensure('public/zeliard/game/src/scenes/menus.js',"v === 'controller'", "    if (v === 'resume') this.close();", "    if (v === 'resume') this.close();\n    else if (v === 'controller') window.TGController?.openSettings();");
 ensure('public/escape-velocity/game/touch.js','window.TGController.openPause()', "def('pause', 'II', { fn: () => { this.app.paused = !this.app.paused; this.app.last = performance.now(); }, cls: 'small' });", "def('pause', 'II', { fn: () => { if (window.TGController) window.TGController.openPause(); else { this.app.paused = !this.app.paused; this.app.last = performance.now(); } }, cls: 'small' });");
+// Site rule: /tg-profile.js is the first element in <head> of every game page. It keeps progress per
+// profile, loads the shared controller and Settings, and applies the site volume. A game publisher that
+// replaces its page without it (Mission Mars, 27 Oct) gets it back here.
+const PROFILE_TAG = '<script src="/tg-profile.js"></script>';
+const profileFirst = html => /<head[^>]*>\s*<script src=["']?\/tg-profile\.js["']?\s*><\/script>/i.test(html);
+const publicDir = fileURLToPath(new URL('../public/', import.meta.url));
+const gamePages = [];
+for (const dir of readdirSync(publicDir, { withFileTypes: true }).filter(d => d.isDirectory())) {
+  for (const page of ['index.html', 'game/index.html']) gamePages.push(join(publicDir, dir.name, page));
+}
+for (const dir of readdirSync(join(publicDir, 'retro', 'web'))) gamePages.push(join(publicDir, 'retro', 'web', dir, 'index.html'));
+let restored = 0;
+for (const page of gamePages) {
+  let html;
+  try { html = readFileSync(page, 'utf8'); } catch { continue; }
+  if (!/<head[^>]*>/i.test(html) || profileFirst(html)) continue;
+  html = html.replace(/<script src=["']?\/tg-profile\.js["']?\s*><\/script>\s*/gi, '').replace(/<head[^>]*>/i, m => `${m}${html.includes('\r\n') ? '\r\n' : '\n'}${PROFILE_TAG}`);
+  writeFileSync(page, html);
+  console.log('Restored the profile script first in <head>: ' + page.slice(publicDir.length));
+  restored++;
+}
+for (const page of gamePages) {
+  let html;
+  try { html = readFileSync(page, 'utf8'); } catch { continue; }
+  if (/<head[^>]*>/i.test(html) && !profileFirst(html)) throw Error('Profile script not first in <head>: ' + page);
+}
+
 let changed = 0;
 for (const name of readdirSync(assets).filter(n => n.endsWith('.js'))) {
   const file = join(assets, name);

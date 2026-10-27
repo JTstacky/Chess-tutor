@@ -23,7 +23,7 @@ export class PauseScene {
     const tester = g.locals.some((l) => isTester(l.character));
     this.menu = new Menu([
       { label: 'Resume', value: 'resume' },
-      { label: 'Controller settings', value: 'controller' },
+      { label: 'Settings', value: 'controller' },
       { label: 'Music volume', right: vol('music'), onLeft: () => this.adj('music', -0.1), onRight: () => this.adj('music', 0.1) },
       { label: 'Sound volume', right: vol('sfx'), onLeft: () => this.adj('sfx', -0.1), onRight: () => this.adj('sfx', 0.1) },
       { label: 'Game speed', right: `${settings.get('speed') || 1}×`, onLeft: () => this.speed(-0.25), onRight: () => this.speed(0.25), hint: 'Like the original F9 speed setting.' },

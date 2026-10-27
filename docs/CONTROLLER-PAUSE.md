@@ -2,7 +2,54 @@
 
 The site controller service (`public/tg-controller.js`, loaded by `tg-profile.js`)
 owns the controller preferences. It no longer creates a floating controller-help
-button. Controller settings is an item inside each game's pause/options menu.
+button. Settings (which includes the controller) is an item inside each game's
+pause/options menu.
+
+## Teng Games standard (28 October 2026)
+
+Every game shares these, from the two site scripts; no game was rebuilt.
+
+- **Pause menu** (games using the shared menu): Resume · Settings · Original game
+  menu (keen, jazz, cosmo, pop, tyrian, omf only) · Quit to Teng Games, or Leave
+  match online. Quitting asks first; Cancel or B goes back.
+- **Games with their own menus** keep them. The shared item is named
+  **Settings**, or **More settings** where the game already has its own
+  settings screen (Chess, Arcane Arena, Hammerguy's Party, Mission Mars).
+  "Keep playing" reads "Resume" everywhere. Zeliard's canvas item is renamed by
+  the build hook.
+- **Settings page**: Volume (0–100 %, Off at 0), Full screen (where the browser
+  allows it; not iPhone), Vibration (where supported), game-only options
+  (Battle Bots: mouse look speed, invert), then Controller: status, the game's
+  button help, enable, stick dead zone.
+- **Stored per device**, like the controller settings: `tg.settings`
+  `{volume, vibration}` next to `tg.controller.settings`. Site keys are never
+  part of a profile's game data.
+- **Volume and vibration** are applied by `tg-profile.js` before any game code
+  runs. Every Web Audio graph connected to the speakers goes through one gain
+  node per audio context (offline contexts are left alone). `<audio>`/`<video>`
+  play at the game's own volume times the site volume, and games read back their
+  own value. `navigator.vibrate` does nothing while Vibration is off. Games keep
+  their own mute and music switches; the site volume multiplies them.
+- **Arcane Arena and Hammerguy's Party** share an engine and used to share the
+  `aa-muted`/`aa-volume` keys, so muting one muted the other. On Hammerguy's
+  pages `tg-profile.js` maps them to `hp-muted`/`hp-volume`.
+- **Metal Slug** (all seven pages): Settings in the header, styled like the
+  header buttons; Esc presses the game's Pause. Start stays the arcade Start and
+  Select inserts a coin. The page's own pad reading gets the site dead zone and
+  the controller on/off switch (`navigator.getGamepads` returns filtered pads).
+- **Profile script guard**: `npm run build` re-adds `/tg-profile.js` as the
+  first element of `<head>` on every game page (`public/<game>/index.html`,
+  `public/<game>/game/index.html`, `public/retro/web/<id>/index.html`) and fails
+  if any page still lacks it. A Mission Mars refresh on 27 October had dropped
+  it, which turned off profile saves and the controller there.
+
+Not standardised yet (each needs changes inside a game build, so it needs
+that game's own project):
+- **Pause button position.** Demon Dragon, Battle Bots and Escape Velocity keep
+  their offsets, which avoid their HUDs.
+- **Rotate prompts and touch layouts.** These stay per game.
+- **Stacked dead zones.** The Arcane Arena and Battle Bots bundles add their own
+  dead zone (radial 0.25 and 0.18) on top of the site slider.
 
 | Published game | Integration |
 | --- | --- |

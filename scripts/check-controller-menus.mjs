@@ -11,7 +11,7 @@ const base = process.env.QA_URL || 'http://127.0.0.1:8836';
 const out = resolve('.qa/controller-menus');
 mkdirSync(out, { recursive: true });
 const originals = ['chess','demon-dragon','beast-binder','arcane-arena','hammerguys-party','battle-bots','mission-mars','ninja-nab','zeliard','escape-velocity'];
-const retro = ['keen','jazz','cosmo','pop','tyrian','omf','zzt','heroes2','openttd','scummvm','tim','lemmings'];
+const retro = ['keen','jazz','cosmo','pop','tyrian','omf','zzt','heroes2','openttd','scummvm','tim','lemmings','metal-slug'];
 const results = [], errors = [];
 const browser = await chromium.launch({ headless: true, channel: 'chrome', args: ['--use-angle=swiftshader','--enable-unsafe-swiftshader'] });
 async function context(viewport, touch = false) {
@@ -19,7 +19,7 @@ async function context(viewport, touch = false) {
   await c.addInitScript(() => {
     for (const [k,v] of Object.entries({ 'evonline.session':'local-menu-qa', 'tenggames.profileId':'local-qa', 'tg.owner':'local-qa', 'evonline.tier':'full', 'tg.partial':'1' })) localStorage.setItem(k,v);
     window.qaPad = { index:0, id:'Virtual QA standard pad', mapping:'standard', connected:true, axes:[0,0,0,0], buttons:Array.from({length:17},()=>({pressed:false,value:0})) };
-    Object.defineProperty(navigator,'getGamepads',{value:()=>[window.qaPad]});
+    Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[window.qaPad]});
   });
   await c.route('https://ev-online-api.justintengyz.workers.dev/**', r => r.fulfill({ json: { stage:'profile', id:'local-qa', kind:'parent', tier:'full' } }));
   // Launcher/menu coverage does not require commercial game data. Full engine
@@ -81,20 +81,26 @@ try {
         await page.waitForFunction(()=>window.TGController);
         await page.waitForTimeout(200);
         assert.equal(await page.locator('#tg-controller-help').count(),0,'no floating controller button');
+        assert.equal(await page.evaluate(()=>[...document.head.children].find(e=>!(e.src||'').includes('/@vite/'))?.getAttribute('src')),'/tg-profile.js','profile script first in <head>');
         const fallback=await page.locator('#tg-pause-toggle').count();
         if(game==='escape-velocity'){await page.waitForFunction(()=>window.evApp);await page.evaluate(()=>evApp.paused=true);}
-        if(fallback){if(await page.locator('#tg-pause-toggle').isVisible())await page.locator('#tg-pause-toggle').click();else await pad(page,9);await page.getByRole('button',{name:'Controller settings',exact:true}).click();}
+        if(fallback){if(await page.locator('#tg-pause-toggle').isVisible())await page.locator('#tg-pause-toggle').click();else await pad(page,9);
+          assert.deepEqual(await page.locator('#tg-pause-menu button').allInnerTexts(),['Resume','Settings',...(['keen','jazz','cosmo','pop','tyrian','omf'].includes(game)?['Original game menu']:[]),game==='battle-bots'?'Leave match':'Quit to Teng Games'],'standard pause menu order');
+          await page.getByRole('button',{name:'Settings',exact:true}).click();}
+        else if(game.startsWith('metal-slug'))await page.locator('#tg-settings-toggle').click();
         else {
           await openNative(page,game);
           if(game!=='zeliard'){
             await pad(page,13);
             const roots={chess:'.modal-backdrop','arcane-arena':'#options','hammerguys-party':'#options','mission-mars':'#options','beast-binder':'#panel','ninja-nab':'[data-name="pause"]',lemmings:'#overlay'};
             assert(await page.evaluate(selector=>!!document.activeElement.closest(selector),roots[game]),'D-pad stays in the top menu');
+            assert.equal(await page.locator('[data-tg-controller]:visible').last().innerText(),['chess','arcane-arena','hammerguys-party','mission-mars'].includes(game)?'More settings':'Settings','shared item name');
+            if(game==='ninja-nab')assert.deepEqual(await page.locator('[data-name=pause] button').filter({hasText:/^(Resume|Keep playing)$/}).allInnerTexts(),['Resume'],'Resume, not Keep playing');
             await page.locator('[data-tg-controller]:visible').last().focus();await pad(page,0);
           }
         }
         const dialog=page.locator('dialog[open]');await dialog.waitFor();
-        assert.match(await dialog.innerText(),/Controller settings/);
+        assert.match(await dialog.innerText(),/^Settings[\s\S]*Volume[\s\S]*Controller[\s\S]*Stick dead zone/);
         await layout(page,dialog);
         if(size==='phone'||(size==='landscape'&&['demon-dragon','zeliard','chess'].includes(game)))await page.screenshot({path:resolve(out,`${size}-${id.replace('/','-')}.png`)});
         if(size==='desktop')await dialog.getByRole('button',{name:'Back',exact:true}).click();else await dialog.getByRole('button',{name:'Back',exact:true}).tap();
@@ -106,7 +112,7 @@ try {
       await page.close();
     }
     await c.close();
-    console.log(size,results.filter(r=>r.size===size&&r.passed).length,'/',23);
+    console.log(size,results.filter(r=>r.size===size&&r.passed).length,'/',24);
   }
   // Real gameplay pause, analog input, and no held input after resume, with an
   // emulated standard pad. Hardware pairing/radio behavior is outside this test.
@@ -122,17 +128,59 @@ try {
   await p.waitForTimeout(150);const pos=await p.evaluate(()=>({x:DBG.level().knight.x,z:DBG.level().knight.z}));await p.waitForTimeout(250);
   assert.deepEqual(await p.evaluate(()=>({x:DBG.level().knight.x,z:DBG.level().knight.z})),pos,'no stuck movement after resume');
   // Touch entry, settings persistence, disabled gameplay and analog adjustment.
-  await p.locator('#tg-pause-toggle').tap();await p.getByRole('button',{name:'Controller settings',exact:true}).tap();
-  await p.locator('dialog[open] input[type=range]').focus();await pad(p,15);
-  assert.equal(await p.locator('dialog[open] output').innerText(),'23%','D-pad adjusts dead zone accurately');
-  await p.locator('dialog[open] input[type=checkbox]').tap();
+  await p.locator('#tg-pause-toggle').tap();await p.getByRole('button',{name:'Settings',exact:true}).tap();
+  await p.locator('#tg-deadzone').focus();await pad(p,15);
+  assert.equal(await p.locator('#tg-deadzone + output').innerText(),'23%','D-pad adjusts dead zone accurately');
+  await p.locator('#tg-controller-enabled').tap();
   await p.getByRole('button',{name:'Back',exact:true}).tap();await p.getByRole('button',{name:'Resume',exact:true}).tap();await p.waitForFunction(()=>!TGController.paused);
   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('tg.controller.settings')).enabled),false,'controller enable setting persists');
   await p.evaluate(()=>qaPad.axes[0]=.8);await p.waitForTimeout(100);
   assert.equal(await p.evaluate(()=>TGController.state.connected),false,'disabled controller does not drive gameplay');
   await p.evaluate(()=>qaPad.axes[0]=0);await p.waitForTimeout(100);await pad(p,9);
   assert(await p.locator('#tg-pause-menu').evaluate(el=>el.open),'Start still opens menus when gameplay disabled');
-  results.push({id:'demon-dragon',size:'interaction',passed:true});await c.close();
+  results.push({id:'demon-dragon',size:'interaction',passed:true});
+  // Site volume: everything sent to the speakers goes through one level, saved per device.
+  const qaSound=()=>p.evaluate(()=>{const ctx=new AudioContext();const o=ctx.createOscillator();const g=o.connect(ctx.destination);o.disconnect(ctx.destination);const a=new Audio();a.volume=.5;return {gain:Math.round(g.gain.value*100)/100,media:a.volume};});
+  assert.deepEqual(await qaSound(),{gain:1,media:.5},'full volume by default; games read back their own volume');
+  if(!await p.evaluate(()=>TGController.paused))await p.locator('#tg-pause-toggle').tap();await p.getByRole('button',{name:'Settings',exact:true}).tap();
+  await p.locator('#tg-volume').evaluate(el=>{el.value='40';el.dispatchEvent(new Event('input',{bubbles:true}));});
+  assert.equal(await p.locator('#tg-volume + output').innerText(),'40%');
+  assert.deepEqual(await qaSound(),{gain:.4,media:.5},'volume applies to new sound');
+  assert.equal(await p.evaluate(()=>navigator.vibrate(30)),true,'vibration on by default');
+  await p.locator('#tg-vibration').tap();
+  assert.equal(await p.evaluate(()=>navigator.vibrate(30)),false,'vibration off is honoured');
+  // Quit asks first; Cancel and B both go back to the pause menu.
+  await p.getByRole('button',{name:'Back',exact:true}).tap();
+  await p.getByRole('button',{name:'Quit to Teng Games',exact:true}).tap();
+  assert.match(await p.locator('#tg-pause-menu').innerText(),/Quit the game\?/);
+  await p.getByRole('button',{name:'Cancel',exact:true}).tap();
+  await p.getByRole('button',{name:'Quit to Teng Games',exact:true}).tap();await pad(p,1);
+  assert.match(await p.locator('#tg-pause-menu').innerText(),/Resume/,'B leaves the quit question');
+  await p.getByRole('button',{name:'Resume',exact:true}).tap();await p.waitForFunction(()=>!TGController.paused);
+  await p.reload();await p.waitForFunction(()=>window.TGController);
+  assert.deepEqual(await qaSound(),{gain:.4,media:.5},'volume kept after reload');
+  assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('tg.settings'))),{volume:.4,vibration:false},'settings saved per device');
+  results.push({id:'site-settings',size:'interaction',passed:true});
+  // Arcane Arena and Hammerguy's Party no longer share their mute switch.
+  await p.goto(base+'/hammerguys-party/index.html');await p.waitForFunction(()=>window.TGController);
+  await p.evaluate(()=>{localStorage.setItem('aa-muted','1');localStorage.setItem('aa-volume','0.3');});
+  assert.deepEqual(await p.evaluate(()=>[localStorage.getItem('aa-muted'),Object.keys(localStorage).filter(k=>/^(aa|hp)-/.test(k)).sort()]),['1',['hp-muted','hp-volume']],"Hammerguy's keeps its own sound keys");
+  await p.goto(base+'/arcane-arena/index.html');await p.waitForFunction(()=>window.TGController);
+  assert.equal(await p.evaluate(()=>localStorage.getItem('aa-muted')),null,'Arcane Arena unaffected by muting Hammerguy');
+  results.push({id:'separate-sound-keys',size:'interaction',passed:true});
+  // Metal Slug's own pad reading gets the site dead zone and the controller switch.
+  const slugAxis=async(x,enabled)=>{
+    await p.evaluate(on=>{qaPad.axes=[0,0,0,0];localStorage.setItem('tg.controller.settings',JSON.stringify({enabled:on,deadzone:.22}));},enabled);
+    await p.goto(base+'/retro/web/metal-slug/index.html');await p.waitForFunction(()=>window.TGController);await p.waitForTimeout(150);
+    await p.evaluate(v=>{qaPad.axes=[v,0,0,0];},x);await p.waitForTimeout(100);
+    return p.evaluate(()=>navigator.getGamepads()[0].axes[0]);
+  };
+  assert.equal(await slugAxis(.15,true),0,'site dead zone applies to Metal Slug');
+  assert.equal(await slugAxis(.8,true),.8,'enabled controller reaches Metal Slug');
+  assert.equal(await slugAxis(.8,false),0,'disabled controller blocks Metal Slug input');
+  await p.evaluate(()=>{qaPad.axes=[0,0,0,0];});
+  results.push({id:'metal-slug-pad',size:'interaction',passed:true});
+  await c.close();
 } finally {
   await browser.close();
   writeFileSync(resolve(out,'results.json'),JSON.stringify({results,errors},null,2));
