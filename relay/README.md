@@ -35,6 +35,24 @@ The workflow does three things:
 
 It also re-runs whenever `relay/` changes.
 
+## TURN credentials (`GET /turn`)
+
+Before connecting, the PeerJS games (Ninja Nab, Mission Mars, Arcane Arena, Battle Bots, Hammerguy's Party) ask the relay for Cloudflare TURN servers. TURN relays a WebRTC connection that can't go direct, through the nearest Cloudflare data centre (Perth for Perth players). The overseas free relays (peerjs.com, openrelay) are no longer used.
+
+- The request needs `Authorization: Bearer <evonline.session>` from a signed-in profile, and an origin in `ALLOWED_ORIGINS`.
+- The answer is `{iceServers, ttl}`. The credentials last 4 hours and are cached per profile. Port 53 URLs are removed because browsers block them.
+- If the secrets below are missing, it answers `{"iceServers":[],"ttl":0}`, and the games carry on with STUN and this relay.
+
+To set it up, go to the Cloudflare dashboard, open **Realtime → TURN Server**, and create a TURN key. Then put its two values on the Worker:
+
+```bash
+cd relay
+npx wrangler secret put TURN_KEY_ID
+npx wrangler secret put TURN_KEY_API_TOKEN
+```
+
+The first 1,000 GB a month are free, then $0.05/GB. Most games connect directly and use none of it. Local check: `scripts/check-turn-credentials.mjs`.
+
 ## Local development
 
 ```bash
