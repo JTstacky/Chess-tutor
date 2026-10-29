@@ -16,9 +16,10 @@ import { HDArt, artSetting, saveArtSetting } from './hdart.js';
 import { TitleScreen, SpaceportScreen, MapDialog, InfoDialog, MissionInfoDialog, ShipCommDialog, PlanetCommDialog, PlunderDialog, NoticeDialog, ConfirmDialog } from './screens.js';
 
 const GAME = new URLSearchParams(location.search).get('game') === 'evo' ? 'evo' : 'ev';
-// Screen layout (docs/re-gaps.md #65): "full" fills the window. The flight playfield is the whole canvas, with the
-// ship at its centre and the status bar in the top-right corner; other screens and dialogs keep their original
-// size, centred (or at the start edge on touch screens, to leave one strip for the big buttons). "classic" is
+// Screen layout (docs/re-gaps.md #65): "full" fills the window. In landscape flight the status bar is one column
+// down the right edge (the left with touch on) and the playfield is the rest, with the ship at its centre; in
+// portrait the bar's parts run across the top. Other screens and dialogs keep their original size, centred on
+// the playfield (or at its start edge on touch screens, to leave one strip for the big buttons). "classic" is
 // the original fixed 640x480 picture. ?layout=classic|full picks one and is remembered.
 const LAYOUT_KEY = 'evonline.layout';
 function layoutSetting() {
@@ -167,11 +168,11 @@ class App {
     if (flight) return a >= 1 ? [Math.max(480, Math.round(480 * a)), 480] : [480, Math.round(480 / a)];
     return a >= w0 / h0 ? [Math.round(h0 * a), h0] : [w0, Math.round(w0 / a)];
   }
-  // Where a w0 x h0 screen or dialog goes on a W x H canvas: scaled down only if it doesn't fit, centred, or
-  // at the start edge (left, or top in portrait) when touch controls are on.
-  placeFrame(w0, h0, W, H) {
+  // Where a w0 x h0 screen or dialog goes on a W x H area that starts at x0: scaled down only if it doesn't fit,
+  // centred, or at the start edge (left, or top in portrait) when touch controls are on.
+  placeFrame(w0, h0, W, H, x0 = 0) {
     const s = Math.min(1, W / w0, H / h0), fw = w0 * s, fh = h0 * s, start = !!this.touch?.active;
-    return { x: Math.round(start && W - fw > H - fh ? 0 : (W - fw) / 2), y: Math.round(start && H - fh > W - fw ? 0 : (H - fh) / 2), s };
+    return { x: x0 + Math.round(start && W - fw > H - fh ? 0 : (W - fw) / 2), y: Math.round(start && H - fh > W - fw ? 0 : (H - fh) / 2), s };
   }
   // The current frame's rect in CSS pixels (the touch layer's big-button panel goes beside it).
   frameRect() {
@@ -302,18 +303,20 @@ class App {
     this.size(w, h); this.hd?.begin(w, h);
     const ctx = this.ctx; this.ui.begin();
     this.frameT = { x: 0, y: 0, s: 1 }; this.frameSize = [w, h];
-    const frame = (fw, fh) => {   // later drawing in a fw x fh screen's own coordinates
-      const f = this.frameT = this.full ? this.placeFrame(fw, fh, w, h) : { x: 0, y: 0, s: 1 };
+    const frame = (fw, fh, area = { x: 0, w, h }) => {   // later drawing in a fw x fh screen's own coordinates
+      const f = this.frameT = this.full ? this.placeFrame(fw, fh, area.w, area.h, area.x) : { x: 0, y: 0, s: 1 };
       this.frameSize = [fw, fh];
       if (f.x || f.y) ctx.translate(f.x, f.y); if (f.s !== 1) ctx.scale(f.s, f.s);
     };
     ctx.save();
     if (flight) {
       if (this.hd) this.hd.sprites = !this.game.pilot.cloaked;   // the cloak tint recolours the main canvas only
+      this.flight.barSide = this.touch?.active ? 'left' : 'right';
       (this.flight.modern = this.modern, this.flight.draw(ctx, this.game, w, h, this.full));
       if (this.anim) this.drawLaunch(ctx, dt, w, h);
-      if (this.paused) this.ui.text(ctx, 'PAUSED (F1 to resume)', this.full ? w / 2 : 248, this.full ? h / 2 - 10 : 230, '#ffffff', 'center');
-      if (this.dialogs.length) frame(640, 480);
+      const v = this.flight.view;   // dialogs over the playfield, clear of a status bar column
+      if (this.paused) this.ui.text(ctx, 'PAUSED (F1 to resume)', this.full ? v.x + v.w / 2 : 248, this.full ? h / 2 - 10 : 230, '#ffffff', 'center');
+      if (this.dialogs.length) frame(640, 480, this.full && v.w >= 640 ? v : undefined);
     } else {
       ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
       // the spaceport sits over the last flight frame: show all of it around the 640x480 screen

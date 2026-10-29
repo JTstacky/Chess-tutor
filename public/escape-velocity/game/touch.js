@@ -6,7 +6,8 @@
 //   past half-way to thrust.
 // - right thumb: FIRE, with secondary, target, land, jump and the rest arced around it. Buttons for
 //   things the ship can't do (no secondary, afterburner, cloak; nothing to board) are hidden.
-// - top-left: menu, pause, map, info, missions, hail (a column down the left edge on small landscape phones).
+// - top-left: menu, pause, map, info, missions, hail (a column down the left edge on small landscape phones;
+//   top-right in the full-screen layout).
 // - menu: the rarer commands (jettison, escorts, nav, cloak, self-destruct, art).
 // - tapping a ship on the playfield targets it.
 // - off the flight layer, dragging a finger scrolls lists and text like the mouse wheel.
@@ -14,12 +15,13 @@
 //   free strip beside or below the picture, and a tap near a small button on the picture counts as hitting it
 //   (UI.click slop). The original screens themselves are drawn unchanged.
 // The clusters sit in the free space beside (landscape) or below (portrait) the 4:3 game picture when
-// there is room, otherwise over the playfield, never over the status bar.
+// there is room, otherwise over the playfield, never over the status bar. In the full-screen landscape layout
+// the bar is a column down the left edge, so the right edge belongs to the thumb buttons.
 import { CMD } from '../engine/input.js';
 import { wrap, bearing } from '../engine/trig.js';
 import { MOD } from '../engine/data.js';
 import { hasOutfit, isDisabled } from '../engine/ships.js';
-import { VIEW_W, VIEW_H, BAR_BLOCK } from './flight.js';
+import { VIEW_W, VIEW_H, BAR_BLOCK, barPlacement } from './flight.js';
 
 const CSS = `
 #tc { position: fixed; inset: 0; z-index: 2; pointer-events: none; display: none; user-select: none; -webkit-user-select: none;
@@ -67,7 +69,7 @@ const RIGHT = {
   auto: [0.72, 4.55, 0.4], rev: [1.8, 4.35, 0.4], hail: [2.85, 4.55, 0.4],
 };
 const RIGHT_W = 3.3, RIGHT_H = 5.0;
-// Full-screen layout in landscape: the same buttons in a wide, low arc under the status bar.
+// Full-screen layout in landscape: the same buttons in a wide, low arc in the bottom-right corner.
 const WIDE = {
   fire: [1.0, 1.0, 0.85], eject: [1.0, 1.0, 0.85],
   sec: [2.6, 0.7, 0.55], wpn: [3.6, 0.55, 0.38], ab: [4.55, 0.7, 0.48], hail: [5.55, 0.75, 0.45],
@@ -188,8 +190,8 @@ export class Touch {
   // A tap on a ship in the playfield targets it.
   tapShip(e) {
     const g = this.app.game, P = g?.player; if (!P) return;
-    const v = this.app.flight?.view ?? { w: VIEW_W, h: VIEW_H }, cv = this.app.canvas;
-    const q = this.app.toCanvas(e); if (q.x < 0 || q.x >= v.w || q.y < 0 || q.y >= v.h) return;
+    const v = this.app.flight?.view ?? { x: 0, w: VIEW_W, h: VIEW_H }, cv = this.app.canvas;
+    const q = this.app.toCanvas(e); q.x -= v.x ?? 0; if (q.x < 0 || q.x >= v.w || q.y < 0 || q.y >= v.h) return;
     const ox = v.w / 2 - P.x, oy = v.h / 2 - P.y, scale = cv.getBoundingClientRect().width / cv.width || 1;
     let best = -1, bd = Infinity;
     for (const t of g.ships) {
@@ -275,22 +277,25 @@ export class Touch {
     this.stickR = Math.round(1.05 * u);
     this.barRect = { left: fieldR, top: c.top, right: c.right, bottom: c.bottom };
   }
-  // Full-screen layout: the canvas fills the window and the status bar is in its top-right corner
-  // (flight.js BAR_PARTS). Every button is on the right: the action cluster under the bar, and the small
-  // buttons in the space left of the bar (landscape) or in a row under it (portrait). The left half is the stick's.
+  // Full-screen layout: the canvas fills the window. Landscape: the status bar is a column down the left edge
+  // (flight.js barPlacement), the small buttons run along the top right, and the action cluster fills the
+  // bottom-right corner. Portrait: the bar's parts run across the top, the small buttons in a row under it and
+  // the cluster at the bottom right. The stick takes the left half of the playfield.
   layoutFull() {
     const W = innerWidth, H = innerHeight, main = this.app.canvas.parentElement;
     if (main && main.style.justifyContent) main.style.justifyContent = '';
     const c = this.app.canvas.getBoundingClientRect();
     const k = Math.min(c.width, c.height) / 480;   // CSS px per canvas px in flight (480 on the short side)
-    const bar = this.barRect = { left: c.right - BAR_BLOCK.w * k, top: c.top, right: c.right, bottom: c.top + BAR_BLOCK.h * k };
+    const bp = barPlacement(W > H ? Math.round(480 * W / H) : 480, W > H ? 480 : Math.round(480 * H / W), 'left');
+    const bar = this.barRect = { left: c.left + bp.x * k, top: c.top + bp.y * k, right: c.left + (bp.x + bp.w) * k, bottom: c.top + (bp.y + bp.h) * k };
     const wide = W > H, L = wide ? WIDE : RIGHT, LW = wide ? WIDE_W : RIGHT_W, LH = wide ? WIDE_H : RIGHT_H;
     const place = (b, x, y, r) => Object.assign(b.style, { left: x - r + 'px', top: y - r + 'px', width: 2 * r + 'px', height: 2 * r + 'px', fontSize: Math.round(Math.max(11, r * 0.42)) + 'px' });
     const top = TOP.filter(id => this.b[id].shown !== false);
     let u, us;
     if (wide) {
-      u = Math.floor(Math.max(40, Math.min(84, (H - bar.bottom - 8) / (LH + 0.15), W * 0.55 / (LW + 0.15))));
-      us = Math.round(Math.min(56, Math.max(40, u * 0.8)));
+      // the cluster below the row of small buttons, in at most half of the playfield's width
+      us = Math.round(Math.min(56, Math.max(40, H * 0.11)));
+      u = Math.floor(Math.max(40, Math.min(84, (H - us * 1.25 - 8) / (LH + 0.15), (c.right - bar.right) * 0.5 / (LW + 0.15))));
     } else {
       us = Math.round(Math.min(56, Math.max(40, W * 0.13)));
       u = Math.floor(Math.max(40, Math.min(84, W * 0.17, (H - bar.bottom - us * 1.3) / (LH + 0.15))));
@@ -300,13 +305,10 @@ export class Touch {
     for (const [id, [x, y, r]] of Object.entries(L)) place(this.b[id], ax - x * u, ay - y * u, r * u);
     for (const id of Object.keys(this.b)) if (!(id in L) && !TOP.includes(id)) this.b[id].style.left = '-999px';
     const r = 0.44 * us, step = us;
-    if (wide) {
-      // a grid right to left from the bar's left edge, as many rows as fit above the cluster
-      const clusterTop = ay - LH * u, rows = Math.max(1, Math.floor((clusterTop - c.top - 0.1 * us) / step));
-      top.forEach((id, i) => place(this.b[id], bar.left - 0.1 * us - r - Math.floor(i / rows) * step, c.top + 0.1 * us + r + (i % rows) * step, r));
-    } else top.forEach((id, i) => place(this.b[id], c.right - 0.1 * us - r - i * step, bar.bottom + 0.15 * us + r, r));
-    this.topBottom = wide ? bar.bottom : bar.bottom + 0.2 * us + step;
-    this.split = Math.min(W * 0.5, ax - LW * u);
+    if (wide) top.forEach((id, i) => place(this.b[id], c.right - 0.1 * us - r - i * step, c.top + 0.1 * us + r, r));   // a row along the top right
+    else top.forEach((id, i) => place(this.b[id], c.right - 0.1 * us - r - i * step, bar.bottom + 0.15 * us + r, r));
+    this.topBottom = wide ? c.top + 0.2 * us + step : bar.bottom + 0.2 * us + step;
+    this.split = Math.min(wide ? bar.right + (c.right - bar.right) * 0.5 : W * 0.5, ax - LW * u);
     this.stickR = Math.round(1.1 * u);
   }
 

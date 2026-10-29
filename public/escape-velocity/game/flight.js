@@ -7,10 +7,22 @@ import { modSum } from '../engine/encounters.js';
 import { friendlyToPlayer } from '../engine/ai.js';
 
 export const VIEW_W = 496, VIEW_H = 480, BAR_X = 496;
-// Full-screen layout (main.js, re-gaps #65): the bar's three parts side by side in the top-right corner, as
+// Full-screen layout in portrait (main.js, re-gaps #65): the bar's three parts side by side across the top, as
 // [source top, height] of PICT 128: radar + shield/fuel, nav + secondary + target, cargo + credits.
 export const BAR_PARTS = [[0, 186], [186, 196], [382, 98]];   // panel gaps at rows 142, 186, 231, 258, 382
 export const BAR_BLOCK = { w: 144 * BAR_PARTS.length, h: Math.max(...BAR_PARTS.map(p => p[1])) };
+// Where the full-screen layout puts the status bar on a W x H flight canvas (480 px on its short side).
+// Landscape: the original 144 x 480 bar whole, as one column down an edge of the screen: the right edge as in the
+// original, or the left with touch on, so the right edge stays free for the thumb buttons. The playfield is the
+// rest of the canvas, with the ship at its centre. Portrait: the bar's three parts in a row across the top, over
+// the playfield. view is the playfield's rect on the canvas.
+export function barPlacement(W, H, side = 'right') {
+  if (W > H) {
+    const left = side === 'left';
+    return { col: true, x: left ? 0 : W - 144, y: 0, w: 144, h: Math.min(H, 480), view: { x: left ? 144 : 0, y: 0, w: W - 144, h: H } };
+  }
+  return { col: false, x: W - BAR_BLOCK.w, y: 0, w: BAR_BLOCK.w, h: BAR_BLOCK.h, view: { x: 0, y: 0, w: W, h: H } };
+}
 export const GREEN = '#00e000', DIM = '#008a00';
 // Geneva 9 (TextFont 3, TextSize 9) is drawn with Kelsey Higham's "Geneva 9" bitmap clone (CC BY 3.0,
 // game/fonts/geneva-9). Its grid is 64 units at 1024/em, so at 16 px every brick is one screen pixel and
@@ -161,13 +173,15 @@ export class FlightView {
     this.radarTick();
   }
 
-  // full: the playfield is the whole W x H canvas, the ship at its centre and the bar top-right (BAR_PARTS);
-  // otherwise the original 496x480 playfield and the bar at x 496.
+  // full: the bar where barPlacement puts it (this.barSide: 'right' or 'left') and the playfield beside or under
+  // it, the ship at the playfield's centre; otherwise the original 496x480 playfield and the bar at x 496.
   draw(ctx, game, W = 640, H = 480, full = false) {
     const A = this.assets, P = game.player, D = game.data;
-    const VIEW_W = full ? W : 496, VIEW_H = full ? H : 480;
-    this.view = { w: VIEW_W, h: VIEW_H };
+    const bp = this.bar = full ? barPlacement(W, H, this.barSide) : null;
+    const VIEW_X = bp ? bp.view.x : 0, VIEW_W = bp ? bp.view.w : 496, VIEW_H = bp ? bp.view.h : 480;
+    this.view = { x: VIEW_X, y: 0, w: VIEW_W, h: VIEW_H };
     ctx.save();
+    if (VIEW_X) ctx.translate(VIEW_X, 0);
     ctx.beginPath(); ctx.rect(0, 0, VIEW_W, VIEW_H); ctx.clip();
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, VIEW_W, VIEW_H);
     const cx = P?.x ?? 0, cy = P?.y ?? 0, ox = VIEW_W / 2 - cx, oy = VIEW_H / 2 - cy;
@@ -224,7 +238,7 @@ export class FlightView {
       const sp = D.sprite(T.type);
       this.brackets(ctx, T.x + ox, T.y + oy, Math.max(sp?.w ?? 24, sp?.h ?? 24) / 2 + 3, game.hostileToPlayer(T) ? '#e00000' : GREEN);
     }
-    if (this.modern && P) this.edgeArrows(ctx, game, ox, oy, VIEW_W, VIEW_H, full);
+    if (this.modern && P) this.edgeArrows(ctx, game, ox, oy, VIEW_W, VIEW_H, full && !bp.col);
     // message: TETextBox, system font 12, white, top-left aligned (measured in the original: left edge
     // x=26, cap tops at 408 so the first baseline is y=417, 16 px lines; the breaks of orig-37/53/65 need
     // a wrap width of 418-424 px with the EVSys stand-in)
@@ -237,18 +251,18 @@ export class FlightView {
     }
     ctx.restore();
     if (!full) { this.drawBar(ctx, game); return; }
-    // the bar is drawn whole off-screen at its original coordinates, then its parts are copied side by side
+    // the bar is drawn whole off-screen at its original coordinates, then copied as one column or as three parts
     const b = (this.barCv ??= Object.assign(document.createElement('canvas'), { width: 144, height: 480 })), bc = b.getContext('2d');
     bc.setTransform(1, 0, 0, 1, -BAR_X, 0); bc.imageSmoothingEnabled = false;
     this.drawBar(bc, game);
-    const x0 = W - BAR_BLOCK.w;
-    BAR_PARTS.forEach(([t, h], i) => ctx.drawImage(b, 0, t, 144, h, x0 + 144 * i, 0, 144, h));
+    if (bp.col) { ctx.drawImage(b, 0, 0, 144, bp.h, bp.x, 0, 144, bp.h); return; }
+    BAR_PARTS.forEach(([t, h], i) => ctx.drawImage(b, 0, t, 144, h, bp.x + 144 * i, 0, 144, h));
   }
 
   // Modern rules (re-gaps #67), RECONSTRUCTED: an arrow at the edge of the playfield for each stellar in the
   // system that is off-screen (white) and for the targeted ship when it is (red hostile, green friendly, orange
-  // neutral). The status bar's corner counts as off-screen, and the arrows stop at its edge, so none hides
-  // under it.
+  // neutral). In portrait the status bar's corner counts as off-screen, and the arrows stop at its edge, so none
+  // hides under it (in landscape the bar is beside the playfield, not over it).
   edgeArrows(ctx, game, ox, oy, W, H, full) {
     const D = game.data, P = game.player, m = 14; this.arrows = [];
     const bw = full ? BAR_BLOCK.w : 0, bh = full ? BAR_BLOCK.h : 0;
