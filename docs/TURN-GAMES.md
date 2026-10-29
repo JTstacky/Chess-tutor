@@ -34,7 +34,7 @@ export const TURN_GAMES = {
 |---|---|
 | `players` | `[min, max]` seats the creator may choose. |
 | `maxSave` | Largest save in bytes. Saves travel in parts of 512,000 bytes, so several MB is fine. Relay storage is 64,000-byte chunks in the match's Durable Object. |
-| `files` | The game's Retro Archive files id. A profile may create or join a match only if the accounts Worker lets it fetch `/api/retro/data/<files>/manifest`. The relay just asks; it has no tier rules of its own. So if a game's files are owner-only, its matches are owner-only, with no relay change. |
+| `files` | The game's Retro Archive files id. A profile may create or join a match only if the accounts Worker lets it fetch `/api/retro/data/<files>/manifest`. The relay just asks; it has no tier rules of its own. Whatever rule the accounts Worker applies to a game's files (full accounts, owner-only, anything later) is automatically the rule for its matches. Heroes II and Heroes III files are both approved for every full account (Heroes III approved by the owner on 30 October 2026), so any full account can join either. |
 | `stream` | `true` lets the holder stream screens to one other seat and take that seat's input (Heroes II uses it for battles). `false` disables `control`, frames and `input`. |
 
 ## Match
