@@ -30,41 +30,11 @@ try {
     await assert.rejects(service(code(), 'invalid-service-secret'));
     const response = await fetch('http://127.0.0.1:8810/service/heroes2/jobs', { headers: { Authorization: 'Bearer ' + f[0].token } }); assert.equal(response.status, 403);
   });
-  let room, a, b, engine;
-  await check('creator has an ordinary player seat, never a service role', async () => {
+  // Heroes turn rules (on-device turns) are covered by check-heroes-local-turns.mjs.
+  let room, a, b;
+  await check('Heroes creator and guest get ordinary player seats', async () => {
     room = code(); a = await player('heroes2', room, 0, true, { 'X-Service': '1' }); b = await player('heroes2', room, 1);
-    assert.equal(a.messages[0].seat, 0); assert.equal(b.messages[0].seat, 1); assert.equal(state(a).serverOnline, false);
-    assert.equal(state(a).persistent, true); assert(!('expires' in state(a)));
-    engine = await service(room); await wait(() => state(a).serverOnline);
-  });
-  let generation;
-  await check('only native service decides turns, including assigning player 2 while creator waits', async () => {
-    const ack = await command(engine, { type: 'turn', color: 2, humans: 3, phase: 'adventure' }); generation = ack.generation;
-    assert.equal(state(a).active, 1); send(a, { type: 'control', seat: 0 }); send(a, { type: 'turn', color: 1, humans: 3, phase: 'adventure' }); send(a, { type: 'end' }); await delay(100); assert.equal(state(a).active, 1);
-  });
-  await check('creator receives no opponent frames, and stale or browser-uploaded frames are refused', async () => {
-    const frame = Buffer.alloc(24); frame.writeUInt32BE(generation); frame.fill(7, 8);
-    engine.send(frame); await wait(() => b.binary.length === 1); assert.equal(a.binary.length, 0);
-    frame.writeUInt32BE(generation - 1); engine.send(frame); a.send(frame); await delay(100); assert.equal(a.binary.length, 0); assert.equal(b.binary.length, 1);
-    const input = { type: 'input', generation, event: 'down', x: .5, y: .5, button: 0 };
-    send(a, input); send(b, { ...input, generation: generation - 1 }); await delay(80); assert(!engine.messages.some(m => m.type === 'input'));
-    send(b, input); await wait(() => engine.messages.some(m => m.type === 'input' && m.seat === 1));
-  });
-  const data = randomBytes(180000).toString('base64');
-  await check('server checkpoints persist atomically across multiple storage chunks; clients cannot read or replace them', async () => {
-    await command(engine, { type: 'checkpoint', data, phase: 1, color: 2, humans: 3 });
-    send(a, { type: 'checkpoint', data: 'ZmFrZQ==', phase: 1, color: 1, humans: 3 }); await delay(80);
-    const denied = await fetch('http://127.0.0.1:8810/service/heroes2/' + room, { headers: { Authorization: 'Bearer ' + f[0].token } }); assert.equal(denied.status, 403);
-    const r = await fetch('http://127.0.0.1:8810/service/heroes2/' + room, { headers: { Authorization: 'Bearer ' + secret } }); const saved = await r.json();
-    assert.equal(saved.data, data); assert.equal(saved.checkpoint.parts, 3); assert.equal(saved.checkpoint.color, 2);
-    assert(!JSON.stringify(state(a)).includes(data.slice(0, 100))); assert(!JSON.stringify(state(b)).includes('humans'));
-  });
-  await check('all players and service can leave, then reconnect to the same saved turn', async () => {
-    a.close(); b.close(); engine.close(); await delay(180);
-    b = await player('heroes2', room, 1); assert.equal(b.messages[0].seat, 1); assert.equal(state(b).serverOnline, false);
-    const saved = await (await fetch('http://127.0.0.1:8810/service/heroes2/' + room, { headers: { Authorization: 'Bearer ' + secret } })).json(); assert.equal(saved.data, data);
-    engine = await service(room); assert.equal(state(b).active, -1);
-    const ack = await command(engine, { type: 'turn', color: 2, humans: 3, phase: 'adventure' }); assert.equal(ack.active, 1);
+    assert.equal(a.messages[0].seat, 0); assert.equal(b.messages[0].seat, 1); assert.equal(state(a).mode, 'local'); assert.equal(state(a).persistent, true);
   });
   let chessId;
   await check('chess is asynchronous, rejects out-of-turn moves, and survives both players leaving', async () => {
@@ -81,12 +51,6 @@ try {
     const first = await mine(0), second = await mine(1), unrelated = await mine(2);
     assert(first.some(g => g.id === room && g.seat === 0)); assert(second.some(g => g.id === room && g.seat === 1)); assert(!unrelated.some(g => g.id === room || g.id === chessId));
     assert(first.every(g => !('players' in g) && !('data' in g) && !('owner' in g)));
-  });
-  await check('only the native service can finish Heroes and remove it from the active job queue', async () => {
-    send(b, { type: 'complete' }); await delay(80); assert.notEqual(state(b).phase, 'finished');
-    await command(engine, { type: 'complete' }); assert.equal(state(b).phase, 'finished'); assert.equal(state(b).active, -1);
-    const jobs = await (await fetch('http://127.0.0.1:8810/service/heroes2/jobs', { headers: { Authorization: 'Bearer ' + secret } })).json(); assert(!jobs.jobs.some(j => j.id === room));
-    await assert.rejects(player('heroes2', room, 0));
   });
   await check('existing four-letter relay still forwards guest messages', async () => {
     const host = await wsOpen('ws://127.0.0.1:8810/chess/QA' + String.fromCharCode(65 + Math.floor(Math.random()*26), 65 + Math.floor(Math.random()*26)) + '?role=host', [], { Origin: origin });

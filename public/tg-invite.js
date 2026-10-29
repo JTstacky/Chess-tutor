@@ -5,16 +5,16 @@
   var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/tg-invite.css'; document.head.append(css);
   function mount(options) {
     var panel = document.createElement('section'); panel.className = 'tg-invite'; panel.setAttribute('aria-label', 'Play online');
-    panel.innerHTML = '<h2>Play with friends</h2><p data-note></p><label data-count-label hidden>Human players <select data-count><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label><div class="tg-invite-actions"><button type="button" data-create>Create invite</button><button type="button" data-join hidden>Join game</button><button type="button" data-reconnect hidden>Reconnect</button><button type="button" data-copy hidden>Copy invite link</button><button type="button" data-share hidden>Share</button><button type="button" data-leave hidden>Leave</button></div><label data-link-label hidden>Private invite link<input data-link readonly aria-label="Private invite link"></label><p data-status role="status">Create an invite, then send the link to your friends.</p><div data-roster></div>';
+    panel.innerHTML = '<h2>Play with friends</h2><p data-note></p><label data-count-label hidden>Human players <select data-count><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label><label data-bot-label hidden>If a player is away during their battle <select data-bot><option value="wait">Wait for them to return</option><option value="0">Computer fights straight away</option><option value="1">Computer fights after 1 minute</option><option value="2">Computer fights after 2 minutes</option><option value="5">Computer fights after 5 minutes</option><option value="10">Computer fights after 10 minutes</option><option value="15">Computer fights after 15 minutes</option><option value="30">Computer fights after 30 minutes</option><option value="60">Computer fights after 1 hour</option></select></label><div class="tg-invite-actions"><button type="button" data-create>Create invite</button><button type="button" data-join hidden>Join game</button><button type="button" data-reconnect hidden>Reconnect</button><button type="button" data-copy hidden>Copy invite link</button><button type="button" data-share hidden>Share</button><button type="button" data-leave hidden>Leave</button></div><label data-link-label hidden>Private invite link<input data-link readonly aria-label="Private invite link"></label><p data-status role="status">Create an invite, then send the link to your friends.</p><div data-roster></div>';
     options.parent.append(panel);
     var $ = s => panel.querySelector(s), socket, heartbeat, room, retry = false, stopped = false;
     var code = new URLSearchParams(location.hash.slice(1)).get('invite');
     if (!/^[a-f0-9]{32}$/.test(code || '')) code = null;
     var api = { panel: panel, seat: null, connected: false, room: null, send: send, close: close };
     $('[data-note]').textContent = options.description || (options.game === 'heroes2'
-      ? '2–6 full-account players. A non-player server runs the game and keeps its saves. Player 1 chooses the scenario; after that, each player sees and controls only their own turn, including human battles. Leave and return later with this link. No player needs to keep a browser open.'
+      ? '2–6 full-account players. Every turn runs on the player’s own device; only the saved game passes between players. Player 1 chooses the scenario. Leave and return later with this link: the server keeps the save.'
       : 'Two signed-in players. Player 1 is White. No clock: take your turn even when your opponent is offline, then come back later. The server keeps the game; this link does not expire.');
-    $('[data-count-label]').hidden = options.game !== 'heroes2' || !!code;
+    $('[data-count-label]').hidden = $('[data-bot-label]').hidden = options.game !== 'heroes2' || !!code;
     // Keep solo play available while the separate online server is provisioned.
     // Local integration tests deliberately use their own private engine service.
     let heroesAvailable = options.game !== 'heroes2' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
@@ -65,6 +65,7 @@
         $('[data-roster]').append(row);
       }
       if (options.game.startsWith('metal-slug')) say(value.players.length<2?'Waiting for your friend.':value.players.every(p=>p.online)?'Both players connected.':'Game paused. Waiting for the other player to return.');
+      else if (options.game === 'heroes2' && value.mode === 'local') say(value.result || (value.holder === api.seat ? (value.checkpointPhase == null ? 'Choose your scenario and start the game.' : 'Your turn. It runs on this device.') : value.viewer === api.seat ? 'Battle: your army is fighting during Player ' + (value.holder + 1) + '’s turn.' : 'Player ' + (value.holder + 1) + (value.players[value.holder] && value.players[value.holder].online ? ' is playing.' : ' is next. The game continues when they return.') + ' Your screen is private; return for your turn.'));
       else if (options.game === 'heroes2') say(value.result || (value.runtimeRetryAt > Date.now() ? 'Heroes has reached its server runtime allowance. Your cloud save is safe. Play can resume after ' + new Date(value.runtimeRetryAt).toLocaleString() + '.' : !value.serverOnline ? (value.savedAt ? 'Your saved game is safe. Starting the game server…' : 'Starting the game server. This may take a minute…') : value.active < 0 ? 'The server is preparing the next turn.' : value.active === api.seat ? (value.phase === 'setup' ? 'Choose your scenario and start the game.' : 'Your turn. Progress is saved on the server.') : 'Player ' + (value.active + 1) + ' is next. Your screen is private; return for your turn.'));
       else say(value.result || (value.players.length < 2 ? 'Waiting for your friend to join once.' : value.active === api.seat ? 'Your turn. Your opponent can be offline.' : 'Waiting for your next turn. You can leave and come back.'));
       options.onState?.(value, api);
@@ -84,7 +85,7 @@
         var endpoint = new URL(relay);
         if (!['wss:', 'ws:'].includes(endpoint.protocol) || (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && (endpoint.protocol !== 'wss:' || endpoint.hostname !== 'tenggames-relay.justintengyz.workers.dev'))) throw Error('Invalid online play service.');
         if (create) code = Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join('');
-        endpoint.pathname = '/invite/' + options.game + '/' + code; endpoint.search = create ? '?host=1&players=' + $('[data-count]').value : ''; endpoint.hash = '';
+        endpoint.pathname = '/invite/' + options.game + '/' + code; endpoint.search = create ? '?host=1&players=' + $('[data-count]').value + (options.game === 'heroes2' ? '&bot=' + $('[data-bot]').value : '') : ''; endpoint.hash = '';
         socket = new WebSocket(endpoint.href, ['tg-invite', 'tg-auth.' + token]); socket.binaryType = 'arraybuffer';
         var connection = socket;
         say('Connecting…');
@@ -95,7 +96,7 @@
           var link = new URL(location.href); link.searchParams.delete('inviteRelay'); link.hash = 'invite=' + code;
           $('[data-link]').value = link.href;
           for (var name of ['create', 'join', 'reconnect']) $('[data-' + name + ']').hidden = true;
-          $('[data-count-label]').hidden = true;
+          $('[data-count-label]').hidden = $('[data-bot-label]').hidden = true;
           if (panel.querySelector('.tg-saved-games')) panel.querySelector('.tg-saved-games').hidden = true;
           for (var name of ['copy', 'leave', 'link-label']) $('[data-' + name + ']').hidden = false;
           $('[data-share]').hidden = !navigator.share;
