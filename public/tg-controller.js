@@ -337,7 +337,7 @@ class PartyGamepadControls {
     if(profile.arcade){
       try{Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[...readPads()].map(p=>p&&api.filterPad(p))});}catch{}
       const header=document.querySelector('header');
-      if(header){const item=menuButton('Settings',api.openSettings);item.id='tg-settings-toggle';item.className=header.querySelector('#pause')?.className||'';item.dataset.tgController='';const full=header.querySelector('#fullscreen');if(full)full.before(item);else header.append(item);}
+      if(header){const item=menuButton('Settings',api.openSettings);item.id='tg-settings-toggle';item.className=header.querySelector('#pause')?.className||'';item.dataset.tgController='';const full=header.querySelector('#fullscreen');if(full)full.before(item);else header.insertBefore(item,header.querySelector('#game-controls'));}
     }
     attach();new MutationObserver(attach).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','class','data-tg-pause']});
     window.addEventListener('keydown',e=>{
