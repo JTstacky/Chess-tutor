@@ -146,9 +146,8 @@ footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px
 /* Guests see no retro games (tg-profile.js marks the page before it draws; retro-catalog.js removes them). */
 html[data-tg-guest] #retro-classics, html[data-tg-guest] .game-nav { display: none !important; }
 
-/* Dark mode: follows the device setting. Same layout and brand colours, night palette. */
-:root { color-scheme: light dark; }
-@media (prefers-color-scheme: dark) {
+/* Dark mode is the default for everyone. Same layout and brand colours, night palette. */
+:root { color-scheme: dark; }
   :root {
     --bg: #13102a;
     --ink: #eeeaff;
@@ -189,4 +188,3 @@ html[data-tg-guest] #retro-classics, html[data-tg-guest] .game-nav { display: no
   .family { border-top-color: var(--line); }
   .avatar.grown { background: #3b3170; }
   .retro .art { background: linear-gradient(135deg, #1f1840, #5b3f9a); }
-}
