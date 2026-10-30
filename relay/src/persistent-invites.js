@@ -11,9 +11,12 @@ const MAX_SAVE = 4 * 1024 * 1024, PART = 64000;
 //   maxSave   largest save in bytes (sent in parts of UPLOAD_PART)
 //   files     Retro Archive files id: a profile may join only if the accounts
 //             Worker lets it fetch /api/retro/data/<files>/manifest
+//   filesPath accounts Worker path checked instead of that, for a game whose
+//             files live elsewhere (Heroes III: its private route)
 //   stream    the holder may stream screens to one other seat (e.g. a battle)
 export const TURN_GAMES = {
   heroes2: { players: [2, 6], maxSave: 4 * 1024 * 1024, files: 'heroes2', stream: true },
+  heroes3: { players: [2, 8], maxSave: 16 * 1024 * 1024, filesPath: '/api/private/heroes3/manifest', stream: true },
 };
 const UPLOAD_PART = 512000, MAX_HEADER = 2048, MAX_META = 1024;
 const GAME_NAMES = ['chess', 'metal-slug(?:-[2x3456])?', ...Object.keys(TURN_GAMES)].join('|');
@@ -74,7 +77,7 @@ export async function inviteRequest(req, env) {
   if (turnGame) {
     // Players run the game themselves, so each must be allowed its files.
     try {
-      const request = new Request((env.ACCOUNTS_API || 'https://ev-online-api.justintengyz.workers.dev') + '/api/retro/data/' + turnGame.files + '/manifest', { headers: { Authorization: 'Bearer ' + token }, signal: AbortSignal.timeout(10000) });
+      const request = new Request((env.ACCOUNTS_API || 'https://ev-online-api.justintengyz.workers.dev') + (turnGame.filesPath || '/api/retro/data/' + turnGame.files + '/manifest'), { headers: { Authorization: 'Bearer ' + token }, signal: AbortSignal.timeout(10000) });
       const r = env.ACCOUNTS && !env.ACCOUNTS_API ? await env.ACCOUNTS.fetch(request) : await fetch(request);
       if (r.status === 401 || r.status === 403) return json({ error: (await r.json().catch(() => null))?.error || 'This game is not available to this profile.' }, 403);
       if (!r.ok) return json({ error: 'Game files are unavailable.' }, 503);

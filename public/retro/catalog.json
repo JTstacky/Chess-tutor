@@ -31,6 +31,16 @@
       "publishedAt": "2026-10-21T16:45:17.149Z"
     },
     {
+      "id": "heroes3",
+      "title": "Heroes of Might and Magic III Complete",
+      "year": 1999,
+      "developer": "New World Computing; The 3DO Company",
+      "blurb": "Restoration of Erathia, Armageddon's Blade and The Shadow of Death on the VCMI engine, with touch, local saves and online games between full accounts.",
+      "tier": "B",
+      "licence": "VCMI: GPL-3.0. Original Heroes III Complete data: private, approved full accounts only.",
+      "publishedAt": "2026-10-30T21:56:35.616Z"
+    },
+    {
       "id": "keen",
       "title": "Commander Keen",
       "year": 1990,

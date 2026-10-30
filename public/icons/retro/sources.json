@@ -74,5 +74,9 @@
   "metal-slug-6": {
     "source": "https://raw.githubusercontent.com/libretro-thumbnails/Atomiswave/master/Named_Boxarts/Metal%20Slug%206.png",
     "description": "Original game cover thumbnail; artwork belongs to the respective game rights holders."
+  },
+  "heroes3": {
+    "source": "Original artwork generated for Teng Games (gpt-image-2), 2026-10-31.",
+    "description": "Original painted fantasy scene; not taken from the game or its box art."
   }
 }
