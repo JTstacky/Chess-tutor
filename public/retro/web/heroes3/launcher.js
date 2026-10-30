@@ -53,7 +53,6 @@ export async function launch({ canvas, localSeat, saveName, phase, onTurnPass = 
         XDG_CACHE_HOME: '/tmp/vcmi-cache',
         XDG_DATA_DIRS: '/gamedata',
         SDL_RENDER_DRIVER: 'software',
-        SDL_AUDIODRIVER: 'dummy',
       });
       if (localSeat !== undefined) options.ENV.H3_LOCAL_SEAT = String(localSeat);
       if (phase !== undefined) options.ENV.H3_TURN_PHASE = String(phase);
@@ -77,7 +76,8 @@ if (typeof document !== 'undefined') document.addEventListener('visibilitychange
     }
     else if (!runningOnline) runningModule.resumeMainLoop?.();
   } catch {}
-  const audio = runningModule.SDL?.audioContext ?? runningModule.audioContext;
+  // SDL2's Emscripten audio keeps its context on Module.SDL2 (on the browser main thread).
+  const audio = runningModule.SDL2?.audioContext ?? runningModule.SDL?.audioContext ?? runningModule.audioContext;
   try {
     if (document.hidden) audio?.suspend?.();
     else audio?.resume?.();
