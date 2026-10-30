@@ -145,3 +145,48 @@ footer { text-align: center; color: var(--muted); padding: 16px; font-size: 14px
 
 /* Guests see no retro games (tg-profile.js marks the page before it draws; retro-catalog.js removes them). */
 html[data-tg-guest] #retro-classics, html[data-tg-guest] .game-nav { display: none !important; }
+
+/* Dark mode: follows the device setting. Same layout and brand colours, night palette. */
+:root { color-scheme: light dark; }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #13102a;
+    --ink: #eeeaff;
+    --muted: #aca4d4;
+    --card: #221c42;
+    --brand: #7b5ff0;
+    --accent: #ffc233;
+    --line: #3a3166;
+    --soft: #2e2656;
+  }
+  body { background: radial-gradient(ellipse at top, #241c4f 0%, var(--bg) 60%) fixed, var(--bg); }
+  .logo { color: #a28dff; }
+  .game-card, .account-panel { box-shadow: 0 8px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px var(--line); }
+  a.game-card:hover { box-shadow: 0 10px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px #5a4aa0; }
+  .art img.icon { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55); }
+  .game-card .badge { color: #ffd88a; background: #4a3410; }
+  .soon { opacity: 0.6; }
+  .account-chip { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px var(--line); }
+  .account-chip:hover { background: var(--soft); }
+  .tier.full { background: #173d24; color: #8fe0a5; }
+  .tier.basic { background: var(--soft); color: var(--muted); }
+  .account-panel input, .code-form input { background: #191433; color: var(--ink); border-color: var(--line); }
+  .account-panel input:focus, .code-form input:focus { border-color: var(--brand); }
+  .account-panel .btn.ghost { background: var(--soft); color: #c4b6ff; }
+  .account-panel .btn.danger { background: #4a1d17; color: #ffb4a6; }
+  .account-panel .msg { color: #ff9b85; }
+  .account-panel .code { background: #3a2e10; color: #ffe3a0; }
+  .account-panel .note.warn { background: #3a2e10; color: #ffe3a0; }
+  .account-panel .or { color: var(--muted); }
+  .link, .back a { color: #b3a2ff; }
+  .kid:hover, .kid:focus-visible { background: var(--soft); }
+  .pin-key { background: var(--soft); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45); }
+  .pin-key:active { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45); }
+  .pin-key.small { background: #191433; }
+  .pin-dots .dot { border-color: #a28dff; }
+  .pin-dots .dot.on { background: #a28dff; }
+  .avatar-pick.on { border-color: #a28dff; }
+  .family { border-top-color: var(--line); }
+  .avatar.grown { background: #3b3170; }
+  .retro .art { background: linear-gradient(135deg, #1f1840, #5b3f9a); }
+}
