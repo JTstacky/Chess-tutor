@@ -1,4 +1,4 @@
-import { importFromFiles,importFromZip,importFromDirectoryHandle,importFromLegacyEntries,readManifest,forgetGameData } from './data-import.js';
+import { importFromFiles,readManifest,forgetGameData } from './data-import.js';
 import { privateStoreSource } from './sources/private-store.js';
 import { engineAvailable,launch } from './launcher.js';
 import { setupTouch } from './touch.js';
@@ -6,6 +6,8 @@ import { listSaves,importSave,deleteSave } from './saves.js';
 import { mountOnline } from './online.js';
 
 const $=id=>document.getElementById(id);
+// SDL2's Emscripten audio keeps its context on Module.SDL2.
+const audioOf=m=>m?.SDL2?.audioContext??m?.SDL?.audioContext??m?.audioContext??null;
 let isolated=crossOriginIsolated, manifest=null, engine=false, module=null, launching=false;
 let online=null;
 function status(message){$('status').textContent=message;}
@@ -23,8 +25,9 @@ async function ensureIsolation(){
 function refresh(){
   $('forget').hidden=!manifest;$('forget-saves-wrap').hidden=!manifest;
   $('launch').disabled=!(manifest&&engine&&isolated)||launching;
-  $('engine-status').textContent=!engine?'Engine not built yet':manifest ? (isolated?'Ready to play.':'Game needs a supported browser.') : 'Choose your game files to start.';
-  if(isolated)status(manifest?`${manifest.files.length} game files ready on this device.`:'Choose your Heroes III Complete files to get started.');
+  $('engine-status').textContent=!engine?'Engine not built yet':manifest ? (isolated?'Ready to play.':'Game needs a supported browser.') : 'Getting the game ready…';
+  $('data-note').hidden=Boolean(manifest);
+  if(isolated&&manifest)status('Ready to play.');
 }
 function progress({bytesDone,bytesTotal,fileCount,totalFiles,persistent}){
   $('progress').hidden=false;$('progress').max=Math.max(1,bytesTotal);$('progress').value=bytesDone;
@@ -52,26 +55,19 @@ async function runImport(task){
   try {
     const result=await task({onProgress:progress});
     manifest=result.manifest;
+    $('progress').hidden=true;$('progress-text').textContent='';
     refresh();
     online?.resume();
-    status(`Game files ready.${result.skippedNames?.length?' Skipped unsafe names: '+result.skippedNames.join(', ')+'.':''}${result.missingRecommended?.length?' Optional files missing: '+result.missingRecommended.join(', '):''}`);
+    return true;
   }
-  catch(e){status(e.message);console.error(e);}
+  catch(e){status(e.message);console.error(e);$('private-store').hidden=!privateStoreSource.isAvailable();return false;}
 }
-async function fromDrop(e){
-  e.preventDefault();$('drop-zone').classList.remove('over');
-  const items=Array.from(e.dataTransfer.items||[]), handles=[];
-  for(const item of items) {
-    if(item.getAsFileSystemHandle) {const h=await item.getAsFileSystemHandle();if(h)handles.push(h);}
-    else if(item.webkitGetAsEntry) {const entry=item.webkitGetAsEntry();if(entry)handles.push(entry);}
-  }
-  if(handles.some(h=>h.isDirectory)) {await runImport(o=>importFromLegacyEntries(handles,o));return;}
-  if(handles.some(h=>h.kind==='directory')) {
-    await runImport(o=>importFromDirectoryHandle(handles.filter(h=>h.kind==='directory'),o));return;
-  }
-  const files=Array.from(e.dataTransfer.files);
-  if(files.length===1 && /\.zip$/i.test(files[0].name)) await runImport(o=>importFromZip(files[0],o));
-  else await runImport(o=>importFromFiles(files,o));
+// The game files come from the private store (full accounts), downloaded once per device.
+async function getFiles(){
+  if(!privateStoreSource.isAvailable()){status('Heroes III needs a full Teng Games account.');return false;}
+  $('private-store').hidden=true;
+  status('Downloading the game to this device. This only happens once.');
+  return runImport(o=>privateStoreSource.load(o));
 }
 async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle}={}){
   if(!isolated||!manifest||!engine||launching||module)throw Error('The game is not ready to start.');
@@ -81,23 +77,23 @@ async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckp
     module=await launch({canvas:$('canvas'),localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle,onMessage:console.log,
       onStatus:message=>{$('loading-status').textContent=message;}});
     $('loading-status').textContent='VCMI is running.';
-    if (!(module.SDL?.audioContext ?? module.audioContext)) {
+    // SDL opens audio a little after launch; only call sound unavailable if it never appears.
+    const launched=module;
+    setTimeout(()=>{
+      if(module!==launched||audioOf(launched))return;
       const sound=[...document.querySelectorAll('#touch-bar button')].find(button=>button.textContent==='Sound on');
-      if (sound) { sound.textContent='Sound unavailable'; sound.setAttribute('aria-label',sound.textContent); sound.disabled=true; }
-    }
+      if(sound){sound.textContent='Sound unavailable';sound.setAttribute('aria-label',sound.textContent);sound.disabled=true;}
+    },30000);
     return module;
   }catch(error){$('setup').hidden=false;$('game').hidden=true;console.error(error);throw error;}
   finally{launching=false;refresh();}
 }
+const soloStart=()=>startEngine().catch(error=>status(`Could not start the game: ${error.message}`));
+const invited=()=>Boolean(new URLSearchParams(location.hash.slice(1)).get('invite'));
+// ?manual (tests): don't start by itself.
+const autoStart=()=>!invited()&&!new URLSearchParams(location.search).has('manual');
 async function init(){
-  setupTouch($('canvas'),{getAudio:()=>module?.SDL?.audioContext??module?.audioContext});
-  $('folder-input').addEventListener('change',e=>runImport(o=>importFromFiles(e.target.files,o)));
-  $('files-input').addEventListener('change',e=>runImport(o=>importFromFiles(e.target.files,o)));
-  $('zip-input').addEventListener('change',e=>{if(e.target.files[0])runImport(o=>importFromZip(e.target.files[0],o));});
-  $('directory-button').addEventListener('click',()=>{if(window.showDirectoryPicker)showDirectoryPicker().then(h=>runImport(o=>importFromDirectoryHandle(h,o))).catch(e=>{if(e.name!=='AbortError')status(e.message);});else $('folder-input').click();});
-  $('drop-zone').addEventListener('dragover',e=>{e.preventDefault();e.currentTarget.classList.add('over');});
-  $('drop-zone').addEventListener('dragleave',e=>e.currentTarget.classList.remove('over'));
-  $('drop-zone').addEventListener('drop',fromDrop);
+  setupTouch($('canvas'),{getAudio:()=>audioOf(module)});
   $('forget').addEventListener('click',async()=>{await forgetGameData({includeSaves:$('forget-saves').checked});manifest=null;refresh();await refreshSaves();status('Game files removed from this device.');});
   $('save-input').addEventListener('change',async e=>{
     const file=e.target.files[0];if(!file)return;
@@ -106,9 +102,10 @@ async function init(){
     finally{e.target.value='';}
   });
   $('refresh-saves').addEventListener('click',()=>refreshSaves().catch(error=>$('save-status').textContent=error.message));
-  $('private-store').hidden=!privateStoreSource.isAvailable();
-  $('private-store').addEventListener('click',()=>runImport(o=>privateStoreSource.load(o)));
-  $('launch').addEventListener('click',()=>startEngine().catch(error=>status(`Could not start the game: ${error.message}`)));
+  $('private-store').addEventListener('click',async()=>{if(await getFiles()&&autoStart())await soloStart();});
+  $('launch').addEventListener('click',soloStart);
+  // Hidden: local test harnesses load the owner's copy from disk through it. Not shown to players.
+  $('files-input').addEventListener('change',e=>runImport(o=>importFromFiles(e.target.files,o)));
   manifest=await readManifest().catch(e=>{status(e.message);return null;});
   engine=await engineAvailable();
   isolated=await ensureIsolation();
@@ -117,5 +114,9 @@ async function init(){
   online=mountOnline({parent:$('online'),gameParent:$('online-turn'),
     canvas:$('canvas'),stage:$('canvas-wrap'),setup:$('setup'),game:$('game'),getModule:()=>module,
     ready:()=>Boolean(isolated&&manifest&&engine&&!module&&!launching),start:startEngine});
+  if(!isolated||!engine)return;
+  if(!manifest&&!await getFiles())return;
+  // Solo play starts by itself, like the other games. An invite link waits for the lobby instead.
+  if(autoStart())await soloStart();
 }
 init().catch(e=>status(e.message));

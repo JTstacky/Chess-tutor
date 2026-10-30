@@ -95,11 +95,12 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
         if (!document.fullscreenElement) await el.requestFullscreen?.();
         else await document.exitFullscreen?.();
       } else if (label === "Sound on") {
+        // Go by the context's real state: SDL also resumes it on the first tap.
         const audio = getAudio();
         if (audio) {
-          if (soundOn) await audio.suspend?.();
+          if (audio.state === "running") await audio.suspend?.();
           else await audio.resume?.();
-          soundOn = !soundOn;
+          soundOn = audio.state === "running";
           button.textContent = soundOn ? "Sound off" : "Sound on";
           button.setAttribute("aria-label", button.textContent);
         }
