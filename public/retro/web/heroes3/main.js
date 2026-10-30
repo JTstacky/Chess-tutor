@@ -31,7 +31,7 @@ function refresh(){
 }
 function progress({bytesDone,bytesTotal,fileCount,totalFiles,persistent}){
   $('progress').hidden=false;$('progress').max=Math.max(1,bytesTotal);$('progress').value=bytesDone;
-  $('progress-text').textContent=`${fileCount} of ${totalFiles} files · ${(bytesDone/1048576).toFixed(1)} of ${(bytesTotal/1048576).toFixed(1)} MB${persistent===false?' · Browser storage may be cleared automatically.':''}`;
+  $('progress-text').textContent=`${Math.round(100*bytesDone/Math.max(1,bytesTotal))}% · the first time takes a little longer`;
 }
 async function refreshSaves(){
   const list=$('save-list');list.replaceChildren();
@@ -51,7 +51,7 @@ async function refreshSaves(){
   }
 }
 async function runImport(task){
-  status('Checking game files…');$('progress').hidden=true;$('progress-text').textContent='';
+  status('Loading Heroes III…');$('progress').hidden=true;$('progress-text').textContent='';
   try {
     const result=await task({onProgress:progress});
     manifest=result.manifest;
@@ -66,7 +66,7 @@ async function runImport(task){
 async function getFiles(){
   if(!privateStoreSource.isAvailable()){status('Heroes III needs a full Teng Games account.');return false;}
   $('private-store').hidden=true;
-  status('Downloading the game to this device. This only happens once.');
+  status('Loading Heroes III…');
   return runImport(o=>privateStoreSource.load(o));
 }
 async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle}={}){
@@ -88,7 +88,7 @@ async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckp
   }catch(error){$('setup').hidden=false;$('game').hidden=true;console.error(error);throw error;}
   finally{launching=false;refresh();}
 }
-const soloStart=()=>startEngine().catch(error=>status(`Could not start the game: ${error.message}`));
+const soloStart=()=>{$('launch').hidden=true;return startEngine().catch(error=>{status(`Could not start the game: ${error.message}`);$('launch').hidden=!manifest;});};
 const invited=()=>Boolean(new URLSearchParams(location.hash.slice(1)).get('invite'));
 // ?manual (tests): don't start by itself.
 const autoStart=()=>!invited()&&!new URLSearchParams(location.search).has('manual');

@@ -13,10 +13,13 @@ header .back a { color: inherit; }
 h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin: .1em 0; color: #f8d878; }
 header p { margin: 0 0 20px; }
 h2 { margin: 0 0 8px; }
-#setup { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+#setup { display: block; max-width: 640px; margin: 0 auto; }
 #setup[hidden], #game[hidden] { display: none; }
 #data-panel, #launch-panel { background: #1d2939; border: 1px solid #536176; border-radius: 14px; padding: 20px; }
-#status { grid-column: 1 / -1; min-height: 48px; border: 1px solid #806e35; background: #302c1e; border-radius: 10px; padding: 10px 14px; }
+#loading-card { background: #1d2939; border: 1px solid #536176; border-radius: 14px; padding: 28px 20px; text-align: center; margin-bottom: 16px; }
+#status { font-size: 1.15rem; min-height: 1.5em; }
+#progress { width: 100%; height: 14px; margin-top: 14px; }
+#loading-card button { margin-top: 12px; }
 .pickers { display: flex; flex-wrap: wrap; gap: 10px; }
 button, .button { font: inherit; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 9px 15px; background: #a98032; color: #fff; border: 1px solid #f3d486; border-radius: 8px; cursor: pointer; text-align: center; }
 button:hover, .button:hover { background: #bd923d; }

@@ -29,7 +29,8 @@ const names = new Map(canonical.map((n) => [n.toLowerCase(), n]));
 const archive = /\.(lod|snd|vid|pak)$/i;
 const map = /\.(h3m|h3c)$/i;
 const music = /\.mp3$/i;
-const safePath = /^(Data|Maps|Mp3)\/[\w .+()'-]+$/i;
+// Same characters the accounts Worker allows (commas: e.g. Maps/Good Witch, Bad Witch.h3m).
+const safePath = /^(Data|Maps|Mp3)\/[\w .,+()'-]+$/i;
 export function safeGamePath(path) {
   return safePath.test(path) && ![".", ".."].includes(path.split("/")[1]);
 }
