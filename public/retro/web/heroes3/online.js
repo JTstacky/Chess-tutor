@@ -1,4 +1,4 @@
-import { TurnRelayClient, importRelaySave } from './turn-transfer.js';
+import { TurnRelayClient, importRelaySave, pruneRelaySaves } from './turn-transfer.js';
 import { exportSave } from './saves.js';
 import { createBattleStream } from './battle-stream.js';
 
@@ -6,7 +6,8 @@ import { createBattleStream } from './battle-stream.js';
 // This controller owns only VCMI saves and the current relay lease.
 export function mountOnline({ parent, gameParent, ready, start, canvas, stage, setup, game, getModule,
   invite = window.TengInvite,
-  readSave = exportSave, importTurn = importRelaySave, reload = () => location.reload() }) {
+  readSave = exportSave, importTurn = importRelaySave, pruneTurns = pruneRelaySaves,
+  reload = () => location.reload() }) {
   if (!invite?.mount) { parent.textContent = 'Online play is unavailable on this page.'; return null; }
   const startButton = document.createElement('button');
   startButton.type = 'button'; startButton.textContent = 'Start online game'; startButton.hidden = true;
@@ -55,7 +56,11 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
         nextSeat, colors, order: colors.map((_, seat) => seat) };
       await checkpointUpload.catch(() => {});
       await sendPending();
-    } catch (error) { say(`Turn is saved on this device. ${error.message} Retry the handoff.`); retryButton.hidden = !pending; }
+    } catch (error) {
+      say(error.code === 'SAVE_TOO_LARGE' ? error.message
+        : `Turn is saved on this device. ${error.message} Retry the handoff.`);
+      retryButton.hidden = !pending || error.code === 'SAVE_TOO_LARGE';
+    }
   }
   function checkpoint(event) {
     if (!running || !colors || ![1, 2].includes(event?.phase) ||
@@ -95,13 +100,27 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
         allowPhase2: room.checkpointPhase === 2 });
       colors = stored.meta.colors;
       const localSeat = colors[api.seat];
-      const saveName = await importTurn({ save, matchId: matchId(), revision: stored.revision });
+      const id = matchId();
+      const saveName = await importTurn({ save, matchId: id, revision: stored.revision });
       relay.runningLease = room.lease;
       loadRetry.hidden = true;
+      let started = false, loadedSeats = false, pruned = false;
+      const pruneAfterLoad = () => {
+        if (!started || !loadedSeats || pruned) return;
+        pruned = true;
+        void pruneTurns({ matchId: id, keepName: saveName }).catch(error =>
+          console.warn('Could not remove older local relay saves:', error));
+      };
       await start({ localSeat, saveName, phase: stored.phase,
-        onTurnPass: handoff, onSeats: seats, onCheckpoint: checkpoint,
+        onTurnPass: handoff, onSeats: value => {
+          seats(value);
+          loadedSeats = Boolean(colors && JSON.stringify(value) === JSON.stringify(colors));
+          pruneAfterLoad();
+        }, onCheckpoint: checkpoint,
         onBattle: event => stream?.battle(event, colors) });
       running = true;
+      started = true;
+      pruneAfterLoad();
       say('Your turn. The game is running on this device.');
     } catch (error) { relay.runningLease = null; loadRetry.hidden = false; say(`Could not load this turn: ${error.message}`); }
     finally { starting = false; }

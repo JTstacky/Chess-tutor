@@ -48,6 +48,7 @@ a { color: #ffe29d; }
 #game { position: relative; min-height: 60vh; display: flex; gap: 8px; }
 #online-turn { position: absolute; z-index: 3; top: 8px; left: 8px; max-width: min(360px, calc(100% - 24px)); padding: 4px 8px; border-radius: 6px; background: #111827e8; font-size: .85rem; }
 #online-turn p { margin: 0 0 4px; }
+#friends-mode { position: absolute; z-index: 4; top: 8px; left: 8px; min-height: 40px; padding: 5px 9px; font-size: .85rem; background: #111827e8; }
 #remote-battle-controls { display: flex; flex-direction: column; gap: 6px; }
 #remote-battle-controls button { min-width: 100px; min-height: 48px; }
 #remote-battle-controls button[aria-pressed=true] { background: #408c70; }
@@ -88,6 +89,7 @@ main:has(#game:not([hidden])) footer { display: none; }
 }
 @media (max-width: 700px) and (orientation: portrait) {
   #game { flex-direction: column; }
+  #friends-mode { top: 50px; }
   #canvas-wrap { height: auto; min-height: 0; }
   #touch-bar { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; }
   #touch-bar button { min-width: 0; min-height: 48px; }

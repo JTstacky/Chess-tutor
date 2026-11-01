@@ -1,6 +1,6 @@
 // Heroes II turn-game wire format, shared by the Heroes III relay registration.
 import { Sha256 } from './sha256.js';
-import { importSave } from './saves.js';
+import { importSave, listSaves, deleteSave } from './saves.js';
 
 export const PART_BYTES = 512000;
 const MAX_SAVE_BYTES = 16 * 1024 * 1024;
@@ -190,7 +190,12 @@ export class TurnRelayClient {
 
   async upload({ save, lease, phase, saveSeat, nextSeat = null, colors, order }) {
     this.ensureHolder(lease);
-    if (!(save instanceof Blob) || !save.size || save.size > MAX_SAVE_BYTES ||
+    if (save instanceof Blob && save.size > MAX_SAVE_BYTES) {
+      const error = Error('This save exceeds the online 16 MiB limit. It remains on this device, but this match cannot pass the turn until the limit is raised.');
+      error.code = 'SAVE_TOO_LARGE';
+      throw error;
+    }
+    if (!(save instanceof Blob) || !save.size ||
         ![0, 1, 2].includes(phase) || !(saveSeat === -1 || seatOK(saveSeat)) ||
         (saveSeat >= this.room.capacity) ||
         (phase === 2 && saveSeat !== -1) ||
@@ -272,4 +277,22 @@ export async function importRelaySave({ save, matchId, revision }) {
   if (!matchPattern.test(matchId) || !Number.isSafeInteger(revision) || revision < 1)
     throw Error('Invalid match save name.');
   return importSave(new File([save], `TurnPass-${matchId}-r${revision}.vsgm1`));
+}
+
+// A match can last hundreds of turns. Keep only the relay save that started the
+// current engine, while preserving ordinary VCMI saves and other matches.
+// Call only after the new engine has loaded successfully, so a failed load
+// leaves the previous local copy available.
+export async function pruneRelaySaves({ matchId, keepName, list = listSaves, remove = deleteSave }) {
+  if (!matchPattern.test(matchId)) throw Error('Invalid match save name.');
+  const pattern = new RegExp(`^TurnPass-${matchId}-r[1-9]\\d*(?: \\(\\d+\\))?\\.vsgm1$`);
+  if (!pattern.test(keepName)) throw Error('Invalid retained match save.');
+  let removed = 0;
+  for (const save of await list()) {
+    if (pattern.test(save.name) && save.name !== keepName) {
+      await remove(save.name);
+      removed++;
+    }
+  }
+  return removed;
 }

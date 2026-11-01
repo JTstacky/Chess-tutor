@@ -77,6 +77,7 @@ async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckp
     module=await launch({canvas:$('canvas'),localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle,onMessage:console.log,
       onStatus:message=>{$('loading-status').textContent=message;}});
     $('loading-status').textContent='VCMI is running.';
+    $('friends-mode').hidden=localSeat!==undefined;
     // SDL opens audio a little after launch; only call sound unavailable if it never appears.
     const launched=module;
     setTimeout(()=>{
@@ -85,15 +86,28 @@ async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckp
       if(sound){sound.textContent='Sound unavailable';sound.setAttribute('aria-label',sound.textContent);sound.disabled=true;}
     },30000);
     return module;
-  }catch(error){$('setup').hidden=false;$('game').hidden=true;console.error(error);throw error;}
+  }catch(error){$('friends-mode').hidden=true;$('setup').hidden=false;$('game').hidden=true;console.error(error);throw error;}
   finally{launching=false;refresh();}
 }
 const soloStart=()=>{$('launch').hidden=true;return startEngine().catch(error=>{status(`Could not start the game: ${error.message}`);$('launch').hidden=!manifest;});};
 const invited=()=>Boolean(new URLSearchParams(location.hash.slice(1)).get('invite'));
+const onlineMode=()=>invited()||new URLSearchParams(location.search).has('online');
 // ?manual (tests): don't start by itself.
-const autoStart=()=>!invited()&&!new URLSearchParams(location.search).has('manual');
+const autoStart=()=>!onlineMode()&&!new URLSearchParams(location.search).has('manual');
+function switchMode(online){
+  const target=new URL(location.href);
+  target.searchParams.delete('manual');
+  if(online)target.searchParams.set('online','1');
+  else target.searchParams.delete('online');
+  target.hash='';
+  location.assign(target.href);
+}
 async function init(){
   setupTouch($('canvas'),{getAudio:()=>audioOf(module)});
+  $('friends-mode').addEventListener('click',()=>{
+    if(confirm('Leave this solo game? Save it inside Heroes III first if you want to keep your progress.'))switchMode(true);
+  });
+  $('solo-mode').addEventListener('click',()=>switchMode(false));
   $('forget').addEventListener('click',async()=>{await forgetGameData({includeSaves:$('forget-saves').checked});manifest=null;refresh();await refreshSaves();status('Game files removed from this device.');});
   $('save-input').addEventListener('change',async e=>{
     const file=e.target.files[0];if(!file)return;
@@ -114,6 +128,7 @@ async function init(){
   online=mountOnline({parent:$('online'),gameParent:$('online-turn'),
     canvas:$('canvas'),stage:$('canvas-wrap'),setup:$('setup'),game:$('game'),getModule:()=>module,
     ready:()=>Boolean(isolated&&manifest&&engine&&!module&&!launching),start:startEngine});
+  $('solo-mode').hidden=!onlineMode();
   if(!isolated||!engine)return;
   if(!manifest&&!await getFiles())return;
   // Solo play starts by itself, like the other games. An invite link waits for the lobby instead.

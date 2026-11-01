@@ -163,14 +163,20 @@ export function createBattleStream({ canvas, stage, setup, game, send, getSeat, 
     }
     if (!streaming() || sending || now() - lastFrame < 100) return;
     lastFrame = now(); sending = true;
-    try { canvas.toBlob(async blob => {
+    void (async () => {
       try {
-        if (!blob || blob.size > 200000 || !streaming()) return;
+        let blob;
+        for (const quality of [.55, .3, .12]) {
+          blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
+          if (!blob || !streaming()) return;
+          if (blob.size > 0 && blob.size <= 200000) break;
+        }
+        if (!blob || blob.size === 0 || blob.size > 200000 || !streaming()) return;
         const payload = new Uint8Array(blob.size + 1);
         payload[0] = 1; payload.set(new Uint8Array(await blob.arrayBuffer()), 1);
-        send(payload.buffer);
+        if (streaming()) send(payload.buffer);
       } catch {} finally { sending = false; }
-    }, 'image/jpeg', .55); } catch { sending = false; }
+    })();
   }, 100);
   const blockLocal = event => {
     if (!controlling() || !event.isTrusted) return;

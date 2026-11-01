@@ -137,7 +137,8 @@ export const privateStoreSource = {
       };
     });
     const checked = planImport(entries);
-    if (checked.skippedNames.length || checked.plan.length !== entries.length)
+    // Refuse unsafe names; files the game doesn't use (e.g. Maps/Tutorial.tut) are just not imported.
+    if (checked.skippedNames.length)
       throw Error("Invalid private store manifest entries.");
     if (checked.missingRequired.length)
       throw Error(
