@@ -100,3 +100,9 @@ main:has(#game:not([hidden])) footer { display: none; }
   h1 { font-size: 1.6rem; }
   header p { margin-bottom: 6px; }
 }
+
+/* Start-up bar over the game screen */
+#boot { position: absolute; inset: 0; display: grid; place-content: center; gap: 12px; background: #080d17; color: #f4f1e8; text-align: center; padding: 16px; }
+#boot[hidden] { display: none; }
+#boot p { margin: 0; font-size: 1.1rem; }
+#boot progress { width: min(420px, 80vw); height: 14px; }

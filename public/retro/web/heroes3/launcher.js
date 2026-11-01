@@ -77,7 +77,7 @@ if (typeof document !== 'undefined') document.addEventListener('visibilitychange
     else if (!runningOnline) runningModule.resumeMainLoop?.();
   } catch {}
   // SDL2's Emscripten audio keeps its context on Module.SDL2 (on the browser main thread).
-  const audio = runningModule.SDL2?.audioContext ?? runningModule.SDL?.audioContext ?? runningModule.audioContext;
+  const audio = runningModule.SDL2?.audioContext ?? runningModule.SDL?.audioContext ?? runningModule.audioContext ?? globalThis.h3GameAudio?.();
   try {
     if (document.hidden) audio?.suspend?.();
     else audio?.resume?.();

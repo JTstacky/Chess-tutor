@@ -6,8 +6,15 @@ import { listSaves,importSave,deleteSave } from './saves.js';
 import { mountOnline } from './online.js';
 
 const $=id=>document.getElementById(id);
-// SDL2's Emscripten audio keeps its context on Module.SDL2.
-const audioOf=m=>m?.SDL2?.audioContext??m?.SDL?.audioContext??m?.audioContext??null;
+// Remember the AudioContext SDL creates (it isn't reliably reachable on the module object), so the
+// Sound button and the hidden-tab pause can find it. It starts suspended until the first tap.
+let gameAudio=null;
+if(window.AudioContext){
+  const Base=window.AudioContext;
+  window.AudioContext=class extends Base{constructor(...a){super(...a);gameAudio=this;}};
+}
+const audioOf=m=>m?.SDL2?.audioContext??m?.SDL?.audioContext??m?.audioContext??gameAudio;
+globalThis.h3GameAudio=()=>gameAudio;
 let isolated=crossOriginIsolated, manifest=null, engine=false, module=null, launching=false;
 let online=null;
 function status(message){$('status').textContent=message;}
@@ -69,24 +76,59 @@ async function getFiles(){
   status('Loading Heroes III…');
   return runImport(o=>privateStoreSource.load(o));
 }
+// Start-up bar over the game screen: engine log lines move it through stages, and between stages it
+// keeps creeping towards the next one with a seconds counter, so a slow step never looks frozen.
+const BOOT_STAGES=[
+  [/Starting client of/,0.08,'Starting the game engine'],
+  [/\tInitialization: /,0.12,'Reading game files'],
+  [/\tData loading: /,0.55,'Loading game content'],
+  [/Created renderer/,0.6,'Loading game content'],
+  [/Parsing mod: /,0.7,'Loading game content'],
+  [/Loading mod data/,0.8,'Loading game content'],
+  [/Resolving identifiers/,0.88,'Preparing the main menu'],
+  [/Handlers post-load/,0.93,'Preparing the main menu'],
+  [/All game content loaded/,0.97,'Opening the main menu'],
+  [/Initialization of VCMI \(together\)/,1,'Ready'],
+];
+function bootProgress(){
+  const box=$('boot'),bar=$('boot-bar'),text=$('boot-text'),t0=Date.now();
+  let value=0.02,stage=0,label='Starting the game engine',done=false;
+  box.hidden=false;
+  const show=()=>{bar.value=value;text.textContent=`${label}… ${Math.round(value*100)}% · ${Math.round((Date.now()-t0)/1000)}s`;};
+  const timer=setInterval(()=>{
+    const next=BOOT_STAGES[stage]?.[1]??1;
+    value=Math.min(next-0.01,value+(next-value)*0.02);show();
+  },500);
+  const finish=()=>{if(done)return;done=true;clearInterval(timer);value=1;label='Ready';show();setTimeout(()=>{box.hidden=true;},800);};
+  show();
+  return {
+    line(message){
+      if(done)return;
+      const text=String(message);
+      for(let i=stage;i<BOOT_STAGES.length;i++)if(BOOT_STAGES[i][0].test(text)){
+        stage=i+1;value=Math.max(value,BOOT_STAGES[i][1]);label=BOOT_STAGES[i][2];show();
+        if(BOOT_STAGES[i][1]>=1)finish();
+        break;
+      }
+    },
+    finish,
+    fail(){done=true;clearInterval(timer);box.hidden=true;},
+  };
+}
 async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle}={}){
   if(!isolated||!manifest||!engine||launching||module)throw Error('The game is not ready to start.');
   launching=true;refresh();$('setup').hidden=true;$('game').hidden=false;
-  $('loading-status').textContent='Preparing game files…';
+  $('loading-status').textContent='';
+  const boot=bootProgress();
   try{
-    module=await launch({canvas:$('canvas'),localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle,onMessage:console.log,
-      onStatus:message=>{$('loading-status').textContent=message;}});
-    $('loading-status').textContent='VCMI is running.';
+    module=await launch({canvas:$('canvas'),localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle,
+      onMessage:message=>{console.log(message);boot.line(message);},
+      onStatus:()=>{}});
+    // Safety net: if the last log line never comes, still clear the bar once the menu has had time.
+    setTimeout(()=>boot.finish(),300000);
     $('friends-mode').hidden=localSeat!==undefined;
-    // SDL opens audio a little after launch; only call sound unavailable if it never appears.
-    const launched=module;
-    setTimeout(()=>{
-      if(module!==launched||audioOf(launched))return;
-      const sound=[...document.querySelectorAll('#touch-bar button')].find(button=>button.textContent==='Sound on');
-      if(sound){sound.textContent='Sound unavailable';sound.setAttribute('aria-label',sound.textContent);sound.disabled=true;}
-    },30000);
     return module;
-  }catch(error){$('friends-mode').hidden=true;$('setup').hidden=false;$('game').hidden=true;console.error(error);throw error;}
+  }catch(error){boot.fail();$('friends-mode').hidden=true;$('setup').hidden=false;$('game').hidden=true;console.error(error);throw error;}
   finally{launching=false;refresh();}
 }
 const soloStart=()=>{$('launch').hidden=true;return startEngine().catch(error=>{status(`Could not start the game: ${error.message}`);$('launch').hidden=!manifest;});};

@@ -107,6 +107,16 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
       }
       canvas.focus();
     });
+    // Keep the Sound label true to the real state (sound starts by itself on the first tap).
+    if (label === "Sound on") setInterval(() => {
+      const audio = getAudio();
+      if (!audio || button.disabled) return;
+      const running = audio.state === "running";
+      if (running === soundOn) return;
+      soundOn = running;
+      button.textContent = soundOn ? "Sound off" : "Sound on";
+      button.setAttribute("aria-label", button.textContent);
+    }, 1000);
     bar.append(button);
   }
   toggle.addEventListener("click", () => {
