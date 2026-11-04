@@ -33,6 +33,10 @@ a.logo { text-decoration: none; }
 .account-panel .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
 .account-panel .btn { font: inherit; font-weight: 600; font-size: 18px; border: 0; border-radius: 999px; padding: 10px 24px; background: var(--brand); color: #fff; cursor: pointer; }
 .account-panel > .btn { margin-top: 14px; }
+/* Links drawn as buttons (Play ▶) look like the other buttons, not underlined text. */
+.account-panel a.btn { text-decoration: none; display: inline-block; }
+/* The PIN lock sits on the name's line without making it taller than the other names. */
+.kid-name .lock { font-size: 0.7em; line-height: 1; vertical-align: 0.15em; }
 .account-panel .btn.ghost { background: #ece6ff; color: var(--brand); }
 .account-panel .btn:disabled { opacity: 0.6; }
 .account-panel .msg { color: #b3361f; min-height: 1.2em; margin: 0; }

@@ -82,7 +82,10 @@ async function profilePicker() {
   if (my !== seq) return;
   for (const p of list) {
     const b = el('button', { className: 'kid', type: 'button', onclick: () => pick(p) }, grid);
-    b.append(profilePic(p, 120), el('span', { className: 'kid-name', textContent: (p.pin ? '🔒 ' : '') + p.name }));
+    const label = el('span', { className: 'kid-name' });
+    if (p.pin) label.append(el('span', { className: 'lock', textContent: '🔒', ariaHidden: 'true' }), ' ');
+    label.append(p.name);
+    b.append(profilePic(p, 120), label);
     b.setAttribute('aria-label', p.name + (p.pin ? ', has a PIN' : ''));
   }
   const grown = list.find(p => p.kind === 'parent');

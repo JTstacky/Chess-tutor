@@ -93,7 +93,18 @@ if (settings.fxVersion !== 2) {
   settings.battles = true;
   settings.fxVersion = 2;
 }
+// The Teng Games profile's name (set on sign-in by /tg-profile.js and auth.js), so Hoot greets the kid by name.
+// Guests and signed-out pages keep "Player"; a name the player typed in Settings always wins.
+export function siteProfileName(): string {
+  try {
+    if (localStorage.getItem('evonline.tier') === 'guest') return '';
+    return (localStorage.getItem('evonline.user') ?? '').trim().slice(0, 20);
+  } catch {
+    return '';
+  }
+}
 export const profile: Profile = load(PROFILE_KEY, defaultProfile);
+if (profile.name === defaultProfile.name && siteProfileName()) profile.name = siteProfileName();
 
 /** A coaching feature is on only when coaching as a whole is on too. */
 export function coachingOn(feature: 'hints' | 'blunderWarnings' | 'threatWarnings' | 'openingNames'): boolean {

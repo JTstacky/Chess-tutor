@@ -159,7 +159,8 @@ export function mountAccountChip(header) {
     if (!account.signedIn) { a.textContent = account.hasAccount || account.device ? 'Who’s playing?' : 'Sign in'; return; }
     const name = document.createElement('b'); name.textContent = account.user;
     a.append(account.avatar ? avatarEl(account.avatar, 30) : '👤 ', ' ', name);
-    if (account.guest) { a.append(' '); const t = document.createElement('span'); t.className = 'tier basic'; t.textContent = 'Guest'; a.append(t); return; }
+    // A guest is already called "Guest": no second "Guest" badge after the name.
+    if (account.guest) { if (!/^guest$/i.test(account.user || '')) { a.append(' '); const t = document.createElement('span'); t.className = 'tier basic'; t.textContent = 'Guest'; a.append(t); } return; }
     if (!account.kid) {
       const tier = document.createElement('span'); tier.className = 'tier ' + account.tier; tier.textContent = account.full ? 'Full' : 'Basic';
       a.append(' ', tier);
