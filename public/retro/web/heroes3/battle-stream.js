@@ -36,7 +36,7 @@ export function createBattleStream({ canvas, stage, setup, game, send, getSeat, 
     const button = document.createElement('button');
     button.type = 'button'; button.textContent = label;
     button.addEventListener('click', () => {
-      if (room?.viewer !== local() || room.controller !== local()) return;
+      if (!watching() || room.controller !== local()) return;
       if (!code) {
         rightClick = !rightClick;
         button.setAttribute('aria-pressed', String(rightClick));
@@ -55,20 +55,22 @@ export function createBattleStream({ canvas, stage, setup, game, send, getSeat, 
   let pointer = null, rightClick = false;
   const local = () => getSeat();
   const holder = () => room?.holder === local();
+  const watching = () => room?.viewer === local() && !holder() &&
+    room.players?.some(player => player.seat === room.holder && player.online);
   const controlling = () => live && remoteActive && !botEnabled && holder() &&
     room?.controller === remoteSeat && remoteSeat >= 0;
   const streaming = () => live && holder() && room?.viewer === remoteSeat && remoteSeat >= 0;
   function display() {
-    const watching = room?.viewer === local() && !holder();
-    viewer.hidden = !watching;
-    canvas.hidden = watching;
-    controls.hidden = !watching;
+    const isWatching = Boolean(watching());
+    viewer.hidden = !isWatching;
+    canvas.hidden = isWatching;
+    controls.hidden = !isWatching;
     for (const button of controls.querySelectorAll?.('button') ?? [])
-      button.disabled = room?.controller !== local();
+      button.disabled = !isWatching || room?.controller !== local();
     const localControls = game.querySelector?.('#touch-bar');
-    if (localControls) localControls.hidden = watching;
-    if (watching) { setup.hidden = true; game.hidden = false; }
-    if (!watching && !getModule()) { setup.hidden = false; game.hidden = true; }
+    if (localControls) localControls.hidden = isWatching;
+    if (isWatching) { setup.hidden = true; game.hidden = false; }
+    if (!isWatching && !getModule()) { setup.hidden = false; game.hidden = true; }
   }
   function grant(seat) {
     if (!room || !holder() || !live) return;
@@ -115,13 +117,13 @@ export function createBattleStream({ canvas, stage, setup, game, send, getSeat, 
     if (live) grant(remoteSeat);
   }
   async function frame(frame) {
-    if (room?.viewer !== local() || holder()) return;
+    if (!watching()) return;
     const bytes = new Uint8Array(frame);
     if (bytes[0] !== 1 || bytes.byteLength < 2 || bytes.byteLength > 200001) return;
     let bitmap;
     try {
       bitmap = await createImageBitmap(new Blob([bytes.subarray(1)], { type: 'image/jpeg' }));
-      if (room.viewer === local() && !holder()) context.drawImage(bitmap, 0, 0, 800, 600);
+      if (watching()) context.drawImage(bitmap, 0, 0, 800, 600);
     } catch {} finally { bitmap?.close(); }
   }
   function input(value) {
@@ -189,7 +191,7 @@ export function createBattleStream({ canvas, stage, setup, game, send, getSeat, 
     'mousemove', 'touchstart', 'touchend', 'keydown', 'keyup'])
     window.addEventListener(kind, blockLocal, { capture: true, passive: false });
   function sendPointer(event, kind) {
-    if (room?.controller !== local() || room?.viewer !== local() || holder()) return;
+    if (room?.controller !== local() || !watching()) return;
     const rect = viewer.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     event.preventDefault();
@@ -208,7 +210,7 @@ export function createBattleStream({ canvas, stage, setup, game, send, getSeat, 
   });
   viewer.addEventListener('contextmenu', event => event.preventDefault());
   for (const kind of ['keydown', 'keyup']) viewer.addEventListener(kind, event => {
-    if (!KEY.test(event.code) || room?.controller !== local() || room?.viewer !== local()) return;
+    if (!KEY.test(event.code) || room?.controller !== local() || !watching()) return;
     event.preventDefault();
     send({ type: 'input', event: kind, code: event.code, key: event.key.slice(0, 12), keyCode: keyCodeFor(event.code) });
   });

@@ -94,3 +94,21 @@ export async function deleteSave(name) {
   for (const part of parts.slice(0, -1)) dir = await dir.getDirectoryHandle(part);
   await dir.removeEntry(parts.at(-1));
 }
+
+// Writes a save at a path inside Saves/ (used by online save sync). createWritable commits on close,
+// so a reader never sees half a file.
+export async function writeSaveFile(name, bytes) {
+  const parts = checkedPath(name);
+  let dir = await saveDirectory(true);
+  for (const part of parts.slice(0, -1)) dir = await dir.getDirectoryHandle(part, { create: true });
+  const output = await (await dir.getFileHandle(parts.at(-1), { create: true })).createWritable();
+  try { await output.write(bytes); await output.close(); }
+  catch (error) { await output.abort?.().catch(() => {}); throw error; }
+}
+
+// The save folder as cloud-saves.js expects it.
+export const saveFiles = {
+  list: async () => (await listSaves()).map(s => ({ path: s.name, size: s.size, modified: s.modified })),
+  read: async name => new Uint8Array(await (await exportSave(name)).arrayBuffer()),
+  write: writeSaveFile,
+};

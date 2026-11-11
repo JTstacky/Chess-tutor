@@ -11,6 +11,7 @@ const buttons = [
   ["Zoom out", "-", "NumpadSubtract", 109],
   ["Fit", null, null, null],
   ["Fullscreen", null, null, null],
+  ["Keyboard", null, null, null],
   ["Sound on", null, null, null],
 ];
 function sendKey(canvas, key, code, keyCode) {
@@ -28,23 +29,17 @@ function sendKey(canvas, key, code, keyCode) {
     canvas.dispatchEvent(event);
   }
 }
-function rightClick(canvas, x, y) {
-  const common = {
-    bubbles: true,
-    cancelable: true,
-    button: 2,
-    buttons: 2,
-    clientX: x,
-    clientY: y,
-  };
+// VCMI shows right-click info popups only while the right button is held, so a long press holds
+// the right button down until the finger lifts.
+function rightDown(canvas, x, y) {
+  const common = { bubbles: true, cancelable: true, button: 2, clientX: x, clientY: y };
   canvas.dispatchEvent(new MouseEvent("mousemove", { ...common, buttons: 0 }));
-  for (const type of ["mousedown", "mouseup", "contextmenu"]) {
-    const event = new MouseEvent(type, {
-      ...common,
-      buttons: type === "mousedown" ? 2 : 0,
-    });
-    canvas.dispatchEvent(event);
-  }
+  canvas.dispatchEvent(new MouseEvent("mousedown", { ...common, buttons: 2 }));
+}
+function rightUp(canvas, x, y) {
+  const common = { bubbles: true, cancelable: true, button: 2, buttons: 0, clientX: x, clientY: y };
+  canvas.dispatchEvent(new MouseEvent("mouseup", common));
+  canvas.dispatchEvent(new MouseEvent("contextmenu", common));
 }
 function leftEvent(canvas, type, x, y) {
   if (type === "mousedown")
@@ -63,14 +58,45 @@ function leftEvent(canvas, type, x, y) {
     }),
   );
 }
+// The game draws its own text fields on the canvas, which never brings up a phone's on-screen keyboard.
+// The Keyboard button focuses a hidden text box instead and passes what is typed on to the game as the
+// key presses SDL reads (keypress for letters, Backspace and Enter as keys). Android keyboards report
+// most keys as keyCode 229 and only say what changed through input events, hence the translation.
+const SENTINEL = " ";
+function sendChar(canvas, ch) {
+  const code = ch.charCodeAt(0);
+  const event = new KeyboardEvent("keypress", { key: ch, bubbles: true, cancelable: true });
+  Object.defineProperties(event, { charCode: { get: () => code }, keyCode: { get: () => code }, which: { get: () => code } });
+  canvas.dispatchEvent(event);
+}
+export function setupTextSink(canvas, sink) {
+  let nativeKey = false;
+  sink.value = SENTINEL;
+  // A key with a real key code (a hardware keyboard) also reaches SDL by itself.
+  sink.addEventListener("keydown", (e) => { nativeKey = e.keyCode !== 229 && !e.isComposing; });
+  sink.addEventListener("input", (e) => {
+    if (nativeKey) nativeKey = false;
+    else if (e.inputType === "deleteContentBackward") sendKey(canvas, "Backspace", "Backspace", 8);
+    else if (e.inputType === "insertLineBreak") sendKey(canvas, "Enter", "Enter", 13);
+    else for (const ch of e.data ?? "") sendChar(canvas, ch);
+    sink.value = SENTINEL;
+  });
+}
 export function setupTouch(canvas, { getAudio = () => null } = {}) {
   const bar = document.getElementById("touch-bar"),
     toggle = document.getElementById("controls-toggle");
   const game = document.getElementById("game");
+  const sink = document.createElement("input");
+  Object.assign(sink, { type: "text", id: "text-sink", autocomplete: "off", spellcheck: false, enterKeyHint: "done" });
+  sink.setAttribute("autocapitalize", "off");
+  sink.setAttribute("aria-label", "Type in the game");
+  game.append(sink);
+  setupTextSink(canvas, sink);
   let rightNext = false,
     timer,
     start,
     longPressed = false,
+    rightHeld = false,
     dragging = false,
     soundOn = false;
   for (const [label, key, code, keyCode] of buttons) {
@@ -94,6 +120,10 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
         const el = document.getElementById("game");
         if (!document.fullscreenElement) await el.requestFullscreen?.();
         else await document.exitFullscreen?.();
+      } else if (label === "Keyboard") {
+        // Keep focus on the hidden box so the on-screen keyboard stays up while typing.
+        if (document.activeElement === sink) sink.blur();
+        else { sink.focus(); return; }
       } else if (label === "Sound on") {
         // Go by the context's real state: SDL also resumes it on the first tap.
         const audio = getAudio();
@@ -149,9 +179,15 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
       longPressed = false;
       dragging = false;
       clearTimeout(timer);
+      if (rightNext) {
+        // Right-click mode: this touch is a held right button.
+        longPressed = rightHeld = true;
+        rightDown(canvas, start.x, start.y);
+        return;
+      }
       timer = setTimeout(() => {
-        longPressed = true;
-        rightClick(canvas, start.x, start.y);
+        longPressed = rightHeld = true;
+        rightDown(canvas, start.x, start.y);
       }, 500);
     },
     true,
@@ -182,13 +218,15 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
         e.stopImmediatePropagation();
         clearTimeout(timer);
         suppressUntil = performance.now() + 700;
-        if (type === "pointerup" && rightNext && !longPressed) {
-          rightClick(canvas, e.clientX, e.clientY);
-          rightNext = false;
-          document
-            .getElementById("right-click-mode")
-            .setAttribute("aria-pressed", "false");
-          longPressed = true;
+        if (rightHeld) {
+          rightUp(canvas, start.x, start.y);
+          rightHeld = false;
+          if (rightNext) {
+            rightNext = false;
+            document
+              .getElementById("right-click-mode")
+              .setAttribute("aria-pressed", "false");
+          }
         } else if (dragging) leftEvent(canvas, "mouseup", e.clientX, e.clientY);
         else if (type === "pointerup" && !longPressed) {
           leftEvent(canvas, "mousedown", e.clientX, e.clientY);

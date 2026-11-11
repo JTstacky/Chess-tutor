@@ -1,0 +1,21 @@
+{
+  "engine_revision": "e53754d8a1395397e654d68e79e480d26dbb42a2",
+  "vcmi_base": "6901839ae9760dfcd1d5ff2c4aa4ef6968fee752",
+  "emscripten": "4.0.15",
+  "boost_archive": "boost-1.86.0-cmake.tar.xz",
+  "boost_sha256": "2c5ec5edcdff47ff55e27ed9560b0a0b94b07bd07ed9928b476150e16b0efc57",
+  "artifacts": {
+    "vcmiclient.data": {
+      "bytes": 8855186,
+      "sha256": "4b5b55a80ff67d4858f8a3f0e7f37c79d96e9110fc15b8238bf63eb79df908f6"
+    },
+    "vcmiclient.js": {
+      "bytes": 312048,
+      "sha256": "49a71e49734afe30f5ecaad81970928303306b0af0cf92d8cf83242141eb706f"
+    },
+    "vcmiclient.wasm": {
+      "bytes": 15647139,
+      "sha256": "dd95b6d6edcfcd0fae13a551a25ce2c888775e63e4b643cbf5ce36a9d37e620d"
+    }
+  }
+}

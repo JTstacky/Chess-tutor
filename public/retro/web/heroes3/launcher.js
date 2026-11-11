@@ -16,7 +16,11 @@ export async function engineAvailable() {
 export async function prepareGameData() {
   const root = await navigator.storage.getDirectory();
   await root.getDirectoryHandle('h3');
-  await root.getDirectoryHandle('userdata', { create: true });
+  const user = await root.getDirectoryHandle('userdata', { create: true });
+  // VCMI only mounts folders that exist at start-up. Battle Mode writes its map to vcmi/Maps, so the
+  // folder must be there before the engine starts or that map is never found.
+  const vcmi = await user.getDirectoryHandle('vcmi', { create: true });
+  await vcmi.getDirectoryHandle('Maps', { create: true });
 }
 
 export async function launch({ canvas, localSeat, saveName, phase, onTurnPass = () => {}, onSeats = () => {}, onCheckpoint = () => {}, onBattle = () => {}, onMessage = console.log, onStatus = () => {}, factory } = {}) {

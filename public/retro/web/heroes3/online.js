@@ -20,7 +20,8 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
   retryButton.type = 'button'; retryButton.textContent = 'Retry handoff'; retryButton.hidden = true;
   gameParent.append(gameStatus, retryButton);
   let api, relay, starting = false, running = false, uploading = false, claiming = false;
-  let colors = null, pending = null, checkpointUpload = Promise.resolve();
+  let colors = null, pending = null, earlyCheckpoint = null, recoveringBattle = false;
+  let checkpointUpload = Promise.resolve();
   const stream = canvas && stage && setup && game && getModule ? createBattleStream({
     canvas, stage, setup, game, getModule, getSeat: () => api?.seat,
     send: message => api?.send(message), onStatus: message => say(message),
@@ -42,7 +43,10 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
       return;
     }
     colors = value;
-    say('Online game started. End your turn to pass the save.');
+    if (running && earlyCheckpoint) {
+      const event = earlyCheckpoint; earlyCheckpoint = null; checkpoint(event);
+    }
+    if (!recoveringBattle) say('Online game started. End your turn to pass the save.');
   };
   async function handoff(event) {
     try {
@@ -63,15 +67,28 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
     }
   }
   function checkpoint(event) {
-    if (!running || !colors || ![1, 2].includes(event?.phase) ||
+    if (![1, 2].includes(event?.phase) ||
         !['OnlineCheckpoint1.vsgm1', 'OnlineCheckpoint2.vsgm1'].includes(event.save)) return;
+    if (!running || !colors) {
+      if (starting || running) earlyCheckpoint = event;
+      return;
+    }
     checkpointUpload = checkpointUpload.catch(() => {}).then(async () => {
       const save = await readSave(event.save);
+      // The relay persists viewer/controller with the next save. Revoke again
+      // immediately before its parts so an old battle grant cannot reappear.
+      if (api.room.viewer >= 0 || api.room.controller >= 0) {
+        if (!api.send({ type: 'control', lease: api.room.lease, viewer: -1, controller: -1 }))
+          throw Error('Could not revoke the previous battle control.');
+      }
       await relay.upload({ save, lease: api.room.lease, phase: event.phase,
         saveSeat: event.phase === 1 ? api.seat : -1, colors,
         order: colors.map((_, seat) => seat) });
     });
-    checkpointUpload.catch(error => say(`The latest checkpoint remains on this device: ${error.message}`));
+    checkpointUpload.catch(error => {
+      console.warn('Online checkpoint upload failed:', error);
+      say(`The latest checkpoint remains on this device: ${error.message}`);
+    });
   }
   async function sendPending() {
     if (!pending || uploading) return;
@@ -95,6 +112,14 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
     const room = api.room;
     if (room.checkpointPhase == null) return;
     starting = true;
+    // A phase-one save is from before combat. An interrupted holder can leave
+    // the relay's old battle viewer/controller behind; revoke that grant before
+    // the restored adventure screen accepts any new battle input.
+    const interruptedBattle = room.checkpointPhase === 1 &&
+      (room.viewer >= 0 || room.controller >= 0);
+    recoveringBattle = interruptedBattle;
+    if (room.viewer >= 0 || room.controller >= 0)
+      api.send({ type: 'control', lease: room.lease, viewer: -1, controller: -1 });
     try {
       const { checkpoint: stored, save } = await relay.load({ lease: room.lease,
         allowPhase2: room.checkpointPhase === 2 });
@@ -104,7 +129,7 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
       const saveName = await importTurn({ save, matchId: id, revision: stored.revision });
       relay.runningLease = room.lease;
       loadRetry.hidden = true;
-      let started = false, loadedSeats = false, pruned = false;
+      let started = false, loadedSeats = false, pruned = false, restoreRequested = false;
       const pruneAfterLoad = () => {
         if (!started || !loadedSeats || pruned) return;
         pruned = true;
@@ -116,13 +141,23 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
           seats(value);
           loadedSeats = Boolean(colors && JSON.stringify(value) === JSON.stringify(colors));
           pruneAfterLoad();
+          if (interruptedBattle && loadedSeats && getModule && !restoreRequested) {
+            restoreRequested = true;
+            setTimeout(() => {
+              if (running && api.room?.lease === room.lease)
+                getModule()?.ccall?.('h3_request_checkpoint', null, [], []);
+            }, 1000);
+          }
         }, onCheckpoint: checkpoint,
         onBattle: event => stream?.battle(event, colors) });
       running = true;
       started = true;
       pruneAfterLoad();
-      say('Your turn. The game is running on this device.');
-    } catch (error) { relay.runningLease = null; loadRetry.hidden = false; say(`Could not load this turn: ${error.message}`); }
+      if (earlyCheckpoint) { const event = earlyCheckpoint; earlyCheckpoint = null; checkpoint(event); }
+      say(interruptedBattle
+        ? 'The interrupted battle rolled back to the last checkpoint. Check the map and repeat the attack if needed.'
+        : 'Your turn. The game is running on this device.');
+    } catch (error) { earlyCheckpoint = null; recoveringBattle = false; relay.runningLease = null; loadRetry.hidden = false; say(`Could not load this turn: ${error.message}`); }
     finally { starting = false; }
   }
   startButton.onclick = async () => {
@@ -130,13 +165,15 @@ export function mountOnline({ parent, gameParent, ready, start, canvas, stage, s
         api.room.checkpointPhase != null || api.room.players.length !== api.room.capacity ||
         starting || running || !ready()) return;
     starting = true; startButton.disabled = true;
+    recoveringBattle = false;
     try {
       relay.runningLease = api.room.lease;
       await start({ localSeat: 0, onTurnPass: handoff, onSeats: seats,
         onCheckpoint: checkpoint, onBattle: event => stream?.battle(event, colors) });
       running = true; startButton.hidden = true;
+      if (earlyCheckpoint) { const event = earlyCheckpoint; earlyCheckpoint = null; checkpoint(event); }
       say(`Set up ${api.room.capacity} human players in seat order, starting with Red.`);
-    } catch (error) { relay.runningLease = null; say(error.message); }
+    } catch (error) { earlyCheckpoint = null; relay.runningLease = null; say(error.message); }
     finally { starting = false; startButton.disabled = false; }
   };
   retryButton.onclick = () => sendPending().catch(error => { retryButton.hidden = !pending; say(`Turn remains on this device: ${error.message}`); });

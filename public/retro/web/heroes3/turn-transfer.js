@@ -4,6 +4,8 @@ import { importSave, listSaves, deleteSave } from './saves.js';
 
 export const PART_BYTES = 512000;
 const MAX_SAVE_BYTES = 16 * 1024 * 1024;
+const MAX_NATIVE_SAVE_BYTES = 64 * 1024 * 1024;
+const MIN_COMPRESS_BYTES = 64 * 1024;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8', { fatal: true });
 const digestPattern = /^[a-f0-9]{64}$/;
@@ -39,6 +41,60 @@ async function hashBlob(blob) {
   const hash = new Sha256();
   for await (const chunk of blob.stream()) hash.update(chunk);
   return hash.hex();
+}
+
+async function isNativeSave(save) {
+  if (save.size < MIN_COMPRESS_BYTES) return false;
+  const magic = new Uint8Array(await save.slice(0, 4).arrayBuffer());
+  return magic[0] === 86 && magic[1] === 67 && magic[2] === 77 && magic[3] === 73;
+}
+
+async function wireSave(save) {
+  if (!await isNativeSave(save) || typeof CompressionStream !== 'function')
+    return { save, extra: {} };
+  if (save.size > MAX_NATIVE_SAVE_BYTES) {
+    const error = Error('The native save exceeds the 64 MiB online decode limit. It remains on this device.');
+    error.code = 'SAVE_TOO_LARGE';
+    throw error;
+  }
+  const compressed = await new Response(save.stream().pipeThrough(new CompressionStream('gzip'))).blob();
+  if (compressed.size >= save.size) return { save, extra: {} };
+  return { save: compressed, extra: {
+    encoding: 'gzip', nativeSize: save.size, nativeSha256: await hashBlob(save),
+  } };
+}
+
+async function nativeSave(save, meta) {
+  if (meta.encoding === undefined) return save; // Older raw checkpoints.
+  if (meta.encoding !== 'gzip' || !Number.isInteger(meta.nativeSize) ||
+      meta.nativeSize < 1 || meta.nativeSize > MAX_NATIVE_SAVE_BYTES ||
+      !digestPattern.test(meta.nativeSha256))
+    throw Error('Invalid compressed turn-save metadata.');
+  if (typeof DecompressionStream !== 'function')
+    throw Error('This browser cannot open compressed turn saves.');
+  const reader = save.stream().pipeThrough(new DecompressionStream('gzip')).getReader();
+  const chunks = [];
+  const hash = new Sha256();
+  let size = 0;
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      size += value.length;
+      if (size > meta.nativeSize || size > MAX_NATIVE_SAVE_BYTES)
+        throw Error('Turn save decompressed beyond its declared size.');
+      hash.update(value);
+      chunks.push(value);
+    }
+  } catch (error) {
+    await reader.cancel().catch(() => {});
+    throw error;
+  }
+  if (size !== meta.nativeSize || hash.hex() !== meta.nativeSha256)
+    throw Error('Native turn save failed SHA-256 or size verification.');
+  const result = new Blob(chunks);
+  if (!await isNativeSave(result)) throw Error('Decoded turn save is not a VCMI save.');
+  return result;
 }
 
 function checkedColors(colors, capacity) {
@@ -190,11 +246,6 @@ export class TurnRelayClient {
 
   async upload({ save, lease, phase, saveSeat, nextSeat = null, colors, order }) {
     this.ensureHolder(lease);
-    if (save instanceof Blob && save.size > MAX_SAVE_BYTES) {
-      const error = Error('This save exceeds the online 16 MiB limit. It remains on this device, but this match cannot pass the turn until the limit is raised.');
-      error.code = 'SAVE_TOO_LARGE';
-      throw error;
-    }
     if (!(save instanceof Blob) || !save.size ||
         ![0, 1, 2].includes(phase) || !(saveSeat === -1 || seatOK(saveSeat)) ||
         (saveSeat >= this.room.capacity) ||
@@ -210,8 +261,15 @@ export class TurnRelayClient {
         new Set(order).size !== order.length)
       throw Error('Invalid human turn order.');
     if (this.uploading) throw Error('A save upload is already running.');
+    const prepared = await wireSave(save);
+    save = prepared.save;
+    if (save.size > MAX_SAVE_BYTES) {
+      const error = Error('This save exceeds the online 16 MiB limit after compression. It remains on this device, but this match cannot pass the turn until the limit is raised.');
+      error.code = 'SAVE_TOO_LARGE';
+      throw error;
+    }
     const sha256 = await hashBlob(save);
-    const meta = { colors, sha256 };
+    const meta = { colors, sha256, ...prepared.extra };
     if (JSON.stringify(meta).length > 1024) throw Error('Turn-save metadata is too large.');
     const id = this.idFactory();
     if (typeof id !== 'string' || !id || id.length > 40) throw Error('Invalid upload ID.');
@@ -236,7 +294,7 @@ export class TurnRelayClient {
   async load({ lease, expectedColor, allowPhase2 = false }) {
     this.ensureHolder(lease);
     if ((expectedColor !== undefined && !seatOK(expectedColor)) || this.loading) throw Error('Invalid turn load.');
-    return new Promise((resolve, reject) => {
+    const received = await new Promise((resolve, reject) => {
       const job = { lease, expectedColor, allowPhase2, chunks: [],
         hash: new Sha256(), partsReceived: 0, resolve, reject };
       this.loading = job;
@@ -250,6 +308,9 @@ export class TurnRelayClient {
         job.reject(error);
       });
     });
+    const save = await nativeSave(received.save, received.checkpoint.meta);
+    this.ensureHolder(lease);
+    return { ...received, save };
   }
 
   async claim() {

@@ -4,6 +4,10 @@ import { engineAvailable,launch } from './launcher.js';
 import { setupTouch } from './touch.js';
 import { listSaves,importSave,deleteSave } from './saves.js';
 import { mountOnline } from './online.js';
+import { saveFiles } from './saves.js';
+import { createCloudSaves,cloudApi,readCredentials,localState } from './cloud-saves.js';
+import { PRIVATE_STORE } from './config.js';
+import { isEngineFailure,isEngineExit } from './engine-health.js';
 
 const $=id=>document.getElementById(id);
 // Remember the AudioContext SDL creates (it isn't reliably reachable on the module object), so the
@@ -16,7 +20,23 @@ if(window.AudioContext){
 const audioOf=m=>m?.SDL2?.audioContext??m?.SDL?.audioContext??m?.audioContext??gameAudio;
 globalThis.h3GameAudio=()=>gameAudio;
 let isolated=crossOriginIsolated, manifest=null, engine=false, module=null, launching=false;
-let online=null;
+let online=null, cloud=null;
+// Solo saves sync with the player's account (full accounts), so a campaign carries on from any device.
+function cloudStatus(text){
+  const box=$('cloud-status');box.textContent=text;box.hidden=!text;
+  clearTimeout(cloudStatus.timer);cloudStatus.timer=setTimeout(()=>{box.hidden=true;},6000);
+}
+function mountCloud(){
+  const signedIn=readCredentials();if(!signedIn)return null;
+  return createCloudSaves({files:saveFiles,state:localState(),profile:signedIn.profile,onStatus:cloudStatus,
+    api:cloudApi({base:PRIVATE_STORE.apiBase,token:signedIn.token,device:signedIn.device})});
+}
+// Bring in saves from other devices before VCMI lists them; never hold the game up for long.
+async function syncBeforeStart(){
+  if(!cloud)return;
+  status('Getting your saves…');
+  await Promise.race([cloud.sync(),new Promise(resolve=>setTimeout(resolve,20000))]);
+}
 function status(message){$('status').textContent=message;}
 async function ensureIsolation(){
   if(isolated)return true;
@@ -115,6 +135,22 @@ function bootProgress(){
     fail(){done=true;clearInterval(timer);box.hidden=true;},
   };
 }
+// A crash or fatal error leaves SDL's last frame (or nothing) on the canvas: say so and offer a reload.
+// Quitting from the game's own menu ends the engine the same way, so that says so too.
+let stopped=null;
+function engineStopped(reason,kind='failure'){
+  if(stopped==='failure'||stopped===kind||!$('game')||$('game').hidden)return;
+  stopped=kind;
+  if(kind==='failure')console.error('Engine stopped:',reason);
+  $('boot').hidden=true;$('stopped').hidden=false;
+  $('stopped-text').textContent=kind==='quit'?'You have left Heroes III. Your saved games are safe.':'The game stopped unexpectedly. Your saved games are safe.';
+  $('stopped-reload').textContent=kind==='quit'?'Play again':'Reload the game';
+  cloud?.stop();void cloud?.sync();
+}
+function watchEngineErrors(){
+  addEventListener('error',event=>{if(module&&isEngineFailure(event.message??event.error))engineStopped(event.message);});
+  addEventListener('unhandledrejection',event=>{if(module&&isEngineFailure(event.reason?.message??event.reason))engineStopped(String(event.reason));});
+}
 async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle}={}){
   if(!isolated||!manifest||!engine||launching||module)throw Error('The game is not ready to start.');
   launching=true;refresh();$('setup').hidden=true;$('game').hidden=false;
@@ -122,8 +158,8 @@ async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckp
   const boot=bootProgress();
   try{
     module=await launch({canvas:$('canvas'),localSeat,saveName,phase,onTurnPass,onSeats,onCheckpoint,onBattle,
-      onMessage:message=>{console.log(message);boot.line(message);},
-      onStatus:()=>{}});
+      onMessage:message=>{console.log(message);boot.line(message);if(isEngineFailure(message))engineStopped(message);else if(isEngineExit(message))engineStopped(message,'quit');},
+      onStatus:message=>{if(isEngineFailure(message))engineStopped(message);}});
     // Safety net: if the last log line never comes, still clear the bar once the menu has had time.
     setTimeout(()=>boot.finish(),300000);
     $('friends-mode').hidden=localSeat!==undefined;
@@ -131,7 +167,7 @@ async function startEngine({localSeat,saveName,phase,onTurnPass,onSeats,onCheckp
   }catch(error){boot.fail();$('friends-mode').hidden=true;$('setup').hidden=false;$('game').hidden=true;console.error(error);throw error;}
   finally{launching=false;refresh();}
 }
-const soloStart=()=>{$('launch').hidden=true;return startEngine().catch(error=>{status(`Could not start the game: ${error.message}`);$('launch').hidden=!manifest;});};
+const soloStart=async()=>{$('launch').hidden=true;await syncBeforeStart();return startEngine().then(()=>cloud?.watch()).catch(error=>{status(`Could not start the game: ${error.message}`);$('launch').hidden=!manifest;});};
 const invited=()=>Boolean(new URLSearchParams(location.hash.slice(1)).get('invite'));
 const onlineMode=()=>invited()||new URLSearchParams(location.search).has('online');
 // ?manual (tests): don't start by itself.
@@ -160,6 +196,10 @@ async function init(){
   $('refresh-saves').addEventListener('click',()=>refreshSaves().catch(error=>$('save-status').textContent=error.message));
   $('private-store').addEventListener('click',async()=>{if(await getFiles()&&autoStart())await soloStart();});
   $('launch').addEventListener('click',soloStart);
+  // On touch screens the friends button joins the control bar instead of covering the map.
+  if(matchMedia('(pointer: coarse)').matches)$('touch-bar').append($('friends-mode'));
+  $('stopped-reload').addEventListener('click',()=>location.reload());
+  watchEngineErrors();
   // Hidden: local test harnesses load the owner's copy from disk through it. Not shown to players.
   $('files-input').addEventListener('change',e=>runImport(o=>importFromFiles(e.target.files,o)));
   manifest=await readManifest().catch(e=>{status(e.message);return null;});
@@ -171,6 +211,10 @@ async function init(){
     canvas:$('canvas'),stage:$('canvas-wrap'),setup:$('setup'),game:$('game'),getModule:()=>module,
     ready:()=>Boolean(isolated&&manifest&&engine&&!module&&!launching),start:startEngine});
   $('solo-mode').hidden=!onlineMode();
+  if(!onlineMode()){
+    cloud=mountCloud();
+    document.addEventListener('visibilitychange',()=>{if(document.hidden&&module)void cloud?.sync();});
+  }
   if(!isolated||!engine)return;
   if(!manifest&&!await getFiles())return;
   // Solo play starts by itself, like the other games. An invite link waits for the lobby instead.

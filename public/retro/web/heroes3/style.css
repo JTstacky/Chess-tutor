@@ -46,6 +46,7 @@ a { color: #ffe29d; }
 
 /* Leave a visible 4:3 game frame even before the engine paints it. */
 #game { position: relative; min-height: 60vh; display: flex; gap: 8px; }
+#online-turn:empty { display: none; }
 #online-turn { position: absolute; z-index: 3; top: 8px; left: 8px; max-width: min(360px, calc(100% - 24px)); padding: 4px 8px; border-radius: 6px; background: #111827e8; font-size: .85rem; }
 #online-turn p { margin: 0 0 4px; }
 #friends-mode { position: absolute; z-index: 4; top: 8px; left: 8px; min-height: 40px; padding: 5px 9px; font-size: .85rem; background: #111827e8; }
@@ -53,6 +54,7 @@ a { color: #ffe29d; }
 #remote-battle-controls button { min-width: 100px; min-height: 48px; }
 #remote-battle-controls button[aria-pressed=true] { background: #408c70; }
 #canvas-wrap { flex: 1; min-width: 0; display: grid; place-items: center; position: relative; background: #080d17; }
+#loading-status:empty { display: none; }
 #loading-status { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); margin: 0; padding: 5px 9px; background: #111827e8; color: #f4f1e8; border-radius: 5px; pointer-events: none; }
 /* SDL sets inline canvas sizes; the layout must keep the displayed frame fitted. */
 canvas { display: block; width: min(100%, calc((100vh - 90px) * 4 / 3)) !important; max-width: 100% !important; height: auto !important; max-height: calc(100vh - 90px); aspect-ratio: 4 / 3; object-fit: contain; touch-action: none; background: #192335; border: 2px solid #657992; box-shadow: 0 0 0 2px #060b14; }
@@ -68,7 +70,11 @@ main:has(#game:not([hidden])) footer { display: none; }
 @media (pointer: fine) {
   #touch-bar { display: none; }
   #touch-bar.shown { display: flex; }
-  #controls-toggle { display: block; position: absolute; top: 8px; right: 8px; z-index: 2; min-height: 40px; }
+  #controls-toggle { display: block; position: absolute; top: 4px; right: 8px; z-index: 2; min-height: 40px; }
+  /* A strip above the game holds the page buttons, so they never cover the map or minimap. */
+  #game { padding-top: 48px; }
+  #friends-mode { top: 4px; }
+  canvas { width: min(100%, calc((100vh - 96px) * 4 / 3)) !important; max-height: calc(100vh - 96px); }
 }
 @media (max-width: 700px) {
   main { padding: 0; }
@@ -84,7 +90,7 @@ main:has(#game:not([hidden])) footer { display: none; }
   #game { height: 100dvh; min-height: 0; }
   #canvas-wrap { height: 100%; }
   canvas { width: min(100%, calc(100dvh * 4 / 3)) !important; max-height: 100%; height: auto !important; }
-  #touch-bar { flex: 0 0 204px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(48px, 1fr); align-content: stretch; gap: 4px; padding: 4px; }
+  #touch-bar { flex: 0 0 264px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(48px, 1fr); align-content: stretch; gap: 4px; padding: 4px; }
   #touch-bar button { min-width: 0; min-height: 48px; }
 }
 @media (max-width: 700px) and (orientation: portrait) {
@@ -106,3 +112,11 @@ main:has(#game:not([hidden])) footer { display: none; }
 #boot[hidden] { display: none; }
 #boot p { margin: 0; font-size: 1.1rem; }
 #boot progress { width: min(420px, 80vw); height: 14px; }
+#cloud-status { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); top: 8px; max-width: min(420px, calc(100% - 24px)); margin: 0; padding: 5px 9px; background: #111827e8; color: #f4f1e8; border-radius: 5px; pointer-events: none; font-size: .9rem; }
+#cloud-status[hidden] { display: none; }
+#touch-bar #friends-mode { position: static; min-height: 48px; font-size: .85rem; }
+#stopped { position: absolute; inset: 0; z-index: 6; display: grid; place-content: center; gap: 4px; padding: 16px; text-align: center; background: #080d17f0; color: #f4f1e8; }
+#stopped[hidden] { display: none; }
+#stopped p { margin: 0 0 10px; font-size: 1.1rem; }
+#stopped .button { text-decoration: none; }
+#text-sink { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; font-size: 16px; pointer-events: none; }
