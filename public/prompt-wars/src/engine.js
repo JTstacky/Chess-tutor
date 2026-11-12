@@ -5,7 +5,7 @@ const cap = (v,a,b) => Math.max(a,Math.min(b,v));
 const specs = {
   bolt:{damage:4, energy:7, heat:11, cooldown:.52, range:340},
   scatter:{damage:8.5, energy:10, heat:14, cooldown:.62, range:205},
-  beam:{damage:1.7, energy:6, heat:9, cooldown:.24, range:270}
+  beam:{damage:1.95, energy:5.5, heat:9, cooldown:.24, range:290}
 };
 function robot(id, intent) {return {id,x:id?710:190,y:240,hp:100,energy:100,heat:0,weapon:'bolt',utility:'shield',chassis:'balanced',creationCooldown:0,pendingCreation:intent?.creation??'none',cooldown:0,retrofit:0,shield:0,legs:100,gun:100,intent,policy:FALLBACK,shots:0,mods:0};}
 export function createMatch(intents, seed=1) {
@@ -26,7 +26,7 @@ export function step(m) {
     b.creationCooldown=Math.max(0,b.creationCooldown-DT);
     const kind=b.pendingCreation;b.pendingCreation='none';
     if(kind==='none')continue;
-    if(b.creationCooldown===0&&b.energy>=30&&m.fields.filter(f=>f.owner===b.id).length<2){const other=m.bots[1-b.id];b.energy-=30;b.heat=cap(b.heat+10,0,100);b.creationCooldown=8;m.fields.push({kind,owner:b.id,x:cap((b.x+other.x)/2,90,WIDTH-90),y:cap((b.y+other.y)/2+(b.id?35:-35),90,HEIGHT-90),radius:kind==='wall'?55:85,life:12});log(m,`Bot ${b.id+1} created ${kind} — affects both sides`);}
+    if(b.creationCooldown===0&&b.energy>=30&&m.fields.filter(f=>f.owner===b.id).length<2){const other=m.bots[1-b.id];b.energy-=30;b.heat=cap(b.heat+10,0,100);b.creationCooldown=8;m.fields.push({kind,owner:b.id,x:cap(kind==='repair'?b.x:(b.x+other.x)/2,90,WIDTH-90),y:cap(kind==='repair'?b.y:(b.y+other.y)/2+(b.id?35:-35),90,HEIGHT-90),radius:kind==='wall'?55:85,life:12});log(m,`Bot ${b.id+1} created ${kind} — affects both sides`);}
     else log(m,`Bot ${b.id+1} creation needs 30 energy, a free field slot and cooldown`);
   }
   for (const b of m.bots) {
@@ -42,7 +42,7 @@ export function step(m) {
     }
     const other=m.bots[1-b.id];
     let terrainSpeed=1;
-    for(const f of m.fields)if(Math.hypot(b.x-f.x,b.y-f.y)<f.radius){if(f.kind==='ice')terrainSpeed=.45;if(f.kind==='fire'){b.hp=cap(b.hp-5*DT,0,100);b.heat=cap(b.heat+12*DT,0,100);}if(f.kind==='repair')b.hp=cap(b.hp+3*DT,0,100);}
+    for(const f of m.fields)if(Math.hypot(b.x-f.x,b.y-f.y)<f.radius){if(f.kind==='ice')terrainSpeed=.45;if(f.kind==='fire'){b.hp=cap(b.hp-5*DT,0,100);b.heat=cap(b.heat+12*DT,0,100);}if(f.kind==='repair')b.hp=cap(b.hp+4.5*DT,0,100);}
     const dx=old[1-b.id].x-old[b.id].x, dy=old[1-b.id].y-old[b.id].y;
     const dist=Math.max(1,Math.hypot(dx,dy));
     const speed=(b.utility==='booster'?160:135)*(b.legs<50?.72:1)*(b.chassis==='light'?1.2:b.chassis==='heavy'?.8:1)*terrainSpeed;

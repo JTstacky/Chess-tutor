@@ -58,7 +58,7 @@ export function validatePolicy(p) {
 
 export const FALLBACK = Object.freeze({move:0, strafe:0, fire:false, weapon:'bolt', utility:'shield', aim:'center'});
 
-export function plan(intent, self, enemy) {
+export function plan(intent, self, enemy, fields=[]) {
   const dx = enemy.x-self.x, dy = enemy.y-self.y;
   const distance = Math.hypot(dx,dy);
   const enemyRush = enemy.weapon === 'scatter';
@@ -69,8 +69,15 @@ export function plan(intent, self, enemy) {
   // Counterplay is advisory and symmetrical: each side receives the same public state.
   if (!intent.preferredWeapon && enemy.utility === 'cooler' && distance < 140) weapon = 'scatter';
   const desired = 65 + intent.distance*190 + (weapon === 'scatter' ? -35 : weapon === 'beam' ? 0 : 30);
-  const move = distance > desired+18 ? 1 : distance < desired-18 ? -1 : 0;
-  const strafe = intent.mobility > .45 ? (self.id === 0 ? 1 : -1) : 0;
-  const fire = self.heat < (72 + intent.cooling*20) && self.energy > 7 && distance < (weapon === 'scatter' ? 200 : weapon === 'beam' ? 265 : 330);
+  let move = distance > desired+18 ? 1 : distance < desired-18 ? -1 : 0;
+  let strafe = intent.mobility > .45 ? (self.id === 0 ? 1 : -1) : 0;
+  const danger=fields.find(f=>f.kind==='fire'&&Math.hypot(self.x-f.x,self.y-f.y)<f.radius+18);
+  const garden=fields.find(f=>f.kind==='repair'&&f.owner===self.id);
+  const goal=danger?{x:self.x+(self.x-danger.x||1),y:self.y+(self.y-danger.y||1)}:garden&&self.hp<95?garden:null;
+  if(goal){const gx=goal.x-self.x,gy=goal.y-self.y,len=Math.hypot(gx,gy)||1;
+    if(!danger&&len<garden.radius*.6){move=0;strafe=0;}
+    else {const ex=dx/(distance||1),ey=dy/(distance||1);move=clamp((gx*ex+gy*ey)/len,-1,1);strafe=clamp((-gx*ey+gy*ex)/len/(self.id===0?.72:-.72),-1,1);}
+  }
+  const fire = self.heat < (72 + intent.cooling*20) && self.energy > 7 && distance < (weapon === 'scatter' ? 200 : weapon === 'beam' ? 285 : 330);
   return validatePolicy({move, strafe, fire, weapon, utility, aim:intent.aim}) ?? FALLBACK;
 }

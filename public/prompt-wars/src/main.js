@@ -27,7 +27,7 @@ async function submitPrompt(){
  if(!prompt){$('privateResult').textContent='Invent something before sealing your prompt.';return;}
  if(opening&&gameTokens(prompt)>MODES[$('budgetMode').value].opening){$('privateResult').textContent='Shorten the opening prompt to the displayed limit.';return;}
  if(new TextEncoder().encode(prompt).length>3600){$('privateResult').textContent='Prompt is too large.';return;}
- lobby.busy[i]=true;lobbyUI();$('sendPrompt').disabled=true;$('privateResult').textContent='Building your invention. The opening fight waits for both players.';
+ lobby.busy[i]=true;lobbyUI();$('sendPrompt').disabled=true;$('privateResult').textContent=opening?'Building your invention. The opening fight waits for both players.':'Building your retrofit while combat continues.';
  const fallback=interpretPrompt(prompt);let intent=fallback.intent,source='Rule fallback',message=fallback.feedback.join(' ');
  try{if(!remoteMatchId)await connect();if(current!==epoch)return;
   if(aiOnline&&remoteMatchId){const a=await post('api/intent',{matchId:remoteMatchId,player:i,prompt},16000);if(current!==epoch)return;if(Number.isInteger(a.remaining)){remaining[i]=a.remaining;showBudget();}const legal=a.intent?validateIntent({...a.intent,preferredWeapon:a.intent.preferredWeapon??'auto',preferredUtility:a.intent.preferredUtility??'auto'}):null;if(a.source==='ai'&&legal){intent=legal;source='AI';message=(intent.explanation??'Legal invention built.')+' Spent '+a.used+' game tokens.';}else message=(a.reason??'AI unavailable')+'. Rule interpretation used. '+message;}
@@ -53,7 +53,7 @@ function requestPolicies(now){
   if(!worker||pending||now-lastPlan<220)return;
   lastPlan=now;const id=++request;
   pending={id,at:now};
-  worker.postMessage({id,intents,bots:match.bots.map(publicBot)});
+  worker.postMessage({id,intents,bots:match.bots.map(publicBot),fields:match.fields});
 }
 function frame(now){const delta=Math.min((now-last)/1000,.1);last=now;if(match.phase==='running'){requestPolicies(now);accumulator+=delta;while(accumulator>=DT&&match.phase==='running'){step(match);accumulator-=DT;}if(match.phase==='finished'){$('pause').disabled=true;$('status').textContent=match.winner===null?'Draw!':`Bot ${match.winner+1} wins!`;}}render();requestAnimationFrame(frame);}
 function robot(b){
