@@ -26,7 +26,7 @@ export function step(m) {
     b.creationCooldown=Math.max(0,b.creationCooldown-DT);
     const kind=b.pendingCreation;b.pendingCreation='none';
     if(kind==='none')continue;
-    if(b.creationCooldown===0&&b.energy>=30&&m.fields.filter(f=>f.owner===b.id).length<2){const other=m.bots[1-b.id];b.energy-=30;b.heat=cap(b.heat+10,0,100);b.creationCooldown=8;m.fields.push({kind,owner:b.id,x:cap(kind==='repair'?b.x:(b.x+other.x)/2,90,WIDTH-90),y:cap(kind==='repair'?b.y:(b.y+other.y)/2+(b.id?35:-35),90,HEIGHT-90),radius:kind==='wall'?55:85,life:12});log(m,`Bot ${b.id+1} created ${kind} — affects both sides`);}
+    if(b.creationCooldown===0&&b.energy>=30&&m.fields.filter(f=>f.owner===b.id&&f.kind===kind).length<2){m.fields=m.fields.filter(f=>f.owner!==b.id||f.kind===kind);const other=m.bots[1-b.id];b.energy-=30;b.heat=cap(b.heat+10,0,100);b.creationCooldown=8;m.fields.push({kind,owner:b.id,x:cap(kind==='repair'?b.x:(b.x+other.x)/2,90,WIDTH-90),y:cap(kind==='repair'?b.y:(b.y+other.y)/2+(b.id?35:-35),90,HEIGHT-90),radius:kind==='wall'?55:85,life:12});log(m,`Bot ${b.id+1} created ${kind} — affects both sides`);}
     else log(m,`Bot ${b.id+1} creation needs 30 energy, a free field slot and cooldown`);
   }
   for (const b of m.bots) {
