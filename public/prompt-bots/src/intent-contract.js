@@ -1,5 +1,4 @@
 export const MODES=Object.freeze({blitz:{tokens:500,opening:150},standard:{tokens:1000,opening:300},epic:{tokens:2000,opening:600}});
-export const ART_TOKEN_COST=150;
 export const MAX_PROMPT_CHARS=1200;
 export const MAX_OUTPUT_TOKENS=180;
 export const WEAPONS=Object.freeze(['bolt','scatter','beam']);

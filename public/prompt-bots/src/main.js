@@ -2,12 +2,16 @@ import {interpretPrompt, FALLBACK} from './policy.js';
 import {createMatch, step, setPolicy, setIntent, publicBot, DT, WIDTH, HEIGHT} from './engine.js';
 import {expired} from './timeout.js';
 import {MODES,gameTokens} from './intent-contract.js';
+import {TACTIC_ART} from './tactic-art.js';
 const $=id=>document.getElementById(id);
 const canvas=$('arena'),ctx=canvas.getContext('2d');
 const API_BASE=typeof window.PROMPT_BOTS_API_BASE==='string'?window.PROMPT_BOTS_API_BASE.replace(/\/$/,''):'';
 let intents=[null,null], match, worker, request=0, pending=null, accumulator=0, last=0, lastPlan=0;
 let remoteMatchId=null, remaining=[1000,1000], epoch=0, promptSeq=[0,0];
-const attackArt={};
+const tacticArt={};
+for(const [kind,path] of Object.entries(TACTIC_ART)){
+  const art=new Image();art.src=`./${path}`;tacticArt[kind]=art;
+}
 const colors=['#ed776a','#7fbeeb'];
 function showBudget(){for(let i=0;i<2;i++)$(`budget${i}`).textContent=`${remaining[i].toLocaleString()} game tokens`;}
 function showIntent(i,v,source,feedback=''){
@@ -15,7 +19,7 @@ function showIntent(i,v,source,feedback=''){
   $(`interpret${i}`).textContent=`${source}: `+words.join(' · ');
   $(`feedback${i}`).textContent=feedback;
 }
-async function post(path,data,timeoutMs=6500){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeoutMs);try{const response=await fetch(API_BASE+'/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:controller.signal});const body=await response.json();if(!response.ok)throw Error(body.error??'Server unavailable');return body;}finally{clearTimeout(timer);}}
+async function post(path,data,timeoutMs=6500){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeoutMs);try{const headers={'Content-Type':'application/json'};const token=localStorage.getItem('evonline.session');if(token)headers.Authorization=`Bearer ${token}`;const response=await fetch(API_BASE+'/'+path,{method:'POST',headers,body:JSON.stringify(data),signal:controller.signal});const body=await response.json();if(!response.ok)throw Error(body.error??'Server unavailable');return body;}finally{clearTimeout(timer);}}
 function updatePrompt(i,send=true) {
   const result=interpretPrompt($(`prompt${i}`).value);
   intents[i]=result.intent;
@@ -25,7 +29,7 @@ function updatePrompt(i,send=true) {
   if(!send||!remoteMatchId||match.phase!=='running'||($('mode').value==='solo'&&i===1))return;
   const id=remoteMatchId,serial=++promptSeq[i],current=epoch;
   $(`feedback${i}`).textContent='Checking AI tactics…';
-  post('api/intent',{matchId:id,player:i,prompt:$(`prompt${i}`).value}).then(answer=>{
+  post('api/intent',{matchId:id,player:i,prompt:$(`prompt${i}`).value},14000).then(answer=>{
     if(current!==epoch||serial!==promptSeq[i])return;
     if(Number.isInteger(answer.remaining)){remaining[i]=answer.remaining;showBudget();}
     if(answer.source==='ai'&&answer.intent){intents[i]=answer.intent;setIntent(match,i,answer.intent);showIntent(i,answer.intent,'AI',`Spent ${answer.used} game tokens. Rules and module limits still apply.`);}
@@ -63,6 +67,7 @@ function robot(b){
   if(b.utility==='shield'){ctx.strokeStyle='#b9f4d6';ctx.globalAlpha=b.shield?1:.38;ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,31,-1.2,1.2);ctx.stroke();}
   if(b.utility==='booster'){ctx.fillStyle='#ffc279';ctx.fillRect(-32,-8,9,5);ctx.fillRect(-32,3,9,5);}
   if(b.utility==='cooler'){ctx.strokeStyle='#8fe5d7';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-18+i*7,-14);ctx.lineTo(-18+i*7,-23);ctx.stroke();}}
+  if(tacticArt[b.utility]?.complete)ctx.drawImage(tacticArt[b.utility],-34,-38,25,25);
   ctx.restore();
   ctx.fillStyle='#0d1a1b';ctx.fillRect(b.x-24,b.y-39,48,5);ctx.fillStyle=c;ctx.fillRect(b.x-24,b.y-39,48*b.hp/100,5);
 }
@@ -70,7 +75,7 @@ function render(){
   ctx.clearRect(0,0,WIDTH,HEIGHT);ctx.fillStyle='#102328';ctx.fillRect(0,0,WIDTH,HEIGHT);
   ctx.strokeStyle='#234249';ctx.lineWidth=1;for(let x=0;x<WIDTH;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,HEIGHT);ctx.stroke();}for(let y=0;y<HEIGHT;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WIDTH,y);ctx.stroke();}
   ctx.strokeStyle='#467277';ctx.lineWidth=3;ctx.strokeRect(12,12,WIDTH-24,HEIGHT-24);ctx.setLineDash([10,12]);ctx.strokeStyle='#31555a';ctx.beginPath();ctx.moveTo(WIDTH/2,16);ctx.lineTo(WIDTH/2,HEIGHT-16);ctx.stroke();ctx.setLineDash([]);
-  for(const e of match.effects){ctx.strokeStyle=e.hit?(e.kind==='beam'?'#bfffe8':'#ffe0a1'):'#7a8e92';ctx.lineWidth=e.kind==='beam'?6:3;ctx.globalAlpha=Math.max(.2,e.life/.17);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.stroke();if(e.hit&&attackArt[e.kind]?.complete){ctx.save();ctx.translate((e.x1+e.x2)/2,(e.y1+e.y2)/2);ctx.rotate(Math.atan2(e.y2-e.y1,e.x2-e.x1));ctx.drawImage(attackArt[e.kind],-34,-16,68,32);ctx.restore();}ctx.globalAlpha=1;}
+  for(const e of match.effects){ctx.strokeStyle=e.hit?(e.kind==='beam'?'#bfffe8':'#ffe0a1'):'#7a8e92';ctx.lineWidth=e.kind==='beam'?6:3;ctx.globalAlpha=Math.max(.2,e.life/.17);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.stroke();if(tacticArt[e.kind]?.complete){ctx.save();ctx.translate(e.x1+(e.x2-e.x1)*.65,e.y1+(e.y2-e.y1)*.65);ctx.rotate(Math.atan2(e.y2-e.y1,e.x2-e.x1)+(e.kind==='beam'?Math.PI/4:0));ctx.drawImage(tacticArt[e.kind],-34,-34,68,68);ctx.restore();}ctx.globalAlpha=1;}
   match.bots.forEach(robot);
   if(match.phase==='ready'||match.phase==='paused'||match.phase==='finished'){ctx.fillStyle='#071518b9';ctx.fillRect(270,194,360,92);ctx.fillStyle='#f7dfac';ctx.textAlign='center';ctx.font='bold 29px Segoe UI';ctx.fillText(match.phase==='ready'?'READY TO DEPLOY':match.phase==='paused'?'MATCH PAUSED':match.winner===null?'DRAW':`BOT ${match.winner+1} WINS`,450,249);}
   $('timer').textContent=new Date(Math.max(0,120-match.tick*DT)*1000).toISOString().slice(14,19);
@@ -78,7 +83,7 @@ function render(){
   const eventText=match.events[0]??'Awaiting deployment.';if($('events').textContent!==eventText)$('events').textContent=eventText;
 }
 $('start').onclick=start;$('pause').onclick=pause;$('reset').onclick=reset;
-for(let i=0;i<2;i++){$(`apply${i}`).onclick=()=>updatePrompt(i);$(`prompt${i}`).oninput=()=>{$(`count${i}`).textContent=gameTokens($(`prompt${i}`).value)+' prompt tokens';};$(`art${i}`).onclick=async()=>{if(!remoteMatchId){$(`feedback${i}`).textContent='Start a connected match to request attack art.';return;}const current=epoch,weapon=match.bots[i].weapon;try{const result=await post('api/art',{matchId:remoteMatchId,player:i,weapon},35000);if(current!==epoch)return;if(Number.isInteger(result.remaining)){remaining[i]=result.remaining;showBudget();}if(result.url){const img=new Image();img.src=API_BASE+'/'+result.url;attackArt[weapon]=img;$(`feedback${i}`).textContent=result.source==='cache'?`${weapon} art reused free.`:`${weapon} art generated for 150 game tokens.`;}else $(`feedback${i}`).textContent=result.reason??'Art unavailable.';}catch(error){if(current===epoch)$(`feedback${i}`).textContent=error.message;}};}
-$('mode').onchange=()=>{const solo=$('mode').value==='solo';$('prompt1').disabled=solo;$('apply1').disabled=solo;$('art1').disabled=solo;$('player2').textContent=solo?'SPARRING BOT':'PLAYER TWO';if(solo)$('prompt1').value='Adapt to the opponent, dodge, cool and defend.';else $('prompt1').value='Keep distance, dodge, use a beam and cooler. Target the weapon.';reset();};
+for(let i=0;i<2;i++){$(`apply${i}`).onclick=()=>updatePrompt(i);$(`prompt${i}`).oninput=()=>{$(`count${i}`).textContent=gameTokens($(`prompt${i}`).value)+' prompt tokens';};}
+$('mode').onchange=()=>{const solo=$('mode').value==='solo';$('prompt1').disabled=solo;$('apply1').disabled=solo;$('player2').textContent=solo?'SPARRING BOT':'PLAYER TWO';if(solo)$('prompt1').value='Adapt to the opponent, dodge, cool and defend.';else $('prompt1').value='Keep distance, dodge, use a beam and cooler. Target the weapon.';reset();};
 $('budgetMode').onchange=reset;
 reset();requestAnimationFrame(frame);

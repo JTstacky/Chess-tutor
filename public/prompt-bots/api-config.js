@@ -1,1 +1,1 @@
-window.PROMPT_BOTS_API_BASE="https://tenggames-prompt-bots.justintengyz.workers.dev";
+window.PROMPT_BOTS_API_BASE="https://prompt-bots-relay.tenggames.com.au";
