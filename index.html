@@ -60,11 +60,11 @@
           <p>Pick a bot and a pilot, then knock your friends off a floating island!</p>
           <span class="play-btn">Play ▶</span>
         </a>
-        <a class="game-card prompt-bots" href="/prompt-bots/" hidden>
+        <a class="game-card prompt-wars" href="/prompt-wars/" hidden>
           <div class="art"><span class="prompt-mark" aria-hidden="true">PB</span></div>
           <span class="badge">New</span>
-          <h2>Prompt Bots</h2>
-          <p>Command little robots with prompts, save tokens for clever mid-match changes, and battle a friend or sparring bot.</p>
+          <h2>Prompt Wars</h2>
+          <p>Invent creative robots and reshape the arena. Seal private prompts, then battle a friend or sparring bot.</p>
           <span class="play-btn">Play ▶</span>
         </a>
         <a class="game-card zeliard" href="/zeliard/">
@@ -113,10 +113,10 @@
       import { account, mountAccountChip, requireProfile } from '/src/site/auth.js';
       // Sign in and pick a profile first (the server-side gate is the real lock: Teng Games Accounts/docs/PROFILES.md).
       if (requireProfile()) mountAccountChip(document.querySelector('.site-header'));
-      // A menu filter only. The private game must be served by an owner-checking backend.
+      // A menu filter only. Public assets are allowed; the private AI relay checks the owner server-side.
       account.req('GET', '/api/me').then(me => {
         if (me.stage === 'profile' && me.kind === 'parent' && me.role === 'admin' && me.username?.toLowerCase() === 'jt') {
-          document.querySelector('.prompt-bots')?.removeAttribute('hidden');
+          document.querySelector('.prompt-wars')?.removeAttribute('hidden');
         }
       }).catch(() => {});
     </script>
