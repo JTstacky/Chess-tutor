@@ -73,6 +73,8 @@ a.game-card:hover { transform: translateY(-4px) rotate(-1deg); }
 .arcane .art { background: linear-gradient(135deg, #2a0c06, #d0561a); border-radius: 16px; width: 100%; }
 .party .art { background: linear-gradient(135deg, #2f5a2a, #d8a834); border-radius: 16px; width: 100%; }
 .bots .art { background: linear-gradient(135deg, #1d3f8f, #5fc8ff); border-radius: 16px; width: 100%; }
+.prompt-bots .art { background: linear-gradient(135deg, #12323a, #ea9976); border-radius: 16px; width: 100%; }
+.prompt-mark { display:inline-grid; place-items:center; width:84px; height:68px; border:4px solid #f6d597; border-radius:14px; color:#f6d597; background:#14282d; font:900 36px/1 Arial,sans-serif; letter-spacing:-.1em; box-shadow:0 5px 0 #0b1c20; }
 .zeliard .art { background: linear-gradient(135deg, #2a1d10, #c99a4a); border-radius: 16px; width: 100%; }
 .mars .art { background: linear-gradient(135deg, #3a1206, #e2703a); border-radius: 16px; width: 100%; }
 .ninja .art { background: linear-gradient(135deg, #151a46, #2fbf71); border-radius: 16px; width: 100%; }
