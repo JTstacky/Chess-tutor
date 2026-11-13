@@ -10,6 +10,8 @@
 
 export const GAME_ID = 'heroes3';
 export const MAX_UPLOAD = 15 * 1024 * 1024;    // server allows 16 MB per slot; keep headroom
+const MAX_DOWNLOAD_BYTES = 16 * 1024 * 1024;
+export const MAX_RAW_BYTES = 64 * 1024 * 1024; // bound browser memory after gzip expands
 const MAGIC = [0x52, 0x53, 0x56, 0x31];        // 'RSV1'
 const STATE_KEY = 'h3.cloudSaves';
 
@@ -49,6 +51,7 @@ export function unpack(bytes) {
   const count = view.getUint32(4, true);
   if (count > 10000) throw Error('The online save is damaged.');
   const decoder = new TextDecoder(), headers = [];
+  const seen = new Set();
   let p = 8;
   for (let i = 0; i < count; i++) {
     if (p + 2 > data.length) throw Error('The online save is damaged.');
@@ -57,6 +60,8 @@ export function unpack(bytes) {
     const path = decoder.decode(data.subarray(p, p + n)); p += n;
     const size = view.getUint32(p, true); p += 4;
     const mtime = view.getFloat64(p, true); p += 8;
+    if (seen.has(path) || !Number.isFinite(mtime)) throw Error('The online save is damaged.');
+    seen.add(path);
     headers.push({ path, size, mtime });
   }
   const files = [];
@@ -65,6 +70,7 @@ export function unpack(bytes) {
     if (isSyncedSave(h.path)) files.push({ path: h.path, bytes: data.slice(p, p + h.size), mtime: h.mtime });
     p += h.size;
   }
+  if (p !== data.length) throw Error('The online save is damaged.');
   return files;
 }
 
@@ -72,7 +78,29 @@ async function transform(bytes, stream) {
   return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
 }
 export const gzip = bytes => transform(bytes, new CompressionStream('gzip'));
-export const gunzip = bytes => transform(bytes, new DecompressionStream('gzip'));
+export async function gunzip(bytes, maxBytes = MAX_RAW_BYTES) {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > MAX_RAW_BYTES)
+    throw Error('Invalid online save size limit.');
+  const reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')).getReader();
+  const chunks = [];
+  let total = 0;
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      total += value.length;
+      if (total > maxBytes) throw Error('The online save is too large after decompression.');
+      chunks.push(value);
+    }
+  } catch (error) {
+    await reader.cancel().catch(() => {});
+    throw error;
+  }
+  const result = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { result.set(chunk, offset); offset += chunk.length; }
+  return result;
+}
 export async function sha256(bytes) {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(v => v.toString(16).padStart(2, '0')).join('');
 }
@@ -119,8 +147,16 @@ export function merge(local, remote, base = {}) {
 // Keeps the newest saves when the whole folder would not fit in one online slot.
 async function fitted(result) {
   const files = [...result.entries()].map(([path, f]) => ({ path, ...f })).sort((a, b) => b.mtime - a.mtime);
-  let raw = pack(files), body = await gzip(raw);
   const left = [];
+  const encoder = new TextEncoder();
+  const rawSize = f => 14 + encoder.encode(f.path).length + f.bytes.length;
+  let estimated = 8 + files.reduce((sum, file) => sum + rawSize(file), 0);
+  while (estimated > MAX_RAW_BYTES && files.length) {
+    const oldest = files.pop();
+    left.push(oldest.path);
+    estimated -= rawSize(oldest);
+  }
+  let raw = pack(files), body = await gzip(raw);
   while (body.length > MAX_UPLOAD && files.length) {
     left.push(files.pop().path);
     raw = pack(files); body = await gzip(raw);
@@ -152,13 +188,34 @@ export function cloudApi({ base, token, device = '', fetchImpl = globalThis.fetc
     try { return await fetchImpl(...args); }
     catch { const error = Error('Online saves could not be reached.'); error.offline = true; throw error; }
   };
+  const readBody = async response => {
+    if (!response.body) throw Error('The online save download is empty.');
+    const reader = response.body.getReader(), chunks = [];
+    let size = 0;
+    try {
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        size += value.length;
+        if (size > MAX_DOWNLOAD_BYTES) throw Error('The online save download is too large.');
+        chunks.push(value);
+      }
+    } catch (error) {
+      await reader.cancel().catch(() => {});
+      throw error;
+    }
+    const body = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.length; }
+    return body;
+  };
   return {
     async get() {
       const response = await send(url, { headers: auth, cache: 'no-store' });
       if (response.status === 404) return null;
       if (!response.ok) throw await failure(response, 'Online saves unavailable');
       return { rev: Number(response.headers.get('X-Rev')), sha256: response.headers.get('X-Sha256'),
-        body: new Uint8Array(await response.arrayBuffer()) };
+        body: await readBody(response) };
     },
     async put({ body, rev, sha256: hash, rawBytes, files }) {
       const response = await send(url, { method: 'PUT', body, headers: { ...auth,
@@ -196,6 +253,7 @@ export function createCloudSaves({ files, api, state, profile = '', onStatus = (
   async function readRemote() {
     const got = await api.get();
     if (!got) return { rev: 0, files: new Map() };
+    if (got.body.length > MAX_DOWNLOAD_BYTES) throw Error('The online save download is too large.');
     const raw = await gunzip(got.body);
     if (got.sha256 && await sha256(raw) !== got.sha256) throw Error('The online save did not arrive intact.');
     const map = new Map();

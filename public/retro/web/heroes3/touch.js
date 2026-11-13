@@ -95,6 +95,8 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
   let rightNext = false,
     timer,
     start,
+    activePointer = null,
+    multiTouch = false,
     longPressed = false,
     rightHeld = false,
     dragging = false,
@@ -168,6 +170,7 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
     );
   }
   let suppressUntil = 0;
+  const pointers = new Set();
   canvas.addEventListener("contextmenu", (e) => e.preventDefault());
   canvas.addEventListener(
     "pointerdown",
@@ -175,6 +178,21 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
       if (e.pointerType === "mouse" || !e.isTrusted) return;
       e.preventDefault();
       e.stopImmediatePropagation();
+      pointers.add(e.pointerId);
+      if (pointers.size > 1) {
+        // A second finger cancels the first gesture. Never turn its release into
+        // a tap on an unrelated battle target, and release any held SDL button.
+        multiTouch = true;
+        clearTimeout(timer);
+        if (rightHeld) rightUp(canvas, start.x, start.y);
+        else if (dragging) leftEvent(canvas, "mouseup", e.clientX, e.clientY);
+        rightHeld = dragging = false;
+        start = activePointer = null;
+        suppressUntil = performance.now() + 700;
+        return;
+      }
+      if (multiTouch) return;
+      activePointer = e.pointerId;
       start = { x: e.clientX, y: e.clientY };
       longPressed = false;
       dragging = false;
@@ -195,7 +213,7 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
   canvas.addEventListener(
     "pointermove",
     (e) => {
-      if (!start || e.pointerType === "mouse" || !e.isTrusted) return;
+      if (!start || multiTouch || e.pointerId !== activePointer || e.pointerType === "mouse" || !e.isTrusted) return;
       e.preventDefault();
       e.stopImmediatePropagation();
       if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) {
@@ -213,11 +231,17 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
     canvas.addEventListener(
       type,
       (e) => {
-        if (!start || e.pointerType === "mouse" || !e.isTrusted) return;
+        if (!pointers.has(e.pointerId) || e.pointerType === "mouse" || !e.isTrusted) return;
         e.preventDefault();
         e.stopImmediatePropagation();
+        pointers.delete(e.pointerId);
         clearTimeout(timer);
         suppressUntil = performance.now() + 700;
+        if (multiTouch) {
+          if (!pointers.size) multiTouch = false;
+          return;
+        }
+        if (!start || e.pointerId !== activePointer) return;
         if (rightHeld) {
           rightUp(canvas, start.x, start.y);
           rightHeld = false;
@@ -233,7 +257,7 @@ export function setupTouch(canvas, { getAudio = () => null } = {}) {
           leftEvent(canvas, "mouseup", e.clientX, e.clientY);
           leftEvent(canvas, "click", e.clientX, e.clientY);
         }
-        start = null;
+        start = activePointer = null;
       },
       true,
     );

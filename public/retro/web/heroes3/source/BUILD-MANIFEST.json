@@ -32,5 +32,10 @@
       "sha256": "dd95b6d6edcfcd0fae13a551a25ce2c888775e63e4b643cbf5ce36a9d37e620d"
     }
   },
-  "normalization": "Git normalizes the two CRLF line endings in generated vcmiclient.js to LF for publication. Wasm and data are byte-identical to the tested build. The archive manifest records the original build bytes."
+  "normalization": "Git normalizes the two CRLF line endings in generated vcmiclient.js to LF for publication. Wasm and data are byte-identical to the tested build. The archive manifest records the original build bytes.",
+  "web_revision": "124811b8400096c4cc8aa0dd0f7463f639b93793",
+  "source_archive": {
+    "bytes": 59755200,
+    "sha256": "b65aae7cf46435a4644b1f80e6e5b057a96ee9fb8d0440ef2440c60cfc2e25b1"
+  }
 }
