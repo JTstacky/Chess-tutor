@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs><linearGradient id="leaf" x2="1" y2="1"><stop stop-color="#dce4a0"/><stop offset="1" stop-color="#75ad77"/></linearGradient><linearGradient id="heart" x2=".4" y2="1"><stop stop-color="#eff0b6"/><stop offset="1" stop-color="#b6cf83"/></linearGradient></defs>
+  <ellipse cx="64" cy="114" rx="33" ry="7" fill="#294f45" opacity=".13"/>
+  <g stroke="#557458" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M44 91 79 99 47 106 78 113" fill="none" stroke="#ad8e5d" stroke-width="6"/>
+    <path d="M46 91 80 98 48 105 79 112" fill="none" stroke="#e2c690" stroke-width="2"/>
+    <path d="M26 86C6 73 10 43 26 35c6-22 31-26 40-15 19-17 44-3 43 17 24 13 12 48-10 54-18 16-55 13-73-5Z" fill="url(#leaf)"/>
+    <path d="M37 83C19 65 31 37 52 38c9-18 34-13 38 4 21 8 15 34 2 44-13 12-38 14-55-3Z" fill="url(#heart)"/>
+    <path d="M28 47q-8 23 17 33M95 40Q75 42 67 59m34 6q-8 12-19 15M41 29q14 4 21 17m-6 41 7-30" fill="none" stroke="#92b575" stroke-width="3"/>
+    <path d="M40 48q-5 7-3 14" fill="none" stroke="#f6f5ce" stroke-width="5"/>
+    <path d="m15 17 3 8m93-14-5 9M64 5v8" fill="none" stroke="#dcb264"/>
+  </g>
+  <ellipse cx="51" cy="64" rx="3.5" ry="4.5" fill="#3c654d"/><ellipse cx="76" cy="64" rx="3.5" ry="4.5" fill="#3c654d"/>
+  <path d="M57 74q7 8 14 0" fill="none" stroke="#65835b" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="40" cy="72" rx="6" ry="3" fill="#d7b28b" opacity=".65"/><ellipse cx="86" cy="72" rx="6" ry="3" fill="#d7b28b" opacity=".65"/>
+</svg>

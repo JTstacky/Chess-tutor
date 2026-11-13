@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs><linearGradient id="balloon" x2=".8" y2="1"><stop stop-color="#e6b5a8"/><stop offset=".6" stop-color="#ce8a8d"/><stop offset="1" stop-color="#a56a81"/></linearGradient><linearGradient id="leaf" x2=".8" y2="1"><stop stop-color="#d1dba1"/><stop offset="1" stop-color="#76a184"/></linearGradient></defs>
+  <ellipse cx="64" cy="116" rx="22" ry="5" fill="#294f45" opacity=".1"/>
+  <g stroke="#765465" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64 75c-44-17-43-66-4-68 42-3 54 43 4 68Z" fill="url(#balloon)"/>
+    <path d="M64 8c-18 17-17 42 0 67M64 8c20 16 21 41 0 67" fill="none" stroke="#e5b5a8" stroke-width="2"/>
+    <path d="M42 21q-10 10-7 20" fill="none" stroke="#f7d8c6" stroke-width="5"/>
+    <path d="m64 74-6 7h12Z" fill="#e6bf97"/>
+    <path d="M64 82c-10 10 12 11 2 21-7 7-3 11 4 13" fill="none" stroke="#6e9274" stroke-width="3"/>
+    <path d="M64 97c-21 3-23-10-22-15 16-1 21 6 22 15m4 10c18 3 24-10 21-17-16 0-20 8-21 17" fill="url(#leaf)" stroke="#668569" stroke-width="2"/>
+    <path d="m50 89 12 7m18 1-11 9" fill="none" stroke="#c7d7a5" stroke-width="2"/>
+  </g>
+  <ellipse cx="50" cy="42" rx="3.5" ry="5" fill="#675064"/><ellipse cx="76" cy="42" rx="3.5" ry="5" fill="#675064"/>
+  <path d="M57 54q7 7 14-1" fill="none" stroke="#8f6472" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="40" cy="51" rx="6" ry="3" fill="#f3c5b6"/><ellipse cx="85" cy="51" rx="6" ry="3" fill="#f3c5b6"/>
+  <path d="m105 68 2 5 6 2-6 2-2 5-2-5-5-2 5-2Z" fill="#dcb66e"/>
+</svg>
