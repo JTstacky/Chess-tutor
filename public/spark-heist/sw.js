@@ -1,4 +1,10 @@
-const CACHE="spark-1794566922658",FILES=["./","./index.html","./style.css","./config.js","./src/app.js","./src/bots.js","./src/catalog.js","./src/engine.js","./src/match.js","./src/render.js","./assets/balloon.svg","./assets/beetle.svg","./assets/cabbage.svg","./assets/cactus.svg","./assets/cloud.svg","./assets/crab.svg","./assets/fox.svg","./assets/hero.svg","./assets/kettle.svg","./assets/moth.svg","./assets/mushroom.svg","./assets/snail.svg","./assets/spark.svg","./assets/sprig.svg"];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)));self.skipWaiting();});
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('spark-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||!FILES.some(f=>new URL(f,self.registration.scope).href===u.href))return;e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));}return r;}).catch(()=>caches.match(e.request)));});
+// Spark Heist was taken down. This replaces its old offline worker: it deletes the cached
+// game, unregisters itself and reloads open Spark Heist tabs so they show the notice page.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', event => event.waitUntil((async () => {
+  const keys = await caches.keys();
+  await Promise.all(keys.filter(key => key.startsWith('spark-')).map(key => caches.delete(key)));
+  await self.registration.unregister();
+  const tabs = await self.clients.matchAll({type: 'window'});
+  for (const tab of tabs) tab.navigate(tab.url).catch(() => {});
+})()));
