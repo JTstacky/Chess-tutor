@@ -361,7 +361,12 @@ const World = {
     this.whiteInt = this.hexToInt("#ffffff");
   },
 
-  paintChunk(cx, cy) {
+  // paint a whole chunk now (an on-screen chunk that is missing)
+  paintChunk(cx, cy) { const g = this.paintChunkJob(cx, cy); let r; do r = g.next(); while (!r.done); return r.value; },
+
+  // the same paint as a job that yields every 8 rows, so the prefetch can spread a chunk over several frames
+  // (one whole chunk is a 30-140 ms stall on a phone, felt as a hitch every time a new chunk comes into range)
+  *paintChunkJob(cx, cy) {
     if (!this.palInts) this.buildPalInts();
     const CP = this.chunkPx(), tex = CONFIG.texel, n = CP / tex;       // 256 texels
     const step = 4, ln = n / step + 1;                                  // lattice
@@ -370,9 +375,12 @@ const World = {
     const lat = {};
     for (const k of keys) lat[k] = new Float32Array(ln * ln);
     const tmp = {};
-    for (let j = 0; j < ln; j++) for (let i = 0; i < ln; i++) {
-      this.smooth(x0 + i * step * tex, y0 + j * step * tex, tmp);
-      for (const k of keys) lat[k][j * ln + i] = tmp[k];
+    for (let j = 0; j < ln; j++) {
+      if (j && !(j & 15)) yield;
+      for (let i = 0; i < ln; i++) {
+        this.smooth(x0 + i * step * tex, y0 + j * step * tex, tmp);
+        for (const k of keys) lat[k][j * ln + i] = tmp[k];
+      }
     }
     const canvas = document.createElement("canvas");
     canvas.width = n; canvas.height = n;
@@ -390,6 +398,7 @@ const World = {
       if (lx > x0 - 230 && lx < x0 + CP + 230 && ly > y0 - 230 && ly < y0 + CP + 230) lair = { x: lx, y: ly, ri };
     }
     for (let ty = 0; ty < n; ty++) {
+      if (ty && !(ty & 7)) yield;
       const fy = ty / step, j = fy | 0, v = fy - j;
       for (let tx = 0; tx < n; tx++) {
         const fx = tx / step, i = fx | 0, u = fx - i;
@@ -461,6 +470,7 @@ const World = {
         buf[idx] = col;
       }
     }
+    yield;
     ctx.putImageData(img, 0, 0);
     // ground stamps: one candidate per 8x8 texel cell
     for (let cyy = 0; cyy < n; cyy += 8) for (let cxx = 0; cxx < n; cxx += 8) {
@@ -498,21 +508,15 @@ const World = {
       const key = cy * 64 + cx;
       let ch = this.chunks.get(key);
       if (!ch) {
-        if (budget > 0) { budget--; ch = { canvas: this.paintChunk(cx, cy), used: 0 }; this.chunks.set(key, ch); }
+        if (budget > 0) { budget--; ch = { canvas: this.finishOrPaint(key, cx, cy), used: 0 }; this.chunks.set(key, ch); }
         else { missing = true; ctx.fillStyle = "#2a3a4a"; ctx.fillRect(cx * CP, cy * CP, CP, CP); continue; }
       }
       ch.used = performance.now(); drawn++;
       // overlap by a sliver so fractional zooms never show seams between chunks
       ctx.drawImage(ch.canvas, cx * CP, cy * CP, CP + 1, CP + 1);
     }
-    // prefetch one ring beyond the view when idle
-    if (budget > 0 && !missing) {
-      outer: for (let cy = cy0 - 1; cy <= cy1 + 1; cy++) for (let cx = cx0 - 1; cx <= cx1 + 1; cx++) {
-        if (cx < 0 || cy < 0 || cx >= maxC || cy >= maxC) continue;
-        const key = cy * 64 + cx;
-        if (!this.chunks.has(key)) { this.chunks.set(key, { canvas: this.paintChunk(cx, cy), used: performance.now() }); break outer; }
-      }
-    }
+    // prefetch one ring beyond the view when idle, about 4 ms of painting per frame
+    if (budget > 0 && !missing) this.prefetch(cx0, cy0, cx1, cy1, maxC, 4);
     // Each chunk is a 256x256 canvas (256KB of backing store), so this cache is the biggest surface the
     // game holds. Keep it to a couple of screenfuls rather than a flat 140: the view can be 25 chunks or
     // 60 depending on zoom and monitor, and holding far more than that for no reason is what pushes a
@@ -523,6 +527,34 @@ const World = {
       for (const [k] of old) this.chunks.delete(k);   // least recently drawn first, so nothing on screen goes
     }
     return missing;
+  },
+
+  // an on-screen chunk is missing: finish the prefetch job if it is that chunk, else paint it whole
+  finishOrPaint(key, cx, cy) {
+    const job = this.chunkQueue[0];
+    if (!job || job.key !== key) return this.paintChunk(cx, cy);
+    let r; do r = job.g.next(); while (!r.done);
+    this.chunkQueue.length = 0;
+    return r.value;
+  },
+
+  // keep painting the next chunk round the view until `ms` is used; chunkQueue[0] holds the job in progress
+  prefetch(cx0, cy0, cx1, cy1, maxC, ms) {
+    const t0 = performance.now();
+    while (performance.now() - t0 < ms) {
+      let job = this.chunkQueue[0];
+      if (job && this.chunks.has(job.key)) { this.chunkQueue.length = 0; job = null; }
+      if (!job) {
+        outer: for (let cy = cy0 - 1; cy <= cy1 + 1; cy++) for (let cx = cx0 - 1; cx <= cx1 + 1; cx++) {
+          if (cx < 0 || cy < 0 || cx >= maxC || cy >= maxC) continue;
+          const key = cy * 64 + cx;
+          if (!this.chunks.has(key)) { job = { key, g: this.paintChunkJob(cx, cy) }; this.chunkQueue[0] = job; break outer; }
+        }
+        if (!job) return;
+      }
+      const r = job.g.next();
+      if (r.done) { this.chunks.set(job.key, { canvas: r.value, used: performance.now() }); this.chunkQueue.length = 0; }
+    }
   },
 
   // animated glints on liquid tiles (water ripples, lava pulses, void motes)
