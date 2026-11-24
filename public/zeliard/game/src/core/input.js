@@ -67,7 +67,7 @@ class Input {
       if (e.code === 'AltLeft' || e.code === 'AltRight') e.preventDefault(); // don't focus the browser menu
       this.keys.delete(e.code);
     });
-    window.addEventListener('blur', () => this.keys.clear());
+    window.addEventListener('blur', () => { this.keys.clear(); this.taps.clear(); this.tapConfirm = false; });
   }
 
   gamepads() {
@@ -76,7 +76,6 @@ class Input {
   }
 
   padFrame(pad) {
-    pad = window.TGController?.filterPad(pad) || pad;
     const f = emptyFrame();
     const b = (i) => pad.buttons[i] && pad.buttons[i].pressed;
     const ax = pad.axes[0] || 0;

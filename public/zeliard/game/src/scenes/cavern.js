@@ -18,15 +18,20 @@ export class CavernScene {
     this.opts = opts;
     this.world = null;
     this.ready = false;
+    this.exited = false;
     this.t = 0;
     this.cam = { x: 0, y: 0 };
     this.nameT = 0;
-    this.load().catch((e) => { console.error(e); this.error = String(e); });
+    this.load().catch((e) => { if (!this.exited) { console.error(e); this.error = String(e); } });
   }
+
+  loadWorld(g, o) { return o.sandbox ? loadSandbox(g) : loadCavern(g, o.mapId); }
 
   async load() {
     const g = this.game, o = this.opts;
-    this.world = o.sandbox ? await loadSandbox(g) : await loadCavern(g, o.mapId);
+    const world = await this.loadWorld(g, o);
+    if (this.exited) return; // A replacement scene must not touch the new scene's heroes or saves.
+    this.world = world;
     const w = this.world;
     let i = 0;
     for (const l of g.locals) {
@@ -65,13 +70,15 @@ export class CavernScene {
     audio.playMusic(this.world.data.music);
     if (w.data.boss) {
       const { spawnBoss } = await import('../game/bosses.js');
+      if (this.exited) return;
       await spawnBoss(g, w);
+      if (this.exited) return;
     }
     this.minimap = new Minimap(g, w);
     this.ready = true;
     this.nameT = 0;
   }
-  exit() { this.minimap?.store(); }
+  exit() { this.exited = true; this.minimap?.store(); }
 
   update(dt) {
     if (!this.ready) return;

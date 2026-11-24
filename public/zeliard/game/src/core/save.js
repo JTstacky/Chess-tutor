@@ -1,5 +1,7 @@
 // Save slots and settings in localStorage. Every access is guarded: private
 // windows and blocked storage must never stop the game from running.
+import { migrate, validCharacterSave } from '../game/character.js';
+
 const PREFIX = 'beliards.';
 
 function read(key, fallback) {
@@ -13,7 +15,16 @@ function write(key, value) {
 }
 
 export const SLOTS = 3;
-export function loadSlot(i) { return read(`save.${i}`, null); }
+export function normaliseSlot(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || typeof value.name !== 'string' || !value.name.trim()
+    || (value.v != null && value.v !== 1 && value.v !== 2)) return null;
+  const difficulty = value.difficulty ?? (value.v === 2 ? null : 'english');
+  if (!['english', 'japanese'].includes(difficulty)) return null;
+  const candidate = migrate({ ...value, difficulty });
+  return validCharacterSave(candidate) ? candidate : null;
+}
+export function loadSlot(i) { return normaliseSlot(read(`save.${i}`, null)); }
 export function saveSlot(i, data) { return write(`save.${i}`, { ...data, savedAt: Date.now() }); }
 export function deleteSlot(i) { try { localStorage.removeItem(`${PREFIX}save.${i}`); } catch { /* storage blocked */ } }
 export function listSlots() { return Array.from({ length: SLOTS }, (_, i) => loadSlot(i)); }
@@ -45,7 +56,7 @@ export function importSaves() {
         const data = JSON.parse(await f.text());
         if (!['zeliard', 'beliards'].includes(data.game) || !Array.isArray(data.slots)) throw new Error('That is not a Zeliard save file.');
         let n = 0;
-        data.slots.slice(0, SLOTS).forEach((s, i) => { if (s && typeof s === 'object' && s.name) { write(`save.${i}`, s); n++; } });
+        data.slots.slice(0, SLOTS).forEach((s, i) => { const valid = normaliseSlot(s); if (valid && write(`save.${i}`, valid)) n++; });
         resolve(n);
       } catch (e) { reject(e); }
     };

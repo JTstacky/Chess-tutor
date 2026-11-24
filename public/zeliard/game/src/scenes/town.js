@@ -48,13 +48,18 @@ export class TownScene {
     this.mapId = opts.mapId;
     this.t = 0;
     this.ready = false;
+    this.exited = false;
     this.cam = { x: 0 };
-    this.load().catch((e) => { console.error(e); this.error = String(e); });
+    this.load().catch((e) => { if (!this.exited) { console.error(e); this.error = String(e); } });
   }
+
+  loadMap() { return loadJSON(`data/world/towns/${this.mapId}.json`); }
 
   async load() {
     const g = this.game;
-    this.map = await loadJSON(`data/world/towns/${this.mapId}.json`);
+    const map = await this.loadMap();
+    if (this.exited) return;
+    this.map = map;
     const key = TOWNS[this.mapId]?.key;
     this.rules = g.data.rules.towns?.towns?.find((t) => t.id === key) || {};
     this.key = key;
@@ -80,7 +85,9 @@ export class TownScene {
     const bounds = this.map.patrolBounds;
     this.patrol = Array.isArray(bounds) && bounds.length >= 2 ? [bounds[0] * TILE, bounds[1] * TILE] : [2 * TILE, this.width - 2 * TILE];
     await preloadSheets([...new Set([...this.buildings.map((b) => b.sprite), `art.town.${key}.filler1`, `art.town.${key}.filler2`, ...this.npcs.map((n) => n.sprite), 'hero.walk', 'hero.idle'])]);
+    if (this.exited) return;
     this.bg = await image(`art/towns/town_${key}_bg.raw.png`);
+    if (this.exited) return;
     // Place the knights.
     let x = this.opts.x;
     if (x == null || x === 'destWidth-6') x = x === 'destWidth-6' ? this.map.width - 6 : this.map.sageRespawnX ?? 10;
@@ -113,6 +120,8 @@ export class TownScene {
   }
 
   clampCam(x) { return Math.max(0, Math.min(x, this.width - W)); }
+
+  exit() { this.exited = true; }
 
   // The line an NPC says now: the last entry whose condition holds.
   lineFor(r) {

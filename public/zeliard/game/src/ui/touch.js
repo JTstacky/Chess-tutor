@@ -57,7 +57,11 @@ export function setupTouch() {
     const bottom = Math.max(14, vh * 0.1);
     Object.assign(dpad.style, { left: `${m}px`, bottom: `${bottom}px`, width: `${D}px`, height: `${D}px` });
     Object.assign(cluster.style, { right: `${m}px`, bottom: `${bottom}px`, width: `${D}px`, height: `${D}px` });
-    const pw = Math.min(D, 110), top = Math.max(10, vh * 0.05);
+    const pw = Math.min(D, 110);
+    let top = Math.max(10, vh * 0.05);
+    // Pills that would land on the picture (a phone held sideways) covered the knight panel
+    // (y 10-84 of 540) and the area name: drop them just below that band.
+    if (top + 80 > r.top) top = Math.max(top, r.top + r.height * (90 / 540));
     const pills = host.querySelectorAll('.tc-pill');
     Object.assign(pills[0].style, { left: `${m + (D - pw) / 2}px`, top: `${top}px`, width: `${pw}px` });
     Object.assign(pills[1].style, { right: `${m + (D - pw) / 2}px`, top: `${top}px`, width: `${pw}px` });
@@ -133,6 +137,7 @@ export function setupTouch() {
     if (!t) return;
     e.preventDefault();
     if (t.dataset.role === 'fs') { left = false; return; } // the pointerup that follows asks for it
+    host.setPointerCapture(e.pointerId);
     const a = t.dataset.a;
     // While a text prompt is open the buttons answer it instead of playing.
     if (input.textCapture && a) {

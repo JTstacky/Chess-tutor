@@ -16,8 +16,8 @@ let pending = null; // the newer version.json, fetched and ready to apply
 let busy = false, told = false;
 
 const store = {
-  get(k, s = localStorage) { try { return JSON.parse(s.getItem(k)); } catch { return null; } },
-  set(k, v, s = localStorage) { try { s.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
+  get(k, session = false) { try { return JSON.parse((session ? sessionStorage : localStorage).getItem(k)); } catch { return null; } },
+  set(k, v, session = false) { try { (session ? sessionStorage : localStorage).setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
 const url = (rel) => new URL(`../${rel}`, document.baseURI).href;
 
@@ -27,7 +27,7 @@ async function check() {
   try { v = await (await fetch(new URL('version.json', document.baseURI), { cache: 'no-store' })).json(); } catch { return; }
   if (!v || !v.build || !v.files) return;
   if (v.build === window.ZELIARD_BUILD) { store.set(KEY, v.files); return; } // up to date: remember what this build is
-  if (store.get(ONCE, sessionStorage) === v.build) return; // already reloaded for it once (host still propagating)
+  if (store.get(ONCE, true) === v.build) return; // already reloaded for it once (host still propagating)
   pending = v;
 }
 
@@ -46,7 +46,7 @@ async function apply(game) {
   const worker = async () => { while (i < changed.length) { const f = changed[i++]; try { await fetch(url(f), { cache: 'reload' }); } catch { /* offline: the reload still tries */ } } };
   await Promise.all(Array.from({ length: 6 }, worker));
   store.set(KEY, v.files);
-  store.set(ONCE, v.build, sessionStorage);
+  store.set(ONCE, v.build, true);
   location.reload();
 }
 

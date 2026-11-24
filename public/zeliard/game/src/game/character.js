@@ -55,6 +55,26 @@ export function migrate(c) {
   return n;
 }
 
+// A save must have the nested collections that gameplay reads without guards.
+// Reject malformed v2 data rather than silently replacing earned progress.
+export function validCharacterSave(c) {
+  const record = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const nonnegative = v => Number.isFinite(v) && v >= 0;
+  const strings = v => Array.isArray(v) && v.every(x => typeof x === 'string');
+  if (!record(c) || c.v !== 2 || typeof c.name !== 'string' || !c.name.trim()
+    || !['english', 'japanese'].includes(c.difficulty)) return false;
+  if (!Number.isInteger(c.level) || c.level < 0 || c.level > 255) return false;
+  if (!['xp', 'hp', 'gold', 'almas', 'bank', 'shieldHp', 'keys', 'lionKeys',
+    'tears', 'sabreOil', 'playTime', 'deaths'].every(k => nonnegative(c[k]))) return false;
+  if (typeof c.sword !== 'string' || !c.sword || !['shield', 'spell', 'worn'].every(k => c[k] == null || typeof c[k] === 'string')
+    || typeof c.lastSage !== 'string') return false;
+  if (!['spellsLearned', 'items', 'accessories', 'crests', 'sagesMet'].every(k => strings(c[k]))) return false;
+  if (!['charges', 'maxCharges', 'bits'].every(k => record(c[k])
+    && Object.values(c[k]).every(v => Number.isInteger(v) && v >= 0 && v <= 255))) return false;
+  return record(c.location) && typeof c.location.map === 'string'
+    && (c.location.x == null || Number.isFinite(c.location.x));
+}
+
 // Developer testing knight (matched by name hash): hits land but leave 1 HP, the purse stays
 // full, cavern maps are fully drawn and the pause menu can jump to any map.
 export const TESTER_GOLD = 9999999;
