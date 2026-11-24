@@ -57,6 +57,8 @@
     const resize = () => {
       const w = Math.max(1, viewEl.clientWidth);
       const h = Math.max(1, viewEl.clientHeight);
+      // Browser zoom or a move to another screen changes devicePixelRatio; keep the canvas sharp.
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, G.lite ? 1.5 : 2));
       renderer.setSize(w, h, false);
       if (composer) { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); }
       camera.aspect = w / h;
@@ -103,7 +105,7 @@
         if (o.userData.keep) return;
         if (o.geometry) o.geometry.dispose();
         if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => {
-          if (m.map) m.map.dispose();
+          if (m.map && !m.map.userData.keep) m.map.dispose(); // shared textures (world ground detail) stay
           m.dispose();
         });
       });
@@ -122,6 +124,10 @@
     scene.add(stage.group);
     scene.background = new THREE.Color(stage.bg == null ? 0x000000 : stage.bg);
     scene.fog = stage.fog ? new THREE.Fog(stage.fog[0], stage.fog[1], stage.fog[2]) : null;
+    // Start compiling the stage's shaders now, in parallel where the browser has
+    // KHR_parallel_shader_compile, instead of on first sight: the old stage's materials were
+    // just disposed with their programs, and the first frame on the world map waited on all of them.
+    if (renderer.compileAsync) renderer.compileAsync(scene, camera).catch(() => {});
   };
   G.stage = () => stage;
 
@@ -248,9 +254,9 @@
 
   function frame(now) {
     requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - last) / 1000 || 0);
+    // Paused (game.js): the world gets no time, so fights, clocks and animations hold still.
+    const dt = G.paused ? 0 : Math.min(0.05, (now - last) / 1000 || 0);
     last = now;
-    if (window.TGController?.paused) return;
     G.time += dt;
     for (let i = tweens.length - 1; i >= 0; i--) {
       const tw = tweens[i];
@@ -265,10 +271,11 @@
       if (stage.frame) stage.frame(camera.aspect, G.time, dt);
     }
     updateParticles(dt);
-    const s = cam.shake;
+    // No jitter while paused: the shake would never decay (dt 0) and the screen would tremble under the menu.
+    const s = G.paused ? 0 : cam.shake;
     camera.position.set(cam.pos.x + (Math.random() - 0.5) * s, cam.pos.y + (Math.random() - 0.5) * s, cam.pos.z + (Math.random() - 0.5) * s * 0.5);
     camera.lookAt(cam.target);
-    cam.shake = s < 0.005 ? 0 : s * Math.exp(-dt * 7);
+    if (!G.paused) cam.shake = s < 0.005 ? 0 : s * Math.exp(-dt * 7);
     if (camera.fov !== cam.fov) camera.fov = cam.fov;
     camera.updateProjectionMatrix();
     if (composer) composer.render(dt); else renderer.render(scene, camera);

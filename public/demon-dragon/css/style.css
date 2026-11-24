@@ -50,7 +50,7 @@ html, body {
 .heart.half { background: linear-gradient(90deg, #ff4d6d 50%, rgba(20, 16, 28, 0.55) 50%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 #lvl { margin-top: 4px; font-size: 12px; font-weight: 800; color: #fff; text-shadow: 0 1px 0 #000, 0 0 4px #000; }
 
-#mute, #relic, #skip {
+#mute, #relic, #skip, #pausebtn {
   position: absolute; z-index: 7; border: 2px solid rgba(255, 255, 255, 0.85); background: rgba(20, 16, 28, 0.6); color: #fff;
   border-radius: 12px; font: 800 15px var(--font); padding: 6px 9px; cursor: pointer;
 }
@@ -59,6 +59,10 @@ html, body {
 #skip { right: calc(8px + env(safe-area-inset-right)); top: calc(8px + env(safe-area-inset-top)); display: none; z-index: 30; }
 #view.cinema #skip { display: block; }
 #view.cinema #mute { display: none; }
+/* Under the sound button, only while playing. */
+#pausebtn { right: calc(8px + env(safe-area-inset-right)); top: calc(52px + env(safe-area-inset-top)); display: none; }
+.mode-world #pausebtn, .mode-arena #pausebtn { display: block; }
+#view.cinema #pausebtn, .talking #pausebtn { display: none; }
 
 #bossbar { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); width: min(78%, 460px); z-index: 6; display: none; text-align: center; color: #fff; text-shadow: 0 1px 0 #000, 0 0 5px #000; }
 #bossname { font-weight: 900; font-size: 15px; letter-spacing: 0.04em; }
@@ -181,7 +185,9 @@ html, body {
   #stick .base { left: 110px; top: auto; bottom: calc(26px + env(safe-area-inset-bottom)); margin: 0 0 0 -66px; }
   #stick.moved .base { margin: -66px 0 0 -66px; }
   #app.talking #deck { visibility: hidden; }
-  #bossbar { bottom: auto; top: calc(8px + env(safe-area-inset-top)); }
+  /* At the bottom between the joystick and the buttons: across the top it ran under the hearts,
+     the name line and the relic badge on a 640x360 phone. */
+  #bossbar { width: min(44%, 460px); bottom: calc(8px + env(safe-area-inset-bottom)); pointer-events: none; }
   #banner { top: 22%; }
 }
 
@@ -193,7 +199,7 @@ html, body {
 }
 @media (hover: hover) and (pointer: fine) and (orientation: landscape) {
   #deck { position: static; background: var(--deck); }
-  #bossbar { top: auto; bottom: 10px; }
+  #bossbar { width: min(78%, 460px); bottom: 10px; }
 }
 
 #loading { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #14101c; color: #fff; font: 800 18px var(--font); letter-spacing: 0.05em; }

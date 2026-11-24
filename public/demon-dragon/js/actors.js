@@ -26,6 +26,14 @@
   function prepare(root, shadow) {
     root.traverse((o) => {
       if (!o.isMesh) return;
+      // Frustum culling a skinned mesh first works out its bounds by posing every vertex on the
+      // CPU, for each new clone: 300+ ms of freeze per wave of characters on a phone. The
+      // bind-pose bounds (shared by the clones' geometry), padded for swinging limbs, cull fine.
+      if (o.isSkinnedMesh && !o.boundingSphere) {
+        if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+        o.boundingSphere = o.geometry.boundingSphere.clone();
+        o.boundingSphere.radius *= 1.6;
+      }
       o.userData.keep = true;
       o.castShadow = shadow !== false;
       o.receiveShadow = true;

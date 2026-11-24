@@ -39,7 +39,7 @@
   function load() {
     try {
       const s = JSON.parse(localStorage.getItem(SAVE_KEY));
-      return s && s.name && Array.isArray(s.slain) ? s : null;
+      return window.SaveState.valid(s, D) ? s : null;
     } catch (e) { return null; }
   }
 
@@ -53,9 +53,14 @@
     $('fade').classList.toggle('on', on);
     await wait(380);
   }
+  // Lines are written for the touch buttons. With a mouse and keyboard (the same test the style
+  // sheet uses to show the key list instead of the buttons) they name the keys.
+  const KEYBOARD = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const forKeys = (text) => (KEYBOARD ? window.Prompts.forKeys(text) : text);
   let bannerTimer = null;
   function banner(text, big) {
     const b = $('banner');
+    text = forKeys(text);
     b.textContent = text;
     b.classList.toggle('big', !!big);
     b.classList.add('on');
@@ -100,6 +105,7 @@
   function say(text, name) {
     const m = /^([A-Z][A-Z ]+): (.*)$/.exec(text);
     if (m && !name) { name = m[1]; text = m[2]; }
+    text = forKeys(text);
     return new Promise((resolve) => {
       openDialog(text, name);
       dlg = { typing: true, resolve: () => { closeDialog(); resolve(); } };
@@ -173,7 +179,7 @@
       while (P.perkPending > 0) {
         const options = Perks.roll(P, Perks.choices(P.level));
         if (!options.length) { P.perkPending = 0; break; }
-        const i = await pickPerk(`Level ${P.level}! Choose an upgrade`, options);
+        const i = await pickPerk(Perks.nextTitle(P), options);
         const def = Perks.take(P, options[i].id);
         P.perkPending -= 1;
         if (def && def.id === 'vigor') { P.hpMax += 2; level.heal(); }
@@ -243,6 +249,34 @@
     if (!on) { $('relic').style.display = 'none'; $('bossbar').style.display = 'none'; }
   }
 
+  // Pause: the pause button, Esc or P, a gamepad's Start, or leaving the tab or app. Play
+  // gets no time while the panel is up (Gfx.paused).
+  function canPause() {
+    return !!(level && P && !busy && !dlg && !level.over && !G.paused && /mode-(world|arena)/.test(app.className) && !$('fade').classList.contains('on'));
+  }
+  async function pauseGame() {
+    if (!canPause()) return;
+    G.paused = true;
+    busy = true;
+    clearInput();
+    Sfx.play('select');
+    const where = arenaId ? (P.trial ? 'Trial' : 'Fight') : 'Quest';
+    const c = await sheet(`<div class="stitle">Paused</div><div class="snote">${where} clock ${clock(P.trial ? level.stats.t : P.clock || 0)}</div>`,
+      ['Resume', arenaId && !P.trial ? 'Leave the lair' : P.trial ? 'Back to Trials' : 'Save and quit'], { layout: 'row' });
+    G.paused = false;
+    busy = false;
+    if (c === 0) return offerPerks(); // a level-up's offer that landed during the pause
+    if (P.trial) return openTrials(true);
+    if (arenaId) { busy = true; return startWorld(); } // back outside the lair; the fight starts over next time
+    P.pos = { x: level.knight.x, z: level.knight.z, rot: level.knight.rot };
+    save();
+    busy = true;
+    await fade(true);
+    busy = false;
+    showTitle();
+  }
+  const resumeIfPaused = () => { if (G.paused && $('sheet').classList.contains('on')) $('sheet').querySelector('.menu-btn').click(); };
+
   function cycleRelic() {
     if (!P || !P.relics.length || !level || busy) return;
     const order = [null].concat(P.relics);
@@ -258,6 +292,7 @@
   // Movement is an analog vector (x right, z down the screen), from the joystick,
   // the keys (any mix of them), or a gamepad's left stick.
   const held = new Set();
+  const heldKeys = new Set();
   const stick = { x: 0, z: 0, on: false };
   const padStick = { x: 0, z: 0 };
   function pushInput() {
@@ -277,13 +312,13 @@
   }
   function clearInput() {
     held.clear();
+    heldKeys.clear();
     stick.on = false; stick.x = stick.z = 0;
     padStick.x = padStick.z = 0;
     resetStick();
     pushInput();
   }
   function press(btn) {
-    if (window.TGController?.paused) return;
     Sfx.unlock();
     if (dlg) { if (btn === 'A') advance(); return; }
     if (level && !busy) level.press(btn);
@@ -296,26 +331,32 @@
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (KEY_DIR[k] || KEY_BTN[k] || k === 'Tab') e.preventDefault();
     if (e.repeat) return;
+    if ($('namebox').classList.contains('on')) { if (k === 'Enter') $('name-ok').click(); return; }
+    if (k === 'Escape' || k === 'p') { if (G.paused) resumeIfPaused(); else pauseGame(); return; }
     Sfx.unlock();
     if (dlg) {
+      // Upgrade cards: Enter takes the card the arrows highlighted (attack keys still never pick).
+      if (dlg.tapOnly && k === 'Enter') { dlg.pick(); return; }
       if (dlg.side && (KEY_DIR[k] === 'left' || KEY_DIR[k] === 'right')) dlg.side(KEY_DIR[k] === 'left' ? -1 : 1);
       else if (dlg.choices && !dlg.typing && (KEY_DIR[k] === 'up' || KEY_DIR[k] === 'left')) dlg.move(-1);
       else if (dlg.choices && !dlg.typing && (KEY_DIR[k] === 'down' || KEY_DIR[k] === 'right')) dlg.move(1);
       else if (KEY_BTN[k]) advance();
       return;
     }
-    if (KEY_DIR[k]) { held.add(KEY_DIR[k]); pushInput(); }
+    if (KEY_DIR[k]) { heldKeys.add(k); held.add(KEY_DIR[k]); pushInput(); }
     else if (KEY_BTN[k]) press(KEY_BTN[k]);
     else if (k === 'q' || k === 'e' || k === 'Tab') cycleRelic();
   });
   window.addEventListener('keyup', (e) => {
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (!KEY_DIR[k]) return;
-    held.delete(KEY_DIR[k]);
+    heldKeys.delete(k);
+    if (![...heldKeys].some((key) => KEY_DIR[key] === KEY_DIR[k])) held.delete(KEY_DIR[k]);
     pushInput();
   });
   window.addEventListener('blur', () => clearInput());
-  window.addEventListener('tg-input-reset', () => clearInput());
+  // Leaving the tab or app mid-fight pauses, so play does not resume mid-attack on return.
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { clearInput(); pauseGame(); } });
 
   // Floating joystick: the base appears under the thumb, the knob follows it.
   const stickEl = $('stick'), baseEl = stickEl.querySelector('.base'), knobEl = stickEl.querySelector('.knob');
@@ -342,10 +383,11 @@
   stickEl.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     Sfx.unlock();
-    if (dlg) { if (!dlg.sheet) advance(); return; }
+    if (dlg) { if (window.Taps.strayTapAdvances(dlg)) advance(); return; }
     if (stickPointer != null) return;
     stickPointer = e.pointerId;
-    stickEl.setPointerCapture(e.pointerId);
+    // Capture can throw if the finger already lifted; the stick must still set its origin.
+    try { stickEl.setPointerCapture(e.pointerId); } catch (err) { /* moves still arrive on the stick */ }
     const r = stickEl.getBoundingClientRect();
     origin = { x: e.clientX, y: e.clientY };
     baseEl.style.left = (e.clientX - r.left) + 'px';
@@ -385,9 +427,13 @@
     const m = Math.hypot(x, z);
     if (m < 0.2) { x = 0; z = 0; } else if (m > 1) { x /= m; z /= m; }
     if (x !== padStick.x || z !== padStick.z) { padStick.x = x; padStick.z = z; pushInput(); }
-    const edge = (i) => { const now = b(i), was = padWas[i]; padWas[i] = now; return now && !was; };
+    const edges = window.PadEdges.sample(gp.buttons, padWas);
+    const edge = (i) => edges[i];
+    // The name box: Start takes the name (an empty one becomes "Knight"), so a pad can go on.
+    if ($('namebox').classList.contains('on')) { if (edge(9)) $('name-ok').click(); return; }
     if (dlg) {
-      if (dlg.side && (edge(14) || edge(15))) dlg.side(padWas[14] ? -1 : 1);
+      if (G.paused && edge(9)) resumeIfPaused();
+      else if (dlg.side && (edge(14) || edge(15))) dlg.side(padWas[14] ? -1 : 1);
       else if (dlg.choices && !dlg.typing && (edge(12) || edge(14))) dlg.move(-1);
       else if (dlg.choices && !dlg.typing && (edge(13) || edge(15))) dlg.move(1);
       else if (dlg.tapOnly) { if (edge(9)) dlg.pick(); }
@@ -398,7 +444,10 @@
     if (edge(0)) press('B');
     if (edge(2)) press('C');
     if (edge(3) || edge(4) || edge(5)) cycleRelic();
-    if (edge(9) && app.classList.contains('mode-title')) $(load() ? 'btn-continue' : 'btn-new').click();
+    if (edge(9)) {
+      if (app.classList.contains('mode-title')) $(load() ? 'btn-continue' : 'btn-new').click();
+      else pauseGame();
+    }
   }
   requestAnimationFrame(pollPad);
 
@@ -407,13 +456,16 @@
     el.addEventListener('pointerdown', (e) => { e.preventDefault(); el.classList.add('down'); if (btn === 'X') { Sfx.unlock(); if (dlg) advance(); else cycleRelic(); } else press(btn); });
     ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => el.addEventListener(ev, () => el.classList.remove('down')));
   });
-  $('dialog').addEventListener('click', () => { Sfx.unlock(); advance(); });
+  $('dialog').addEventListener('click', () => { Sfx.unlock(); if (window.Taps.strayTapAdvances(dlg)) advance(); });
   $('c').addEventListener('click', () => { Sfx.unlock(); if (dlg && !dlg.choices) advance(); });
   // The relic badge switches on pointerdown, like A/B/C, so a second finger can tap it while the
   // first holds the joystick (phones send no click for a second touch). click stays for the
   // keyboard (detail 0) only, so a mouse or single tap doesn't switch twice.
   $('relic').addEventListener('pointerdown', (e) => { e.preventDefault(); Sfx.unlock(); cycleRelic(); });
   $('relic').addEventListener('click', (e) => { if (e.detail === 0) cycleRelic(); });
+  // pointerdown so a second finger can pause while the thumb holds the joystick.
+  $('pausebtn').addEventListener('pointerdown', (e) => { e.preventDefault(); Sfx.unlock(); pauseGame(); });
+  $('pausebtn').addEventListener('click', (e) => { if (e.detail === 0) pauseGame(); });
   $('mute').addEventListener('click', () => { Sfx.unlock(); $('mute').textContent = Sfx.toggleMute() ? '🔇' : '🔊'; });
   $('mute').textContent = Sfx.muted ? '🔇' : '🔊';
   document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -492,7 +544,7 @@
       if (k === 'sword') P.sword += 1;
       if (k === 'shot') P.shot += 0.5;
       if (k === 'hourglass') P.clock = Math.max(0, (P.clock || 0) - 30);
-      if (k === 'scroll') P.perkPending = (P.perkPending || 0) + 1;
+      if (k === 'scroll') { P.perkPending = (P.perkPending || 0) + 1; P.perkScrolls = (P.perkScrolls || 0) + 1; }
       Sfx.play('item');
       save();
       renderHud();
@@ -513,6 +565,8 @@
         return say(`The Ashen Gate is sealed. ${left} seal-stone${left > 1 ? 's' : ''} still burn${left > 1 ? '' : 's'} above it, one for each living dragon.`);
       }
       if (P.slain.includes(id)) return say('The lair is silent now.');
+      // A won quest can be continued to roam, but the demon (and its score) is done.
+      if (id === 'demon' && P.won) return say('The Ashen Gate lies in ruin. The Demon Dragon is no more.');
       const go = await ask(id === 'demon' ? 'The gate stands open. Beyond it, something breathes. There is no way back.' : `${def.lair}. ${def.name}, ${def.title}, waits within.`, [id === 'demon' ? 'Face the Demon Dragon' : 'Enter the lair', 'Not yet']);
       if (go === 0) { save(); await startArena(id); }
     }),
@@ -528,14 +582,16 @@
           const again = await ask('You have fallen...  but a knight of Valemoor does not stay down.' + cost, ['Try again', P.trial ? 'Back to Trials' : 'Retreat']);
           if (again === 0) await startArena(arenaId, true);
           else if (P.trial) await openTrials(true);
-          else await startWorld();
+          else await startWorld(false, true);
         });
       } else {
         Sfx.play('defeat');
         scripted(async () => {
           await fade(true);
           P.pos = null;
-          await startWorld(true);
+          save(); // Persist the village respawn before rebuilding the world.
+          await startWorld(true, true);
+          busy = true; // startWorld cleared it; this sequence still owns the screen
           level.locked = true;
           await say('You wake in Valemoor. The healers will not say who carried you home.' + cost);
           level.locked = false;
@@ -568,7 +624,9 @@
     save();
   }
 
-  async function startWorld(alreadyDark) {
+  // holdPerks: called from inside a scripted sequence, whose end offers owed upgrades instead
+  // (offering here would open the cards over that sequence's own dialogue).
+  async function startWorld(alreadyDark, holdPerks) {
     busy = true;
     arenaId = null;
     if (!alreadyDark) await fade(true);
@@ -582,7 +640,7 @@
     renderBoss();
     await fade(false);
     busy = false;
-    offerPerks();
+    if (!holdPerks) offerPerks();
   }
 
   async function startArena(id, retry) {
@@ -627,15 +685,15 @@
     Sfx.play('fanfare');
     await wait(900);
     if (P.trial) return trialWon(id, f);
+    await sheet(scoreHtml(`${icon(id)} ${def.name} slain!`, f, s), ['Continue']);
+    // The results sheet is still a choice point: record victory only after Continue.
     P.fightScores = P.fightScores || {};
     P.fightScores[id] = Object.assign({ total: s.total }, f);
-    unlockTrial(id);
-    save();
-    await sheet(scoreHtml(`${icon(id)} ${def.name} slain!`, f, s), ['Continue']);
     if (id === 'demon') {
       P.won = true;
       P.pos = null;
       save();
+      unlockTrial(id);
       await questResults();
       await playStory('ending');
       busy = false;
@@ -648,6 +706,8 @@
     P.hpMax += 2;
     P.sword += 1;
     P.shot += 0.5;
+    save();
+    unlockTrial(id);
     level.refreshGlow();
     level.heal();
     const km = level.knightModel;
@@ -1045,6 +1105,14 @@
     busy = true;
     Sfx.unlock();
     Sfx.play('select');
+    // A new quest replaces the saved one: say so first (it used to go without a word).
+    const old = load();
+    if (old && !old.won && (old.slain.length || (old.clock || 0) > 60 || old.level > 1)) {
+      const n = old.slain.length;
+      const go = await sheet(`<div class="stitle">Start a new quest?</div><div class="snote">Sir ${esc(old.name)}'s journey will be lost: level ${old.level}, ${n} dragon${n === 1 ? '' : 's'} slain.</div>`,
+        ['Start anew', 'Back'], { layout: 'row', sel: 1 });
+      if (go !== 0) { busy = false; return; }
+    }
     P = null;
     await playStory('intro');
     await fade(false);

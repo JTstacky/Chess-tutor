@@ -162,6 +162,9 @@
   };
   const CHEST_COUNT = 10;
   const CHEST_CLEAR = 9; // no chest this close to the start
+  // Village dressing standing on open ground (placed and given collision in level.js, which
+  // keeps its own copy): name, x, z, collision radius. Chests keep clear of these.
+  const PROPS = [['well', 17, 19.6, 0.6], ['market_stall', 16.3, 13.7, 0.75], ['windmill', 4.2, 14, 1.0]];
   // Places and fills a quest's chests from its seed: [{ id, x, y, kind }]. Each needs open ground
   // on every side (so it can be reached), off the road and away from the start, people,
   // lairs and the other chests. Each dragon's land (thunder plateau, fire peaks, canyon, coast)
@@ -172,7 +175,9 @@
     const rand = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
     const at = (x, y) => (WORLD[y] || '')[x] || 'M';
     const ground = '.spac';
-    const avoid = [{ x: START.x, y: START.y, r: CHEST_CLEAR }].concat(NPCS.map((n) => ({ x: n.x, y: n.y, r: 3 })));
+    const avoid = [{ x: START.x, y: START.y, r: CHEST_CLEAR }].concat(NPCS.map((n) => ({ x: n.x, y: n.y, r: 3 })))
+      // A chest (radius 0.42) must not sink into a prop, and leaves a knight's width beside it.
+      .concat(PROPS.map(([, x, y, r]) => ({ x, y, r: r + 1 })));
     for (let y = 0; y < WORLD.length; y++) for (let x = 0; x < WORLD[0].length; x++) if ('12345GS'.includes(at(x, y))) avoid.push({ x, y, r: 3 });
     const spots = [];
     for (let y = 1; y < WORLD.length - 1; y++) for (let x = 1; x < WORLD[0].length - 1; x++) {
@@ -200,8 +205,28 @@
     const total = kinds.reduce((n, k) => n + CHEST_KINDS[k].weight, 0);
     const draw = () => { let r = rand() * total; return kinds.find((k) => (r -= CHEST_KINDS[k].weight) < 0) || kinds[0]; };
     const list = out.map((p, i) => ({ id: 'r' + i, x: p.x, y: p.y, kind: draw() }));
-    ['heart', 'sword'].forEach((k, i) => { if (list.length > i && !list.some((c) => c.kind === k)) list[i].kind = k; });
+    // Do not replace the other guaranteed reward when it already occupies a slot.
+    ['heart', 'sword'].forEach((kind, i) => {
+      if (list.length <= i || list.some((c) => c.kind === kind)) return;
+      const other = kind === 'heart' ? 'sword' : 'heart';
+      const replacement = list.find((c) => c.kind !== other) || list[i];
+      replacement.kind = kind;
+    });
     return list;
+  }
+
+  // World drakelings live on meadow tiles (',') picked by a fixed pattern: [{ x, y }]. None near
+  // the start, where a quest begins and a fallen knight wakes: they chase anyone within 5 tiles
+  // of home, so the ones by the castle gate set on every new knight before he had taken a step.
+  const DRAKE_CLEAR = 6.5;
+  function drakeSpots() {
+    const out = [];
+    for (let y = 0; y < WORLD.length; y++) for (let x = 0; x < WORLD[0].length; x++) {
+      if (WORLD[y][x] !== ',' || (x * 31 + y * 17) % 5 !== 0) continue;
+      if (Math.hypot(x - START.x, y - START.y) < DRAKE_CLEAR) continue;
+      out.push({ x, y });
+    }
+    return out;
   }
 
   const SIGNS = {
@@ -289,7 +314,7 @@
     ],
   };
 
-  const api = { ELEMENTS, ELEMENT_ORDER, weaknessOf, effectiveness, DIFFICULTY, difficulty, fightScore, questScore, QUEST_PAR, DEATH_COST, bossMaxHp, trialKit, CHEST_KINDS, rollChests, DRAGONS, ELEMENT_ATTACKS, ELEMENT_BIG, WORLD, LAIR_CHARS, WALKABLE, START, SIGNS, NPCS, KING_LINES, STORY };
+  const api = { ELEMENTS, ELEMENT_ORDER, weaknessOf, effectiveness, DIFFICULTY, difficulty, fightScore, questScore, QUEST_PAR, DEATH_COST, bossMaxHp, trialKit, CHEST_KINDS, PROPS, rollChests, drakeSpots, DRAGONS, ELEMENT_ATTACKS, ELEMENT_BIG, WORLD, LAIR_CHARS, WALKABLE, START, SIGNS, NPCS, KING_LINES, STORY };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Data = api;
 })(typeof window !== 'undefined' ? window : globalThis);

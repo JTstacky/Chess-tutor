@@ -18,7 +18,7 @@ const OPTIONAL = ['lair_thunder', 'lair_water', 'lair_fire', 'lair_earth', 'ashe
   'person_soldier', 'person_scholar', 'person_villager', 'person_villager2', 'person_king',
   'dragon_thunder', 'dragon_water', 'dragon_fire', 'dragon_earth', 'dragon_demon',
   'well', 'market_stall', 'windmill'];
-const SCRIPTS = ['data', 'names', 'perks', 'gfx', 'models', 'actors', 'sets', 'world', 'level', 'audio', 'game'];
+const SCRIPTS = ['data', 'save-state', 'pad-edges', 'level-timers', 'prompts', 'taps', 'names', 'perks', 'gfx', 'models', 'actors', 'sets', 'world', 'level', 'audio', 'game'];
 
 const status = document.getElementById('loading');
 const setStatus = (text) => { if (status) status.textContent = text; };
@@ -47,11 +47,24 @@ async function boot() {
       tick();
     }),
   ]);
-  for (const name of SCRIPTS) await loadScript(name);
+  // A script that loads but throws still fires onload; catch that too, or the later scripts fail
+  // one by one and the player is left on a black screen.
+  let broken = null;
+  const onError = (e) => { if (!broken && /\/js\/[\w-]+\.js/.test(e.filename || '')) broken = e.error || new Error(e.message); };
+  window.addEventListener('error', onError);
+  try {
+    for (const name of SCRIPTS) {
+      await loadScript(name);
+      if (broken) throw broken;
+    }
+  } finally {
+    window.removeEventListener('error', onError);
+  }
   if (status) status.remove();
 }
 
 boot().catch((e) => {
   console.error(e);
-  setStatus('Could not load the game. Serve this folder over HTTP (run play.cmd).');
+  const hint = location.protocol === 'file:' ? ' Serve this folder over HTTP (run play.cmd).' : ' Please reload the page.';
+  setStatus('Could not load the game.' + hint);
 });

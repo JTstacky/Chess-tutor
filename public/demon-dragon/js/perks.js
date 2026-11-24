@@ -78,7 +78,14 @@
     return def;
   }
 
-  const api = { PERKS, BY_ID, MAX_LEVEL, choices, xpNeeded, stacks, stat, roll, take };
+  // Title for the next owed pick. Picks from chest scrolls (P.perkScrolls) are not level-ups,
+  // so they are not called one; the count is used up as each scroll's pick is offered.
+  function nextTitle(P) {
+    if (P.perkScrolls > 0) { P.perkScrolls -= 1; return 'Old scroll! Choose an upgrade'; }
+    return `Level ${P.level}! Choose an upgrade`;
+  }
+
+  const api = { PERKS, BY_ID, MAX_LEVEL, choices, xpNeeded, stacks, stat, roll, take, nextTitle };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Perks = api;
 })(typeof window !== 'undefined' ? window : globalThis);

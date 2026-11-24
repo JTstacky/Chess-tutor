@@ -97,6 +97,7 @@
     const theme = isArena ? (opts.bossId === 'demon' ? 'demon' : D.DRAGONS[opts.bossId].element) : 'world';
     const group = new THREE.Group();
     const L = { locked: false, input: { x: 0, z: 0 }, time: 0, hp: P.hpMax, over: false };
+    const timers = window.LevelTimers.create();
     // Difficulty (see Data.DIFFICULTY) and this fight's record for the score.
     const DF = D.difficulty(P.difficulty);
     L.stats = { t: 0, taken: 0 };
@@ -218,7 +219,7 @@
     group.add(kModel.group);
     const K = {
       x: start.x, z: start.z, rot: start.rot, want: start.rot, speed: 0, tileX: null, tileY: null, vx: 0, vz: 0,
-      invuln: 0, blink: 0, cdA: 0, cdB: 0, cdC: 0, lock: 0, roll: null, buffer: null,
+      invuln: 0, blink: 0, cdA: 0, cdB: 0, cdC: 0, lock: 0, roll: null, buffer: null, strike: null,
     };
     K.circle = phys.add({ x: K.x, z: K.z, r: KR, knight: true });
     L.knight = K;
@@ -291,7 +292,8 @@
       kModel.play('Chop', 1.7 / quick);
       hooks.sfx('swing');
       const color = P.active ? D.ELEMENTS[P.active].color : 0xffffff;
-      setTimeout(() => {
+      // The blade lands 0.1 s of game time later (update counts it down), so a pause holds it too.
+      K.strike = { t: 0.1, fn: () => {
         if (L.over) return;
         const f = facing();
         for (let i = -2; i <= 2; i++) {
@@ -306,7 +308,7 @@
         const rock = rocks.find((r) => inArc(r.x, r.z, 1.5 * reach));
         if (rock) breakRock(rock);
         if (boss && bossDistance(K.x + f.x * 0.6, K.z + f.z * 0.6) <= reach && f.z < 0.3) hurtBoss(swordDamage(boss.element, boss.state === 'tired'), true, eff(P.active, boss.element));
-      }, 100);
+      } };
     }
 
     function shoot() {
@@ -462,7 +464,7 @@
         L.over = true;
         kModel.group.visible = true;
         G.tween(kModel.anim, { dead: 1 }, 700, G.ease.in);
-        setTimeout(() => hooks.onDeath(), 1500);
+        timers.later(() => hooks.onDeath(), 1500);
       }
     }
 
@@ -589,8 +591,7 @@
 
     // ---------- drakelings ----------
     function spawnEnemies() {
-      for (let y = 0; y < world.H; y++) for (let x = 0; x < world.W; x++) {
-        if (at(x, y) !== ',' || (x * 31 + y * 17) % 5 !== 0) continue;
+      for (const { x, y } of D.drakeSpots()) {
         const nl = nearestLair(x, y);
         const element = nl.lair.id === 'demon' ? 'fire' : nl.lair.id;
         const model = M.dragon(element, 0.3);
@@ -614,7 +615,7 @@
       e.hp -= dmg;
       e.model.flash();
       e.timer = Math.max(e.timer, 0.35);
-      if (push) { const p = moveCircle(e.circle, e.x + push.x * 0.5, e.z + push.z * 0.5, 0.42); e.x = p.x; e.z = p.z; }
+      if (push) { const p = moveCircle(e.circle, e.x + push.x * 0.5, e.z + push.z * 0.5, 0.42); e.x = p.x; e.z = p.z; e.circle.x = e.x; e.circle.z = e.z; }
       hooks.sfx('hit');
       G.floatText(p3(e.x, e.z, 1.3), String(Math.round(dmg)), dmg > P.sword * 1.2 ? 'crit' : 'dmg');
       if (e.hp <= 0) {
@@ -886,7 +887,8 @@
     }
 
     function hurtBoss(amount, melee, mult) {
-      if (!boss || boss.state === 'dead' || boss.state === 'intro') return;
+      // L.over: a bolt still in flight when the knight falls must not slay the boss too.
+      if (!boss || L.over || boss.state === 'dead' || boss.state === 'intro') return;
       if (mult === 0) {
         hooks.sfx('plink');
         G.floatText(boss.model.headPos().add(new V3((Math.random() - 0.5) * 1.5, 0.6, 0)), 'IMMUNE', 'dmg');
@@ -935,16 +937,19 @@
       hazards.length = 0;
       L.over = true;
       K.invuln = 99;
+      // moveKnight stops with L.over: end a roll and the run here, or the knight spins or runs in place.
+      K.roll = null; kModel.anim.spin = 0; K.speed = 0;
       hooks.sfx('roar');
       G.shake(0.7);
-      G.tween(boss.model.anim, { dead: 1, mouth: 1, lower: 0.4 }, 1800, G.ease.in);
+      // rise/flap/thrust too: slain mid-roar it would otherwise stay hovering with wings beating.
+      G.tween(boss.model.anim, { dead: 1, mouth: 1, lower: 0.4, rise: 0, flap: 1, thrust: 0 }, 1800, G.ease.in);
       let n = 0;
-      const timer = setInterval(() => {
+      const timer = timers.repeat(() => {
         G.emit({ pos: boss.model.chestPos().add(new V3((Math.random() - 0.5) * 3, Math.random() * 2, 0)), count: 18, colors: [ecolor(), 0xffffff, 0xffe680], speed: 4, life: 0.8, size: 0.5 });
         hooks.sfx('boom');
-        if (++n >= 7) clearInterval(timer);
+        if (++n >= 7) timers.stopRepeat(timer);
       }, 260);
-      setTimeout(() => hooks.onBossDefeated(), 2900);
+      timers.later(() => hooks.onBossDefeated(), 2900);
     }
 
     function updateBoss(dt, t) {
@@ -1019,12 +1024,14 @@
     const camTarget = new V3(K.x, 0, K.z);
     L.stage = {
       group,
+      onRemove: () => timers.cancel(),
       bg: sky[1],
       fog: isArena ? null : [sky[1], 26, 55],
       update(dt, t) {
         L.time += L.locked ? 0 : dt;
         if (L.debug.tick) L.debug.tick(dt); // test bots (tools/bot.mjs) steer from here
         K.cdA -= dt; K.cdB -= dt; K.cdC -= dt; K.lock -= dt; K.invuln -= dt; K.blink -= dt;
+        if (K.strike && (K.strike.t -= dt) <= 0) { const s = K.strike; K.strike = null; s.fn(); }
         if (K.buffer) { K.buffer.t -= dt; if (K.buffer.t <= 0) K.buffer = null; }
         const px = K.x, pz = K.z;
         if (!L.over) {

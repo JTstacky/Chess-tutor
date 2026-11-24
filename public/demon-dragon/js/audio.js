@@ -18,7 +18,8 @@
       musicGain.gain.value = 0.32;
       musicGain.connect(master);
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    // iOS Safari uses 'interrupted' after a call or Siri; both need a resume from a gesture.
+    if (ctx.state === 'suspended' || ctx.state === 'interrupted') ctx.resume();
   }
 
   function tone(freq, dur, type, vol, slideTo, delay, dest) {
@@ -99,7 +100,9 @@
   let tune = null, tuneName = null, stepNo = 0, timer = null;
 
   function tick() {
-    if (!ctx || !tune) return;
+    // A suspended context (hidden tab) has a frozen clock: notes queued now would all start at once
+    // on return, as one loud chord. Skip steps until it runs again.
+    if (!ctx || !tune || ctx.state !== 'running') return;
     const dur = 60 / tune.bpm / 2;
     const b = tune.bass[stepNo % tune.bass.length];
     const l = tune.lead[stepNo % tune.lead.length];
