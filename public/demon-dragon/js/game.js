@@ -319,6 +319,7 @@
     pushInput();
   }
   function press(btn) {
+    if (window.TGController?.paused) return;
     Sfx.unlock();
     if (dlg) { if (btn === 'A') advance(); return; }
     if (level && !busy) level.press(btn);
@@ -355,6 +356,7 @@
     pushInput();
   });
   window.addEventListener('blur', () => clearInput());
+  window.addEventListener('tg-input-reset', () => clearInput());
   // Leaving the tab or app mid-fight pauses, so play does not resume mid-attack on return.
   document.addEventListener('visibilitychange', () => { if (document.hidden) { clearInput(); pauseGame(); } });
 

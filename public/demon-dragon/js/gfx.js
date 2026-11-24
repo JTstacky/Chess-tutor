@@ -257,6 +257,7 @@
     // Paused (game.js): the world gets no time, so fights, clocks and animations hold still.
     const dt = G.paused ? 0 : Math.min(0.05, (now - last) / 1000 || 0);
     last = now;
+    if (window.TGController?.paused) return;
     G.time += dt;
     for (let i = tweens.length - 1; i >= 0; i--) {
       const tw = tweens[i];
