@@ -368,7 +368,7 @@ body.touch .bfoot { gap: 6px; } body.touch .bfoot .btn:not(.launch) { padding: 7
 #title h1 span { display: inline-block; }
 #title .tag { margin-top: 14px; }
 .title-buttons .big { background: rgba(28, 36, 90, 0.92); }
-@media (max-height: 560px) { .title-card { margin-top: 0; } #title h1 { font-size: 34px; } .tag, .tag2 { display: none; } }
+@media (max-height: 560px) { .title-card { margin-top: 0; } #title h1 { font-size: 34px; } .tag, .tag2 { display: none; } .title-buttons { margin-top: 16px; } /* the taglines that spaced them are hidden */ }
 /* the Hangar: a generated dock behind the panels; the canvas only draws the planet in its window */
 #base { background: #05060e url("assets/ui/hangar.jpg") center / cover no-repeat; }
 /* the pause menu's key table: keys never wrap onto a second line */
