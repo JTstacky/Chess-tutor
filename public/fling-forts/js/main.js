@@ -48,7 +48,12 @@ function start(mode, level = ui.aiLevel, seed = (Math.random() * 1e9) | 0, races
   game.state = 'play'; show(null); unlockAudio(); sound('roundStart'); ui.tickAt = null;
 }
 function pause() { if (game.state !== 'play') return; game.state = 'paused'; ui.aims.clear(); quitArmed = 0; $('btn-quit').textContent = 'Quit to menu (tap twice)'; show('pause'); }
-function resume() { game.state = 'play'; last = performance.now(); show(game.s && game.s.phase === 'over' ? 'over' : null); }
+function resume() {
+  game.state = 'play'; last = performance.now();
+  const wait = game.s && game.s.phase === 'over' ? (ui.overAt || 0) - performance.now() : 0;
+  show(game.s && game.s.phase === 'over' && wait <= 0 ? 'over' : null);
+  if (wait > 0) setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, wait);   // the knockout still plays out first
+}
 function toMenu() { game.state = 'menu'; ui.pick = null; show('menu'); }
 
 let level = 'normal', quitArmed = 0;
@@ -158,7 +163,7 @@ function handleEvents() {
         break;
       case 'round-start': ui.cam = null; sound('roundStart'); ui.tickAt = null; ui.aims.clear(); ui.held = null; break;
       case 'bounty': sound(S.UNIT[e.kind]?.air ? 'flyerDown' : 'die', e.x); break;
-      case 'match-end': sound('win'); setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, KO.over * 1000); break;   // after the knockout   // if paused meanwhile, resume() shows it
+      case 'match-end': sound('win'); ui.overAt = performance.now() + KO.over * 1000; setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, KO.over * 1000); break;   // after the knockout   // if paused meanwhile, resume() shows it
     }
   }
 }

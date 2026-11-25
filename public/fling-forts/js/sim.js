@@ -250,11 +250,12 @@ export function send(s, p, kind, x = gateX(p)) {
 
 // ---------- damage ----------
 const hurtKingRaw = (...a) => hurtKing(...a);
-function hurtKing(s, p, dmg, x, y, by) {
+function hurtKing(s, p, dmg, x, y, by, cap = null) {
   if (!live(s) || dmg <= 0) return;
   const pl = s.players[p];
   if (pl.down > 0) return;                                         // already knocked out
-  const d = Math.min(pl.kingHp, dmg * (s.phase === 'sudden' ? 2 : 1));
+  let d = Math.min(pl.kingHp, dmg * (s.phase === 'sudden' ? 2 : 1));
+  if (cap) { d = Math.min(d, Math.max(0, cap.ultCap)); cap.ultCap -= d; if (d <= 0) return; }   // an ultimate's limit on the chief, after sudden death's double
   pl.kingHp -= d; pl.kingFlash = 0.25; pl.kingQuiet = 0; ultGain(s, by, p, d);
   if (by === 0 || by === 1) s.players[by].dealt += d;
   emit(s, 'king-hit', { p, x, y, dmg: d });
@@ -294,7 +295,7 @@ function hurtBuilding(s, b, dmg, by) {
   if (b.hp <= 0 && b.kind === 'mine' && (by === 0 || by === 1) && by !== b.owner) {   // smashing the enemy's mine pays (owner)
     const pl = s.players[by], g = Math.min(MINE_LOOT, capOf(s) - pl.gold);
     if (g > 0) { pl.gold += g; pl.earned += g; }
-    emit(s, 'loot', { p: by, gold: MINE_LOOT, x: b.x });
+    emit(s, 'loot', { p: by, gold: Math.max(0, Math.round(g)), x: b.x });
   }
   if (b.hp <= 0) { b.dead = true; fx(s, b.kind === 'shield' ? 'pop' : 'rubble', b.x, 40, { ttl: 0.8, mat: 'wood', owner: b.owner }); emit(s, 'destroyed', { p: b.owner, kind: b.kind, x: b.x }); }
 }
@@ -309,7 +310,7 @@ function solidAt(s, pr, x, y, rad) {
     const g = GEOM[b.kind];
     if (Math.abs(x - b.x) < g.w / 2 + rad && y < g.h + rad) return { kind: 'bld', ref: b };
   }
-  for (const p of [0, 1]) { const k = kingPos(p, s); if (p === foe && hyp(x - k.x, y - k.y) < kingR(p, s) + rad) return { kind: 'king', ref: p }; }
+  for (const p of [0, 1]) { const k = kingPos(p, s); if (p === foe && s.players[p].down <= 0 && hyp(x - k.x, y - k.y) < kingR(p, s) + rad) return { kind: 'king', ref: p }; }   // a knocked-out chief lies flat: shots fly over him
   for (const u of s.units) if (u.owner === foe && u.hp > 0 && hyp(x - u.x, y - unitY(u)) < UNIT[u.kind].r + rad) return { kind: 'unit', ref: u };
   { const [a, b] = fortSpan(foe); if (x > a - rad && x < b + rad && y < FORT.h + rad) return { kind: 'fort', ref: foe }; }
   return null;
@@ -320,7 +321,7 @@ function impact(s, pr, hit) {
   const dmg = sh ? AMMO.scatter.dmg : a.dmg, r = sh ? AMMO.scatter.r : a.r, bld = sh ? AMMO.scatter.bld : a.bld;
   const me = pr.owner, foe = 1 - me;
   // an ultimate's hits on the chief are capped per use (TIERS-era rule: no coin-flip ultimates)
-  const hurtKing = (s2, p2, amt, x, y, by) => { if (pr.ult) { const pl = s.players[me]; amt = Math.min(amt, pl.ultCap); pl.ultCap -= amt; } hurtKingRaw(s2, p2, amt, x, y, by); };
+  const hurtKing = (s2, p2, amt, x, y, by) => hurtKingRaw(s2, p2, amt, x, y, by, pr.ult ? s.players[me] : null);
   let any = false;
   const direct = hit?.ref;
   if (hit?.kind === 'fort' && direct === foe) { hurtFort(s, foe, dmg * bld, me, pr.x, pr.y); any = true; }
@@ -352,7 +353,7 @@ function award(s, p, kind, x, y) {
     case 'gold': pl.gold = Math.min(capOf(s), pl.gold + 40 * bg); break;
     case 'rapid': pl.rapid = RAPID_TIME; break;
     case 'ammo': pl.freeShots += 3; break;
-    case 'repair': pl.kingHp = Math.min(pl.kingMax, pl.kingHp + 50); break;
+    case 'repair': if (pl.down > 0) pl.down = Math.max(0.05, pl.down - 6); else pl.kingHp = Math.min(pl.kingMax, pl.kingHp + 50); break;   // a knocked-out chief gets up sooner instead
     case 'chest': pl.gold = Math.min(capOf(s), pl.gold + 90 * bg); break;
     case 'troops': spawnSquad(s, p, raceOf(s, p).ground[0], x); break;
   }
@@ -639,7 +640,7 @@ function stepUlts(s, dt) {
       const pl = s.players[q.owner];
       { const [a, b] = fortSpan(foe); if (q.x > a - (U.r || 50) && q.x < b + (U.r || 50)) hurtFort(s, foe, U.blockDmg ?? 80, q.owner, q.x, 80); }
       for (const u of s.units) if (u.owner === foe && u.hp > 0 && Math.abs(u.x - q.x) < (U.r || 50)) hurtUnit(s, u, (U.dmg || 120) * 0.5, q.owner);
-      const amt = Math.min(U.dmg || 120, pl.ultCap); pl.ultCap -= amt; hurtKing(s, foe, amt, q.x, 40, q.owner);
+      { const k = kingPos(foe, s); if (Math.abs(k.x - q.x) < (U.r || 50) + kingR(foe, s)) hurtKing(s, foe, U.dmg || 120, q.x, 40, q.owner, pl); }   // only if he is still under it
       fx(s, 'boom', q.x, 40, { r: U.r || 50, owner: q.owner, ttl: 0.6, big: true });
     }
   }

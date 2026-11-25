@@ -41,7 +41,7 @@ export function attachInput(canvas, game) {
   function pressButton(p, b) {
     const s = game.s, pl = s.players[p], key = keyFor(s, p, b);
     if (!key) return;
-    const clock = (t) => `${Math.floor(t / 60)}:${String(Math.ceil(t % 60) % 60).padStart(2, '0')}`;
+    const clock = (t) => { const w = Math.ceil(t); return `${Math.floor(w / 60)}:${String(w % 60).padStart(2, '0')}`; };
     if (b.kind === 'ult') {
       if (pl.ultUsed) return toast(p, 'Ultimate used this round');
       if (!ultReady(s, p)) return toast(p, `Ultimate charging: ${Math.floor(pl.ult * 100)}%`);

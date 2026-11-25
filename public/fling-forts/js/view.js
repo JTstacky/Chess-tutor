@@ -21,7 +21,7 @@ export const art = { ready: false, img: {}, meta: null, base: 'assets/', groups:
 // a race loads in two steps: its base sheets (group '<race>'), then the in-between animation frames (u2_, king2_:
 // group '<race>+') in the background, so a match can start on the base sheets alone. Knockout frames (kingko_) and
 // ultimate effects (ultfx_, group 'ult+') are background too: neither can happen in the first seconds of a round
-const raceGroup = (name) => { if (name.startsWith('ultfx_')) return 'ult+'; const m = /^(t|u2|w|f|a|fortblk|castle|kingatk|kingfx|king2|kingko)_([a-z]+)(?:_|$)/.exec(name); return m && RACE_DATA_KEYS.has(m[2]) ? m[2] + (m[1] === 'u2' || m[1] === 'king2' || m[1] === 'w' || m[1] === 'f' || m[1] === 'a' || m[1] === 'kingko' ? '+' : '') : 'core'; };
+const raceGroup = (name) => { if (name.startsWith('ultfx_')) return 'ult+'; const m = /^(t|u2|w|f|a|w2|f2|fortblk|castle|kingatk|kingfx|king2|kingko)_([a-z]+)(?:_|$)/.exec(name); return m && RACE_DATA_KEYS.has(m[2]) ? m[2] + (m[1] === 'u2' || m[1] === 'king2' || m[1] === 'w' || m[1] === 'f' || m[1] === 'a' || m[1] === 'w2' || m[1] === 'f2' || m[1] === 'kingko' ? '+' : '') : 'core'; };
 let RACE_DATA_KEYS = new Set();
 let manifestIn; const manifest = new Promise((ok) => { manifestIn = ok; });   // settles once sprites.json is read and every sprite has its group
 /** Load one group of sprites; returns a promise that settles when all of them are in (or failed). */
@@ -39,7 +39,7 @@ export async function loadArt(base = 'assets/') {
   for (const [name, m] of Object.entries(art.meta)) {
     const grp = raceGroup(name), add = (key, file) => { (art.groups[grp] ||= []).push([key, file]); art.groupOf[key] = grp; };
     if (m.file) add(name, m.file);
-    else m.frames.forEach((f, i) => add(`${name}_${i}`, f.file));
+    else m.frames.forEach((f, i) => { add(`${name}_${i}`, f.file); if (f.r) (art.reg ||= {})[`${name}_${i}`] = f.r; });   // r: the frame's own small scale and shift that holds its body steady in its cycle (tools/art_register.py)
   }
   manifestIn();
   await loadGroup('core');
@@ -331,12 +331,22 @@ function drawFort(g, s, p, ui, now) {
   const col = COLORS[p], pl = s.players[p], flip = p === 1;
   const fallen = !!pl && pl.fortHp <= 0 && !ui.menu && !ui.pick, drop = fallen ? S.FORT.h - CELL : 0;   // a fallen castle brings its slingshot and flag down onto the rubble
   const c0 = S.catPos(p), c = { x: c0.x, y: c0.y - drop };
+  // the slingshot stands ON the castle picture: its foot at the roof height measured from the art (castle_<race>.seat,
+  // tools/art_castle_seat.py), not at one height for every castle; on a fallen castle it rides the rubble down
+  // The fork stays at the rules' launch point (shots leave from it), so on a lower roof the frame is drawn a little
+  // bigger to reach down to it.
+  const seat = pl && art.meta?.[`castle_${pl.race}`]?.seat; let slK = 1;
+  if (seat && spr(`castle_${pl.race}_0`)) {
+    const fell = fallen ? (DOWN_AT[p] != null ? Math.min(1, (now - DOWN_AT[p]) / 0.7) : 1) : 0, e = fell * fell;
+    slK = Math.max(1, Math.min(1.3, (c0.y - seat[0]) / 99));
+    c.y = seat[0] + (seat[3] - seat[0]) * e + 99 * slK;
+  }
   drawCastle(g, s, p, now);                                          // the castle; the slingshot stands on its top
   // slingshot: a Y frame on the tower; two bands run from the prong tips to a leather pouch that is pulled back
   // along the aim while a finger drags, and snaps forward and wobbles after a shot. The launch point (S.catPos) is the
   // middle of the fork, so the physics is untouched.
   const aim = ui.aimOf?.[p], kick = Math.max(0, (ui.kick?.[p] || 0)), d = S.dir(p);
-  const SL = { h: 118, drop: 99, back: { x: -25, y: 0 }, front: { x: 25, y: 0 } };      // frame size and where the bands tie on, from the fork middle
+  const SL = { h: 118 * slK, drop: 99 * slK, back: { x: -25 * slK, y: 0 }, front: { x: 25 * slK, y: 0 } };      // frame size and where the bands tie on, from the fork middle
   const tipB = { x: c.x + d * SL.back.x, y: c.y + SL.back.y }, tipF = { x: c.x + d * SL.front.x, y: c.y + SL.front.y };
   let pouch, ang = 0;
   if (aim) {
@@ -418,6 +428,7 @@ function clsChip(g, c, cx, top, size, label) {
 // a walk is 4 frames, an attack 3 and a hit 3. Until a troop's extra sheet is loaded it plays the original four.
 const MACHINE = new Set(['aliens_saucer', 'aliens_mothership', 'robots_drone', 'robots_gunship', 'military_chopper', 'military_bomber', 'pirates_sloop', 'steampunk_gyro', 'steampunk_zeppelin']);   // flyers that never flap
 const BLADE = new Set(['shieldbearer', 'dancer', 'skeleton', 'deckhand', 'bosun', 'goblin', 'knight', 'scrap', 'imp', 'thorn', 'vultures']);   // melee troops whose blow is a cut, not a thump
+const REG0 = [1, 0, 0];
 const ACT_T = 0.28, HURT_T = 0.25;               // how long the rules keep u.act and u.hurt up after a strike or a hit
 /** Which picture a troop shows now: { key, k (height multiplier), dy (lift, as a share of the height) }. */
 function unitFrame(u, spec, now, hit) {
@@ -441,11 +452,20 @@ function unitFrame(u, spec, now, hit) {
   // the legs stride and swap). One cycle covers about 0.85 of the troop's height in ground, so the feet do not slide;
   // squad mates start on different frames.
   const wk = spec.air ? null : `w_${art.meta?.[`w_${u.kind}`] ? u.kind : spec.art}`, wm = wk && art.meta?.[wk];
-  if (wm && spr(`${wk}_0`)) { const i = (Math.floor(u.walk / 0.09 / (spec.r * 3.5 * 0.85) * 6) + u.id * 2) % 6; return { key: `${wk}_${i}`, k: wm.k || 1, dy: 0, walk: true }; }
+  if (wm && spr(`${wk}_0`)) {
+    // with the in-between sheet (w2_) the cycle plays as twelve frames: 1 A 2 B 3 C 4 D 5 E 6 F
+    const w2 = `w2_${wk.slice(2)}`, m2 = art.meta?.[w2], twelve = !!m2 && !m2.off && !!spr(`${w2}_0`), ph = u.walk / 0.09 / (spec.r * 3.5 * 0.85);
+    if (twelve) { const j = (Math.floor(ph * 12) + u.id * 4) % 12, i = j >> 1; return j % 2 ? { key: `${w2}_${i}`, k: m2.k || 1, dy: 0, walk: true } : { key: `${wk}_${i}`, k: wm.k || 1, dy: 0, walk: true }; }
+    const i = (Math.floor(ph * 6) + u.id * 2) % 6; return { key: `${wk}_${i}`, k: wm.k || 1, dy: 0, walk: true };
+  }
   // flyers have a six-frame flying cycle (sheet f_<unit>): creatures flap, machines hold their wings and hull rigid
   // and only spin rotors and propellers, ghosts and clouds ripple
   const fm = spec.air && art.meta?.[`f_${u.kind}`];
-  if (fm && spr(`f_${u.kind}_0`)) return { key: `f_${u.kind}_${Math.floor(now * (MACHINE.has(u.kind) ? 18 : 9) + u.id * 1.7) % 6}`, k: fm.k || 1, dy: fm.dy || 0 };
+  if (fm && spr(`f_${u.kind}_0`)) {
+    const f2 = art.meta?.[`f2_${u.kind}`], rate = MACHINE.has(u.kind) ? 18 : 9;
+    if (f2 && !f2.off && spr(`f2_${u.kind}_0`)) { const j = Math.floor(now * rate * 2 + u.id * 3.4) % 12, i = j >> 1; return j % 2 ? { key: `f2_${u.kind}_${i}`, k: f2.k || 1, dy: f2.dy || 0 } : { key: `f_${u.kind}_${i}`, k: fm.k || 1, dy: fm.dy || 0 }; }
+    return { key: `f_${u.kind}_${Math.floor(now * rate + u.id * 1.7) % 6}`, k: fm.k || 1, dy: fm.dy || 0 };
+  }
   if (!has) return base(spec.air ? Math.floor(now * 5 + u.id) % 2 : Math.floor(u.walk) % 2);
   const i = spec.air ? Math.floor(now * 10 + u.id * 1.7) % 4 : Math.floor(u.walk * 2) % 4;
   return i === 0 ? base(0) : i === 1 ? extra(0) : i === 2 ? base(1) : extra(1);
@@ -492,7 +512,8 @@ function drawUnits(g, s, now) {
     g.save();
     const fl = he >= 0 && he < 0.22 ? `brightness(${1.9 - he * 4})` : '';
     if (u.slow > 0 || fl) g.filter = `${u.slow > 0 ? 'hue-rotate(160deg) saturate(0.7) ' : ''}${fl}`.trim();                      // white flash on the hit
-    if (!sprite(g, fr.key, u.x + dx, y + hop + fr.dy * h, h * fr.k, { flip: u.owner === 1, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : win ? Math.sin(now * 8 + u.id) * 0.1 : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
+    const rg = art.reg?.[fr.key] || REG0, hk = h * fr.k;         // the frame's registration: holds the body steady through its cycle
+    if (!sprite(g, fr.key, u.x + dx + dirU * rg[1] * hk, y + hop + fr.dy * h + rg[2] * hk, hk * rg[0], { flip: u.owner === 1, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : win ? Math.sin(now * 8 + u.id) * 0.1 : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
     g.restore();
     if (!spec.range && !spec.heal && ae >= 0.1 && ae < 0.62) {       // a melee blow: a blade leaves a slash arc, anything else an impact burst, where it lands
       const blade = BLADE.has(u.kind.split('_').slice(1).join('_')), fxi = spr(blade ? 'proj_f_4' : 'proj_f_5'), q = (ae - 0.1) / 0.52;
@@ -562,7 +583,7 @@ const SHOT = {
   laser: 'laser', drone: 'dart', gunship: 'tracer', spider: 'web', cyclops: 'rock', bats: 'screech', gargoyle: 'spike',
   rifles: 'bullet', grenadier: 'grenade', tank: 'shell', chopper: 'tracer', necro: 'skull', ghost: 'wail', bonedrake: 'gfire',
   buccaneer: 'shotball', cannoneer: 'ball', parrots: 'coconut', sloop: 'keg', frost: 'ice', gale: 'gust', storm: 'zap',
-  shaman: 'wisp', wyvern: 'magma', tesla: 'zap', gyro: 'rivet', zeppelin: 'bomb',
+  shaman: 'wisp', wyvern: 'magma', tesla: 'zap', gyro: 'rivet', zeppelin: 'bomb', bomber: 'bomb', vultures: 'bomb',
 };
 const SHOT_HIT = { magma: '#ff8a3c', laser: '#ff6a5c', zap: '#fff6a0', ring: '#8fd0ff', orb: '#9dff6a', dart: '#8fd0ff', wail: '#b6e3ff', fire: '#ffb347', gfire: '#9dff6a', acid: '#9dff6a', ray: '#b6f6ff', ice: '#d6f3ff', skull: '#b6e3ff', wisp: '#b9ffb0', web: '#ffffff', gust: '#ffffff' };
 const BOLT = new WeakMap();                           // bolt effect -> { sp, m, flyer }, fixed at first draw
@@ -620,9 +641,10 @@ function drawVfx(g, s, now) {
         const st = rnd(i, 6) * 0.5, dq = Math.max(0, Math.min(1, (a - st) / 1.1)); if (dq <= 0 || dq >= 1) continue;
         const bx = x0 + w * rnd(i, 7), by = 40 + rnd(i, 8) * 170, vx = (rnd(i, 9) - 0.5) * 260, vy = 120 + rnd(i, 10) * 220, r = 4 + rnd(i, 11) * 7;
         const x = bx + vx * dq, y = Math.max(r, by + vy * dq - 620 * dq * dq);
-        const bk = blockKey(s.players[f.p].race, 'stone', i % 2 === 0);      // the castle's own stones, tumbling
+        const cim = spr(`castle_${s.players[f.p].race}_2`);                 // pieces cut out of the castle's own picture, so the rubble matches its walls
         g.globalAlpha = 1 - dq * dq * dq;
-        if (!sprite(g, bk, x, y - r, r * 2.6, { rot: dq * (rnd(i, 12) - 0.5) * 9, anchorY: 0.5 })) { g.fillStyle = '#8a8076'; g.fillRect(x - r, -y - r, r * 2, r * 1.6); }
+        if (cim) { const sw = cim.width * 0.1, sx = cim.width * (0.22 + rnd(i, 14) * 0.46), sy = cim.height * (0.38 + rnd(i, 15) * 0.42), d = r * 2.6; g.save(); g.translate(x, -y); g.rotate(dq * (rnd(i, 12) - 0.5) * 9); g.drawImage(cim, sx, sy, sw, sw, -d / 2, -d / 2, d, d); g.strokeStyle = INK; g.lineWidth = 1.5; g.strokeRect(-d / 2, -d / 2, d, d); g.restore(); }
+        else { g.fillStyle = '#8a8076'; g.fillRect(x - r, -y - r, r * 2, r * 1.6); }
       }
     } else if (f.type === 'dizzy' && s.players[f.p]?.down > 0) {    // a chief out cold: stars circle his head
       const k = S.kingPos(f.p, s), im = spr('proj_f_5'), H = CHIEF_H * S.kingScale(f.p, s);
@@ -631,6 +653,17 @@ function drawVfx(g, s, now) {
       const k = S.kingPos(f.p, s), H = CHIEF_H * S.kingScale(f.p, s);
       g.globalAlpha = 1 - q; g.strokeStyle = '#fff1a8'; g.lineWidth = 4; g.beginPath(); g.ellipse(k.x, -(H * q), 30 * (1 - q * 0.4), 9, 0, 0, 7); g.stroke();
       g.strokeStyle = COLORS[f.p].light; g.lineWidth = 2; g.beginPath(); g.ellipse(k.x, -(H * q * 0.7), 36 * (1 - q * 0.4), 11, 0, 0, 7); g.stroke();
+    } else if (f.type === 'bombdrop') {               // a bomb let go by a bomber: falls nose down, picks up speed, bursts on the ground
+      const T = 0.3;
+      if (a < T) {
+        const c = a / T, x = f.x + (f.tx - f.x) * c, y = f.y + (f.ty - f.y) * c * c, big = f.big && spr('ultfx_a_1'), im = big || spr('proj_c_3');
+        if (im) { const h = big ? 40 : 22; g.globalAlpha = 0.4; g.strokeStyle = '#fff'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - 5, -(y + h * 0.6)); g.lineTo(x - 5, -(y + h * 0.6 + 26 * c)); g.moveTo(x + 5, -(y + h * 0.6)); g.lineTo(x + 5, -(y + h * 0.6 + 20 * c)); g.stroke(); g.globalAlpha = 1; stamp(g, im, x, y, h * im.width / im.height, h, { rot: big ? 0 : c * 5 }); }
+      } else {
+        if (!f.hit) { f.hit = true; art.onSound?.('boom', f.tx); }
+        const c = Math.min(1, (a - T) / (f.dur - T)), h = f.splash * 1.9;
+        g.strokeStyle = `rgba(255,244,200,${0.85 * (1 - c)})`; g.lineWidth = 6 * (1 - c) + 1; g.beginPath(); g.ellipse(f.tx, -f.ty + 4, f.splash * (0.3 + 0.8 * c), f.splash * (0.3 + 0.8 * c) * 0.35, 0, 0, 7); g.stroke();
+        sprite(g, `fx_${Math.min(3, Math.floor(c * 4))}`, f.tx, f.ty - h * 0.2, h, { alpha: 1 - c * c });
+      }
     } else if (f.type === 'summon') {                 // a summon: the thing they come from rises out of the ground, holds, sinks
       const im = spr(`ultfx_c_${ULT_RISE[f.race] ?? 0}`);
       if (im) { const up = a < 0.35 ? a / 0.35 : a > f.dur - 0.5 ? Math.max(0, (f.dur - a) / 0.5) : 1, h = 150, e = up * up * (3 - 2 * up); g.globalAlpha = Math.min(1, up * 1.5); sprite(g, `ultfx_c_${ULT_RISE[f.race] ?? 0}`, f.x, -h * (1 - e) * 0.5, h, { flip: f.p === 1, sy: 0.5 + 0.5 * e }); }
@@ -697,9 +730,12 @@ function drawFx(g, s, now) {
       if (!info) {                                                  // first draw: the shooter is still standing where it fired from
         const sh0 = f.thin ? shooterOf(s, f) : null, m = sh0 ? muzzleOf(s, f, now) : null;
         const flyer = !!sh0 && s.units.some((e) => e.owner !== f.owner && UNIT[e.kind].air && Math.abs(e.x - f.tx) < 8 && Math.abs(e.y - f.ty) < 40);
-        BOLT.set(f, info = { sp: sh0 ? UNIT[sh0.kind] : null, m, flyer });
+        BOLT.set(f, info = { sp: sh0 ? UNIT[sh0.kind] : null, m, flyer, drop: !!sh0 && !!UNIT[sh0.kind].drop });
+        // a bomber (drop: true) lets a bomb fall straight down from its belly; it bursts on the ground as wide as its splash
+        if (info.drop) VFX.push({ type: 'bombdrop', x: sh0.x, y: sh0.y + UNIT[sh0.kind].r * 0.4, tx: f.tx, ty: Math.max(8, f.ty - 20), big: UNIT[sh0.kind].r >= 20, splash: UNIT[sh0.kind].splash || 40, dur: 0.85 });
         if (sh0) { const k0 = sh0.kind.split('_').slice(1).join('_'); art.onSound?.('shot_' + (SHOT[k0] || SHOT[String(UNIT[sh0.kind].art || '').split('_').slice(1).join('_')] || 'bullet'), f.x); }
       }
+      if (info.drop) continue;                                      // drawn by drawVfx: the bomb takes longer to fall than the rules' flash lasts
       if (info.m) { bx = info.m.x; by = info.m.y; }
       // what the shooter is decides the look: armour-piercing shots go clean through and spark out the far side,
       // anti-air shots that reach a flyer are brighter and burst on it
@@ -765,7 +801,8 @@ function drawAbove(g, s, ui, now) {
   const mark = (x, y, key, col, size) => {
     const over = y - edge; if (over <= 0) return;
     if (Math.abs(x - W / 2) < 100) x = W / 2 + (x < W / 2 ? -100 : 100);          // beside the clock, never on it
-    const z = Math.max(0.55, 1 - over / 900), yy = edge - 18, bob = Math.sin(now * 8) * 2;
+    const panelH = DRAW_LAY?.compact ? 40 : 78, underPanel = Math.abs(x - W / 2) > 250;                   // the score panels sit in the top corners
+    const z = Math.max(0.55, 1 - over / 900), yy = underPanel ? Math.min(edge - 18, (ui.topY || edge) - panelH - 16) : edge - 18, bob = Math.sin(now * 8) * 2;
     g.save(); g.translate(Math.max(20, Math.min(W - 20, x)), -(yy + bob)); g.scale(z * 1.5, z * 1.5);
     g.beginPath(); g.moveTo(0, -9); g.lineTo(13, 9); g.lineTo(-13, 9); g.closePath();
     g.fillStyle = col; g.fill(); g.lineWidth = 3; g.lineJoin = 'round'; g.strokeStyle = INK; g.stroke();
@@ -884,7 +921,7 @@ function drawHud(g, s, ui, now) {
       }
       if (shut) {                                                      // not unlocked yet: dark cover with the time left
         g.fillStyle = 'rgba(30,16,4,0.62)'; rrect(g, b.x, -b.y, b.w, b.h - 3, 13); g.fill();
-        text(g, `${Math.floor(wait / 60)}:${String(Math.ceil(wait % 60) % 60).padStart(2, '0')}`, b.w / 2, -b.h / 2 - 1, narrow ? 16 : 19, '#fff', 'center', INK);
+        text(g, `${Math.floor(Math.ceil(wait) / 60)}:${String(Math.ceil(wait) % 60).padStart(2, '0')}`, b.w / 2, -b.h / 2 - 1, narrow ? 16 : 19, '#fff', 'center', INK);
       } else if (b.kind === 'hero' && pl.heroCd > 0) {
         g.fillStyle = 'rgba(30,16,4,0.55)'; rrect(g, b.x, -b.y, b.w * pl.heroCd / S.HERO_CD, b.h - 3, 13); g.fill();
       }
@@ -948,9 +985,10 @@ function drawHud(g, s, ui, now) {
   if ((s.phase === 'roundOver' || s.phase === 'over') && !camOn) {
     const w = s.phase === 'over' ? s.winner : s.roundWinner;
     const msg = w < 0 ? (s.phase === 'over' ? 'Match drawn' : 'Round drawn') : `${RACES[s.players[w].race].name} ${s.phase === 'over' ? 'win the match!' : 'win the round'}`;
-    rrect(g, W / 2 - 380, -430, 760, 110, 24); g.fillStyle = 'rgba(40,24,10,0.8)'; g.fill();
-    text(g, msg, W / 2, 386, 44, w < 0 ? '#fff' : COLORS[w].light);
-    text(g, `${s.roundsWon[0]} – ${s.roundsWon[1]}`, W / 2, 342, 24, '#fff');
+    const yB = Math.min(386, BY + 20);                               // under the pause button on short screens
+    rrect(g, W / 2 - 380, -(yB + 44), 760, 110, 24); g.fillStyle = 'rgba(40,24,10,0.8)'; g.fill();
+    text(g, msg, W / 2, yB, 44, w < 0 ? '#fff' : COLORS[w].light);
+    text(g, `${s.roundsWon[0]} – ${s.roundsWon[1]}`, W / 2, yB - 44, 24, '#fff');
   } else if (camOn) {
     // nothing over the knockout
   } else if (false) {
@@ -962,8 +1000,8 @@ function drawHud(g, s, ui, now) {
     const z = Math.min(1, a * 3), pop = z < 1 ? z * (1.25 - 0.25 * z) : 1, bn = spr('tierbanner_0');
     if (bn) { const bw = 500 * pop; stamp(g, bn, W / 2, BY, bw, bw * bn.height / bn.width, { alpha: Math.min(1, (2.4 - a) * 3) }); text(g, `Tier ${s.tier}: ${TN[s.tier]}`, W / 2, BY + 3, 32 * pop, '#6a3a10', 'center', '#fff3c4'); }
     else text(g, `Tier ${s.tier}: ${TN[s.tier]}`, W / 2, BY, 50 * z, '#ffd23f');
-  } else if (s.time < 2.2 && s.phase === 'play') {
-    text(g, s.round === 1 ? 'Fling!' : `Round ${s.round}`, W / 2, BY, 64 * Math.min(1, s.time * 3), '#fff');
+  } else if ((s.roundT || 0) < 2.2 && s.phase === 'play') {
+    text(g, s.round === 1 ? 'Fling!' : `Round ${s.round}`, W / 2, BY, 64 * Math.min(1, (s.roundT || 0) * 3), '#fff');
   }
 }
 
@@ -1046,7 +1084,7 @@ function drawKo(g, s, now) {
 function drawKoOne(g, s, p, now) {
   const ko = { loser: p, at: s.players[p].koAt ?? s.time };
   const a = s.time - ko.at, k = S.kingPos(ko.loser, s), H = CHIEF_H * S.kingScale(ko.loser, s);
-  if (a > 2.2) text(g, `${Math.ceil(s.players[p].down)}`, k.x, H * 0.85, 22, '#fff');   // seconds until he gets up
+  if (a > 2.2 && (s.phase === 'play' || s.phase === 'sudden')) text(g, `${Math.ceil(s.players[p].down)}`, k.x, H * 0.85, 22, '#fff');   // seconds until he gets up
   if (a > 0.35) for (let i = 0; i < 4; i++) {
     const t = now * 3 + i * Math.PI / 2, hx = k.x - S.dir(ko.loser) * H * 0.55;
     sprite(g, 'fx_0', hx + Math.cos(t) * H * 0.32, H * 0.22 + Math.sin(t) * H * 0.08, H * 0.2, { rot: now * 4, alpha: 0.95 });

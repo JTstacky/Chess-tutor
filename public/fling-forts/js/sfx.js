@@ -219,8 +219,8 @@ export function sound(kind, x) {
   if (!r || !actx || actx.state !== 'running') return false;
   const t = actx.currentTime, fam = kind.startsWith('strike_') ? 'strike' : kind.startsWith('shot_') ? 'shot' : kind.startsWith('ult_') ? 'ult' : kind;
   const gap = GAP[kind] ?? GAP[fam] ?? 0;
-  if (t - (last[kind] ?? -1) < gap) return false;       // the same sound twice in one instant is just louder
-  if (fam === 'shot' && t - (last.anyShot ?? -1) < 0.03) return false;      // a volley is a few shots, not thirty at once
+  if (t - (last[kind] ?? -1) < gap) return 'held';       // the same sound twice in one instant is just louder
+  if (fam === 'shot' && t - (last.anyShot ?? -1) < 0.03) return 'held';      // a volley is a few shots, not thirty at once
   last[kind] = t; if (fam === 'shot') last.anyShot = t;
   try {
     // this play's own little bus: placed left to right, with its share sent to the room
