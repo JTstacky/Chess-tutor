@@ -2,8 +2,9 @@ import { KO } from './tuning.js';
 // main.js — boot, menus, fixed-step loop, sound.
 import * as S from './sim.js';
 import { createAI, pickRace } from './ai.js';
-import { computeLayout, draw, loadArt, loadGroup, worldToScreen, buttons, PICK, PAUSE } from './view.js';
+import { computeLayout, draw, loadArt, loadGroup, worldToScreen, buttons, PICK, PAUSE, art as viewArt, noteEvent } from './view.js';
 import { sound, unlockAudio } from './sfx.js';
+viewArt.onSound = (kind, x) => { if (game.state === 'play') sound(kind, x); };      // shots and hits are heard when they are first drawn
 import { attachInput, blockBrowserGestures, PULL_MAX } from './input.js';
 
 const canvas = document.getElementById('game');
@@ -128,26 +129,35 @@ resize();
 
 function handleEvents() {
   for (const e of S.takeEvents(game.s)) {
+    noteEvent(e, game.s);                      // one-off effects in the view
     switch (e.type) {
-      case 'fire': sound('fire'); break;
-      case 'impact': sound(e.ammo === 'boulder' ? 'boom' : 'impact'); if (e.hit) ui.shake = Math.min(1, ui.shake + 0.2); break;
-      case 'block-broken': case 'crush': sound('block'); ui.shake = Math.min(1, ui.shake + 0.35); ui.hitstop = Math.max(ui.hitstop || 0, 0.06); break;
-      case 'king-hit': if (e.dmg > 3) { sound('king'); ui.shake = Math.min(1, ui.shake + 0.3); } break;
-      case 'shield-hit': sound('shield'); break;
+      case 'fire': sound('fire', e.x ?? S.fortSpan(e.p ?? 0)[0]); break;
+      case 'impact': sound(e.ammo === 'boulder' ? 'boom' : 'impact', e.x); if (e.hit) ui.shake = Math.min(1, ui.shake + 0.2); break;
+      case 'block-broken': case 'crush': sound('block', e.x); ui.shake = Math.min(1, ui.shake + 0.35); ui.hitstop = Math.max(ui.hitstop || 0, 0.06); break;
+      case 'king-hit': if (e.dmg > 3) { sound('king', e.x); ui.shake = Math.min(1, ui.shake + 0.3); } break;
+      case 'shield-hit': sound('shield', e.x); break;
+      case 'fort-hit': sound('fortHit', e.x); break;
+      case 'fort-guarded': sound('guarded', e.x); break;
+      case 'fort-down': sound('fortDown', e.x); break;
+      case 'chief-down': sound('chiefDown', e.x); break;
+      case 'chief-up': sound('chiefUp', e.x); break;
+      case 'tower-shot': sound('shot_arrow', e.x); break;
+      case 'crate-land': sound('coin', e.x); break;
       case 'king-strike': if (!sound('strike_' + game.s.players[e.p].race)) sound('impact'); ui.shake = Math.min(1, ui.shake + 0.1); break;
-      case 'build': case 'send': sound('build'); break;
-      case 'boom': case 'destroyed': sound('boom'); break;
-      case 'loot': sound('bonus'); ui.toast[e.p] = { text: `Mine smashed! +${e.gold} gold`, until: game.clock + 1.8 }; break;
+      case 'build': sound('build', e.x); break;
+      case 'send': sound('send', e.x); break;
+      case 'boom': case 'destroyed': sound('boom', e.x); break;
+      case 'loot': sound('coin', e.x); sound('bonus', e.x); ui.toast[e.p] = { text: `Mine smashed! +${e.gold} gold`, until: game.clock + 1.8 }; break;
       case 'bonus': sound('bonus'); ui.toast[e.p] = { text: S.BONUS[e.kind].name + '!', until: game.clock + 1.8 }; break;
       case 'sudden': sound('sudden'); break;
-      case 'tier': sound('roundStart'); break;
-      case 'ult': sound('sudden'); break;
+      case 'tier': sound('tier'); break;
+      case 'ult': if (!sound('ult_' + game.s.players[e.p].race, e.x)) sound('ult', e.x); break;
       case 'hero': sound('build'); break;
       case 'round-end': ui.armed = [null, null]; ui.aims.clear(); ui.held = null;
-        if (e.winner >= 0) { ui.slowmo = KO.slow; ui.cam = { x: e.x, y: e.y, at: performance.now() / 1000, dur: KO.cam, zoom: KO.zoom }; sound('impact'); }
+        if (e.winner >= 0) { ui.slowmo = KO.slow; ui.cam = { x: e.x, y: e.y, at: performance.now() / 1000, dur: KO.cam, zoom: KO.zoom }; sound('ko', e.x); }
         break;
       case 'round-start': ui.cam = null; sound('roundStart'); ui.tickAt = null; ui.aims.clear(); ui.held = null; break;
-      case 'bounty': sound(S.UNIT[e.kind]?.air ? 'flyerDown' : 'die'); break;
+      case 'bounty': sound(S.UNIT[e.kind]?.air ? 'flyerDown' : 'die', e.x); break;
       case 'match-end': sound('win'); setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, KO.over * 1000); break;   // after the knockout   // if paused meanwhile, resume() shows it
     }
   }

@@ -19,15 +19,16 @@ const FONT = (px, w = 800) => `${w} ${px}px "Trebuchet MS", "Segoe UI", system-u
 export const art = { ready: false, img: {}, meta: null, base: 'assets/', groups: {}, groupOf: {}, state: {} };
 // chiefs stay in core: the race picker shows all ten of them at once
 // a race loads in two steps: its base sheets (group '<race>'), then the in-between animation frames (u2_, king2_:
-// group '<race>+') in the background, so a match can start on the base sheets alone
-const raceGroup = (name) => { const m = /^(t|u2|fortblk|kingatk|kingfx|king2)_([a-z]+)(?:_|$)/.exec(name); return m && RACE_DATA_KEYS.has(m[2]) ? m[2] + (m[1] === 'u2' || m[1] === 'king2' ? '+' : '') : 'core'; };
+// group '<race>+') in the background, so a match can start on the base sheets alone. Knockout frames (kingko_) and
+// ultimate effects (ultfx_, group 'ult+') are background too: neither can happen in the first seconds of a round
+const raceGroup = (name) => { if (name.startsWith('ultfx_')) return 'ult+'; const m = /^(t|u2|w|f|a|fortblk|castle|kingatk|kingfx|king2|kingko)_([a-z]+)(?:_|$)/.exec(name); return m && RACE_DATA_KEYS.has(m[2]) ? m[2] + (m[1] === 'u2' || m[1] === 'king2' || m[1] === 'w' || m[1] === 'f' || m[1] === 'a' || m[1] === 'kingko' ? '+' : '') : 'core'; };
 let RACE_DATA_KEYS = new Set();
 let manifestIn; const manifest = new Promise((ok) => { manifestIn = ok; });   // settles once sprites.json is read and every sprite has its group
 /** Load one group of sprites; returns a promise that settles when all of them are in (or failed). */
 export function loadGroup(name) {
   if (art.state[name]) return art.state[name].done;
   const st = art.state[name] = { ready: false, done: null };
-  st.done = manifest.then(() => Promise.all((art.groups[name] || []).map(([key, file]) => new Promise((ok) => { let tries = 0; const go = () => { const im = new Image(); im.onload = () => { art.img[key] = im; ok(); }; im.onerror = () => { if (++tries > 2) { (art.failed ||= []).push(key); ok(); } else setTimeout(go, 500 * tries); }; im.src = art.base + file + (tries ? `?r=${tries}` : ''); }; go(); })))).then(() => { st.ready = true; if (name !== 'core' && !name.endsWith('+')) loadGroup(name + '+'); });
+  st.done = manifest.then(() => Promise.all((art.groups[name] || []).map(([key, file]) => new Promise((ok) => { let tries = 0; const go = () => { const im = new Image(); im.onload = () => { art.img[key] = im; ok(); }; im.onerror = () => { if (++tries > 2) { (art.failed ||= []).push(key); ok(); } else setTimeout(go, 500 * tries); }; im.src = art.base + file + (tries ? `?r=${tries}` : ''); }; go(); })))).then(() => { st.ready = true; if (name !== 'core' && !name.endsWith('+')) { loadGroup(name + '+'); if (name !== 'ult') loadGroup('ult'); } });   // ultimate effects (group 'ult+') follow the first race in
   return st.done;
 }
 export async function loadArt(base = 'assets/') {
@@ -69,7 +70,9 @@ export const unitKey = (kind, frame) => {
   // its picture did not arrive: show another of its own poses (the first troops' art stands in only if it has none at
   // all; one lost download used to put a different creature, a bark golem, into the middle of the animation)
   for (const f of [0, 1, 2, 3]) if (f !== frame && art.img[`t_${kind}_${f}`]) return `t_${kind}_${f}`;
-  return `t_${UNIT[kind].art}_${frame}`;
+  const alt = UNIT[kind].art;
+  if (alt && !art.img[`t_${alt}_${frame}`]) for (const f of [0, 1, 2, 3]) if (art.img[`t_${alt}_${f}`]) return `t_${alt}_${f}`;
+  return `t_${alt}_${frame}`;
 };
 export const kingKey = (race) => (spr(`king_${race}_0`) || coming(`king_${race}_0`) ? `king_${race}_0` : OLD_KINGS[S.RACE_KEYS.indexOf(race) % 3]);
 const BLK = { wood: 0, stone: 1, iron: 2 };
@@ -243,15 +246,15 @@ function drawChief(g, s, p, now) {
     const a = s.time - (pl.koAt ?? s.time), fall = Math.min(1, a / 0.5), bounce = a > 0.5 && a < 0.8 ? Math.sin(Math.PI * (a - 0.5) / 0.3) * 0.08 : 0;
     const back = -face, rot = back * (Math.PI / 2) * (fall * fall) * (1 - bounce);
     g.save(); g.translate(k.x - back * H * 0.12 * fall, 0); g.filter = 'saturate(0.6) brightness(0.92)';
-    const ko2 = `kingko_${pl.race}_0`;
-    if (spr(ko2)) sprite(g, ko2, 0, 0, H, { flip });
+    const ko2 = `kingko_${pl.race}_${a < 0.22 ? 0 : a < 0.5 ? 1 : 2}`, km = art.meta?.[`kingko_${pl.race}`];
+    if (spr(ko2)) sprite(g, ko2, a < 0.5 ? 0 : -back * H * 0.1, a >= 0.5 ? H * bounce * 0.6 : 0, H * (km?.k || 1), { flip });
     else sprite(g, kingKey(pl.race), 0, -H * 0.4 * fall * fall, H, { flip, rot });   // lowered as he tips so he lies on the ground
     g.restore();
     return;
   }
   if (ko && ko.winner === p) {                   // the winner jumps and waves
-    const a = s.time - ko.at, j = Math.abs(Math.sin(a * 7)) * H * 0.16, cheer = `kingwin_${pl.race}_0`;
-    if (spr(cheer)) sprite(g, cheer, k.x, j, H, { flip });
+    const a = s.time - ko.at, j = Math.abs(Math.sin(a * 7)) * H * 0.16, cheer = `kingko_${pl.race}_3`;
+    if (spr(cheer)) sprite(g, cheer, k.x, j, H * (art.meta?.[`kingko_${pl.race}`]?.k || 1), { flip });
     else sprite(g, kingKey(pl.race), k.x, j, H, { flip, rot: Math.sin(a * 7) * 0.12 });
     return;
   }
@@ -266,6 +269,7 @@ function drawChief(g, s, p, now) {
   if (useAtk) {
     const ia = spr(atk), ii = spr(kingKey(pl.race)), ha = H * (ii ? ia.height / ii.height : 1), wa = ha * ia.width / ia.height, tp = art.tips?.[atk];   // cut at the standing picture's scale
     sprite(g, atk, x, 0, ha, { flip });
+    if (art.trace) art.trace.push(['k', p, pl.race, atk, true, +ha.toFixed(1), 0, +x.toFixed(1), 0, +(pl.kingAct || 0).toFixed(3)]);
     if (tp) tip = { x: x + face * (tp[0] - 0.5) * wa, y: (1 - tp[1]) * ha };
   }
   else {
@@ -273,6 +277,7 @@ function drawChief(g, s, p, now) {
     // sheet is in, the standing picture bobs and tilts as before
     const m2 = art.meta?.[`king2_${pl.race}`], has2 = !!m2 && !!spr(`king2_${pl.race}_0`), he = now - st.hurtAt;
     const f2 = !has2 ? -1 : he >= 0 && he < 0.3 ? (he < 0.07 ? 4 : 5) : walking ? Math.floor(st.step) % 4 : -1;
+    if (art.trace) art.trace.push(['k', p, pl.race, f2 >= 0 ? `king2_${pl.race}_${f2}` : kingKey(pl.race), true, +(H * (f2 >= 0 ? m2.k || 1 : 1)).toFixed(1), 0, +x.toFixed(1), +Math.max(0, 0.3 - he).toFixed(3), +(pl.kingAct || 0).toFixed(3)]);
     if (f2 >= 0) {
       const back = f2 >= 4 ? Math.sin(Math.PI * Math.min(1, he / 0.3)) : 0;       // eased knock-back and return
       sprite(g, `king2_${pl.race}_${f2}`, x - face * back * H * 0.07, 0, H * (m2.k || 1), { flip, rot: -face * back * 0.06 });
@@ -301,6 +306,13 @@ function drawCastle(g, s, p, now) {
   const f = pl ? Math.max(0, pl.fortHp / pl.fortMax) : 1, stage = f <= 0 ? 3 : f < 0.34 ? 2 : f < 0.67 ? 1 : 0;
   const art = pl && spr(`castle_${pl.race}_${stage}`);
   g.save(); if (pl && pl.fortFlash > 0) g.filter = 'brightness(1.6)';
+  const fell = stage === 3 && DOWN_AT[p] != null ? (now - DOWN_AT[p]) / 0.7 : 9;
+  if (art && fell < 1 && spr(`castle_${pl.race}_2`)) {         // coming down: the broken castle shudders and sinks as the rubble appears
+    const im2 = spr(`castle_${pl.race}_2`), hh = w * im2.height / im2.width, e = fell * fell;
+    sprite(g, `castle_${pl.race}_3`, cx, 0, w * art.height / art.width, { flip: p === 1, alpha: Math.min(1, fell * 1.6) });
+    sprite(g, `castle_${pl.race}_2`, cx + Math.sin(now * 70) * 5 * (1 - fell), -hh * 0.1 * e, hh, { flip: p === 1, alpha: 1 - e, sy: 1 - 0.55 * e });
+    g.restore(); return;
+  }
   if (art) { sprite(g, `castle_${pl.race}_${stage}`, cx, 0, H * (art.height / art.width) * (w / H) > 0 ? w * art.height / art.width : H, { flip: p === 1 }); g.restore(); return; }
   const race = pl ? pl.race : S.RACE_KEYS[0], keep = (kind, worn) => blockKey(race, kind, worn);
   const top = stage === 3 ? CELL : H - stage * 22;                 // ruins are low
@@ -346,8 +358,8 @@ function drawFort(g, s, p, ui, now) {
     band(tipF);                                                          // the near band in front of everything
   } else sprite(g, 'catapult_0', c.x, c.y - 14, 62, { flip });
   // flag in the side colour
-  const fx = S.mx(p, S.FORT.back + 22), fy = S.FORT.h + 46 - drop;
-  g.strokeStyle = INK; g.lineWidth = 3; g.beginPath(); g.moveTo(fx, -fy + 44); g.lineTo(fx, -fy - 46); g.stroke();
+  const fx = S.mx(p, S.FORT.back - 6), fy = S.FORT.h + 46 - drop;
+  g.strokeStyle = INK; g.lineWidth = 3; g.beginPath(); g.moveTo(fx, 0); g.lineTo(fx, -fy - 46); g.stroke();   // the pole stands on the ground behind the castle
   const wave = Math.sin(now * 3 + p) * 4;
   g.beginPath(); g.moveTo(fx, -fy - 46); g.quadraticCurveTo(fx + d * 20, -fy - 50 + wave, fx + d * 38, -fy - 38); g.quadraticCurveTo(fx + d * 20, -fy - 30 - wave, fx, -fy - 24); g.closePath();
   g.fillStyle = col.main; g.fill(); g.stroke();
@@ -404,33 +416,64 @@ function clsChip(g, c, cx, top, size, label) {
 // A troop's animation. The original sheet t_<unit> has four frames (move A, move B, attack, hurt); the extra sheet
 // u2_<unit> adds six in-betweens (move A>B, move B>A, attack mid-swing, attack recover, hurt flinch, hurt recover), so
 // a walk is 4 frames, an attack 3 and a hit 3. Until a troop's extra sheet is loaded it plays the original four.
+const MACHINE = new Set(['aliens_saucer', 'aliens_mothership', 'robots_drone', 'robots_gunship', 'military_chopper', 'military_bomber', 'pirates_sloop', 'steampunk_gyro', 'steampunk_zeppelin']);   // flyers that never flap
+const BLADE = new Set(['shieldbearer', 'dancer', 'skeleton', 'deckhand', 'bosun', 'goblin', 'knight', 'scrap', 'imp', 'thorn', 'vultures']);   // melee troops whose blow is a cut, not a thump
 const ACT_T = 0.28, HURT_T = 0.25;               // how long the rules keep u.act and u.hurt up after a strike or a hit
 /** Which picture a troop shows now: { key, k (height multiplier), dy (lift, as a share of the height) }. */
-function unitFrame(u, spec, now) {
+function unitFrame(u, spec, now, hit) {
   const base = (i) => ({ key: unitKey(u.kind, i), k: 1, dy: 0 });
   const xm = art.meta?.[`u2_${u.kind}`], has = !!xm && !!spr(`u2_${u.kind}_0`);
   const extra = (i) => ({ key: `u2_${u.kind}_${i}`, k: xm.k || 1, dy: xm.dy || 0 });
-  if (u.hurt > 0) { const e = HURT_T - u.hurt; return !has ? base(3) : e < 0.05 ? extra(4) : e < 0.16 ? base(3) : extra(5); }
+  // a hit plays flinch, knocked back, recover. Under rapid fire the rules restart u.hurt every few frames: the flinch
+  // then shows only for the first blow of the run, and the troop stays knocked back until the blows stop
+  if (u.hurt > 0) return !has ? base(3) : hit && now - hit.t0 < 0.05 ? extra(4) : u.hurt > 0.09 ? base(3) : extra(5);
   if (u.act > 0) {
     const e = Math.max(0, ACT_T - u.act);
+    // each troop's own four-frame attack (sheet a_<unit>, drawn as one picture): a short wind-up, the strike as the
+    // blow lands or the shot leaves, the follow-through, the recover
+    const am = art.meta?.[`a_${u.kind}`];
+    if (am && spr(`a_${u.kind}_0`)) return { key: `a_${u.kind}_${e < 0.035 ? 0 : e < 0.12 ? 1 : e < 0.2 ? 2 : 3}`, k: am.k || 1, dy: am.dy || 0 };
     if (!has) return base(2);
     // a shooter is already at full draw when its shot leaves; a fighter is caught mid-swing first
     return spec.range ? (e < 0.14 ? base(2) : extra(3)) : e < 0.05 ? extra(2) : e < 0.18 ? base(2) : extra(3);
   }
+  // ground troops walk on their own six-frame cycle (sheet w_<unit>, drawn as one picture so the body holds still and
+  // the legs stride and swap). One cycle covers about 0.85 of the troop's height in ground, so the feet do not slide;
+  // squad mates start on different frames.
+  const wk = spec.air ? null : `w_${art.meta?.[`w_${u.kind}`] ? u.kind : spec.art}`, wm = wk && art.meta?.[wk];
+  if (wm && spr(`${wk}_0`)) { const i = (Math.floor(u.walk / 0.09 / (spec.r * 3.5 * 0.85) * 6) + u.id * 2) % 6; return { key: `${wk}_${i}`, k: wm.k || 1, dy: 0, walk: true }; }
+  // flyers have a six-frame flying cycle (sheet f_<unit>): creatures flap, machines hold their wings and hull rigid
+  // and only spin rotors and propellers, ghosts and clouds ripple
+  const fm = spec.air && art.meta?.[`f_${u.kind}`];
+  if (fm && spr(`f_${u.kind}_0`)) return { key: `f_${u.kind}_${Math.floor(now * (MACHINE.has(u.kind) ? 18 : 9) + u.id * 1.7) % 6}`, k: fm.k || 1, dy: fm.dy || 0 };
   if (!has) return base(spec.air ? Math.floor(now * 5 + u.id) % 2 : Math.floor(u.walk) % 2);
   const i = spec.air ? Math.floor(now * 10 + u.id * 1.7) % 4 : Math.floor(u.walk * 2) % 4;
   return i === 0 ? base(0) : i === 1 ? extra(0) : i === 2 ? base(1) : extra(1);
 }
 
+const HELD = new Map();                               // troop id -> { key, fr, t }: the pose it is showing and since when
+const HITS = new Map();                               // troop id -> { t0, seen, kick }: the run of blows it is taking
 function drawUnits(g, s, now) {
+  if (HITS.size > 400) HITS.clear();
+  if (HELD.size > 600) HELD.clear();
   const us = s.units.slice().sort((a, b) => (UNIT[a.kind].air ? 1 : 0) - (UNIT[b.kind].air ? 1 : 0) || b.lane - a.lane);
   for (const u of us) {
     const spec = UNIT[u.kind], col = COLORS[u.owner], h = spec.r * 3.5, air = !!spec.air;
     const y = air ? u.y + Math.sin(now * 2.4 + u.id) * 6 : -2 - u.lane * 9;
-    const fr = unitFrame(u, spec, now), dirU = S.dir(u.owner);
+    let hit = HITS.get(u.id);
+    if (u.hurt > 0) { if (!hit || now - hit.seen > 0.1) { HITS.set(u.id, hit = { t0: now, seen: now, kick: 0 }); art.onSound?.('hit', u.x); } hit.seen = now; }
+    let fr = unitFrame(u, spec, now, hit); const dirU = S.dir(u.owner);
+    // no picture is shown for a single frame: once a troop changes pose it holds it for at least 1/15 s (a blow
+    // landing mid-recovery, or blows arriving every other frame, otherwise make it flick between two poses)
+    const hold = HELD.get(u.id);
+    // (only between hit and attack poses: a walking troop that is struck reacts on the very next frame)
+    const busy = u.hurt > 0 || u.act > 0;
+    if (hold && hold.busy && busy && hold.key !== fr.key && now - hold.t < 0.066 && now >= hold.t && spr(hold.key)) fr = hold.fr; else if (!hold || hold.key !== fr.key) HELD.set(u.id, { key: fr.key, fr, t: now, busy });
+    if (art.trace) art.trace.push(['u', u.id, u.kind, fr.key, !!spr(fr.key), +(spec.r * 3.5 * fr.k).toFixed(1), +fr.dy.toFixed(3), +u.x.toFixed(1), +(u.hurt || 0).toFixed(3), +(u.act || 0).toFixed(3)]);     // test hook: tools/art_battle_record.mjs
     const koS = s.ko && s.ko.loser >= 0 && (s.phase === 'roundOver' || s.phase === 'over') ? s.ko : null;
     const win = koS && u.owner === koS.winner, lose = koS && u.owner === koS.loser;
-    const hop = win ? Math.abs(Math.sin(now * 8 + u.id)) * spec.r * 1.1 : air || u.act > 0 || u.hurt > 0 || lose ? 0 : Math.abs(Math.sin(u.walk * Math.PI)) * spec.r * 0.22;
+    let hop = win ? Math.abs(Math.sin(now * 8 + u.id)) * spec.r * 1.1 : air || u.act > 0 || u.hurt > 0 || lose ? 0 : Math.abs(Math.sin(u.walk * Math.PI)) * spec.r * 0.22;
+    if (fr.walk && !win) hop = 0;                           // the walk cycle has its own bob drawn in
     if (lose) { g.save(); g.filter = 'saturate(0.35) brightness(0.85)'; }
     // team-colour disc on the ground (a fainter shadow under flyers)
     g.beginPath(); g.ellipse(u.x, air ? 0 : -y + 1, spec.r * (air ? 0.9 : 1.15), spec.r * (air ? 0.24 : 0.34), 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = air ? 0.35 : 0.8; g.fill();
@@ -439,14 +482,22 @@ function drawUnits(g, s, now) {
     // eased body motion on top of the frames: a hit knocks the troop back and it springs upright again, a strike
     // lunges forward and settles; both ease in and out so nothing snaps
     const he = u.hurt > 0 ? 1 - u.hurt / HURT_T : -1, ae = u.act > 0 && u.hurt <= 0 ? Math.max(0, 1 - u.act / ACT_T) : -1;
-    const kick = he >= 0 ? Math.sin(Math.PI * Math.min(1, he * 1.15)) : 0, lunge = ae >= 0 ? Math.sin(Math.PI * Math.min(1, ae * 1.3)) : 0;
+    // knock-back eases toward where the hit has got to (out while the blows land, home as it recovers) instead of
+    // being read straight off u.hurt, so a second blow mid-recovery does not snap the troop back to upright first
+    let kick = 0;
+    if (hit) { const want = u.hurt > 0.09 ? 1 : u.hurt > 0 ? u.hurt / 0.09 : 0; hit.kick += (want - hit.kick) * 0.4; kick = hit.kick; if (u.hurt <= 0 && kick < 0.02) HITS.delete(u.id); }
+    const lunge = ae >= 0 ? Math.sin(Math.PI * Math.min(1, ae * 1.3)) : 0;
     const lean = (lunge * 0.1 - kick * 0.14) * dirU, dx = (lunge * spec.r * 0.28 - kick * spec.r * 0.38) * dirU;
-    const sq = he >= 0 && he < 0.3 ? 1 - 0.08 * Math.sin(Math.PI * he / 0.3) : 1;                 // a quick squash as the blow lands
+    const hc = hit ? (now - hit.t0) / 0.075 : 9, sq = hc >= 0 && hc < 1 ? 1 - 0.08 * Math.sin(Math.PI * hc) : 1;                 // a quick squash as the blow lands
     g.save();
-    if (u.slow > 0) g.filter = 'hue-rotate(160deg) saturate(0.7)';
-    else if (he >= 0 && he < 0.22) g.filter = `brightness(${1.9 - he * 4})`;                      // white flash on the hit
+    const fl = he >= 0 && he < 0.22 ? `brightness(${1.9 - he * 4})` : '';
+    if (u.slow > 0 || fl) g.filter = `${u.slow > 0 ? 'hue-rotate(160deg) saturate(0.7) ' : ''}${fl}`.trim();                      // white flash on the hit
     if (!sprite(g, fr.key, u.x + dx, y + hop + fr.dy * h, h * fr.k, { flip: u.owner === 1, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : win ? Math.sin(now * 8 + u.id) * 0.1 : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
     g.restore();
+    if (!spec.range && !spec.heal && ae >= 0.1 && ae < 0.62) {       // a melee blow: a blade leaves a slash arc, anything else an impact burst, where it lands
+      const blade = BLADE.has(u.kind.split('_').slice(1).join('_')), fxi = spr(blade ? 'proj_f_4' : 'proj_f_5'), q = (ae - 0.1) / 0.52;
+      if (fxi) { const sz = h * (blade ? 0.8 : 0.55) * (0.75 + 0.45 * q); stamp(g, fxi, u.x + dirU * (spec.r * 1.25 + (blade ? 4 : 8) * q), y + h * 0.5, sz * fxi.width / fxi.height, sz, { flipX: dirU < 0, alpha: 1 - q * q, rot: blade ? (q - 0.5) * 0.5 : 0 }); }
+    }
     if (spec.siege && !spec.range && ae >= 0.15) {                 // a siege troop only ever strikes walls and forts: chips of stone fly back from the blow
       const tp = art.tips?.[unitKey(u.kind, 2)], im2 = spr(unitKey(u.kind, 2)), w2 = im2 ? h * im2.width / im2.height : h;
       const ox = u.x + dirU * ((tp ? tp[0] - 0.5 : 0.4) * w2), oy = y + (tp ? 1 - tp[1] : 0.5) * h, q = (ae - 0.15) / 0.85;
@@ -481,6 +532,10 @@ function drawShots(g, s) {
   const IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3 };
   for (const pr of s.projectiles) {
     const a = AMMO[pr.ammo], size = (pr.shard ? 14 : a.size * 2.5);
+    if (pr.ult) {                                 // an ultimate's barrage: the caster's own shell, bomb or flaming ball, nose down
+      const uk = `ultfx_a_${ULT_DROP[s.players[pr.owner]?.race] ?? 0}`, ui2 = spr(uk);
+      if (ui2) { stamp(g, ui2, pr.x, pr.y + 30, 84 * ui2.width / ui2.height, 84); continue; }
+    }
     // motion streak
     g.strokeStyle = pr.ammo === 'fire' ? 'rgba(255,170,60,0.55)' : 'rgba(255,255,255,0.45)'; g.lineWidth = size * 0.45; g.lineCap = 'round';
     g.beginPath(); g.moveTo(pr.x, -pr.y); g.lineTo(pr.x - pr.vx * 0.035, -(pr.y - pr.vy * 0.035)); g.stroke();
@@ -490,6 +545,27 @@ function drawShots(g, s) {
 
 /** Where the troop that fired bolt f holds the tip of its weapon, in world coords (null if it cannot be found).
  *  Uses the same size and place drawUnits gives the troop. */
+// What each shooting troop fires, so the shot matches the weapon in its attack picture. Sprite shots are frames of the
+// proj_a/b/c sheets (tools/art_proj_manifest.py): [sprite key, length in world units]. 'laser' and 'zap' are pure
+// light and drawn in code; 'claw' is a mark on the target for troops that bite, peck or stab at close range.
+const PROJ = {
+  arrow: ['proj_a_0', 26], bullet: ['proj_a_1', 16], ball: ['proj_a_2', 17], rock: ['proj_a_3', 17], grenade: ['proj_a_4', 13], fire: ['proj_a_5', 28],
+  gfire: ['proj_b_0', 28], ray: ['proj_b_1', 18], acid: ['proj_b_2', 20], web: ['proj_b_3', 20], skull: ['proj_b_4', 26], ice: ['proj_b_5', 22],
+  gust: ['proj_c_0', 26], claw: ['proj_c_1', 26], wisp: ['proj_c_2', 22], bomb: ['proj_c_3', 16],
+  laser: ['proj_d_0', 30], zap: ['proj_d_1', 30], shotball: ['proj_d_2', 20], tracer: ['proj_d_3', 24], rivet: ['proj_d_4', 20], ring: ['proj_d_5', 18],
+  javelin: ['proj_e_0', 30], screech: ['proj_e_1', 22], spike: ['proj_e_2', 22], coconut: ['proj_e_3', 15], wail: ['proj_e_4', 26], magma: ['proj_e_5', 24],
+  orb: ['proj_f_0', 20], dart: ['proj_f_1', 18], shell: ['proj_f_2', 22], keg: ['proj_f_3', 17],
+};
+const SHOT = {
+  // one thing per shooter: within a race no two troops fire the same projectile
+  archer: 'arrow', gryphon: 'javelin', dragon: 'fire', trooper: 'ray', walker: 'zap', spitter: 'acid', saucer: 'ring', mothership: 'orb',
+  laser: 'laser', drone: 'dart', gunship: 'tracer', spider: 'web', cyclops: 'rock', bats: 'screech', gargoyle: 'spike',
+  rifles: 'bullet', grenadier: 'grenade', tank: 'shell', chopper: 'tracer', necro: 'skull', ghost: 'wail', bonedrake: 'gfire',
+  buccaneer: 'shotball', cannoneer: 'ball', parrots: 'coconut', sloop: 'keg', frost: 'ice', gale: 'gust', storm: 'zap',
+  shaman: 'wisp', wyvern: 'magma', tesla: 'zap', gyro: 'rivet', zeppelin: 'bomb',
+};
+const SHOT_HIT = { magma: '#ff8a3c', laser: '#ff6a5c', zap: '#fff6a0', ring: '#8fd0ff', orb: '#9dff6a', dart: '#8fd0ff', wail: '#b6e3ff', fire: '#ffb347', gfire: '#9dff6a', acid: '#9dff6a', ray: '#b6f6ff', ice: '#d6f3ff', skull: '#b6e3ff', wisp: '#b9ffb0', web: '#ffffff', gust: '#ffffff' };
+const BOLT = new WeakMap();                           // bolt effect -> { sp, m, flyer }, fixed at first draw
 function shooterOf(s, f) {
   let u = null, best = 3;
   for (const e of s.units) { if (e.owner !== f.owner || e.hp <= 0) continue; const d = Math.abs(e.x - f.x); if (d < best) { best = d; u = e; } }
@@ -498,10 +574,97 @@ function shooterOf(s, f) {
 function muzzleOf(s, f, now) {
   const u = shooterOf(s, f);
   if (!u) return null;
-  const spec = UNIT[u.kind], key = unitKey(u.kind, 2), im = spr(key), tp = art.tips?.[key];
+  const spec = UNIT[u.kind], ak = `a_${u.kind}_1`, own = !!spr(ak) && !!art.tips?.[ak], key = own ? ak : unitKey(u.kind, 2), im = spr(key), tp = art.tips?.[key];
   if (!im || !tp) return null;
-  const h = spec.r * 3.5, w = h * im.width / im.height, y = spec.air ? u.y + Math.sin(now * 2.4 + u.id) * 6 : -2 - u.lane * 9;
+  const h = spec.r * 3.5 * (own ? art.meta[`a_${u.kind}`].k || 1 : 1), w = h * im.width / im.height, y = spec.air ? u.y + Math.sin(now * 2.4 + u.id) * 6 : -2 - u.lane * 9;
   return { x: u.x + S.dir(u.owner) * (tp[0] - 0.5) * w, y: y + (1 - tp[1]) * h };
+}
+
+// ---- one-off effects set off by rule events: main.js hands every event to noteEvent ----
+const VFX = [];                                       // { type, x, y, p, dur, t0 } in wall-clock seconds, t0 set at first draw
+const DOWN_AT = [null, null];                         // when each castle started to fall (wall clock), for the collapse
+const ULT_DROP = { fantasy: 0, military: 1, pirates: 2 }, ULT_WAVE = { robots: 0, monsters: 1, elementals: 2 }, ULT_RISE = { undead: 0, beastfolk: 1 };
+const BEAMS = new WeakMap();                          // queued beam -> { fireAt } in wall-clock seconds
+export function noteEvent(e, s) {
+  if (e.type === 'fort-hit') VFX.push({ type: 'chips', x: e.x, y: e.y ?? 90, p: e.p, dur: 0.7 });
+  else if (e.type === 'fort-guarded') VFX.push({ type: 'guard', x: e.x, y: e.y ?? 90, p: e.p, dur: 0.5 });
+  else if (e.type === 'fort-down') VFX.push({ type: 'collapse', p: e.p, x: e.x, dur: 1.9 });
+  else if (e.type === 'chief-down') VFX.push({ type: 'dizzy', p: e.p, dur: 2.4 });
+  else if (e.type === 'chief-up') VFX.push({ type: 'rise', p: e.p, dur: 0.8 });
+  else if (e.type === 'ult' && e.shape === 'summon') VFX.push({ type: 'summon', p: e.p, x: S.gateX(e.p) + S.dir(e.p) * 185, race: s.players[e.p].race, dur: 2.4 });
+  else if (e.type === 'round-start') { VFX.length = 0; DOWN_AT[0] = DOWN_AT[1] = null; }
+  if (VFX.length > 40) VFX.splice(0, VFX.length - 40);
+}
+const rnd = (i, k) => { const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };      // steady pseudo-random per particle
+function drawVfx(g, s, now) {
+  for (const f of VFX) {
+    if (f.t0 == null) { f.t0 = now; if (f.type === 'collapse') DOWN_AT[f.p] = now; }
+    const a = now - f.t0, q = Math.max(0, Math.min(1, a / f.dur));
+    if (f.type === 'chips') {                         // the castle really hurt: stone chips fly, a puff of dust
+      const away = -S.dir(f.p);                       // chips fly back toward the attacker
+      g.globalAlpha = (1 - q) * 0.55; g.fillStyle = '#d9cfc2'; g.beginPath(); g.arc(f.x, -f.y, 10 + 26 * q, 0, 7); g.fill();
+      for (let i = 0; i < 9; i++) {
+        const an = 0.3 + rnd(i, 1) * 1.5, v = 70 + rnd(i, 2) * 110, r = 2.5 + rnd(i, 3) * 3.5, x = f.x + away * Math.cos(an) * v * q * 0.9, y = f.y + Math.sin(an) * v * q - 190 * q * q;
+        g.globalAlpha = 1 - q * q; g.fillStyle = i % 2 ? '#a79c90' : '#7b7168'; g.strokeStyle = INK; g.lineWidth = 1.2; g.beginPath(); g.rect(x - r, -y - r, r * 2, r * 1.7); g.fill(); g.stroke();
+      }
+    } else if (f.type === 'guard') {                  // the chief still stands: the shot rings off a shield of light
+      const c = COLORS[f.p].light, r = 16 + 34 * q;
+      g.globalAlpha = (1 - q) * 0.9; g.lineWidth = 5 * (1 - q) + 1; g.strokeStyle = c; g.beginPath(); g.arc(f.x, -f.y, r, 0, 7); g.stroke();
+      g.strokeStyle = '#fff6c4'; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath();
+      for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4 + 0.4; g.moveTo(f.x + Math.cos(an) * r * 0.55, -f.y + Math.sin(an) * r * 0.55); g.lineTo(f.x + Math.cos(an) * r * 1.3, -f.y + Math.sin(an) * r * 1.3); }
+      g.stroke();
+    } else if (f.type === 'collapse') {               // the castle comes down: blocks burst out, dust rolls along its foot
+      const [x0, x1] = S.fortSpan(f.p), w = x1 - x0;
+      for (let i = 0; i < 7; i++) { const dq = Math.max(0, Math.min(1, (a - i * 0.08) / 1.5)); if (dq <= 0) continue; g.globalAlpha = (1 - dq) * 0.7; g.fillStyle = i % 2 ? '#e3d9cb' : '#cbbfae'; g.beginPath(); g.arc(x0 + w * (0.08 + rnd(i, 4) * 0.84), -(18 + rnd(i, 5) * 60 + 50 * dq), 26 + 70 * dq, 0, 7); g.fill(); }
+      for (let i = 0; i < 18; i++) {
+        const st = rnd(i, 6) * 0.5, dq = Math.max(0, Math.min(1, (a - st) / 1.1)); if (dq <= 0 || dq >= 1) continue;
+        const bx = x0 + w * rnd(i, 7), by = 40 + rnd(i, 8) * 170, vx = (rnd(i, 9) - 0.5) * 260, vy = 120 + rnd(i, 10) * 220, r = 4 + rnd(i, 11) * 7;
+        const x = bx + vx * dq, y = Math.max(r, by + vy * dq - 620 * dq * dq);
+        const bk = blockKey(s.players[f.p].race, 'stone', i % 2 === 0);      // the castle's own stones, tumbling
+        g.globalAlpha = 1 - dq * dq * dq;
+        if (!sprite(g, bk, x, y - r, r * 2.6, { rot: dq * (rnd(i, 12) - 0.5) * 9, anchorY: 0.5 })) { g.fillStyle = '#8a8076'; g.fillRect(x - r, -y - r, r * 2, r * 1.6); }
+      }
+    } else if (f.type === 'dizzy' && s.players[f.p]?.down > 0) {    // a chief out cold: stars circle his head
+      const k = S.kingPos(f.p, s), im = spr('proj_f_5'), H = CHIEF_H * S.kingScale(f.p, s);
+      if (im && a > 0.5) for (let i = 0; i < 3; i++) { const an = now * 4 + i * 2.094, sx = k.x - S.dir(f.p) * H * 0.45 + Math.cos(an) * 20, sy = H * 0.42 + Math.sin(an) * 6; stamp(g, im, sx, sy, 15, 15 * im.height / im.width, { alpha: Math.min(1, (a - 0.5) * 3) * (0.65 + 0.35 * Math.sin(an)), rot: an }); }
+    } else if (f.type === 'rise') {                   // back on his feet: a ring of light climbs him
+      const k = S.kingPos(f.p, s), H = CHIEF_H * S.kingScale(f.p, s);
+      g.globalAlpha = 1 - q; g.strokeStyle = '#fff1a8'; g.lineWidth = 4; g.beginPath(); g.ellipse(k.x, -(H * q), 30 * (1 - q * 0.4), 9, 0, 0, 7); g.stroke();
+      g.strokeStyle = COLORS[f.p].light; g.lineWidth = 2; g.beginPath(); g.ellipse(k.x, -(H * q * 0.7), 36 * (1 - q * 0.4), 11, 0, 0, 7); g.stroke();
+    } else if (f.type === 'summon') {                 // a summon: the thing they come from rises out of the ground, holds, sinks
+      const im = spr(`ultfx_c_${ULT_RISE[f.race] ?? 0}`);
+      if (im) { const up = a < 0.35 ? a / 0.35 : a > f.dur - 0.5 ? Math.max(0, (f.dur - a) / 0.5) : 1, h = 150, e = up * up * (3 - 2 * up); g.globalAlpha = Math.min(1, up * 1.5); sprite(g, `ultfx_c_${ULT_RISE[f.race] ?? 0}`, f.x, -h * (1 - e) * 0.5, h, { flip: f.p === 1, sy: 0.5 + 0.5 * e }); }
+    }
+    g.globalAlpha = 1;
+  }
+  for (let i = VFX.length - 1; i >= 0; i--) if (VFX[i].t0 != null && now - VFX[i].t0 > VFX[i].dur) VFX.splice(i, 1);
+  // ultimates that sweep the field: the wave itself, at the place the rules have it
+  for (const w of s.waves || []) {
+    const race = s.players[w.owner].race, key = `ultfx_b_${ULT_WAVE[race] ?? 0}`, im = spr(key), d = S.dir(w.owner), h = 170;
+    if (im) sprite(g, key, w.x - d * h * 0.25, Math.abs(Math.sin(now * 14)) * 5, h, { flip: d < 0, sx: 1 + 0.04 * Math.sin(now * 22), sy: 1 + 0.05 * Math.cos(now * 18) });
+    else { g.globalAlpha = 0.7; g.fillStyle = COLORS[w.owner].light; g.fillRect(w.x - 8, -150, 16, 150); g.globalAlpha = 1; }
+  }
+  // ultimates that strike from above with a beam (pure light): a thin aiming line while it charges, then the full beam
+  for (const q of s.ultq || []) {
+    if (q.kind !== 'beam') continue;
+    if (!BEAMS.has(q)) { BEAMS.set(q, { fireAt: now + Math.max(0, q.t) }); VFX.push({ type: 'beam', x: q.x, p: q.owner, race: s.players[q.owner].race, dur: Math.max(0, q.t) + 0.55, charge: Math.max(0, q.t) }); }
+  }
+  for (const f of VFX) {
+    if (f.type !== 'beam' || f.t0 == null && (f.t0 = now) < 0) continue;
+    const a = now - f.t0, tesla = f.race === 'steampunk', core = tesla ? '#eaf6ff' : '#eaffd9', glow = tesla ? '#58b8ff' : '#74ff5a', top = 900;
+    if (a < f.charge) {                               // charging: a flickering thread and a target ring
+      const c = a / Math.max(0.01, f.charge);
+      g.globalAlpha = 0.35 + 0.4 * c * (0.6 + 0.4 * Math.sin(now * 50)); g.strokeStyle = glow; g.lineWidth = 2 + 4 * c; g.beginPath(); g.moveTo(f.x, -top); g.lineTo(f.x, 0); g.stroke();
+      g.lineWidth = 3; g.beginPath(); g.ellipse(f.x, -4, 70 * (1.4 - 0.4 * c), 14 * (1.4 - 0.4 * c), 0, 0, 7); g.stroke();
+    } else {                                          // the strike: a wide column with a white-hot core, then it thins away
+      const c = Math.min(1, (a - f.charge) / 0.55), w = 70 * (1 - c * c);
+      g.globalAlpha = 0.5 * (1 - c); g.fillStyle = glow; g.fillRect(f.x - w, -top, w * 2, top);
+      g.globalAlpha = 1 - c; g.fillStyle = core; g.fillRect(f.x - w * 0.42, -top, w * 0.84, top);
+      if (tesla) { g.strokeStyle = '#fff'; g.lineWidth = 3; g.lineJoin = 'round'; for (let k = 0; k < 2; k++) { g.beginPath(); for (let i = 0; i <= 9; i++) { const y = top * (1 - i / 9), x = f.x + (i === 9 ? 0 : (rnd(i + Math.floor(now * 30), k + 13) - 0.5) * w * 2.2); if (i) g.lineTo(x, -y); else g.moveTo(x, -y); } g.stroke(); } }
+      g.globalAlpha = (1 - c) * 0.8; g.strokeStyle = core; g.lineWidth = 5; g.beginPath(); g.ellipse(f.x, -6, 60 + 90 * c, 12 + 16 * c, 0, 0, 7); g.stroke();
+    }
+    g.globalAlpha = 1;
+  }
 }
 
 function drawFx(g, s, now) {
@@ -514,7 +677,7 @@ function drawFx(g, s, now) {
     }
   }
   for (const f of s.fx) {
-    const k = f.t / f.ttl;
+    const k = Math.max(0, Math.min(1, f.t / f.ttl));
     if (f.kind === 'boom') { const fr = Math.min(3, Math.floor(k * 4)), h = (f.r || 40) * (f.big ? 2.4 : 1.9);
       if (k < 0.5) { const q = k / 0.5; g.strokeStyle = `rgba(255,244,200,${0.8 * (1 - q)})`; g.lineWidth = (f.big ? 10 : 6) * (1 - q) + 1; g.beginPath(); g.arc(f.x, -f.y, (f.r || 40) * (0.3 + q * (f.big ? 1.5 : 1.1)), 0, 7); g.stroke(); } if (f.spore) g.filter = 'hue-rotate(70deg)'; sprite(g, `fx_${fr}`, f.x, f.y - h * 0.45, h, { alpha: 1 - k * k }); g.filter = 'none'; }
     else if (f.kind === 'burst' || f.kind === 'pop') sprite(g, 'fx_0', f.x, f.y - 30, 60 * (1 + k), { alpha: 1 - k });
@@ -530,25 +693,63 @@ function drawFx(g, s, now) {
     else if (f.kind === 'bolt') {
       // a troop's shot starts at the tip of its weapon in the attack picture (assets/tips.json), not at a guessed
       // point on its body; fort and tower bolts keep the point the rules give
-      let bx = f.x, by = f.y;
-      if (f.thin) { const m = muzzleOf(s, f, now); if (m) { bx = m.x; by = m.y; } }
+      let bx = f.x, by = f.y, info = BOLT.get(f);
+      if (!info) {                                                  // first draw: the shooter is still standing where it fired from
+        const sh0 = f.thin ? shooterOf(s, f) : null, m = sh0 ? muzzleOf(s, f, now) : null;
+        const flyer = !!sh0 && s.units.some((e) => e.owner !== f.owner && UNIT[e.kind].air && Math.abs(e.x - f.tx) < 8 && Math.abs(e.y - f.ty) < 40);
+        BOLT.set(f, info = { sp: sh0 ? UNIT[sh0.kind] : null, m, flyer });
+        if (sh0) { const k0 = sh0.kind.split('_').slice(1).join('_'); art.onSound?.('shot_' + (SHOT[k0] || SHOT[String(UNIT[sh0.kind].art || '').split('_').slice(1).join('_')] || 'bullet'), f.x); }
+      }
+      if (info.m) { bx = info.m.x; by = info.m.y; }
       // what the shooter is decides the look: armour-piercing shots go clean through and spark out the far side,
       // anti-air shots that reach a flyer are brighter and burst on it
-      const sh = f.thin ? shooterOf(s, f) : null, sp = sh ? UNIT[sh.kind] : null, high = f.ty > 70;
-      const aa = !!sp && (sp.vsAir || 1) > 1 && high, pierce = !!sp?.pierce;
-      g.strokeStyle = aa ? '#fff7c2' : f.thin ? COLORS[f.owner].light : '#fff3b0'; g.lineWidth = aa ? 4.5 : f.thin ? 3 : 4; g.lineCap = 'round'; g.globalAlpha = 1 - k; g.beginPath(); g.moveTo(bx, -by); g.lineTo(f.tx, -f.ty); g.stroke();
+      const sp = info.sp, aa = !!sp && (sp.vsAir || 1) > 1 && info.flyer, pierce = !!sp?.pierce;      // the burst is for flyers only, not for roof blocks
+      const shot = sp ? SHOT[sp.key?.split('_').slice(1).join('_')] || SHOT[String(sp.art || '').split('_').slice(1).join('_')] || 'bullet' : null;
+      const lob = !!sp?.noAir && !pierce, pr = PROJ[shot], pim = pr ? spr(pr[0]) : null;
+      const lift = lob ? Math.min(60, 14 + Math.abs(f.tx - bx) * 0.22) : 0;
+      const at = (q) => { const m = 1 - q; return [m * m * bx + 2 * m * q * (bx + f.tx) / 2 + q * q * f.tx, m * m * by + 2 * m * q * ((by + f.ty) / 2 + lift * 2) + q * q * f.ty]; };
+      const left = f.tx < bx;
+      if (!sp) {                                                    // fort guard and tower bolts: a plain bright line
+        g.strokeStyle = f.thin ? COLORS[f.owner].light : '#fff3b0'; g.lineWidth = f.thin ? 3 : 4; g.lineCap = 'round'; g.globalAlpha = 1 - k; g.beginPath(); g.moveTo(bx, -by); g.lineTo(f.tx, -f.ty); g.stroke();
+      } else if (shot === 'laser' && !pim) {                                // a beam: all of it at once, hot core, fading
+        g.lineCap = 'round'; g.globalAlpha = (1 - k) * 0.55; g.strokeStyle = '#ff3b2f'; g.lineWidth = 7; g.beginPath(); g.moveTo(bx, -by); g.lineTo(f.tx, -f.ty); g.stroke();
+        g.globalAlpha = 1 - k; g.strokeStyle = '#fff'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(bx, -by); g.lineTo(f.tx, -f.ty); g.stroke();
+      } else if (shot === 'zap' && !pim) {                                  // lightning: a jagged bolt that re-forks as it fades
+        const n = 6, seed = Math.floor(k * 3), dx = f.tx - bx, dy = f.ty - by, d = Math.hypot(dx, dy) || 1, nx = -dy / d, ny = dx / d;
+        const pts = []; for (let i = 0; i <= n; i++) { const j = i === 0 || i === n ? 0 : (((i * 73 + seed * 131 + Math.round(f.tx) * 17) % 19) - 9) * Math.min(1.6, d / 60); pts.push([bx + dx * i / n + nx * j, by + dy * i / n + ny * j]); }
+        g.lineCap = 'round'; g.lineJoin = 'round';
+        for (const [w, c, al] of [[7, '#7fd4ff', 0.4], [2.6, '#fffbd6', 1]]) { g.globalAlpha = (1 - k) * al; g.strokeStyle = c; g.lineWidth = w; g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, -y) : g.moveTo(x, -y))); g.stroke(); }
+      } else if (shot === 'claw') {                                 // a bite, peck or claw: slash marks on the target, nothing flies
+        if (pim) stamp(g, pim, f.tx, f.ty, 26 * (0.7 + 0.5 * k), 26 * (0.7 + 0.5 * k) * pim.height / pim.width, { flipX: left, alpha: 1 - k * k });
+      } else if (pim) {
+        // the thing the weapon fires flies from its tip to the target (in an arc if it is lobbed), nose first, then a
+        // puff where it lands; the rules give a shot a sixth of a second, so it is quick
+        const q = Math.min(1, k / 0.45);              // lands 0.07 s after firing, while the struck troop is still flinching
+        if (q < 1) {
+          const [px, py] = at(q), [qx, qy] = at(Math.min(1, q + 0.04)), vx = qx - px, vy = qy - py, len = pr[1] * 1.4;
+          if (shot === 'bullet' || shot === 'ray' || shot === 'laser' || shot === 'dart') { const [sx, sy] = at(Math.max(0, q - 0.3)); g.globalAlpha = 0.45; g.strokeStyle = shot === 'ray' || shot === 'dart' ? '#8ff3ff' : shot === 'laser' ? '#ff6a5c' : '#ffe9a8'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(sx, -sy); g.lineTo(px, -py); g.stroke(); g.globalAlpha = 1; }
+          stamp(g, pim, px, py, len, len * pim.height / pim.width, { flipX: left, rot: left ? Math.atan2(-vy, -vx) : Math.atan2(-vy, vx) });
+        } else {
+          const e = (k - 0.45) / 0.55, r = (lob ? 8 : 5) + (lob ? 16 : 9) * e; g.globalAlpha = 1 - e; g.beginPath(); g.arc(f.tx, -f.ty, r, 0, 7); g.fillStyle = SHOT_HIT[shot] || '#ffe9a8'; g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(60,30,8,0.7)'; g.stroke();
+          if (sp.siege) for (let i = 0; i < 5; i++) { const an = 0.4 + i * 0.55, v = 16 + (i * 37 % 20), cr = 2.5 + i % 2 * 1.5; g.fillStyle = i % 2 ? '#9a8f84' : '#6f655c'; g.fillRect(f.tx + Math.cos(an) * v * e * 2 - cr, -(f.ty + Math.sin(an) * v * e * 2 - 30 * e * e) - cr, cr * 2, cr * 1.7); }
+        }
+        g.globalAlpha = 1 - k;
+      } else {                                                      // projectile art not in yet: the old line
+        g.strokeStyle = COLORS[f.owner].light; g.lineWidth = 3; g.lineCap = 'round'; g.globalAlpha = 1 - k; g.beginPath(); g.moveTo(bx, -by); g.lineTo(f.tx, -f.ty); g.stroke();
+      }
+      g.globalAlpha = 1 - k;
       if (aa) {                                                     // the bonus hit on a flyer: a star burst with a ring
         const r = 9 + 16 * k; g.lineWidth = 3; g.strokeStyle = '#ffe36b'; g.beginPath(); g.arc(f.tx, -f.ty, r, 0, 7); g.stroke();
         g.beginPath(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + 0.3; g.moveTo(f.tx + Math.cos(a) * r * 0.5, -f.ty + Math.sin(a) * r * 0.5); g.lineTo(f.tx + Math.cos(a) * r * 1.35, -f.ty + Math.sin(a) * r * 1.35); } g.stroke();
       }
       if (pierce) {                                                 // through and through
         const dx = f.tx - bx, dy = f.ty - by, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d, ex = f.tx + ux * 26, ey = f.ty + uy * 26;
-        g.lineWidth = 2; g.strokeStyle = '#fff'; g.beginPath(); g.moveTo(bx, -by); g.lineTo(ex, -ey); g.stroke();
+        if (shot === 'laser') { g.lineWidth = 2; g.strokeStyle = '#fff'; g.beginPath(); g.moveTo(f.tx, -f.ty); g.lineTo(ex, -ey); g.stroke(); }      // only a beam carries on through; a shell or bolt just sparks out the far side
         g.lineWidth = 2.5; g.strokeStyle = '#ffd23f'; g.beginPath();
         for (const a of [-0.7, 0, 0.7]) { const ca = Math.cos(a), sa = Math.sin(a), vx = ux * ca - uy * sa, vy = ux * sa + uy * ca, r0 = 4 + 10 * k, r1 = 10 + 22 * k; g.moveTo(ex + vx * r0, -(ey + vy * r0)); g.lineTo(ex + vx * r1, -(ey + vy * r1)); }
         g.stroke();
       }
-      if (f.thin) { g.beginPath(); g.arc(bx, -by, 4.5 * (1 - k) + 1.5, 0, 7); g.fillStyle = '#fff'; g.fill(); }      // a flash at the muzzle
+      if (f.thin && (!sp || ['bullet', 'ball', 'ray', 'laser', 'zap'].includes(shot))) { g.beginPath(); g.arc(bx, -by, 4.5 * (1 - k) + 1.5, 0, 7); g.fillStyle = '#fff'; g.fill(); }      // a flash at the muzzle of a gun
       g.globalAlpha = 1;
     }
     else if (f.kind === 'heal') { g.strokeStyle = `rgba(120,255,170,${1 - k})`; g.lineWidth = 4; g.beginPath(); g.ellipse(f.x, -8, f.r * k, f.r * k * 0.25, 0, 0, 7); g.stroke(); }
@@ -605,6 +806,7 @@ function drawZones(g, s, ui, now) {
 }
 
 /** The ultimate button: the race's ultimate name over a meter that fills; glows when ready. */
+const ULT_ORDER = ['fantasy', 'aliens', 'robots', 'monsters', 'military', 'undead', 'pirates', 'elementals', 'beastfolk', 'steampunk'];   // the order of the badges in ulticon_a and ulticon_b
 function drawUltButton(g, s, p, real, k, b, narrow, ai, col) {
   const pl = s.players[p], U = S.raceOf(s, p).ult, ready = S.ultReady(s, p);
   g.save(); g.globalAlpha = ai ? 0.45 : pl.ultUsed ? 0.45 : 1;
@@ -615,9 +817,25 @@ function drawUltButton(g, s, p, real, k, b, narrow, ai, col) {
   g.fillStyle = ready ? '#ffcc33' : col.main; g.fillRect(b.x, -b.y + (b.h - 3) * (1 - pl.ult), b.w, (b.h - 3) * pl.ult);
   g.restore();
   rrect(g, b.x, -b.y, b.w, b.h - 3, 12); g.lineWidth = ready ? 4 : 3; g.strokeStyle = ready ? '#fff' : INK; g.stroke();
-  const label = pl.ultUsed ? 'Used' : ready ? (narrow ? 'GO!' : U.name) : `${Math.floor(pl.ult * 100)}%`;
-  text(g, narrow ? 'ULT' : 'Ultimate', b.w / 2, -b.h + 16, narrow ? 12 : 13, '#fff', 'center', INK);
-  text(g, label, b.w / 2, -b.h / 2 + 8, narrow ? 14 : (label.length > 12 ? 12 : 15), '#fff', 'center', INK);
+  const label = pl.ultUsed ? 'Used' : ready ? 'GO!' : `${Math.floor(pl.ult * 100)}%`, head = ready && !narrow ? U.name : 'Ultimate';   // ready: its name on top, a big GO! below
+  // the race's own ultimate badge: dim while it charges, bright and pulsing when it is ready
+  const ri = ULT_ORDER.indexOf(pl.race), ik = ri < 0 ? null : `ulticon_${ri < 5 ? 'a' : 'b'}_${ri % 5}`, ic = ik && spr(ik);
+  let tx = b.w / 2;
+  if (ic) {
+    const beat = ready ? 1 + 0.07 * Math.sin(performance.now() / 110) : 1, d = (b.h - 3) * (narrow ? 0.62 : 0.8) * beat, cx = narrow ? b.w / 2 : b.x + (b.h - 3) * 0.5 + 2, cy = (b.h - 3) * (narrow ? 0.4 : 0.5);
+    g.save(); if (!ready) { g.globalAlpha *= 0.55 + 0.35 * pl.ult; g.filter = `saturate(${0.25 + 0.75 * pl.ult})`; }
+    if (ready) { const gl = g.createRadialGradient(cx, cy, d * 0.3, cx, cy, d * 0.75); gl.addColorStop(0, 'rgba(255,240,150,0.9)'); gl.addColorStop(1, 'rgba(255,240,150,0)'); g.fillStyle = gl; g.fillRect(cx - d, cy - d, d * 2, d * 2); }
+    g.drawImage(ic, cx - d / 2, cy - d / 2, d, d); g.restore();
+    if (!narrow) tx = b.x + (b.h - 3) + (b.w - (b.h - 3)) / 2;
+  }
+  if (narrow && ic) text(g, label, tx, -(b.h - 14), 12, '#fff', 'center', INK);
+  else {
+    { const room0 = ic && !narrow ? b.w - (b.h - 3) - 8 : b.w - 10; let hs = narrow ? 12 : 13; g.font = FONT(hs); const hw = g.measureText(narrow ? 'ULT' : head).width; if (hw > room0) hs = Math.max(9, hs * room0 / hw);
+      text(g, narrow ? 'ULT' : head, tx, -b.h + 16, hs, '#fff', 'center', INK); }
+    const room = ic && !narrow ? b.w - (b.h - 3) - 8 : b.w - 10; let fs = narrow ? 14 : ready ? 20 : 15;
+    g.font = FONT(fs); const lw = g.measureText(label).width; if (lw > room) fs = Math.max(8, fs * room / lw);   // long names shrink to fit
+    text(g, label, tx, -b.h / 2 + 8, fs, '#fff', 'center', INK);
+  }
   g.restore();
 }
 function drawHud(g, s, ui, now) {
@@ -643,7 +861,8 @@ function drawHud(g, s, ui, now) {
       g.translate(real.x, -real.y); g.scale(k, k);
       rrect(g, b.x, -b.y + 3, b.w, b.h, 12); g.fillStyle = 'rgba(40,22,8,0.55)'; g.fill();
       rrect(g, b.x, -b.y, b.w, b.h - 3, 12); g.fillStyle = on ? col.main : '#f6e7c8'; g.fill(); g.lineWidth = 3; g.strokeStyle = on ? '#fff' : INK; g.stroke();
-      const cx = narrow ? b.w / 2 : b.x + 24, iy = b.y - b.h + (narrow ? 22 : 8), tx = narrow ? b.w / 2 : b.x + 70, z = narrow ? 0.74 : 1;
+      const chipped = narrow && !!UNIT[key]?.cls;
+      const cx = narrow ? b.w / 2 : b.x + 24, iy = b.y - b.h + (narrow ? (chipped ? 20 : 22) : 8), tx = narrow ? b.w / 2 : b.x + 70, z = narrow ? (chipped ? 0.66 : 0.74) : 1;
       const fitH = (k2, h, maxW) => { const im = spr(k2); return im ? Math.min(h, maxW * im.height / im.width) : h; };   // height that keeps a wide picture inside its slot
       if (b.kind === 'ammo') sprite(g, `shots_${['stone', 'scatter', 'fire', 'boulder'].indexOf(key)}`, cx, iy + 4 * z, 36 * z);
       else if (key === 'wall') sprite(g, 'builds_0', cx, iy, 44 * z);
@@ -724,6 +943,7 @@ function drawHud(g, s, ui, now) {
   g.beginPath(); g.arc(PAUSE.x, -PAUSE.y, PAUSE.r, 0, 7); g.fillStyle = 'rgba(40,24,10,0.62)'; g.fill();
   g.fillStyle = '#fff'; g.fillRect(PAUSE.x - 9, -PAUSE.y - 10, 6, 20); g.fillRect(PAUSE.x + 3, -PAUSE.y - 10, 6, 20);
   // ---- banners ----
+  const BY = Math.min(400, (ui.topY || 880) - 205);                  // mid-sky banners sit below the pause button on short screens
   const camOn = ui.cam && performance.now() / 1000 - ui.cam.at < ui.cam.dur - 0.4;   // the knockout zoom plays first, then the banner
   if ((s.phase === 'roundOver' || s.phase === 'over') && !camOn) {
     const w = s.phase === 'over' ? s.winner : s.roundWinner;
@@ -733,14 +953,17 @@ function drawHud(g, s, ui, now) {
     text(g, `${s.roundsWon[0]} – ${s.roundsWon[1]}`, W / 2, 342, 24, '#fff');
   } else if (camOn) {
     // nothing over the knockout
+  } else if (false) {
   } else if (s.ultShow && s.time - s.ultShow.at < 2.0) {                // an ultimate: its name across the sky in the caster's colour
     const a = s.time - s.ultShow.at;
-    text(g, s.ultShow.name + '!', W / 2, 400, 58 * Math.min(1, a * 4), COLORS[s.ultShow.p].light);
+    text(g, s.ultShow.name + '!', W / 2, BY, 58 * Math.min(1, a * 4), COLORS[s.ultShow.p].light);
   } else if (s.tier > 1 && (s.roundT || 0) - S.tierAt(s, s.tier) < 2.4 && !s.open) {   // a new tier
     const a = s.roundT - S.tierAt(s, s.tier), TN = ['', 'Skirmish', 'Battle!', 'War!'];
-    text(g, `Tier ${s.tier}: ${TN[s.tier]}`, W / 2, 400, 50 * Math.min(1, a * 3), '#ffd23f');
+    const z = Math.min(1, a * 3), pop = z < 1 ? z * (1.25 - 0.25 * z) : 1, bn = spr('tierbanner_0');
+    if (bn) { const bw = 500 * pop; stamp(g, bn, W / 2, BY, bw, bw * bn.height / bn.width, { alpha: Math.min(1, (2.4 - a) * 3) }); text(g, `Tier ${s.tier}: ${TN[s.tier]}`, W / 2, BY + 3, 32 * pop, '#6a3a10', 'center', '#fff3c4'); }
+    else text(g, `Tier ${s.tier}: ${TN[s.tier]}`, W / 2, BY, 50 * z, '#ffd23f');
   } else if (s.time < 2.2 && s.phase === 'play') {
-    text(g, s.round === 1 ? 'Fling!' : `Round ${s.round}`, W / 2, 400, 64 * Math.min(1, s.time * 3), '#fff');
+    text(g, s.round === 1 ? 'Fling!' : `Round ${s.round}`, W / 2, BY, 64 * Math.min(1, s.time * 3), '#fff');
   }
 }
 
@@ -796,6 +1019,7 @@ export function draw(g, lay, s, ui, now) {
   drawBonuses(g, s, now);
   drawShots(g, s);
   drawFx(g, s, now);
+  drawVfx(g, s, now);
   drawAim(g, s, ui);
   drawKo(g, s, now);
   if (cam.z > 1.001) flatT();                     // the control strip, clock and banners do not zoom

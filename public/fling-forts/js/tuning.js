@@ -22,11 +22,11 @@ export const HERO = { tier: 3, max: 1, cooldown: 30, bounty: 20 };
 export const ULT = { perSec: 1 / 160, perDealt: 1 / 3200, perTaken: 1 / 2400 };
 // a race without its own ultimate in races.js gets this one
 export const ULT_DEFAULT = { name: 'Barrage', shape: 'barrage', n: 8, dmg: 45, r: 60, bld: 2, over: 1.6, chiefCap: 0.15 };
-export const KING_BASE_HP = 560;   // was 300, then 450 (lane 3)
+export const KING_BASE_HP = 400;   // was 300, then 450 (lane 3)
 export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)
 // the castle (owner: destroy the enemy fort to win; it takes no damage while its chief is up)
-export const FORT_HP = 900, FORT_H = 230;                         // castle hit points and height (world units)
-export const KO_DOWN = 18, KO_REVIVE = 0.5;                        // a knocked-out chief lies stunned this long, then gets up with this share of his HP
+export const FORT_HP = 1700, FORT_H = 230;                         // castle hit points and height (world units)
+export const KO_DOWN = 12, KO_REVIVE = 0.5;                        // a knocked-out chief lies stunned this long, then gets up with this share of his HP
 export const BOUNTY = 0.3;                     // share of a troop's price paid to the other side when it is killed
 
 export const CRUSH = 45;                      // a block falling on the chief
