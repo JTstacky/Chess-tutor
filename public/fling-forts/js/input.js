@@ -1,0 +1,126 @@
+// input.js — multi-touch: every pointer belongs to the side of the screen where it went down (left player /
+// right player), tracked by pointerId, so both can drag and tap at the same time. Also blocks the browser's
+// own touch gestures.
+import { W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX } from './sim.js';
+import { screenToWorld, buttonAt, keyFor, pickHit, PAUSE } from './view.js';
+
+export const PULL_MAX = 300;      // world units of pull for full power
+const TAP_SLOP = 26;              // a press that moves less than this is a tap
+const PAUSE_HOLD = 0.35;          // seconds the pause button must be held, so a stray touch cannot pause the match
+
+export function blockBrowserGestures(doc = document) {
+  const stop = (e) => { if (e.cancelable) e.preventDefault(); };
+  const opts = { passive: false };
+  const notUi = (fn) => (e) => { if (!(e.target.closest && e.target.closest('button, a, input, label'))) fn(e); };
+  doc.addEventListener('touchstart', notUi(stop), opts);
+  doc.addEventListener('touchmove', stop, opts);
+  doc.addEventListener('touchend', notUi(stop), opts);
+  for (const t of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick', 'contextmenu', 'selectstart', 'dragstart']) doc.addEventListener(t, stop, opts);
+  doc.addEventListener('wheel', (e) => { if (e.ctrlKey) stop(e); }, opts);
+  doc.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) stop(e); });
+}
+
+export function attachInput(canvas, game) {
+  const { ui } = game;
+  const toast = (p, text) => { ui.toast[p] = { text, until: game.now() + 1.6 }; };
+  const pos = (e) => { const r = canvas.getBoundingClientRect(); return screenToWorld(game.lay, e.clientX - r.left, e.clientY - r.top); };
+
+  function aimFrom(a) {
+    const dx = a.sx - a.x, dy = a.sy - a.y;            // pull back to fling forward
+    const len = Math.hypot(dx, dy);
+    if (!launch(a.p, dx, dy, 0.5)) return null;
+    return { dx, dy, power: Math.min(1, len / PULL_MAX), len };
+  }
+
+  function pressButton(p, b) {
+    const s = game.s, pl = s.players[p], key = keyFor(s, p, b);
+    if (!key) return;
+    const cost = costFor(s, p, key);
+    if (b.kind === 'ammo') {
+      const free = key !== 'stone' && pl.freeShots > 0;
+      if (!free && pl.gold < cost) return toast(p, `${AMMO[key].name} needs ${cost} gold`);
+      setAmmo(s, p, key); ui.armed[p] = null; game.sound('click');
+      return;
+    }
+    if (pl.gold < cost) return toast(p, `${(BUILD[key] || UNIT[key]).name} needs ${cost} gold`);
+    if (b.kind === 'unit') { if (send(s, p, key, gateX(p))) ui.armed[p] = null; return; }       // troops march out of the gate at once
+    if (key === 'shield') {
+      if (s.phase === 'sudden') return toast(p, 'No shields in sudden death');
+      if (!build(s, p, 'shield', 0)) toast(p, 'Your shield is already up');
+      return;
+    }
+    if (key === 'vault') { if (!build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }
+    if (key === 'mine' && s.buildings.filter((q) => q.owner === p && q.kind === 'mine').length >= BUILD.mine.max) return toast(p, `Only ${BUILD.mine.max} mines`);
+    if (ui.armed[p] === key) { ui.armed[p] = null; game.sound('click'); return; }
+    ui.armed[p] = key; game.sound('click');
+  }
+
+  function place(p, x) {
+    const s = game.s, k = ui.armed[p];
+    if (!k) return;
+    if (build(s, p, k, x)) { ui.armed[p] = null; return; }
+    if (s.players[p].gold < costFor(s, p, k)) { toast(p, 'Not enough gold'); ui.armed[p] = null; }
+    else if (!placeOk(s, p, k, x)) toast(p, 'Not there: tap the bright strip');
+  }
+
+  function down(e) {
+    e.preventDefault();
+    const w = pos(e), p = w.x < W / 2 ? 0 : 1;
+    if (game.state === 'pick') {                                   // both players choose at once
+      if (game.s.mode === 'solo' && p === 1) return;
+      const hit = pickHit(p, w.x, w.y);
+      if (hit?.race && !ui.pick.ready[p]) { ui.pick.race[p] = hit.race; game.sound('click'); }
+      else if (hit?.ready && ui.pick.race[p]) { ui.pick.ready[p] = !ui.pick.ready[p]; game.sound('click'); game.pickChanged(); }
+      return;
+    }
+    if (!game.playing()) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch {}
+    if (Math.hypot(w.x - PAUSE.x, w.y - PAUSE.y) < PAUSE.r + 10) { ui.aims.set(e.pointerId, { p, kind: 'pause', at: game.now() }); ui.pauseHold = game.now(); return; }
+    if (game.s.mode === 'solo' && p === 1) return;                 // the computer's side
+    if (w.y < 0) {                                                 // the control strip under the ground
+      const b = buttonAt(p, w.x, w.y);
+      if (b) pressButton(p, b);
+      ui.aims.set(e.pointerId, { p, kind: 'button' });
+      return;
+    }
+    game.unlockAudio();
+    ui.aims.set(e.pointerId, { p, kind: 'field', sx: w.x, sy: w.y, x: w.x, y: w.y, moved: false, aim: null });
+  }
+
+  function move(e) {
+    const a = ui.aims.get(e.pointerId);
+    if (!a || a.kind !== 'field') return;
+    e.preventDefault();
+    const w = pos(e);
+    a.x = w.x; a.y = w.y;
+    if (!a.moved && Math.hypot(a.x - a.sx, a.y - a.sy) > TAP_SLOP) a.moved = true;
+    a.aim = a.moved ? aimFrom(a) : null;
+  }
+
+  function up(e) {
+    const a = ui.aims.get(e.pointerId);
+    if (!a) return;
+    ui.aims.delete(e.pointerId);
+    if (a.kind === 'pause') { ui.pauseHold = 0; return; }
+    if (a.kind !== 'field' || !game.playing()) return;
+    e.preventDefault();
+    if (!a.moved) { place(a.p, a.sx); return; }
+    const aim = aimFrom(a);
+    if (!aim || aim.power < 0.05) return;
+    const s = game.s, pl = s.players[a.p];
+    if (pl.reload > 0) { toast(a.p, 'Reloading…'); return; }
+    if (pl.gold < shotCost(s, a.p)) { setAmmo(s, a.p, 'stone'); toast(a.p, 'Out of gold: stones loaded'); return; }
+    if (fire(s, a.p, aim.dx, aim.dy, aim.power)) ui.kick[a.p] = 1;
+  }
+  function cancel(e) { const a = ui.aims.get(e.pointerId); if (a?.kind === 'pause') ui.pauseHold = 0; ui.aims.delete(e.pointerId); }
+
+  canvas.addEventListener('pointerdown', down, { passive: false });
+  canvas.addEventListener('pointermove', move, { passive: false });
+  canvas.addEventListener('pointerup', up, { passive: false });
+  canvas.addEventListener('pointercancel', cancel);
+  canvas.addEventListener('lostpointercapture', cancel);
+  return {
+    /** called every frame: the pause button only works when held */
+    tick() { for (const a of ui.aims.values()) if (a.kind === 'pause' && game.now() - a.at > PAUSE_HOLD) { ui.pauseHold = 0; game.pause(); return; } },
+  };
+}

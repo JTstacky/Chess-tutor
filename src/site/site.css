@@ -76,6 +76,7 @@ a.game-card:hover { transform: translateY(-4px) rotate(-1deg); }
 .zeliard .art { background: linear-gradient(135deg, #2a1d10, #c99a4a); border-radius: 16px; width: 100%; }
 .mars .art { background: linear-gradient(135deg, #3a1206, #e2703a); border-radius: 16px; width: 100%; }
 .ninja .art { background: linear-gradient(135deg, #151a46, #2fbf71); border-radius: 16px; width: 100%; }
+.forts .art { background: linear-gradient(135deg, #2a6fb8, #6cc04a); border-radius: 16px; width: 100%; }
 .ev .art { background: linear-gradient(135deg, #020a14, #1f6b3a); border-radius: 16px; width: 100%; }
 .play-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: auto; }
 .play-row .play-btn { text-decoration: none; margin-top: 0; }
