@@ -79,7 +79,7 @@ export const FORT_GUARD = { range: 130, rate: 1.0, dmg: 10 };   // forts plink e
  *  instant; bombs fall from flyers. Flight times are clamped to [min, max]. */
 export const SHOT_FLIGHT = {
   direct: 250, lob: 160, min: 0.2, max: 1.1,                           // about Warcraft III's archer (0.56 s at full range); lobbed is heavy and slow (docs/ANIMATION-RESEARCH.md)
-  beam: ['laser', 'walker', 'storm', 'tesla', 'bats', 'ghost', 'gale'], beamTime: 0.12,
+  beam: ['laser', 'walker', 'storm', 'tesla', 'bats', 'ghost'], beamTime: 0.12,
   drop: 0.6,                                                           // a bomb falling from a flyer
 };
 export const KING_UNIT_MUL = 0.6;                               // troops hit the chief softer than blocks
