@@ -576,10 +576,20 @@ function stepKings(s, dt) {
         pl.kx = p === 0 ? clamp(nx, home, K.leash) : clamp(nx, W - K.leash, home);
       }
       if (td <= reach + 2 && pl.kingCd <= 0) {
-        pl.kingCd = K.rate; pl.kingAct = 0.3;
-        const dmg = K.dmg * A.dmg;
-        hurtUnit(s, target, dmg, p);
-        for (const e of s.units) if (e !== target && e.owner === foe && e.hp > 0 && !UNIT[e.kind].air && Math.abs(e.x - target.x) < A.splash) hurtUnit(s, e, dmg * K.splashMul, p);
+        pl.kingCd = K.rate * (A.rate ?? 1); pl.kingAct = 0.3;
+        // attack shape from KING_ATK: 'blast' (default) hits the target and everything within splash of it; 'front' and
+        // 'line' hit every enemy ground troop on the side he faces within his reach (melee swing, beam or wave)
+        const dmg = K.dmg * A.dmg, side = A.side ?? K.splashMul, f = pl.kingFace, sc = kingScale(p, s);
+        const wide = A.shape === 'front' || A.shape === 'line';
+        for (const e of s.units) {
+          if (e.owner !== foe || e.hp <= 0 || UNIT[e.kind].air) continue;
+          const hit = e === target || (wide
+            ? (e.x - pl.kx) * f >= 0 && Math.abs(e.x - pl.kx) <= kingR(p, s) + UNIT[e.kind].r + K.reach + A.range * sc
+            : Math.abs(e.x - target.x) < A.splash);
+          if (!hit) continue;
+          hurtUnit(s, e, e === target ? dmg : dmg * side, p);
+          if (A.push && e.hp > 0) e.x = clamp(e.x - dir(e.owner) * A.push, 0, W);   // shoved back toward its own fort
+        }
         fx(s, 'burst', target.x, 26, { ttl: 0.3, owner: p });
         emit(s, 'king-strike', { p, x: target.x });
       }

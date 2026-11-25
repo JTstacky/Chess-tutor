@@ -30,6 +30,7 @@ export function loadGroup(name) {
 export async function loadArt(base = 'assets/') {
   art.base = base;
   art.meta = await (await fetch(base + 'sprites.json')).json();
+  try { art.tips = await (await fetch(base + 'tips.json')).json(); } catch { art.tips = {}; }      // weapon tips of attack pictures (tools/art_tips.py)
   RACE_DATA_KEYS = new Set(S.RACE_KEYS.filter((r) => art.meta[`king_${r}`] && !['forge', 'reed', 'moss'].includes(r)));
   for (const [name, m] of Object.entries(art.meta)) {
     const grp = raceGroup(name), add = (key, file) => { (art.groups[grp] ||= []).push([key, file]); art.groupOf[key] = grp; };
@@ -120,18 +121,19 @@ function drawBackdrop(g, lay) {
 // Each chief has his own attack: his own weapon pose (kingatk_<race>_0) and his own effect picture (kingfx_<race>_0),
 // moved in its own way. style: beam and bolt stretch out from the weapon; shot flies out and pops; wave rolls forward
 // and grows; ground bursts up from the floor in front; slash pops and twists; arc sweeps a crescent round him; puff
-// billows out. h is the effect's height and len how far it reaches, for a chief CHIEF_H tall.
+// billows out. len is how far past the weapon's tip the effect reaches (the rules' range follows it: KING_ATK in
+// js/tuning.js) and h its height, for a chief CHIEF_H tall; ground effects take their size from len alone.
 const KING_FX = {
   fantasy: { style: 'ground', h: 62, len: 58 },      // warhammer: rock shockwave
   aliens: { style: 'beam', h: 34, len: 150 },        // ray gun: green laser
   robots: { style: 'bolt', h: 46, len: 140 },        // tesla prod: lightning
-  monsters: { style: 'slash', h: 84, len: 52 },      // claws: three slash marks
-  military: { style: 'shot', h: 26, len: 130 },      // bazooka: rocket
-  undead: { style: 'shot', h: 46, len: 120, pop: false },   // staff: ghost-fire skull
-  pirates: { style: 'arc', h: 96, len: 50 },         // cutlass: crescent slash
-  elementals: { style: 'wave', h: 64, len: 120 },    // fire wave
+  monsters: { style: 'slash', h: 60, len: 52 },      // claws: three slash marks
+  military: { style: 'shot', h: 26, len: 130, burst: 50 },      // bazooka: rocket
+  undead: { style: 'shot', h: 46, len: 120, burst: 40, pop: false },   // staff: ghost-fire skull
+  pirates: { style: 'arc', h: 78, len: 50 },         // cutlass: crescent slash
+  elementals: { style: 'wave', h: 54, len: 120 },    // fire wave
   beastfolk: { style: 'ground', h: 66, len: 62 },    // bone axe: dirt and stones
-  steampunk: { style: 'puff', h: 52, len: 60 },      // piston fist: steam blast
+  steampunk: { style: 'puff', h: 44, len: 60 },      // piston fist: steam blast
 };
 const KING_FX_T = 0.42;                          // seconds an attack effect plays
 /** Draw an image centred on world (cx, cy), w by h, turned and mirrored. */
@@ -140,37 +142,53 @@ function stamp(g, im, cx, cy, w, h, { rot = 0, flipX = false, flipY = false, alp
   g.save(); g.translate(cx, -cy); g.scale(flipX ? -1 : 1, flipY ? -1 : 1); g.rotate(rot); g.globalAlpha = alpha;
   g.drawImage(im, -w / 2, -h / 2, w, h); g.restore();
 }
-/** A chief's attack effect, t running 0..1 from the moment he strikes. (x, H) are his feet and height; face is +1/-1. */
-function drawKingFx(g, race, x, H, face, t, now) {
+/** A chief's attack effect, t running 0..1 from the moment he strikes. tip is the world point where his weapon ends
+ *  in the attack picture (measured per picture: assets/tips.json), so the beam leaves the gun and not his belly.
+ *  x is his centre, H his height, face +1/-1. */
+function drawKingFx(g, race, tip, x, H, face, t, now) {
   const F = KING_FX[race], im = F && spr(`kingfx_${race}_0`);
   if (!im) return;
   const k = H / CHIEF_H, h = F.h * k, w = h * im.width / im.height, len = F.len * k, fl = face < 0;
-  const ox = x + face * H * 0.42, oy = H * 0.5, ease = 1 - (1 - t) * (1 - t), fade = t < 0.6 ? 1 : (1 - t) / 0.4;
+  const ox = tip.x, oy = tip.y, ease = 1 - (1 - t) * (1 - t), fade = t < 0.6 ? 1 : (1 - t) / 0.4;
   if (F.style === 'beam' || F.style === 'bolt') {
-    // snaps out to full length in the first fifth, flickers, then thins away; the bolt also flips to crackle
-    const L = Math.max(w, len) * Math.min(1, t * 5), thin = F.style === 'beam' ? (t < 0.6 ? 1 + 0.18 * Math.sin(now * 70) : (1 - t) / 0.4) : 1 + 0.12 * Math.sin(now * 90);
+    // snaps out from the tip to full length in the first fifth, flickers, then thins away; the bolt flips to crackle
+    const L = Math.max(w, len) * Math.min(1, 0.25 + t * 4), thin = F.style === 'beam' ? (t < 0.6 ? 1 + 0.18 * Math.sin(now * 70) : (1 - t) / 0.4) : 1 + 0.12 * Math.sin(now * 90);
     stamp(g, im, ox + face * L / 2, oy, L, h * thin, { flipX: fl, flipY: F.style === 'bolt' && Math.floor(now * 26) % 2 === 1, alpha: F.style === 'bolt' ? fade : 1 });
   } else if (F.style === 'shot') {
-    const fly = Math.min(1, t / 0.7), px = ox + face * len * fly;
-    if (t < 0.7) stamp(g, im, px, oy + Math.sin(fly * Math.PI) * 6 * k, w, h, { flipX: fl, rot: Math.sin(now * 30) * 0.05 });
-    else if (F.pop !== false) sprite(g, 'fx_0', ox + face * len, oy - h * 0.9, h * (1.6 + (t - 0.7) * 3), { alpha: (1 - t) / 0.3 });
-    else stamp(g, im, px, oy, w * (1 + (t - 0.7) * 2), h * (1 + (t - 0.7) * 2), { flipX: fl, alpha: (1 - t) / 0.3 });
+    // leaves the tip nose first (the picture's own tail trails back over the weapon for the first moment)
+    // and angles down to land on a troop: it ends at troop height (not at the weapon's height) and bursts there
+    const fly = Math.min(1, t / 0.7), px = ox + face * (w * 0.5 + (len - w * 0.5) * fly), ey = 20 * k, drop = fly * fly;
+    const py = oy + (ey - oy) * drop, tilt = Math.atan2((oy - ey) * 2 * fly, Math.max(1, len - w * 0.5));     // nose follows the path
+    if (t < 0.7) stamp(g, im, px, py, w, h, { flipX: fl, rot: tilt + Math.sin(now * 30) * 0.03 });
+    else {
+      // the burst is as wide as the rules' blast (F.burst is its radius): the painted explosion for the rocket, the
+      // skull itself swelling for the ghost fire
+      const q = (t - 0.7) / 0.3, d = 2 * F.burst * k * (0.55 + 0.45 * q), bx = ox + face * len;
+      if (F.pop !== false) sprite(g, `fx_${Math.min(3, Math.floor(q * 4))}`, bx, Math.max(0, ey - d * 0.4), d * 1.15, { alpha: 1 - q * q });
+      else stamp(g, im, bx, Math.max(d / 2, ey), d * im.width / im.height, d, { flipX: fl, alpha: 1 - q });
+    }
   } else if (F.style === 'wave') {
-    const z = 0.55 + 0.75 * ease;
-    stamp(g, im, ox + face * len * ease, h * z / 2, w * z, h * z, { flipX: fl, alpha: fade });
+    // pours out of his palms, drops to roll along the ground, and its front stops at the end of his reach
+    const z = 0.5 + 0.5 * ease, front = w * 0.5 + (len - w * 0.5) * ease, drop = Math.min(1, t * 2.5);
+    stamp(g, im, ox + face * (front - w * z / 2), Math.max(h * z / 2, oy * (1 - drop) + h * z / 2 * drop), w * z, h * z, { flipX: fl, alpha: fade });
   } else if (F.style === 'ground') {
-    const z = 0.35 + 0.8 * Math.min(1, t * 3.5);
-    stamp(g, im, x + face * (H * 0.3 + len), h * z / 2 - 2, w * z, h * z * (1 + 0.15 * Math.sin(t * Math.PI)), { flipX: fl, alpha: fade });
+    // bursts up from the floor where the weapon's head lands and spreads forward to the end of his reach
+    const wd = len * 1.2 * (0.35 + 0.65 * Math.min(1, t * 3.5)), hd = wd * im.height / im.width * (1.7 + 0.25 * Math.sin(t * Math.PI));   // taller than the picture's own shape, so a short reach still reads as a big hit
+    stamp(g, im, ox + face * wd * 0.38, hd / 2 - 2, wd, hd, { flipX: fl, alpha: fade });
   } else if (F.style === 'slash') {
-    const z = 0.7 + 0.45 * ease;
-    stamp(g, im, ox + face * len * (0.4 + 0.6 * ease), oy, w * z, h * z, { flipX: fl, rot: -0.35 + 0.5 * ease, alpha: fade });
+    // the marks open just in front of the claws and carry forward to the end of his reach
+    const z = 0.7 + 0.45 * ease, c0 = w * z * 0.3, c1 = Math.max(c0, len - w * z * 0.4);
+    stamp(g, im, ox + face * (c0 + (c1 - c0) * ease), oy - h * 0.05, w * z, h * z, { flipX: fl, rot: -0.35 + 0.5 * ease, alpha: fade });
   } else if (F.style === 'arc') {
-    // the crescent swings from above his head down to the ground in front, pivoting on his middle
-    const a = 1.0 - 1.7 * ease, r = H * 0.5 + len * 0.3;
-    stamp(g, im, x + face * Math.cos(a) * r, oy + Math.sin(a) * r, w, h, { flipX: fl, rot: -a, alpha: fade });
+    // the crescent starts on the blade's tip and sweeps down round his shoulder to the ground in front
+    const px = x, py = H * 0.55, dx = (ox - px) * face, dy = oy - py, r = Math.hypot(dx, dy) + len * 0.2, a0 = Math.atan2(dy, dx), a = a0 + 0.25 - 1.5 * ease;
+    stamp(g, im, px + face * Math.cos(a) * r, py + Math.sin(a) * r, w, h, { flipX: fl, rot: -a, alpha: fade });
   } else if (F.style === 'puff') {
-    const z = 0.45 + 0.95 * ease;
-    stamp(g, im, ox + face * len * (0.3 + 0.7 * ease), oy + 8 * k * ease, w * z, h * z, { flipX: fl, alpha: t < 0.4 ? 1 : (1 - t) / 0.6 });
+    // billows out of the fist to the end of his reach
+    const z = 0.45 + 0.55 * ease, front = w * 0.45 + (len * 1.2 - w * 0.45) * ease;
+    stamp(g, im, ox + face * (front - w * z / 2), oy + 4 * k * ease, w * z, h * z, { flipX: fl, alpha: t < 0.4 ? 1 : (1 - t) / 0.6 });
+    // the blast shoves troops back: a puff of dust skids along the ground past the end of the steam
+    if (t > 0.25) { const q = (t - 0.25) / 0.75; sprite(g, 'fx_3', ox + face * (len + 24 * k * q), -4, 34 * k * (0.6 + 0.6 * q), { flip: fl, alpha: 0.8 * (1 - q) }); }
   }
 }
 const CHIEF_H = 90;                              // the chief's height at home, in world units
@@ -185,9 +203,12 @@ function drawChief(g, s, p, now) {
   st.x = k.x;
   if ((pl.kingAct || 0) > st.act + 0.05) st.hit = now;                     // kingAct jumped up: a new strike starts
   st.act = pl.kingAct || 0;
-  const walking = now - st.walk < 0.12, act = Math.max(0, Math.min(1, (pl.kingAct || 0) / 0.3)), sw = act > 0 ? Math.sin(Math.PI * (1 - act)) : 0;
+  // one strike = KING_FX_T seconds from the moment kingAct jumps: the weapon pose is held for all of it, so the
+  // effect never plays over a chief who has already gone back to standing
+  const ft = (now - st.hit) / KING_FX_T, striking = ft >= 0 && ft < 1;
+  const walking = now - st.walk < 0.12 && !striking, sw = striking ? Math.sin(Math.PI * Math.min(1, ft * 1.6)) : 0;
   const bob = walking ? Math.abs(Math.sin(now * 11)) * 5 : Math.sin(now * 2.2 + p * 2) * 1.5;
-  const atk = `kingatk_${pl.race}_0`, useAtk = act > 0 && !!spr(atk);
+  const atk = `kingatk_${pl.race}_0`, useAtk = striking && !!spr(atk);
   // size: CHIEF_H at home (as tall as the two-block hollow under his roof allows) times the rules' own scale
   // (S.kingScale: 1 at home, growing once he is out), so the picture matches what shots hit
   const big = S.kingScale(p, s), H = CHIEF_H * big;
@@ -198,10 +219,15 @@ function drawChief(g, s, p, now) {
   g.beginPath(); g.ellipse(k.x, -5, H * 0.5, H * 0.12, 0, 0, 7); g.fillStyle = 'rgba(255,210,63,0.4)'; g.fill(); g.lineWidth = 3; g.strokeStyle = COLORS[p].main; g.stroke();
   g.save(); if (hurt) g.filter = 'brightness(1.9) saturate(0.4)';
   const x = k.x + (hurt ? Math.sin(now * 60) * 2 : 0) + face * sw * (useAtk ? 8 : 16);
-  if (useAtk) { const ia = spr(atk), ii = spr(kingKey(pl.race)); sprite(g, atk, x, 0, H * (ii ? ia.height / ii.height : 1), { flip, sx: 1 + sw * 0.06, sy: 1 - sw * 0.04 }); }   // cut at the standing picture's scale
+  let tip = { x: x + face * H * 0.42, y: H * 0.5 };                        // where the effect starts when there is no measured tip
+  if (useAtk) {
+    const ia = spr(atk), ii = spr(kingKey(pl.race)), ha = H * (ii ? ia.height / ii.height : 1), wa = ha * ia.width / ia.height, tp = art.tips?.[atk];   // cut at the standing picture's scale
+    sprite(g, atk, x, 0, ha, { flip });
+    if (tp) tip = { x: x + face * (tp[0] - 0.5) * wa, y: (1 - tp[1]) * ha };
+  }
   else sprite(g, kingKey(pl.race), x, walking ? bob : 0, walking ? H : H + bob, { flip, rot: face * (sw * 0.28 + (walking ? Math.sin(now * 11) * 0.05 : 0)) });
   g.restore();
-  { const ft = (now - st.hit) / KING_FX_T; if (ft >= 0 && ft < 1) drawKingFx(g, pl.race, k.x, H, face, ft, now); }
+  if (striking) drawKingFx(g, pl.race, tip, x, H, face, ft, now);
   // a twinkle on his crown
   { const tw = (now * 0.9 + p * 0.5) % 1, z = Math.sin(Math.PI * tw); if (z > 0.05) sprite(g, 'fx_0', k.x + face * H * 0.04, H * 0.92 - H * 0.11 * z, H * 0.22 * z, { rot: now * 2, alpha: 0.9 * z }); }
   if (pl.kingHeal) {
@@ -340,6 +366,18 @@ function drawShots(g, s) {
   }
 }
 
+/** Where the troop that fired bolt f holds the tip of its weapon, in world coords (null if it cannot be found).
+ *  Uses the same size and place drawUnits gives the troop. */
+function muzzleOf(s, f, now) {
+  let u = null, best = 3;
+  for (const e of s.units) { if (e.owner !== f.owner || e.hp <= 0) continue; const d = Math.abs(e.x - f.x); if (d < best) { best = d; u = e; } }
+  if (!u) return null;
+  const spec = UNIT[u.kind], key = unitKey(u.kind, 2), im = spr(key), tp = art.tips?.[key];
+  if (!im || !tp) return null;
+  const h = spec.r * 3.5, w = h * im.width / im.height, y = spec.air ? u.y + Math.sin(now * 2.4 + u.id) * 6 : -2 - u.lane * 9;
+  return { x: u.x + S.dir(u.owner) * (tp[0] - 0.5) * w, y: y + (1 - tp[1]) * h };
+}
+
 function drawFx(g, s, now) {
   for (const f of s.fires) {
     const n = Math.max(2, Math.round(f.r / 28)), a = Math.min(1, f.t / 0.8);
@@ -363,7 +401,15 @@ function drawFx(g, s, now) {
     }
     else if (f.kind === 'coin') { const pop = k < 0.15 ? 0.6 + k / 0.15 * 0.6 : 1.2 - Math.min(0.2, (k - 0.15) * 0.8), cy = f.y + 20 + (1 - (1 - k) * (1 - k)) * 52; g.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1; sprite(g, 'ui_0', f.x - 16 * pop, cy - 9 * pop, 18 * pop); text(g, `+${f.gold}`, f.x + 8 * pop, cy, 18 * pop, '#ffe36b'); g.globalAlpha = 1; }
     else if (f.kind === 'poof') sprite(g, 'fx_3', f.x, f.y - 10, 50 * (1 + k), { alpha: 1 - k });
-    else if (f.kind === 'bolt') { g.strokeStyle = f.thin ? COLORS[f.owner].light : '#fff3b0'; g.lineWidth = f.thin ? 3 : 4; g.globalAlpha = 1 - k; g.beginPath(); g.moveTo(f.x, -f.y); g.lineTo(f.tx, -f.ty); g.stroke(); g.globalAlpha = 1; }
+    else if (f.kind === 'bolt') {
+      // a troop's shot starts at the tip of its weapon in the attack picture (assets/tips.json), not at a guessed
+      // point on its body; fort and tower bolts keep the point the rules give
+      let bx = f.x, by = f.y;
+      if (f.thin) { const m = muzzleOf(s, f, now); if (m) { bx = m.x; by = m.y; } }
+      g.strokeStyle = f.thin ? COLORS[f.owner].light : '#fff3b0'; g.lineWidth = f.thin ? 3 : 4; g.lineCap = 'round'; g.globalAlpha = 1 - k; g.beginPath(); g.moveTo(bx, -by); g.lineTo(f.tx, -f.ty); g.stroke();
+      if (f.thin) { g.beginPath(); g.arc(bx, -by, 4.5 * (1 - k) + 1.5, 0, 7); g.fillStyle = '#fff'; g.fill(); }      // a flash at the muzzle
+      g.globalAlpha = 1;
+    }
     else if (f.kind === 'heal') { g.strokeStyle = `rgba(120,255,170,${1 - k})`; g.lineWidth = 4; g.beginPath(); g.ellipse(f.x, -8, f.r * k, f.r * k * 0.25, 0, 0, 7); g.stroke(); }
     else if (f.kind === 'ripple') { g.strokeStyle = `rgba(255,255,255,${1 - k})`; g.lineWidth = 5; g.beginPath(); g.arc(f.x, -f.y, 14 + k * 40, 0, 7); g.stroke(); }
     else if (f.kind === 'sparkle') { for (let i = 0; i < 8; i++) { const a = i * 0.785 + k * 2, d = 20 + k * 60, z = 26 * (1 - k) + 8; if (!sprite(g, 'fx_0', f.x + Math.cos(a) * d, f.y + Math.sin(a) * d - z / 2, z, { rot: a + k * 3, alpha: 1 - k * k })) text(g, '✦', f.x + Math.cos(a) * d, f.y + Math.sin(a) * d, 22 * (1 - k) + 6, '#ffe36b', 'center', null); } }

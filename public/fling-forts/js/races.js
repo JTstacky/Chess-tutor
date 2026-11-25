@@ -24,7 +24,7 @@ export const RACE_DATA = {
     name: 'Highrealm', theme: 'Fantasy: dwarves, elves and dragons', chief: 'the Dwarf King under the mountain',
     tag: 'Stout walls, sharp arrows, and a dragon when it counts.',
     pros: ['Stone keep: fort blocks +15% HP', 'Boulders cost 18g', 'A dragon'], cons: ['Shields cost 55g', 'No cheap swarm'],
-    mods: { unitCost: 1.03, kingHp: 1.00, blockHp: 1.15, ammoCost: { boulder: 18 }, shieldCost: 55},
+    mods: { unitCost: 1.06, kingHp: 0.99, blockHp: 1.15, ammoCost: { boulder: 18 }, shieldCost: 55},
     fort: { look: 'a grey stone castle keep with battlements, banners and a round turret at the back', skin: { L: 'oak beams', S: 'castle stone', I: 'iron-bound gate' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -42,7 +42,7 @@ export const RACE_DATA = {
     name: 'Zyx Swarm', theme: 'Aliens', chief: 'the Overmind, a big brain in a glass jar on spider legs',
     tag: 'Goo that splits, rays that zap, and a saucer overhead.',
     pros: ['Energy shields cost 30g and last 26s', 'Blobs split when they pop', 'Brood Ship keeps dropping bloblets'], cons: ['Catapult reloads 10% slower', 'Soft fort: blocks -10% HP'],
-    mods: { unitCost: 1.08, kingHp: 0.95, shieldCost: 30, shieldLife: 26, reload: 1.1, blockHp: 0.9},
+    mods: { unitCost: 1.07, kingHp: 0.95, shieldCost: 30, shieldLife: 26, reload: 1.1, blockHp: 0.9},
     fort: { look: 'a cluster of glowing green egg pods and purple crystal around a landed saucer hull', skin: { L: 'slime pod', S: 'purple crystal', I: 'saucer hull plate' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [1, 3, 'L'], [2, 2, 'L'], [2, 3, 'L'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
     units: {
@@ -60,7 +60,7 @@ export const RACE_DATA = {
     name: 'Bolt Brigade', theme: 'Robots', chief: 'Unit Zero, a boxy old robot with a crown-shaped antenna',
     tag: 'Armoured, tireless, expensive to build.',
     pros: ['Every troop has +1 armour', 'Iron bunker: the hardest blocks', 'Troops cost 17% less'], cons: ['Gold comes in 8% slower', 'Slow troops'],
-    mods: { unitCost: 0.80, kingHp: 1.10, unitArmor: 1, income: 0.92},
+    mods: { unitCost: 0.82, kingHp: 1.09, unitArmor: 1, income: 0.92},
     fort: { look: 'a squat riveted iron bunker with antenna dishes and warning stripes', skin: { L: 'wire mesh crate', S: 'concrete slab', I: 'riveted steel plate' },
       layout: [[0, 0, 'I'], [0, 1, 'I'], [0, 2, 'S'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S']] },
     units: {
@@ -78,7 +78,7 @@ export const RACE_DATA = {
     name: 'Grimgrowl Pack', theme: 'Monsters', chief: 'the Monster Under the Bed, a huge furry purple beast with tiny horns',
     tag: 'Big, hungry, hard to put down.',
     pros: ['Troops have +15% HP', 'Chief regrows 2 HP a second'], cons: ['Troops cost 20% more', 'Chief -10% HP', 'Catapult reloads 10% slower'],
-    mods: { unitCost: 1.22, kingHp: 0.89, unitHp: 1.15, kingRegen: 2, reload: 1.1, ammoCost: { scatter: 18 }},
+    mods: { unitCost: 1.21, kingHp: 0.89, unitHp: 1.15, kingRegen: 2, reload: 1.1, ammoCost: { scatter: 18 }},
     fort: { look: 'a rocky cave lair with a giant skull over the door, claw marks and bones', skin: { L: 'bone and hide', S: 'cave rock', I: 'iron cage bars' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [0, 3, 'L'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'L']] },
     units: {
@@ -97,7 +97,7 @@ export const RACE_DATA = {
     name: 'Iron Company', theme: 'Humans / military', chief: 'the General, a moustached commander with a chest full of medals',
     tag: 'Drilled ranks, sandbags and air support.',
     pros: ['Towers hit 40% harder', 'Walls cost 22g, Scatter 8g', 'Troops cost 7% less'], cons: ['Chief -6% HP', 'No troop stands out'],
-    mods: { unitCost: 0.92, kingHp: 0.94, towerDmg: 1.4, wallCost: 22, ammoCost: { scatter: 8 },},
+    mods: { unitCost: 0.95, kingHp: 0.93, towerDmg: 1.4, wallCost: 22, ammoCost: { scatter: 8 },},
     fort: { look: 'a sandbag and timber command bunker with a radio mast, camo net and a lookout post', skin: { L: 'sandbags', S: 'concrete', I: 'steel plate' },
       layout: [[0, 0, 'L'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -133,7 +133,7 @@ export const RACE_DATA = {
     name: 'Saltdogs', theme: 'Pirates', chief: 'Captain Barnacle, a peg-legged pirate with a huge hat and a parrot',
     tag: 'Fast, loud, and in it for the gold.',
     pros: ['Plunder: +3 extra gold for every enemy troop killed', 'Gold kites and chests give 50% more'], cons: ['Troops cost 18% more', 'Chief -9% HP', 'Wooden fort: blocks -15% HP'],
-    mods: { unitCost: 1.22, kingHp: 0.90, plunder: 3, bonusGold: 1.5, blockHp: 0.85, towerHp: 0.8},
+    mods: { unitCost: 1.20, kingHp: 0.91, plunder: 3, bonusGold: 1.5, blockHp: 0.85, towerHp: 0.8},
     fort: { look: 'a fort built from a beached pirate ship: plank hull, mast with crow\'s nest, barrels and a skull flag', skin: { L: 'ship planks', S: 'ballast stone', I: 'cannon iron' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [0, 3, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'L'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
@@ -151,7 +151,7 @@ export const RACE_DATA = {
     name: 'Primal Court', theme: 'Elementals', chief: 'the Ember Sovereign, a calm figure of living flame in a stone crown',
     tag: 'Fire, frost, stone and storm.',
     pros: ['Firepots cost 10g and burn 50% longer', 'Frost and storm slow what they hit'], cons: ['No healing troop', 'Boulders cost 31g'],
-    mods: { unitCost: 1.01, kingHp: 0.99, ammoCost: { fire: 10, boulder: 31 }, burnTime: 1.5},
+    mods: { unitCost: 0.98, kingHp: 1.01, ammoCost: { fire: 10, boulder: 31 }, burnTime: 1.5},
     fort: { look: 'floating rune-carved boulders and glowing crystal pillars around a fire altar', skin: { L: 'ice crystal', S: 'rune boulder', I: 'obsidian slab' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'S'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
     units: {
@@ -169,7 +169,7 @@ export const RACE_DATA = {
     name: 'Tusk Tribes', theme: 'Beastfolk: orcs, goblins and animal tribes', chief: 'Chief Bigtusk, a fat orc warlord on a throne of shields',
     tag: 'Cheap, fast, and there are always more.',
     pros: ['Troops move 10% faster and cost 7% less', 'Big squads'], cons: ['Walls -30% HP, towers -20% HP', 'Stick fort: blocks -10% HP'],
-    mods: { unitCost: 0.93, kingHp: 0.96, unitSpeed: 1.1, wallHp: 0.7, towerHp: 0.8, blockHp: 0.9},
+    mods: { unitCost: 0.93, kingHp: 0.95, unitSpeed: 1.1, wallHp: 0.7, towerHp: 0.8, blockHp: 0.9},
     fort: { look: 'a wooden palisade war camp with tusks, hide tents, war drums and a totem pole', skin: { L: 'lashed logs', S: 'boulder and tusk', I: 'scrap-metal shield wall' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
@@ -187,7 +187,7 @@ export const RACE_DATA = {
     name: 'Brass Guild', theme: 'Steampunk', chief: 'the Grand Inventor, a tiny lady in goggles driving a brass walking chair',
     tag: 'Gears, steam, and far too much pressure.',
     pros: ['Catapult reloads 15% faster', 'Boulders cost 16g'], cons: ['Troops move 10% slower', 'Shields cost 55g'],
-    mods: { unitCost: 0.98, kingHp: 1.02, reload: 0.85, ammoCost: { boulder: 16 }, unitSpeed: 0.9, shieldCost: 55},
+    mods: { unitCost: 0.96, kingHp: 1.03, reload: 0.85, ammoCost: { boulder: 16 }, unitSpeed: 0.9, shieldCost: 55},
     fort: { look: 'a brass and brick workshop with a smoking chimney, big gears, pipes and a clock face', skin: { L: 'copper pipework', S: 'red brick', I: 'brass boiler plate' },
       layout: [[0, 0, 'I'], [0, 1, 'S'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {

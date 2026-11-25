@@ -54,18 +54,21 @@ export const AGGRO = 120;
 // to outScale over the first growIn units (drawing and hit size both use S.kingScale).
 // Each chief's own attack (owner, 2026-11-25: themed attacks). range: extra reach in world units at home size
 // (scaled by kingScale, matching the effect picture's length in view.js KING_FX); dmg: multiplier on KING_FIGHT.dmg;
-// splash: radius around the target. Provisional numbers: lane 3 balances them.
+// shape: 'front' and 'line' hit every ground troop in front within reach, 'blast' hits the target and those within
+// splash of it; side: share of the damage for everything but the target; rate: multiplier on KING_FIGHT.rate (above 1
+// is slower); push: world units survivors are shoved back. Melee range ends where the effect picture ends.
+// dmg is balanced on tools/kingbench.mjs (tools/kingtune.mjs) so every chief scores about 100.
 export const KING_ATK = {
-  fantasy:    { range: 0,   dmg: 1.0,  splash: 60 },   // warhammer shockwave
-  aliens:     { range: 150, dmg: 0.8,  splash: 30 },   // laser
-  robots:     { range: 140, dmg: 0.8,  splash: 50 },   // lightning
-  monsters:   { range: 0,   dmg: 1.15, splash: 40 },   // claws
-  military:   { range: 130, dmg: 0.85, splash: 50 },   // rocket
-  undead:     { range: 120, dmg: 0.8,  splash: 40 },   // ghost-fire skull
-  pirates:    { range: 0,   dmg: 1.15, splash: 44 },   // cutlass
-  elementals: { range: 120, dmg: 0.75, splash: 70 },   // fire wave
-  beastfolk:  { range: 0,   dmg: 1.1,  splash: 50 },   // bone axe
-  steampunk:  { range: 60,  dmg: 0.95, splash: 50 },   // steam blast
+  fantasy:    { shape: 'front', range: 34,  dmg: 2.1 , side: 0.7, rate: 1.1 },            // warhammer: slow, the shockwave hits everything in reach hard
+  aliens:     { shape: 'line',  range: 150, dmg: 0.63, side: 0.3 },                        // laser: long thin beam, mostly one target
+  robots:     { shape: 'line',  range: 140, dmg: 0.57, side: 0.5, rate: 1.25 },                       // lightning: arcs through the line
+  monsters:   { shape: 'front', range: 28,  dmg: 1.35, side: 0.5, rate: 0.7 },             // claws: fast swipes, short reach
+  military:   { shape: 'blast', range: 130, dmg: 0.96, side: 0.6, splash: 50, rate: 1.3 }, // rocket: slow, bursts where it lands
+  undead:     { shape: 'blast', range: 120, dmg: 0.85, splash: 40 },                       // ghost-fire skull: bursts where it lands
+  pirates:    { shape: 'front', range: 26,  dmg: 2.15, side: 0.6 },                        // cutlass: wide arc up close
+  elementals: { shape: 'line',  range: 120, dmg: 0.48, side: 1, rate: 1.5 },                         // fire wave: rolls over everyone alike, low damage
+  beastfolk:  { shape: 'front', range: 38,  dmg: 1.91, side: 0.6 },             // bone axe: heavy ground slam
+  steampunk:  { shape: 'front', range: 60,  dmg: 0.72, side: 0.8, push: 24 },              // steam blast: shoves troops back
 };
 export const KING_FIGHT = { outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 3, calm: 2.5 };
 
