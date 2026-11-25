@@ -1,3 +1,4 @@
+import { KO } from './tuning.js';
 // main.js — boot, menus, fixed-step loop, sound.
 import * as S from './sim.js';
 import { createAI, pickRace } from './ai.js';
@@ -136,15 +137,18 @@ function handleEvents() {
       case 'king-strike': if (!sound('strike_' + game.s.players[e.p].race)) sound('impact'); ui.shake = Math.min(1, ui.shake + 0.1); break;
       case 'build': case 'send': sound('build'); break;
       case 'boom': case 'destroyed': sound('boom'); break;
+      case 'loot': sound('bonus'); ui.toast[e.p] = { text: `Mine smashed! +${e.gold} gold`, until: game.clock + 1.8 }; break;
       case 'bonus': sound('bonus'); ui.toast[e.p] = { text: S.BONUS[e.kind].name + '!', until: game.clock + 1.8 }; break;
       case 'sudden': sound('sudden'); break;
       case 'tier': sound('roundStart'); break;
       case 'ult': sound('sudden'); break;
       case 'hero': sound('build'); break;
-      case 'round-end': ui.armed = [null, null]; ui.aims.clear(); ui.held = null; break;
-      case 'round-start': sound('roundStart'); ui.tickAt = null; ui.aims.clear(); ui.held = null; break;
+      case 'round-end': ui.armed = [null, null]; ui.aims.clear(); ui.held = null;
+        if (e.winner >= 0) { ui.slowmo = KO.slow; ui.cam = { x: e.x, y: e.y, at: performance.now() / 1000, dur: KO.cam, zoom: KO.zoom }; sound('impact'); }
+        break;
+      case 'round-start': ui.cam = null; sound('roundStart'); ui.tickAt = null; ui.aims.clear(); ui.held = null; break;
       case 'bounty': sound(S.UNIT[e.kind]?.air ? 'flyerDown' : 'die'); break;
-      case 'match-end': ui.slowmo = 0.9; sound('win'); setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, 1400); break;   // if paused meanwhile, resume() shows it
+      case 'match-end': sound('win'); setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, KO.over * 1000); break;   // after the knockout   // if paused meanwhile, resume() shows it
     }
   }
 }
@@ -163,7 +167,7 @@ let last = performance.now(), acc = 0;
 function frame(t) {
   // game feel: a few frames of hit-stop when a block breaks, slow motion on the winning hit (both players alike)
   let real = Math.min(0.25, (t - last) / 1000); last = t;
-  if (ui.hitstop > 0) { ui.hitstop -= real; real = 0; } else if (ui.slowmo > 0) { ui.slowmo -= real; real *= 0.3; }
+  if (ui.hitstop > 0) { ui.hitstop -= real; real = 0; } else if (ui.slowmo > 0) { ui.slowmo -= real; real *= KO.rate; }
   acc += real;
   // countdown tick over the last five seconds of a round or of sudden death
   if (game.state === 'play' && game.s && (game.s.phase === 'play' || game.s.phase === 'sudden') && game.s.clock <= 5.0) {

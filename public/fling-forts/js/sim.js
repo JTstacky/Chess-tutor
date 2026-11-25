@@ -1,6 +1,6 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
 export { PRICE_TUNE };
-import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP } from './tuning.js';
+import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT } from './tuning.js';
 export * from './tuning.js';
 // sim.js — Fling Forts rules and physics, side view. Pure: no DOM, so node tests run the same code as the game.
 // World: x runs left to right (0..W), y is height above the ground (0 = ground). Player 0 owns the left fort,
@@ -144,7 +144,7 @@ export const tierAt = (s, t) => TIERS.at[t - 1] * (s.round > 1 ? TIERS.laterRoun
 export function tierOf(key) {
   if (AMMO[key]) return AMMO_TIER[key] ?? 1;
   if (BUILD[key]) return BUILD_TIER[key] ?? 1;
-  if (UNIT[key]) return UNIT[key].tier ?? (UNIT[key].hero ? HERO.tier : 2);
+  if (UNIT[key]) return UNIT[key].tier ?? (UNIT[key].hero ? HERO.tier : 1);
   return 1;
 }
 /** Seconds into the round when key unlocks for player p (0 = open from the start). */
@@ -168,7 +168,7 @@ function buildFort(s, p) {
 }
 function fresh(s) {
   s.players = [newPlayer(0, s.races[0]), newPlayer(1, s.races[1])];
-  s.projectiles = []; s.units = []; s.buildings = []; s.fires = []; s.fx = []; s.bonuses = []; s.blocks = [];
+  s.projectiles = []; s.units = []; s.buildings = []; s.fires = []; s.fx = []; s.bonuses = []; s.blocks = []; s.ko = null;
   buildFort(s, 0); buildFort(s, 1);
   s.phase = 'play'; s.clock = SUDDEN_AT; s.roundWinner = null; s.roundT = 0; s.tier = s.open ? TIERS.at.length : 1; s.ultq = []; s.waves = [];   // open: every tier unlocked (rule tests, tools)
   s.bonusTimer = 5 + s.rand() * 3;
@@ -302,9 +302,14 @@ function hurtUnit(s, u, dmg, by, dot = false, pierce = false) {
   return d;
 }
 const unitY = (u) => u.y + UNIT[u.kind].r;      // centre height of a troop
-function hurtBuilding(s, b, dmg) {
+function hurtBuilding(s, b, dmg, by) {
   if (b.dead || dmg <= 0) return;
   b.hp -= dmg; b.flash = 0.2;
+  if (b.hp <= 0 && b.kind === 'mine' && (by === 0 || by === 1) && by !== b.owner) {   // smashing the enemy's mine pays (owner)
+    const pl = s.players[by], g = Math.min(MINE_LOOT, capOf(s) - pl.gold);
+    if (g > 0) { pl.gold += g; pl.earned += g; }
+    emit(s, 'loot', { p: by, gold: MINE_LOOT, x: b.x });
+  }
   if (b.hp <= 0) { b.dead = true; fx(s, b.kind === 'shield' ? 'pop' : 'rubble', b.x, 40, { ttl: 0.8, mat: 'wood', owner: b.owner }); emit(s, 'destroyed', { p: b.owner, kind: b.kind, x: b.x }); }
 }
 const has = (s, p, c, r) => s.blocks.some((b) => !b.dead && b.owner === p && b.c === c && b.r === r);
@@ -365,12 +370,12 @@ function impact(s, pr, hit) {
   let any = false;
   const direct = hit?.ref;
   if (hit?.kind === 'block' && direct.owner === foe) { hurtBlock(s, direct, dmg * bld, me); any = true; }
-  if (hit?.kind === 'bld' && direct.owner === foe) { hurtBuilding(s, direct, dmg * bld); any = true; }
+  if (hit?.kind === 'bld' && direct.owner === foe) { hurtBuilding(s, direct, dmg * bld, me); any = true; }
   if (hit?.kind === 'king' && direct === foe) { hurtKing(s, foe, dmg * (a.bld > 1 && !sh ? 1.3 : 1), pr.x, pr.y, me); any = true; }
   // splash: troops in the blast, other blocks and buildings at reduced strength, the chief only by line of sight
   for (const u of s.units) if (u.owner === foe && hyp(u.x - pr.x, unitY(u) - pr.y) < r + UNIT[u.kind].r) { hurtUnit(s, u, dmg, me); any = true; }
   for (const b of s.blocks) { if (b.dead || b.owner !== foe || b === direct) continue; const q = blockPos(b); if (hyp(q.x - pr.x, q.y - pr.y) < r + CELL * 0.3) { hurtBlock(s, b, dmg * bld * 0.4, me); any = true; } }
-  for (const b of s.buildings) { if (b.dead || b.owner !== foe || b === direct || b.kind === 'shield') continue; if (Math.abs(b.x - pr.x) < r && pr.y < GEOM[b.kind].h + r) { hurtBuilding(s, b, dmg * bld * 0.4); any = true; } }
+  for (const b of s.buildings) { if (b.dead || b.owner !== foe || b === direct || b.kind === 'shield') continue; if (Math.abs(b.x - pr.x) < r && pr.y < GEOM[b.kind].h + r) { hurtBuilding(s, b, dmg * bld * 0.4, me); any = true; } }
   if (hit?.kind !== 'king') { const k = kingPos(foe, s); if (hyp(k.x - pr.x, k.y - pr.y) < r * 0.6 + kingR(foe, s) && !shielded(s, foe, pr.x, pr.y)) { hurtKing(s, foe, dmg * 0.5, pr.x, pr.y, me); any = true; } }
   if (a.burn && !sh && pr.y < 30) s.fires.push({ owner: me, kind: 'fire', x: pr.x, r: a.burn.r, t: a.burn.t * (raceOf(s, me).mods.burnTime || 1), dps: a.burn.dps });
   if (any) s.players[me].hits++;
@@ -511,7 +516,9 @@ function timeoutWinner(s) {
 function endRound(s, winner) {
   s.roundWinner = winner;
   if (winner >= 0) s.roundsWon[winner]++; else s.draws++;
-  emit(s, 'round-end', { winner });
+  const loser = winner >= 0 ? 1 - winner : -1, kp = loser >= 0 ? kingPos(loser, s) : { x: W / 2, y: 120 };
+  s.ko = { winner, loser, x: kp.x, y: kp.y, at: s.time };            // for the knockout picture
+  emit(s, 'round-end', { winner, loser, x: kp.x, y: kp.y });
   if (winner >= 0 && s.roundsWon[winner] >= ROUNDS_TO_WIN) { s.phase = 'over'; s.winner = winner; emit(s, 'match-end', { winner }); }
   else if (s.draws > MAX_DRAWS) {                               // nobody is really playing: call it on rounds, or a draw
     s.phase = 'over'; s.winner = s.roundsWon[0] === s.roundsWon[1] ? -1 : s.roundsWon[0] > s.roundsWon[1] ? 0 : 1; emit(s, 'match-end', { winner: s.winner });
@@ -609,7 +616,7 @@ function explode(s, u, spec) {
   const foe = 1 - u.owner, y = spec.air ? CELL * 2.5 : 20;
   u.hp = 0; u.spent = true;
   for (const b of s.blocks) { if (b.dead || b.owner !== foe) continue; const q = blockPos(b); if (hyp(q.x - u.x, q.y - y) < spec.boom.r + CELL * 0.4) hurtBlock(s, b, spec.boom.dmg, u.owner); }
-  for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - u.x) < spec.boom.r) hurtBuilding(s, b, spec.boom.dmg);
+  for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - u.x) < spec.boom.r) hurtBuilding(s, b, spec.boom.dmg, u.owner);
   for (const e of s.units) if (e.owner === foe && e.hp > 0 && !UNIT[e.kind].air && Math.abs(e.x - u.x) < spec.boom.r * 0.7) hurtUnit(s, e, spec.boom.dmg * 0.5, u.owner);
   const k = kingPos(foe, s);
   if (Math.abs(k.x - u.x) < spec.boom.r * 0.6 + kingR(foe, s) && !shielded(s, foe, u.x, y)) hurtKing(s, foe, spec.boom.dmg * 0.7, u.x, y, u.owner);
@@ -714,7 +721,7 @@ function stepUlts(s, dt) {
     const d = dir(w.owner), foe = 1 - w.owner, U = w.U;
     w.x += d * (U.speed || 380) * dt;
     for (const u of s.units) if (u.owner === foe && u.hp > 0 && !UNIT[u.kind].air && !w.hit.has(u.id) && Math.abs(u.x - w.x) < 30) { w.hit.add(u.id); hurtUnit(s, u, U.dmg || 40, w.owner); if (U.slow) u.slow = Math.max(u.slow, U.slow); }
-    for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && !w.hit.has('b' + b.id) && Math.abs(b.x - w.x) < 30) { w.hit.add('b' + b.id); hurtBuilding(s, b, U.bldDmg ?? (U.dmg || 40) * 2); }
+    for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && !w.hit.has('b' + b.id) && Math.abs(b.x - w.x) < 30) { w.hit.add('b' + b.id); hurtBuilding(s, b, U.bldDmg ?? (U.dmg || 40) * 2, w.owner); }
     for (const b of s.blocks) if (!b.dead && b.owner === foe && b.r <= 1 && !w.hit.has('k' + b.id) && Math.abs(blockPos(b).x - w.x) < 30) { w.hit.add('k' + b.id); hurtBlock(s, b, U.bldDmg ?? (U.dmg || 40) * 2, w.owner); }
     if (U.burn && Math.floor(w.x / 70) !== Math.floor((w.x - d * (U.speed || 380) * dt) / 70)) s.fires.push({ owner: w.owner, kind: 'fire', x: w.x, r: 40, t: U.burn.t, dps: U.burn.dps });
     if (mx(foe, w.x) < 60) w.done = true;                      // reached the far edge
@@ -781,7 +788,7 @@ function stepUnits(s, dt) {
           hit(target, dmg);
           if (spec.splash) { const air = !!UNIT[target.kind].air; for (const e of s.units) if (e !== target && e.owner === foe && e.hp > 0 && !!UNIT[e.kind].air === air && Math.abs(e.x - target.x) < spec.splash) hit(e, dmg * 0.6); }
         }
-        else if (tkind === 'bld') hurtBuilding(s, target, dmg * spec.bld);
+        else if (tkind === 'bld') hurtBuilding(s, target, dmg * spec.bld, u.owner);
         else if (tkind === 'block') hurtBlock(s, target, dmg * spec.bld, u.owner);
         else hurtKing(s, foe, dmg * KING_UNIT_MUL, u.x, 20, u.owner);
         if (spec.range) {
@@ -808,7 +815,7 @@ function stepFires(s, dt) {
     const foe = 1 - f.owner;
     for (const u of s.units) if (u.owner === foe && u.hp > 0 && !UNIT[u.kind].air && Math.abs(u.x - f.x) < f.r) { hurtUnit(s, u, f.dps * dt, f.owner, true); if (f.kind === 'spore') u.slow = Math.max(u.slow, 0.3); }
     for (const b of s.blocks) { if (b.dead || b.owner !== foe || b.r > 0) continue; if (Math.abs(colX(foe, b.c) - f.x) < f.r + CELL / 2) hurtBlock(s, b, f.dps * 0.5 * dt, f.owner); }
-    for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - f.x) < f.r + 15) hurtBuilding(s, b, f.dps * 0.6 * dt);
+    for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - f.x) < f.r + 15) hurtBuilding(s, b, f.dps * 0.6 * dt, f.owner);
     const k = kingPos(foe, s);
     if (Math.abs(k.x - f.x) < f.r * 0.5 + kingR(foe, s) && !shielded(s, foe, f.x, 20)) hurtKing(s, foe, f.dps * 0.35 * dt, f.x, 10, f.owner);
   }

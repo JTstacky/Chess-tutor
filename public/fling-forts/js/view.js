@@ -27,7 +27,7 @@ let manifestIn; const manifest = new Promise((ok) => { manifestIn = ok; });   //
 export function loadGroup(name) {
   if (art.state[name]) return art.state[name].done;
   const st = art.state[name] = { ready: false, done: null };
-  st.done = manifest.then(() => Promise.all((art.groups[name] || []).map(([key, file]) => new Promise((ok) => { const im = new Image(); im.onload = () => { art.img[key] = im; ok(); }; im.onerror = () => ok(); im.src = art.base + file; })))).then(() => { st.ready = true; if (name !== 'core' && !name.endsWith('+')) loadGroup(name + '+'); });
+  st.done = manifest.then(() => Promise.all((art.groups[name] || []).map(([key, file]) => new Promise((ok) => { let tries = 0; const go = () => { const im = new Image(); im.onload = () => { art.img[key] = im; ok(); }; im.onerror = () => { if (++tries > 2) { (art.failed ||= []).push(key); ok(); } else setTimeout(go, 500 * tries); }; im.src = art.base + file + (tries ? `?r=${tries}` : ''); }; go(); })))).then(() => { st.ready = true; if (name !== 'core' && !name.endsWith('+')) loadGroup(name + '+'); });
   return st.done;
 }
 export async function loadArt(base = 'assets/') {
@@ -63,7 +63,14 @@ const spr = (key) => {
 const coming = (key) => { const grp = art.groupOf[key]; return !!grp && !art.state[grp]?.ready; };
 // ---- sprite lookups with fallbacks, so a race plays before its own art has arrived ----
 const OLD_KINGS = ['king_forge_0', 'king_reed_0', 'king_moss_0'];
-export const unitKey = (kind, frame) => (spr(`t_${kind}_${frame}`) || coming(`t_${kind}_${frame}`) ? `t_${kind}_${frame}` : `t_${UNIT[kind].art}_${frame}`);
+export const unitKey = (kind, frame) => {
+  const own = `t_${kind}_${frame}`;
+  if (spr(own) || coming(own)) return own;
+  // its picture did not arrive: show another of its own poses (the first troops' art stands in only if it has none at
+  // all; one lost download used to put a different creature, a bark golem, into the middle of the animation)
+  for (const f of [0, 1, 2, 3]) if (f !== frame && art.img[`t_${kind}_${f}`]) return `t_${kind}_${f}`;
+  return `t_${UNIT[kind].art}_${frame}`;
+};
 export const kingKey = (race) => (spr(`king_${race}_0`) || coming(`king_${race}_0`) ? `king_${race}_0` : OLD_KINGS[S.RACE_KEYS.indexOf(race) % 3]);
 const BLK = { wood: 0, stone: 1, iron: 2 };
 function blockKey(race, kind, worn) {
@@ -231,6 +238,23 @@ function drawChief(g, s, p, now) {
   // size: CHIEF_H at home (as tall as the two-block hollow under his roof allows) times the rules' own scale
   // (S.kingScale: 1 at home, growing once he is out), so the picture matches what shots hit
   const big = S.kingScale(p, s), H = CHIEF_H * big;
+  const ko = s.ko && (s.phase === 'roundOver' || s.phase === 'over') ? s.ko : null;
+  if (ko && ko.loser === p) {                    // knocked out: topples back over half a second, bounces once, lies flat
+    const a = s.time - ko.at, fall = Math.min(1, a / 0.5), bounce = a > 0.5 && a < 0.8 ? Math.sin(Math.PI * (a - 0.5) / 0.3) * 0.08 : 0;
+    const back = -face, rot = back * (Math.PI / 2) * (fall * fall) * (1 - bounce);
+    g.save(); g.translate(k.x - back * H * 0.12 * fall, 0); g.filter = 'saturate(0.6) brightness(0.92)';
+    const ko2 = `kingko_${pl.race}_0`;
+    if (spr(ko2)) sprite(g, ko2, 0, 0, H, { flip });
+    else sprite(g, kingKey(pl.race), 0, -H * 0.4 * fall * fall, H, { flip, rot });   // lowered as he tips so he lies on the ground
+    g.restore();
+    return;
+  }
+  if (ko && ko.winner === p) {                   // the winner jumps and waves
+    const a = s.time - ko.at, j = Math.abs(Math.sin(a * 7)) * H * 0.16, cheer = `kingwin_${pl.race}_0`;
+    if (spr(cheer)) sprite(g, cheer, k.x, j, H, { flip });
+    else sprite(g, kingKey(pl.race), k.x, j, H, { flip, rot: Math.sin(a * 7) * 0.12 });
+    return;
+  }
   // he stands out at all times: a soft gold glow behind him and a gold ring in his side's colour under his feet
   const pulse = 0.5 + 0.5 * Math.sin(now * 3 + p), gl = g.createRadialGradient(k.x, -H * 0.5, H * 0.1, k.x, -H * 0.5, H * 0.75);
   gl.addColorStop(0, `rgba(255,226,110,${0.5 + 0.15 * pulse})`); gl.addColorStop(1, 'rgba(255,226,110,0)');
@@ -395,7 +419,10 @@ function drawUnits(g, s, now) {
     const spec = UNIT[u.kind], col = COLORS[u.owner], h = spec.r * 3.5, air = !!spec.air;
     const y = air ? u.y + Math.sin(now * 2.4 + u.id) * 6 : -2 - u.lane * 9;
     const fr = unitFrame(u, spec, now), dirU = S.dir(u.owner);
-    const hop = air || u.act > 0 || u.hurt > 0 ? 0 : Math.abs(Math.sin(u.walk * Math.PI)) * spec.r * 0.22;
+    const koS = s.ko && s.ko.loser >= 0 && (s.phase === 'roundOver' || s.phase === 'over') ? s.ko : null;
+    const win = koS && u.owner === koS.winner, lose = koS && u.owner === koS.loser;
+    const hop = win ? Math.abs(Math.sin(now * 8 + u.id)) * spec.r * 1.1 : air || u.act > 0 || u.hurt > 0 || lose ? 0 : Math.abs(Math.sin(u.walk * Math.PI)) * spec.r * 0.22;
+    if (lose) { g.save(); g.filter = 'saturate(0.35) brightness(0.85)'; }
     // team-colour disc on the ground (a fainter shadow under flyers)
     g.beginPath(); g.ellipse(u.x, air ? 0 : -y + 1, spec.r * (air ? 0.9 : 1.15), spec.r * (air ? 0.24 : 0.34), 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = air ? 0.35 : 0.8; g.fill();
     if (!air) { g.lineWidth = 2; g.strokeStyle = col.dark; g.stroke(); }
@@ -409,7 +436,7 @@ function drawUnits(g, s, now) {
     g.save();
     if (u.slow > 0) g.filter = 'hue-rotate(160deg) saturate(0.7)';
     else if (he >= 0 && he < 0.22) g.filter = `brightness(${1.9 - he * 4})`;                      // white flash on the hit
-    if (!sprite(g, fr.key, u.x + dx, y + hop + fr.dy * h, h * fr.k, { flip: u.owner === 1, rot: lean, sx: 2 - sq, sy: sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
+    if (!sprite(g, fr.key, u.x + dx, y + hop + fr.dy * h, h * fr.k, { flip: u.owner === 1, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : win ? Math.sin(now * 8 + u.id) * 0.1 : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
     g.restore();
     if (spec.siege && !spec.range && ae >= 0.15) {                 // a siege troop only ever strikes walls and forts: chips of stone fly back from the blow
       const tp = art.tips?.[unitKey(u.kind, 2)], im2 = spr(unitKey(u.kind, 2)), w2 = im2 ? h * im2.width / im2.height : h;
@@ -421,7 +448,8 @@ function drawUnits(g, s, now) {
       g.globalAlpha = 1;
     }
     if (air) { g.beginPath(); g.arc(u.x, -(y + h + 12), 5, 0, 7); g.fillStyle = col.main; g.fill(); g.lineWidth = 2; g.strokeStyle = '#fff'; g.stroke(); }
-    if (u.hp < u.maxHp) bar(g, u.x, y + h + 4, Math.max(22, spec.r * 2), 6, u.hp / u.maxHp, col.main);
+    if (u.hp < u.maxHp && !koS) bar(g, u.x, y + h + 4, Math.max(22, spec.r * 2), 6, u.hp / u.maxHp, col.main);
+    if (lose) g.restore();
   }
 }
 
@@ -687,12 +715,15 @@ function drawHud(g, s, ui, now) {
   g.beginPath(); g.arc(PAUSE.x, -PAUSE.y, PAUSE.r, 0, 7); g.fillStyle = 'rgba(40,24,10,0.62)'; g.fill();
   g.fillStyle = '#fff'; g.fillRect(PAUSE.x - 9, -PAUSE.y - 10, 6, 20); g.fillRect(PAUSE.x + 3, -PAUSE.y - 10, 6, 20);
   // ---- banners ----
-  if (s.phase === 'roundOver' || s.phase === 'over') {
+  const camOn = ui.cam && performance.now() / 1000 - ui.cam.at < ui.cam.dur - 0.4;   // the knockout zoom plays first, then the banner
+  if ((s.phase === 'roundOver' || s.phase === 'over') && !camOn) {
     const w = s.phase === 'over' ? s.winner : s.roundWinner;
     const msg = w < 0 ? (s.phase === 'over' ? 'Match drawn' : 'Round drawn') : `${RACES[s.players[w].race].name} ${s.phase === 'over' ? 'win the match!' : 'win the round'}`;
     rrect(g, W / 2 - 380, -430, 760, 110, 24); g.fillStyle = 'rgba(40,24,10,0.8)'; g.fill();
     text(g, msg, W / 2, 386, 44, w < 0 ? '#fff' : COLORS[w].light);
     text(g, `${s.roundsWon[0]} – ${s.roundsWon[1]}`, W / 2, 342, 24, '#fff');
+  } else if (camOn) {
+    // nothing over the knockout
   } else if (s.ultShow && s.time - s.ultShow.at < 2.0) {                // an ultimate: its name across the sky in the caster's colour
     const a = s.time - s.ultShow.at;
     text(g, s.ultShow.name + '!', W / 2, 400, 58 * Math.min(1, a * 4), COLORS[s.ultShow.p].light);
@@ -741,7 +772,10 @@ export function draw(g, lay, s, ui, now) {
   drawBackdrop(g, lay);
   ui.topY = Math.min((lay.gy - 8) / lay.s, 880);
   const shake = ui.shake > 0 ? ui.shake * 7 : 0;
-  g.setTransform(lay.dpr * lay.s, 0, 0, lay.dpr * lay.s, lay.dpr * (lay.ox + (shake ? Math.sin(now * 90) * shake : 0)), lay.dpr * (lay.gy + (shake ? Math.cos(now * 70) * shake : 0)));
+  const cam = camera(lay, ui);
+  const worldT = () => g.setTransform(lay.dpr * lay.s * cam.z, 0, 0, lay.dpr * lay.s * cam.z, lay.dpr * (cam.ox + (shake ? Math.sin(now * 90) * shake : 0)), lay.dpr * (cam.oy + (shake ? Math.cos(now * 70) * shake : 0)));
+  const flatT = () => g.setTransform(lay.dpr * lay.s, 0, 0, lay.dpr * lay.s, lay.dpr * lay.ox, lay.dpr * lay.gy);
+  worldT();
   PAUSE.y = ui.topY - 100;
   drawFort(g, s, 0, ui, now); drawFort(g, s, 1, ui, now);
   if (ui.menu) return;
@@ -754,6 +788,32 @@ export function draw(g, lay, s, ui, now) {
   drawShots(g, s);
   drawFx(g, s, now);
   drawAim(g, s, ui);
+  drawKo(g, s, now);
+  if (cam.z > 1.001) flatT();                     // the control strip, clock and banners do not zoom
   drawHud(g, s, ui, now);
   drawAbove(g, s, ui, now);
+}
+/** The knockout camera: eases in onto the beaten chief, holds, eases back out. Returns zoom and screen offset. */
+function camera(lay, ui) {
+  const c = ui.cam, flat = { z: 1, ox: lay.ox, oy: lay.gy };
+  if (!c) return flat;
+  const t = performance.now() / 1000 - c.at;
+  if (t < 0 || t > c.dur) return flat;
+  const ease = (q) => q * q * (3 - 2 * q), k = t < 0.45 ? ease(t / 0.45) : t > c.dur - 0.7 ? ease((c.dur - t) / 0.7) : 1;
+  const z = 1 + (c.zoom - 1) * k;
+  // keep the chief (a little above his feet) at the middle of the playing area while zooming
+  const fx = lay.ox + c.x * lay.s, fy = lay.gy - (c.y + 20) * lay.s, tx = lay.w / 2, ty = Math.min(lay.gy * 0.62, lay.h * 0.45);
+  const sx = fx + (tx - fx) * k, sy = fy + (ty - fy) * k;            // where the chief sits on screen this frame
+  return { z, ox: sx - c.x * lay.s * z, oy: sy + (c.y + 20) * lay.s * z - (lay.gy - lay.gy) };
+}
+/** Stars circling the knocked-out chief's head and a "K.O.!" pop. */
+function drawKo(g, s, now) {
+  const ko = s.ko;
+  if (!ko || ko.loser < 0) return;
+  const a = s.time - ko.at, k = S.kingPos(ko.loser, s), H = CHIEF_H * S.kingScale(ko.loser, s);
+  if (a > 0.35) for (let i = 0; i < 4; i++) {
+    const t = now * 3 + i * Math.PI / 2, hx = k.x - S.dir(ko.loser) * H * 0.55;
+    sprite(g, 'fx_0', hx + Math.cos(t) * H * 0.32, H * 0.22 + Math.sin(t) * H * 0.08, H * 0.2, { rot: now * 4, alpha: 0.95 });
+  }
+  if (a < 2.2) { const z = Math.min(1, a * 5); text(g, 'K.O.!', k.x + S.dir(ko.loser) * H * 1.05, H * 0.75 + 12 * z, 38 * z, '#ffd23f'); }   // beside him, out over the field (clear of the clock when zoomed)
 }

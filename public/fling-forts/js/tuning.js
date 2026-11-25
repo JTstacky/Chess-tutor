@@ -5,11 +5,15 @@
 // Pacing (owner, 2026-11-25: 5-10 minute matches that start slow and escalate; docs/PACING-PLAN.md).
 // A round opens in tier 1 and steps up at TIERS.at seconds; rounds 2 and 3 step up faster (laterRounds).
 // Sudden death starts SUDDEN_AT seconds into the round and lasts SUDDEN_TIME.
-export const TIERS = { at: [0, 60, 120], income: [4, 6, 9], cap: [150, 250, 400], laterRounds: 0.6 };
-export const SUDDEN_AT = 240, SUDDEN_TIME = 60, INTERMISSION = 3.2, ROUNDS_TO_WIN = 2, MAX_DRAWS = 2;
+// owner 2026-11-25: every regular troop is open from the start; the build-up comes from slow gold instead
+export const TIERS = { at: [0, 60, 120], income: [2.5, 4, 6], cap: [150, 250, 400], laterRounds: 0.6 };
+export const SUDDEN_AT = 240, SUDDEN_TIME = 60, INTERMISSION = 6.5, ROUNDS_TO_WIN = 2, MAX_DRAWS = 2;   // 6.5: room for the knockout
+// the end of a round (owner: dramatic): slow motion for KO.slow real seconds at KO.rate speed, the camera zooms KO.zoom
+// times onto the beaten chief and holds for KO.cam real seconds, then the end screen after KO.over seconds
+export const KO = { slow: 2.0, rate: 0.3, zoom: 2.3, cam: 3.4, over: 4.6 };
 export const ROUND_TIME = SUDDEN_AT;                              // old name, kept for tools
 export const GOLD_START = 60, GOLD_RATE = TIERS.income[0], GOLD_CAP = TIERS.cap[2];   // old names; the live values follow the tier
-// what each tier unlocks; troops carry their own `tier` in races.js (missing = 2, heroes HERO.tier)
+// what each tier unlocks; troops are all open from the start (a troop may still carry `tier` in races.js; heroes HERO.tier)
 export const AMMO_TIER = { stone: 1, scatter: 1, fire: 2, boulder: 3 };
 export const BUILD_TIER = { wall: 1, mine: 1, tower: 2, shield: 2, vault: 3 };
 // heroes: one alive per player, a cooldown after one dies, bounty capped
@@ -18,7 +22,8 @@ export const HERO = { tier: 3, max: 1, cooldown: 30, bounty: 30 };
 export const ULT = { perSec: 1 / 170, perDealt: 1 / 2600, perTaken: 1 / 2000 };
 // a race without its own ultimate in races.js gets this one
 export const ULT_DEFAULT = { name: 'Barrage', shape: 'barrage', n: 8, dmg: 45, r: 60, bld: 2, over: 1.6, chiefCap: 0.15 };
-export const KING_BASE_HP = 450;                                  // was 300: forts and chiefs last the longer round
+export const KING_BASE_HP = 450;
+export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)                                  // was 300: forts and chiefs last the longer round
 export const BOUNTY = 0.3;                     // share of a troop's price paid to the other side when it is killed
 
 export const CRUSH = 45;                      // a block falling on the chief
@@ -34,7 +39,7 @@ export const BUILD = {
   wall:   { name: 'Wall',   cost: 30, hp: 150 },
   tower:  { name: 'Tower',  cost: 55, hp: 100, range: 190, rate: 0.7, dmg: 12 },
   shield: { name: 'Shield', cost: 45, hp: 90, life: 16 },
-  mine:   { name: 'Mine',   cost: 44, hp: 100, income: 3, max: 2 },      // ground building: pays gold every second while it stands
+  mine:   { name: 'Mine',   cost: 44, hp: 100, income: 2, max: 2 },      // ground building: pays gold every second while it stands
   vault:  { name: 'Vault',  cost: 60, hp: 120, income: 3.5, max: 1 },       // fort addition: a block on top of the back wall
 };
 
