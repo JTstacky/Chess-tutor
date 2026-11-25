@@ -1,10 +1,14 @@
 // ai.js — a computer opponent that plays through the same actions as a person (fire/build/send/setAmmo).
-import { UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
+import { AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
 
 export const LEVELS = {
-  easy:   { aimErr: 0.11, think: 0.9, special: 0.12, defend: 0.25, offense: 0.5, fireDelay: 0.9,  bonus: 0.15, invest: 0.25 },
-  normal: { aimErr: 0.055, think: 0.5, special: 0.3,  defend: 0.6,  offense: 0.8, fireDelay: 0.35, bonus: 0.45, invest: 0.6 },
-  hard:   { aimErr: 0.022, think: 0.3, special: 0.5,  defend: 0.9,  offense: 1.0, fireDelay: 0.1,  bonus: 0.8,  invest: 0.9 },
+  // owner 2026-11-25: the computer was too hard (every level fired at the reload limit). A person fires about 12-18 shots
+  // a minute; these give about 11 (easy), 17 (normal) and 24 (hard). Measured with lane 3's tools/ailevels.mjs.
+  // fireMul: extra wait after a reload, as a multiple of that reload (survives reload tuning). With the 3 s stone
+  // reload: about 6 (easy), 9 (normal) and 13 (hard) shots a minute.
+  easy:   { aimErr: 0.13,  think: 1.2, special: 0.12, defend: 0.25, offense: 0.35, fireMul: 2.3,  bonus: 0.15, invest: 0.25 },
+  normal: { aimErr: 0.075, think: 0.8, special: 0.3,  defend: 0.6,  offense: 0.6,  fireMul: 1.2,  bonus: 0.45, invest: 0.6 },
+  hard:   { aimErr: 0.04,  think: 0.5, special: 0.5,  defend: 0.9,  offense: 0.85, fireMul: 0.55, bonus: 0.8,  invest: 0.9 },
 };
 export function pickRace(seed = 1) { return RACE_KEYS[Math.abs(seed) % RACE_KEYS.length]; }
 
@@ -18,7 +22,9 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
   let a = seed >>> 0;
   const rand = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
   const gauss = () => (rand() + rand() + rand() - 1.5) / 1.5;
-  let timer = 0, waitFire = cfg.fireDelay;
+  let timer = 0, waitFire = 0;
+  const fireWait = (s) => cfg.fireMul * AMMO_R(s);
+  const AMMO_R = (s) => (AMMO[s.players[p].ammo]?.reload || 3) * (raceOf(s, p).mods.reload || 1);
   const foe = 1 - p;
 
   /** Fling at a point with this level's wobble. Tries the wanted lob angle first, then others that reach. */
@@ -44,14 +50,11 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     return false;
   }
   /** Build on the first free spot, trying from the given end of the build strip. */
-  function buildAt(s, kind, fromBack) {
-    for (let i = 0; i < 5; i++) { const u = fromBack ? FORT.zone[0] + 24 + i * 48 : FORT.zone[1] - 24 - i * 48, x = mx(p, u); if (placeOk(s, p, kind, x)) return build(s, p, kind, x); }
-    return false;
-  }
+  const buildAt = (s, kind) => autoBuild(s, p, kind);        // same spots a player's one-tap build uses
 
   function think(s) {
     const me = s.players[p], race = raceOf(s, p), cost = (k) => costFor(s, p, k);
-    const roster = opts.only || (opts.troops === false ? [] : race.roster);
+    const roster = (opts.only || (opts.troops === false ? [] : race.roster)).filter((k) => isOpen(s, p, k));   // only what this tier has unlocked
     const myFront = mx(p, FORT.frontX);
     const threats = s.units.filter((u) => u.owner === foe && Math.abs(u.x - myFront) < 520);
     const close = threats.filter((u) => Math.abs(u.x - myFront) < 300);
@@ -62,7 +65,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     const fb = s.blocks.filter((b) => b.owner === foe && !b.dead);
 
     // --- invest: mines and a vault pay for themselves in about 20 seconds, so early is best ---
-    if (cfg.invest && s.phase === 'play' && s.clock > 22 && !close.length && rand() < cfg.invest * 0.5) {
+    if (cfg.invest && s.phase === 'play' && s.clock > 40 && !close.length && rand() < cfg.invest * 0.5) {
       const mines = myB.filter((b) => b.kind === 'mine').length;
       if (mines < BUILD.mine.max && me.gold >= cost('mine') + 5) buildAt(s, 'mine', true);
       else if (me.gold >= cost('vault') + 10 && placeOk(s, p, 'vault', 0)) build(s, p, 'vault', 0);
@@ -87,7 +90,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     // --- shoot ---
     waitFire -= cfg.think;
     if (me.reload <= 0 && waitFire <= 0) {
-      waitFire = cfg.fireDelay;
+      waitFire = fireWait(s);
       const flying = s.bonuses.filter((b) => b.state === 'fly');
       if (flying.length && !close.length && rand() < cfg.bonus) { setAmmo(s, p, 'stone'); for (const b of flying) if (bonusShot(s, b)) return; }
       let tx, ty, ang = 0.85, ammo = 'stone';
@@ -115,12 +118,29 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       shootAt(s, tx, ty, ang);
     }
 
+    // --- ultimate: fire it when it will hit something worth hitting ---
+    if (opts.ult !== false && ultReady(s, p)) {
+      const sh = race.ult.shape, foeArmy = s.units.filter((u) => u.owner === foe && !UNIT[u.kind].air).length;
+      const worth = sh === 'sweep' ? foeArmy >= 3 || foeWalls.length >= 2 : sh === 'summon' ? true : true;
+      if ((worth && rand() < 0.5) || s.phase === 'sudden') ultimate(s, p);
+    }
+
+    // --- hero: buy it as soon as it is open and affordable; save for it at tier 3 ---
+    let saving = false;
+    if (opts.hero !== false && isOpen(s, p, race.hero) && heroOk(s, p)) {
+      if (me.gold >= cost(race.hero)) send(s, p, race.hero, gateX(p));
+      else saving = !close.length && rand() < cfg.offense;
+    }
+
     // --- troops ---
     const reserve = threats.length ? 60 : 35;
+    if (saving) return;
     if (roster.length && me.gold > reserve + 20 && rand() < cfg.offense * 0.5) {
       const boomer = roster.find((k) => UNIT[k].boom && !UNIT[k].air), tank = roster.slice().sort((x, y) => UNIT[y].hp * UNIT[y].count - UNIT[x].hp * UNIT[x].count)[0];
-      const antiAir = roster.filter((k) => UNIT[k].range && !UNIT[k].boom && (!UNIT[k].air || UNIT[k].aa));
-      const pool = flyers.length && antiAir.length ? [...antiAir, ...antiAir, ...roster] : foeWalls.length && boomer ? [boomer, tank, ...roster] : threats.length ? [tank, ...roster] : roster;
+      // counters: flyers -> troops that hit air (best vsAir first); walls and towers -> siege, bombs or heavy hitters
+      const antiAir = roster.filter((k) => UNIT[k].range && !UNIT[k].boom && !UNIT[k].noAir && (!UNIT[k].air || UNIT[k].aa)).sort((x, y) => (UNIT[y].vsAir ?? 1) - (UNIT[x].vsAir ?? 1));
+      const breakers = roster.filter((k) => UNIT[k].siege || (UNIT[k].bld || 1) >= 2 || (UNIT[k].boom && !UNIT[k].air));
+      const pool = flyers.length && antiAir.length ? [antiAir[0], ...antiAir, ...antiAir, ...roster] : foeWalls.length && breakers.length ? [...breakers, ...breakers, tank, ...roster] : threats.length ? [tank, ...roster] : roster;
       const kind = pool[Math.floor(rand() * pool.length)];
       if (me.gold >= cost(kind) + reserve * 0.5) send(s, p, kind, gateX(p));
     }

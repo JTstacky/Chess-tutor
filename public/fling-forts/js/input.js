@@ -1,7 +1,7 @@
 // input.js — multi-touch: every pointer belongs to the side of the screen where it went down (left player /
 // right player), tracked by pointerId, so both can drag and tap at the same time. Also blocks the browser's
 // own touch gestures.
-import { W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX } from './sim.js';
+import { autoBuild, W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX, isOpen, unlockAt, heroOk, ultReady, ultimate } from './sim.js';
 import { screenToWorld, buttonAt, keyFor, pickHit, PAUSE } from './view.js';
 
 export const PULL_MAX = 300;      // world units of pull for full power
@@ -14,7 +14,12 @@ export function blockBrowserGestures(doc = document) {
   const opts = { passive: false };
   const notUi = (fn) => (e) => { if (!(e.target.closest && e.target.closest('button, a, input, label'))) fn(e); };
   doc.addEventListener('touchstart', notUi(stop), opts);
-  doc.addEventListener('touchmove', stop, opts);
+  // menus that are taller than the screen (Help on a small phone) still scroll: the page blocks every browser drag, so
+  // a one-finger drag inside a scrollable panel scrolls it by hand
+  let panel = null, lastY = 0;
+  const scroller = (el) => { for (let n = el; n && n !== doc.body; n = n.parentElement) if (n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(n).overflowY)) return n; return null; };
+  doc.addEventListener('touchstart', (e) => { panel = e.touches.length === 1 && e.target.closest ? scroller(e.target) : null; if (panel) lastY = e.touches[0].clientY; }, opts);
+  doc.addEventListener('touchmove', (e) => { stop(e); if (panel && e.touches.length === 1) { const y = e.touches[0].clientY; panel.scrollTop += lastY - y; lastY = y; } }, opts);
   doc.addEventListener('touchend', notUi(stop), opts);
   for (const t of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick', 'contextmenu', 'selectstart', 'dragstart']) doc.addEventListener(t, stop, opts);
   doc.addEventListener('wheel', (e) => { if (e.ctrlKey) stop(e); }, opts);
@@ -36,7 +41,20 @@ export function attachInput(canvas, game) {
   function pressButton(p, b) {
     const s = game.s, pl = s.players[p], key = keyFor(s, p, b);
     if (!key) return;
+    const clock = (t) => `${Math.floor(t / 60)}:${String(Math.ceil(t % 60) % 60).padStart(2, '0')}`;
+    if (b.kind === 'ult') {
+      if (pl.ultUsed) return toast(p, 'Ultimate used this round');
+      if (!ultReady(s, p)) return toast(p, `Ultimate charging: ${Math.floor(pl.ult * 100)}%`);
+      ultimate(s, p); return;
+    }
+    if (!isOpen(s, p, key)) return toast(p, `Unlocks in ${clock(Math.max(0, unlockAt(s, p, key) - s.roundT))}`);
     const cost = costFor(s, p, key);
+    if (b.kind === 'hero') {
+      if (pl.heroCd > 0) return toast(p, `Hero back in ${Math.ceil(pl.heroCd)} s`);
+      if (!heroOk(s, p)) return toast(p, 'Your hero is already out');
+      if (pl.gold < cost) return toast(p, `${UNIT[key].name} needs ${cost} gold`);
+      send(s, p, key, gateX(p)); return;
+    }
     if (b.kind === 'ammo') {
       const free = key !== 'stone' && pl.freeShots > 0;
       if (!free && pl.gold < cost) return toast(p, `${AMMO[key].name} needs ${cost} gold`);
@@ -52,8 +70,9 @@ export function attachInput(canvas, game) {
     }
     if (key === 'vault') { if (!build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }
     if (key === 'mine' && s.buildings.filter((q) => q.owner === p && q.kind === 'mine').length >= BUILD.mine.max) return toast(p, `Only ${BUILD.mine.max} mines`);
-    if (ui.armed[p] === key) { ui.armed[p] = null; game.sound('click'); return; }
-    ui.armed[p] = key; game.sound('click');
+    // one tap builds (owner, 2026-11-25): no second tap on the ground
+    ui.armed[p] = null;
+    if (autoBuild(s, p, key)) game.sound('click'); else toast(p, `No room for another ${BUILD[key].name.toLowerCase()}`);
   }
 
   function place(p, x) {
@@ -75,9 +94,11 @@ export function attachInput(canvas, game) {
       return;
     }
     if (!game.playing()) return;
+    const live = game.s.phase === 'play' || game.s.phase === 'sudden';
     try { canvas.setPointerCapture(e.pointerId); } catch {}
     if (Math.hypot(w.x - PAUSE.x, w.y - PAUSE.y) < PAUSE.r + 10) { ui.aims.set(e.pointerId, { p, kind: 'pause', at: game.now() }); ui.pauseHold = game.now(); return; }
     if (game.s.mode === 'solo' && p === 1) return;                 // the computer's side
+    if (!live) return;                                             // between rounds: nothing to aim or buy
     if (w.y < 0) {                                                 // the control strip under the ground
       const b = buttonAt(p, w.x, w.y);
       if (b) pressButton(p, b);
@@ -90,6 +111,7 @@ export function attachInput(canvas, game) {
 
   function move(e) {
     const a = ui.aims.get(e.pointerId);
+    if (a && a.kind === 'pause') { const w = pos(e); if (Math.hypot(w.x - PAUSE.x, w.y - PAUSE.y) > PAUSE.r + 18) { ui.aims.delete(e.pointerId); ui.pauseHold = 0; } return; }
     if (!a || a.kind !== 'field') return;
     e.preventDefault();
     const w = pos(e);

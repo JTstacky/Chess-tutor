@@ -46,7 +46,7 @@ function start(mode, level = ui.aiLevel, seed = (Math.random() * 1e9) | 0, races
   game.state = 'play'; show(null); unlockAudio(); sound('roundStart'); ui.tickAt = null;
 }
 function pause() { if (game.state !== 'play') return; game.state = 'paused'; ui.aims.clear(); quitArmed = 0; $('btn-quit').textContent = 'Quit to menu (tap twice)'; show('pause'); }
-function resume() { game.state = 'play'; show(null); last = performance.now(); }
+function resume() { game.state = 'play'; last = performance.now(); show(game.s && game.s.phase === 'over' ? 'over' : null); }
 function toMenu() { game.state = 'menu'; ui.pick = null; show('menu'); }
 
 let level = 'normal', quitArmed = 0;
@@ -65,13 +65,21 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) pause
 
 // ---------- loop ----------
 function resize() {
+  const was = game.lay;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const w = window.innerWidth, h = window.innerHeight;
   canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
   canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-  game.lay = computeLayout(w, h, dpr, layoutView());
+  game.lay = computeLayout(w, h, dpr, layoutView(), safeInsets());
+  // the world-to-screen mapping changed (rotate, resize): drags in progress would jump, so drop them
+  if (was && (Math.abs(was.s - game.lay.s) > 1e-6 || Math.abs(was.ox - game.lay.ox) > 0.5 || Math.abs(was.gy - game.lay.gy) > 0.5)) { ui.aims.clear(); ui.held = null; }
   placeFullscreen();
 }
+// left/right safe-area insets (notched phones in landscape), read from a hidden probe styled with env()
+const safeProbe = document.createElement('div');
+safeProbe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)';
+document.body.appendChild(safeProbe);
+function safeInsets() { const cs = getComputedStyle(safeProbe); return { l: parseFloat(cs.paddingLeft) || 0, r: parseFloat(cs.paddingRight) || 0 }; }
 // the race-pick screen needs the tall view for its cards; a match zooms in on the forts
 const layoutView = () => (game.state === 'pick' ? 'pick' : 'play');
 
@@ -104,14 +112,15 @@ function placeFullscreen() {
   if (game.state === 'pick') at = 'none';
   else if (game.state === 'play') {
     const lay = game.lay, c = worldToScreen(lay, PAUSE.x, PAUSE.y);
-    at = `${Math.round(c.x + PAUSE.r * lay.s + 10)},${Math.round(c.y - 22)}`;
+    const sz = lay.compact ? Math.max(32, Math.round(PAUSE.r * 2 * lay.s)) : 44;     // on phones, the same size as the pause button
+    at = `${Math.round(c.x + PAUSE.r * lay.s + 8)},${Math.round(c.y - sz / 2)},${sz}`;
   } else at = 'corner';
   if (at === fsAt) return;
   fsAt = at;
   if (at === 'none') { fsBtn.style.display = 'none'; return; }
   fsBtn.style.display = '';
-  if (at === 'corner') Object.assign(fsBtn.style, { left: '', top: 'calc(10px + env(safe-area-inset-top))', right: 'calc(10px + env(safe-area-inset-right))' });
-  else { const [x, y] = at.split(',').map(Number); Object.assign(fsBtn.style, { left: x + 'px', top: Math.max(4, y) + 'px', right: '' }); }
+  if (at === 'corner') Object.assign(fsBtn.style, { left: '', top: 'calc(10px + env(safe-area-inset-top))', right: 'calc(10px + env(safe-area-inset-right))', width: '44px', height: '44px', lineHeight: '44px', fontSize: '24px', borderRadius: '12px' });
+  else { const [x, y, sz] = at.split(',').map(Number); Object.assign(fsBtn.style, { left: x + 'px', top: Math.max(4, y) + 'px', right: '', width: sz + 'px', height: sz + 'px', lineHeight: sz + 'px', fontSize: Math.round(sz * 0.55) + 'px', borderRadius: (sz >= 44 ? 12 : sz / 2) + 'px' }); }
 }
 window.addEventListener('resize', resize);
 resize();
@@ -129,10 +138,13 @@ function handleEvents() {
       case 'boom': case 'destroyed': sound('boom'); break;
       case 'bonus': sound('bonus'); ui.toast[e.p] = { text: S.BONUS[e.kind].name + '!', until: game.clock + 1.8 }; break;
       case 'sudden': sound('sudden'); break;
-      case 'round-end': ui.armed = [null, null]; break;
-      case 'round-start': sound('roundStart'); ui.tickAt = null; break;
+      case 'tier': sound('roundStart'); break;
+      case 'ult': sound('sudden'); break;
+      case 'hero': sound('build'); break;
+      case 'round-end': ui.armed = [null, null]; ui.aims.clear(); ui.held = null; break;
+      case 'round-start': sound('roundStart'); ui.tickAt = null; ui.aims.clear(); ui.held = null; break;
       case 'bounty': sound(S.UNIT[e.kind]?.air ? 'flyerDown' : 'die'); break;
-      case 'match-end': ui.slowmo = 0.9; sound('win'); setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, 1400); break;
+      case 'match-end': ui.slowmo = 0.9; sound('win'); setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, 1400); break;   // if paused meanwhile, resume() shows it
     }
   }
 }
