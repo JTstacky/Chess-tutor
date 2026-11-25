@@ -91,7 +91,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       const flying = s.bonuses.filter((b) => b.state === 'fly');
       if (flying.length && !close.length && rand() < cfg.bonus) { setAmmo(s, p, 'stone'); for (const b of flying) if (bonusShot(s, b)) return; }
       let tx, ty, ang = 0.85, ammo = 'stone';
-      const k = kingPos(foe);
+      const k = kingPos(foe, s);
       const roof = fb.filter((b) => (b.c === 1 || b.c === 2) && b.r >= 2);
       const front = fb.filter((b) => b.c === 0).sort((x, y) => y.r - x.r);
       const mine = foeWalls.find((b) => b.kind === 'mine');

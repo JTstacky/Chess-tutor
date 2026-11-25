@@ -4,7 +4,10 @@ import * as S from './sim.js';
 
 const { W, AMMO, BUILD } = S;
 export const HUD_H = 212;                 // control strip under the ground line, in world units
-export const SKY_MIN = 640;               // world height that must stay visible above the ground
+export const SKY_MIN = 640;               // world height kept visible on the race-pick screen (its cards reach 566)
+// During a match only the forts must stay in view, so the field zooms in until the forts reach the screen edges
+// (owner feedback 2026-11-25: zoom too small on phones, forts not out at the edges). High shots may leave the top.
+export const PLAY_SKY = 500, PHONE_SKY = 350;
 
 // ---------- layout ----------
 // Short landscape screens (phones) get their own control strip: three rows of buttons sized in CSS pixels so each is
@@ -12,16 +15,21 @@ export const SKY_MIN = 640;               // world height that must stay visible
 // Tablets and desktops keep the world-scaled strip.
 export const PHONE_H = 520, PHONE_BTN = 44, PHONE_GAP = 4;
 let LAY = null;                           // the layout now on screen, so buttons() matches what is drawn
-export function computeLayout(cssW, cssH, dpr) {
+export function computeLayout(cssW, cssH, dpr, view = 'play') {
   const phone = cssH < PHONE_H && cssW > cssH;
   let lay;
-  if (phone) {
-    const hud = 3 * PHONE_BTN + 4 * PHONE_GAP, s = Math.min(cssW / W, (cssH - hud) / SKY_MIN);
+  if (view === 'pick') {
+    // the race pick covers the field and has no control strip, so it uses the whole height (BUGS.md S1: on phones
+    // it used to get only the top 60%, with cards 43-53 px wide)
+    const s = Math.min(cssW / W, cssH / SKY_MIN);
+    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: null };
+  } else if (phone) {
+    const hud = 3 * PHONE_BTN + 4 * PHONE_GAP, s = Math.min(cssW / W, (cssH - hud) / (view === 'pick' ? SKY_MIN : PHONE_SKY));
     const bw = Math.max(PHONE_BTN, Math.min(84, Math.floor((cssW / 2 - 10 - 5 * PHONE_GAP) / BPER)));
-    lay = { s, ox: (cssW - W * s) / 2, gy: cssH - hud, w: cssW, h: cssH, dpr, portrait: false, compact: { bw, bh: PHONE_BTN, gap: PHONE_GAP } };
+    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH - hud, w: cssW, h: cssH, dpr, portrait: false, compact: { bw, bh: PHONE_BTN, gap: PHONE_GAP } };
   } else {
-    const s = Math.min(cssW / W, cssH / (HUD_H + SKY_MIN));
-    lay = { s, ox: (cssW - W * s) / 2, gy: cssH - HUD_H * s, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: null };
+    const s = Math.min(cssW / W, cssH / (HUD_H + (view === 'pick' ? SKY_MIN : PLAY_SKY)));
+    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH - HUD_H * s, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: null };
   }
   LAY = lay;
   return lay;
@@ -56,7 +64,7 @@ export function buttonAt(p, x, y) { return buttons(p).find((b) => x >= b.x - 3 &
 export const keyFor = (s, p, b) => (b.kind === 'unit' ? S.raceOf(s, p)[b.key[0] === 'a' ? 'air' : 'ground'][b.slot] || null : b.key);
 export const PAUSE = { x: W / 2, y: SKY_MIN - 96, r: 26 };
 // race pick: three cards per player in their own half, a Ready button under them (world coords for player 0)
-export const PICK = { cards: S.RACE_KEYS.map((k, i) => ({ key: k, x: 12 + (i % 5) * 126, y: 566 - Math.floor(i / 5) * 150, w: 120, h: 144 })), ready: { x: 170, y: 96, w: 300, h: 62 } };
+export const PICK = { cards: S.RACE_KEYS.map((k, i) => ({ key: k, x: 12 + (i % 5) * 126, y: 566 - Math.floor(i / 5) * 150, w: 120, h: 144 })), ready: { x: 170, y: 100, w: 300, h: 86 } };   // 86 tall: at least 44 CSS px on a 667x375 phone
 export function pickHit(p, x, y) {
   const u = p === 0 ? x : W - x;
   const hit = (r) => u >= r.x && u <= r.x + r.w && y <= r.y && y >= r.y - r.h;

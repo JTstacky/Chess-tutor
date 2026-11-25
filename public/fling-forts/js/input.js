@@ -6,6 +6,7 @@ import { screenToWorld, buttonAt, keyFor, pickHit, PAUSE } from './view.js';
 
 export const PULL_MAX = 300;      // world units of pull for full power
 const TAP_SLOP = 26;              // a press that moves less than this is a tap
+const NAME_HOLD = 0.35;           // seconds a finger rests on a control-strip button before its name shows (ui.held)
 const PAUSE_HOLD = 0.35;          // seconds the pause button must be held, so a stray touch cannot pause the match
 
 export function blockBrowserGestures(doc = document) {
@@ -80,7 +81,7 @@ export function attachInput(canvas, game) {
     if (w.y < 0) {                                                 // the control strip under the ground
       const b = buttonAt(p, w.x, w.y);
       if (b) pressButton(p, b);
-      ui.aims.set(e.pointerId, { p, kind: 'button' });
+      ui.aims.set(e.pointerId, { p, kind: 'button', b, at: game.now() });
       return;
     }
     game.unlockAudio();
@@ -101,6 +102,7 @@ export function attachInput(canvas, game) {
     const a = ui.aims.get(e.pointerId);
     if (!a) return;
     ui.aims.delete(e.pointerId);
+    if (a.kind === 'button') { clearHeld(a); return; }
     if (a.kind === 'pause') { ui.pauseHold = 0; return; }
     if (a.kind !== 'field' || !game.playing()) return;
     e.preventDefault();
@@ -112,7 +114,9 @@ export function attachInput(canvas, game) {
     if (pl.gold < shotCost(s, a.p)) { setAmmo(s, a.p, 'stone'); toast(a.p, 'Out of gold: stones loaded'); return; }
     if (fire(s, a.p, aim.dx, aim.dy, aim.power)) ui.kick[a.p] = 1;
   }
-  function cancel(e) { const a = ui.aims.get(e.pointerId); if (a?.kind === 'pause') ui.pauseHold = 0; ui.aims.delete(e.pointerId); }
+  function cancel(e) { const a = ui.aims.get(e.pointerId); if (a?.kind === 'pause') ui.pauseHold = 0; if (a?.kind === 'button') clearHeld(a); ui.aims.delete(e.pointerId); }
+  // a finger resting on a control-strip button: ui.held = { p, key, b } so view.js can show the button's name (phones show no names)
+  function clearHeld(a) { if (ui.held && ui.held.aim === a) ui.held = null; }
 
   canvas.addEventListener('pointerdown', down, { passive: false });
   canvas.addEventListener('pointermove', move, { passive: false });
@@ -121,6 +125,9 @@ export function attachInput(canvas, game) {
   canvas.addEventListener('lostpointercapture', cancel);
   return {
     /** called every frame: the pause button only works when held */
-    tick() { for (const a of ui.aims.values()) if (a.kind === 'pause' && game.now() - a.at > PAUSE_HOLD) { ui.pauseHold = 0; game.pause(); return; } },
+    tick() {
+      if (ui.held && ![...ui.aims.values()].includes(ui.held.aim)) ui.held = null;   // touches cleared (pause, new match)
+      for (const a of ui.aims.values()) if (a.kind === 'button' && a.b && !ui.held && game.now() - a.at > NAME_HOLD) ui.held = { p: a.p, key: keyFor(game.s, a.p, a.b), slot: a.b.key, b: a.b, aim: a };
+      for (const a of ui.aims.values()) if (a.kind === 'pause' && game.now() - a.at > PAUSE_HOLD) { ui.pauseHold = 0; game.pause(); return; } },
   };
 }
