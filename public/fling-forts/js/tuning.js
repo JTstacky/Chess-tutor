@@ -27,7 +27,7 @@ export const MINE_LOOT = 50;                                      // gold for de
 // the castle (owner: destroy the enemy fort to win; it takes no damage while its chief is up)
 export const FORT_HP = 1700, FORT_H = 230;                         // castle hit points and height (world units)
 export const KO_DOWN = 12, KO_REVIVE = 0.5;                        // a knocked-out chief lies stunned this long, then gets up with this share of his HP
-export const BOUNTY = 0.3;                     // share of a troop's price paid to the other side when it is killed
+export const BOUNTY = 0.12;                     // share of a troop's price paid to the other side when it is killed
 
 export const CRUSH = 45;                      // a block falling on the chief
 export const AMMO = {
