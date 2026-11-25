@@ -23,13 +23,13 @@ export const RACE_DATA = {
   fantasy: {
     name: 'Highrealm', theme: 'Fantasy: dwarves, elves and dragons', chief: 'the Dwarf King under the mountain',
     tag: 'Stout walls, sharp arrows, and a dragon when it counts.',
-    pros: ['Stone keep: fort blocks +15% HP', 'Boulders cost 18g', 'A dragon'], cons: ['Shields cost 55g', 'No cheap swarm', 'Troops cost 11% more'],
-    mods: { unitCost: 1.11, kingHp: 0.96, blockHp: 1.15, ammoCost: { boulder: 18}, shieldCost: 55},
+    pros: ['Stone keep: fort blocks +15% HP', 'Boulders cost 18g', 'A dragon'], cons: ['Shields cost 55g', 'No cheap swarm', 'Troops cost 9% more'],
+    mods: { unitCost: 1.09, kingHp: 0.96, blockHp: 1.15, ammoCost: { boulder: 18}, shieldCost: 55},
     fort: { look: 'a grey stone castle keep with battlements, banners and a round turret at the back', skin: { L: 'oak beams', S: 'castle stone', I: 'iron-bound gate' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
       shieldbearer: U('Dwarf Shieldbearer', 'Shields', 1, 210, 26, 17, 1.0, 24, { armor: 4, bld: 2, cls: 'Melee', role: 'Armoured tank. Holds the line, breaks walls' }, 'anvil', 'a stocky dwarf behind a huge round shield with an axe'),
-      archer: U('Elf Archers', 'Archers', 2, 30, 44, 9, 0.9, 14, { range: 130, vsAir: 1.8, bld: 0.7, cls: 'Anti-air', role: 'Anti-air. Beats flyers' }, 'slinger', 'a slim elf in green with a longbow'),
+      archer: U('Elf Archers', 'Archers', 2, 30, 44, 14, 1.25, 14, { range: 130, vsAir: 1.8, bld: 0.7, cls: 'Anti-air', role: 'Anti-air. Beats flyers' }, 'slinger', 'a slim elf in green with a longbow'),
       dancer: U('Blade Dancers', 'Dancers', 2, 40, 70, 8, 0.5, 13, { charge: 3, pierce: true, bld: 0.7, cls: 'Melee', role: 'Fast, cuts armour. Beats tanks' }, 'skimmer', 'a quick elf with two curved swords, mid-leap'),
       sapper: U('Dwarf Sappers', 'Sappers', 2, 30, 44, 0, 1.0, 15, { boom: { dmg: 60, r: 70 }, cls: 'Bomber', role: 'Bomb. Beats swarms and walls' }, 'keg', 'a dwarf carrying a powder keg with a lit fuse'),
       gryphon: U('Gryphon Rider', 'Gryphon', 1, 70, 66, 12, 0.8, 20, { air: true, range: 46, cls: 'Flying anti-ground', role: 'Flyer. Hunts ground shooters' }, 'skimmer', 'an elf knight riding a gryphon, lance down'),
@@ -41,14 +41,14 @@ export const RACE_DATA = {
   aliens: {
     name: 'Zyx Swarm', theme: 'Aliens', chief: 'the Overmind, a big brain in a glass jar on spider legs',
     tag: 'Goo that splits, rays that zap, and a saucer overhead.',
-    pros: ['Energy shields cost 38g and last 21s', 'Blobs split when they pop', 'Brood Ship keeps dropping bloblets', 'Troops cost 5% less'], cons: ['Soft fort: blocks -10% HP'],
-    mods: { unitCost: 0.95, kingHp: 0.96, shieldCost: 38, shieldLife: 21, reload: 1, blockHp: 0.9},
+    pros: ['Energy shields cost 38g and last 21s', 'Blobs split when they pop', 'Brood Ship keeps dropping bloblets'], cons: ['Soft fort: blocks -10% HP', 'Chief -5% HP'],
+    mods: { unitCost: 0.96, kingHp: 0.95, shieldCost: 38, shieldLife: 21, reload: 1, blockHp: 0.9},
     fort: { look: 'a cluster of glowing green egg pods and purple crystal around a landed saucer hull', skin: { L: 'slime pod', S: 'purple crystal', I: 'saucer hull plate' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [1, 3, 'L'], [2, 2, 'L'], [2, 3, 'L'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
     units: {
       blob: U('Blobs', 'Blobs', 3, 26, 52, 5, 0.6, 13, { split: { kind: 'bloblet', n: 2 }, bld: 0.5, cls: 'Melee', role: 'Swarm, splits. Swamps siege' }, 'sprout', 'a wobbly green jelly blob with one eye'),
       bloblet: U('Bloblets', 'Bloblets', 1, 10, 62, 3, 0.6, 9, { minion: true }, 'sprout', 'a tiny green jelly drop with one eye'),
-      trooper: U('Ray Troopers', 'Troopers', 2, 32, 46, 9, 0.9, 14, { range: 120, pierce: true, bld: 0.7, cls: 'Ranged', role: 'Ray gun cuts armour. Beats tanks' }, 'slinger', 'a little grey alien in a bubble helmet with a ray gun'),
+      trooper: U('Ray Troopers', 'Troopers', 2, 32, 46, 13, 1.2, 14, { range: 120, pierce: true, bld: 0.7, cls: 'Ranged', role: 'Ray gun cuts armour. Beats tanks' }, 'slinger', 'a little grey alien in a bubble helmet with a ray gun'),
       walker: U('Brain Walker', 'Walker', 1, 210, 24, 11, 1.1, 25, { range: 60, slow: 1.5, siege: true, bld: 7, noAir: true, cls: 'Siege', role: 'Siege. Smashes forts, ignores troops' }, 'bark', 'a tall three-legged walker with a brain dome on top'),
       spitter: U('Acid Spitters', 'Spitters', 2, 30, 40, 8, 1.3, 15, { range: 110, splash: 40, noAir: true, cls: 'Anti-ground', role: 'Acid splash. Beats swarms' }, 'spore', 'a squat purple alien bug spitting green acid'),
       saucer: U('Scout Saucers', 'Saucers', 2, 34, 70, 6, 0.7, 15, { air: true, range: 70, aa: true, vsAir: 2, bld: 0.7, cls: 'Flying anti-air', role: 'Anti-air flyer. Beats flyers' }, 'skimmer', 'a small flying saucer with a blinking dome'),
@@ -70,7 +70,7 @@ export const RACE_DATA = {
       laser: U('Laser Bots', 'Lasers', 2, 30, 42, 10, 1.0, 14, { range: 125, pierce: true, bld: 0.7, cls: 'Ranged', role: 'Laser cuts armour. Beats tanks' }, 'slinger', 'a thin robot with a glowing red laser eye'),
       bomb: U('Bomb Bots', 'Bombs', 2, 28, 48, 0, 1.0, 14, { boom: { dmg: 62, r: 68 }, cls: 'Bomber', role: 'Rolling bomb. Beats swarms' }, 'keg', 'a round rolling bomb robot with a ticking timer'),
       drone: U('Hover Drones', 'Drones', 2, 30, 74, 6, 0.6, 13, { air: true, range: 64, bld: 0.7, cls: 'Flying anti-ground', role: 'Flyer. Hunts ground troops' }, 'skimmer', 'a small quad-rotor drone with a stinger gun'),
-      gunship: U('Gunship', 'Gunship', 1, 130, 34, 9, 0.6, 26, { air: true, range: 100, aa: true, armor: 2, vsAir: 1.8, cls: 'Flying anti-air', role: 'Anti-air gunship. Beats flyers' }, 'anvil', 'a heavy flying robot gunship with twin rotors'),
+      gunship: U('Gunship', 'Gunship', 1, 130, 34, 15, 0.95, 26, { air: true, range: 100, aa: true, armor: 2, vsAir: 1.8, cls: 'Flying anti-air', role: 'Anti-air gunship. Beats flyers' }, 'anvil', 'a heavy flying robot gunship with twin rotors'),
     },
     ult: { name: 'EMP Wave', shape: 'sweep', dmg: 30, bldDmg: 60, slow: 5 },
   },
@@ -79,7 +79,7 @@ export const RACE_DATA = {
     name: 'Grimgrowl Pack', theme: 'Monsters', chief: 'the Monster Under the Bed, a huge furry purple beast with tiny horns',
     tag: 'Big, hungry, hard to put down.',
     pros: ['Troops have +15% HP', 'Chief regrows 2 HP a second'], cons: ['Catapult reloads 5% slower'],
-    mods: { unitCost: 1.01, kingHp: 0.96, unitHp: 1.15, kingRegen: 2, reload: 1.05, ammoCost: { scatter: 18 }},
+    mods: { unitCost: 0.98, kingHp: 0.98, unitHp: 1.15, kingRegen: 2, reload: 1.05, ammoCost: { scatter: 18 }},
     fort: { look: 'a rocky cave lair with a giant skull over the door, claw marks and bones', skin: { L: 'bone and hide', S: 'cave rock', I: 'iron cage bars' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [0, 3, 'L'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'L']] },
     units: {
@@ -97,16 +97,16 @@ export const RACE_DATA = {
   military: {
     name: 'Iron Company', theme: 'Humans / military', chief: 'the General, a moustached commander with a chest full of medals',
     tag: 'Drilled ranks, sandbags and air support.',
-    pros: ['Towers hit 40% harder', 'Walls cost 22g, Scatter 8g'], cons: ['No troop stands out', 'Troops cost 16% more', 'Chief -17% HP'],
-    mods: { unitCost: 1.16, kingHp: 0.83, towerDmg: 1.4, wallCost: 22, ammoCost: { scatter: 8},},
+    pros: ['Towers hit 40% harder', 'Walls cost 22g, Scatter 8g'], cons: ['No troop stands out', 'Troops cost 13% more', 'Chief -15% HP'],
+    mods: { unitCost: 1.13, kingHp: 0.85, towerDmg: 1.4, wallCost: 22, ammoCost: { scatter: 8},},
     fort: { look: 'a sandbag and timber command bunker with a radio mast, camo net and a lookout post', skin: { L: 'sandbags', S: 'concrete', I: 'steel plate' },
       layout: [[0, 0, 'L'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
-      rifles: U('Riflemen', 'Rifles', 3, 20, 46, 6, 0.9, 13, { range: 125, vsAir: 1.5, bld: 0.5, cls: 'Anti-air', role: 'Anti-air rifles. Beats flyers' }, 'slinger', 'a soldier in a green helmet aiming a rifle'),
+      rifles: U('Riflemen', 'Rifles', 3, 20, 46, 9, 1.2, 13, { range: 125, vsAir: 1.5, bld: 0.5, cls: 'Anti-air', role: 'Anti-air rifles. Beats flyers' }, 'slinger', 'a soldier in a green helmet aiming a rifle'),
       shields: U('Riot Shields', 'Shields', 2, 70, 34, 7, 0.9, 16, { armor: 3, cls: 'Melee', role: 'Armoured line. Shields the shooters' }, 'anvil', 'a soldier crouched behind a tall riot shield'),
       grenadier: U('Grenadiers', 'Grenades', 2, 30, 40, 9, 1.5, 14, { range: 105, splash: 44, bld: 1.5, noAir: true, cls: 'Anti-ground', role: 'Splash. Beats swarms' }, 'spore', 'a soldier lobbing a grenade'),
       tank: U('Battle Tank', 'Tank', 1, 230, 22, 28, 1.8, 28, { armor: 5, range: 120, bld: 2.2, pierce: true, noAir: true, cls: 'Anti-ground', role: 'Armour piercing. Beats tanks and towers' }, 'anvil', 'a small cartoon tank with a stubby cannon'),
-      chopper: U('Attack Chopper', 'Chopper', 1, 90, 50, 7, 0.5, 22, { air: true, range: 90, aa: true, vsAir: 2, cls: 'Flying anti-air', role: 'Anti-air chopper. Beats flyers' }, 'skimmer', 'a green cartoon helicopter with a nose gun'),
+      chopper: U('Attack Chopper', 'Chopper', 1, 90, 50, 13, 0.85, 22, { air: true, range: 90, aa: true, vsAir: 2, cls: 'Flying anti-air', role: 'Anti-air chopper. Beats flyers' }, 'skimmer', 'a green cartoon helicopter with a nose gun'),
       bomber: U('Bomber', 'Bomber', 1, 80, 60, 34, 2.2, 22, { air: true, range: 30, splash: 62, bld: 2, noAir: true, drop: true, cls: 'Flying bomber', role: 'Drops big bombs. Beats ground groups and buildings' }, 'keg', 'a fat propeller bomber plane with one big bomb'),
     },
     ult: { name: 'Airstrike', shape: 'barrage', n: 9, dmg: 55, r: 64, bld: 2, over: 1.2, chiefCap: 0.3 },
@@ -115,8 +115,8 @@ export const RACE_DATA = {
   undead: {
     name: 'Bonewake', theme: 'Undead', chief: 'the Lich Queen, a skeleton in a tattered purple robe and tall crown',
     tag: 'What falls gets up again, on their side.',
-    pros: ['Fallen enemy ground troops may rise as your Skeletons', 'Troops cost 10% less'], cons: ['Brittle crypt: blocks -10% HP', 'Troops are weak one by one'],
-    mods: { unitCost: 0.90, kingHp: 1.03, raise: 0.45, blockHp: 0.9},
+    pros: ['Fallen enemy ground troops may rise as your Skeletons', 'Troops cost 9% less'], cons: ['Brittle crypt: blocks -10% HP', 'Troops are weak one by one'],
+    mods: { unitCost: 0.91, kingHp: 1.03, raise: 0.45, blockHp: 0.9},
     fort: { look: 'a crooked graveyard crypt of tombstones and stacked bones with a rusty gate and green candle light', skin: { L: 'stacked bones', S: 'tombstone', I: 'iron coffin' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [1, 3, 'L'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
@@ -139,7 +139,7 @@ export const RACE_DATA = {
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [0, 3, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'L'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
       deckhand: U('Deckhands', 'Deckhands', 3, 20, 72, 5, 0.5, 12, { bld: 0.5, cls: 'Melee', role: 'Fast swarm. Swamps siege' }, 'skimmer', 'a scrawny pirate in a striped shirt with a cutlass'),
-      buccaneer: U('Buccaneers', 'Pistols', 2, 30, 46, 10, 1.1, 14, { range: 110, vsAir: 2.4, bld: 0.7, cls: 'Anti-air', role: 'Pistols. Beats flyers' }, 'slinger', 'a pirate with an eyepatch firing a flintlock pistol'),
+      buccaneer: U('Buccaneers', 'Pistols', 2, 30, 46, 13, 1.3, 14, { range: 110, vsAir: 2.4, bld: 0.7, cls: 'Anti-air', role: 'Pistols. Beats flyers' }, 'slinger', 'a pirate with an eyepatch firing a flintlock pistol'),
       bosun: U('Bosun', 'Bosun', 1, 240, 28, 19, 1.1, 24, { bld: 2.2, pierce: true, cls: 'Melee', role: 'Bruiser, cuts armour. Beats tanks' }, 'anvil', 'a giant bald pirate swinging an anchor'),
       cannoneer: U('Deck Cannon', 'Cannon', 1, 80, 22, 22, 2.2, 22, { range: 150, splash: 46, siege: true, bld: 7, noAir: true, cls: 'Siege', role: 'Siege cannon. Shells forts from afar' }, 'bark', 'two pirates pushing a small wheeled cannon'),
       parrots: U('Parrots', 'Parrots', 3, 13, 88, 4, 0.5, 11, { air: true, range: 36, bld: 0.5, cls: 'Flying anti-ground', role: 'Flyer swarm. Hunts ground shooters' }, 'skimmer', 'a red parrot with a tiny bandana'),
@@ -151,8 +151,8 @@ export const RACE_DATA = {
   elementals: {
     name: 'Primal Court', theme: 'Elementals', chief: 'the Ember Sovereign, a calm figure of living flame in a stone crown',
     tag: 'Fire, frost, stone and storm.',
-    pros: ['Firepots cost 15g and burn 25% longer', 'Frost and storm slow what they hit'], cons: ['No healing troop', 'Boulders cost 31g', 'Troops cost 10% more', 'Chief -10% HP'],
-    mods: { unitCost: 1.10, kingHp: 0.90, ammoCost: { fire: 15, boulder: 31}, burnTime: 1.25},
+    pros: ['Firepots cost 15g and burn 25% longer', 'Frost and storm slow what they hit'], cons: ['No healing troop', 'Boulders cost 31g', 'Troops cost 12% more', 'Chief -11% HP'],
+    mods: { unitCost: 1.12, kingHp: 0.89, ammoCost: { fire: 15, boulder: 31}, burnTime: 1.25},
     fort: { look: 'floating rune-carved boulders and glowing crystal pillars around a fire altar', skin: { L: 'ice crystal', S: 'rune boulder', I: 'obsidian slab' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'S'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
     units: {
@@ -169,8 +169,8 @@ export const RACE_DATA = {
   beastfolk: {
     name: 'Tusk Tribes', theme: 'Beastfolk: orcs, goblins and animal tribes', chief: 'Chief Bigtusk, a fat orc warlord on a throne of shields',
     tag: 'Cheap, fast, and there are always more.',
-    pros: ['Troops move 10% faster', 'Big squads', 'Troops cost 12% less'], cons: ['Walls -30% HP, towers -20% HP', 'Stick fort: blocks -10% HP'],
-    mods: { unitCost: 0.88, kingHp: 1.02, unitSpeed: 1.1, wallHp: 0.7, towerHp: 0.8, blockHp: 0.9},
+    pros: ['Troops move 10% faster', 'Big squads', 'Troops cost 15% less', 'Chief +5% HP'], cons: ['Walls -30% HP, towers -20% HP', 'Stick fort: blocks -10% HP'],
+    mods: { unitCost: 0.85, kingHp: 1.05, unitSpeed: 1.1, wallHp: 0.7, towerHp: 0.8, blockHp: 0.9},
     fort: { look: 'a wooden palisade war camp with tusks, hide tents, war drums and a totem pole', skin: { L: 'lashed logs', S: 'boulder and tusk', I: 'scrap-metal shield wall' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
@@ -187,8 +187,8 @@ export const RACE_DATA = {
   steampunk: {
     name: 'Brass Guild', theme: 'Steampunk', chief: 'the Grand Inventor, a tiny lady in goggles driving a brass walking chair',
     tag: 'Gears, steam, and far too much pressure.',
-    pros: ['Catapult reloads 4% faster', 'Boulders cost 16g', 'Troops cost 35% less', 'Chief +18% HP'], cons: ['Troops move 5% slower', 'Shields cost 55g'],
-    mods: { unitCost: 0.65, kingHp: 1.18, reload: 0.96, ammoCost: { boulder: 16}, unitSpeed: 0.95, shieldCost: 55},
+    pros: ['Catapult reloads 4% faster', 'Boulders cost 16g', 'Troops cost 29% less', 'Chief +14% HP'], cons: ['Troops move 5% slower', 'Shields cost 55g'],
+    mods: { unitCost: 0.71, kingHp: 1.14, reload: 0.96, ammoCost: { boulder: 16}, unitSpeed: 0.95, shieldCost: 55},
     fort: { look: 'a brass and brick workshop with a smoking chimney, big gears, pipes and a clock face', skin: { L: 'copper pipework', S: 'red brick', I: 'brass boiler plate' },
       layout: [[0, 0, 'I'], [0, 1, 'S'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -196,7 +196,7 @@ export const RACE_DATA = {
       knight: U('Steam Knight', 'Knight', 1, 200, 24, 15, 1.1, 25, { armor: 5, bld: 2.2, pierce: true, cls: 'Melee', role: 'Lance cuts armour. Beats tanks' }, 'anvil', 'a puffing steam-powered suit of armour with a piston lance'),
       tesla: U('Tesla Gunners', 'Teslas', 2, 30, 40, 8, 1.2, 14, { range: 110, splash: 42, vsAir: 1.4, bld: 0.7, cls: 'Anti-air', role: 'Chain zap. Beats swarms and flyers' }, 'slinger', 'an engineer with a crackling tesla coil backpack gun'),
       boiler: U('Boiler Bombs', 'Boilers', 2, 30, 44, 0, 1.0, 15, { boom: { dmg: 64, r: 70 }, cls: 'Bomber', role: 'Walking bomb. Beats swarms' }, 'keg', 'a wobbling over-pressured boiler on little legs'),
-      gyro: U('Gyrocopters', 'Gyros', 2, 32, 68, 6, 0.6, 14, { air: true, range: 70, aa: true, vsAir: 2, bld: 0.7, cls: 'Flying anti-air', role: 'Anti-air flyer. Beats flyers' }, 'skimmer', 'a one-seat pedal gyrocopter with a blunderbuss'),
+      gyro: U('Gyrocopters', 'Gyros', 2, 32, 68, 11, 1.0, 14, { air: true, range: 70, aa: true, vsAir: 2, bld: 0.7, cls: 'Flying anti-air', role: 'Anti-air flyer. Beats flyers' }, 'skimmer', 'a one-seat pedal gyrocopter with a blunderbuss'),
       zeppelin: U('War Zeppelin', 'Zeppelin', 1, 170, 22, 20, 2.0, 30, { air: true, range: 60, splash: 50, bld: 2.2, cls: 'Flying anti-ground', role: 'Flyer. Flattens buildings' }, 'bark', 'a brass war zeppelin dropping round bombs'),
     },
     ult: { name: 'Tesla Cannon', shape: 'beam', dmg: 200, blockDmg: 240, r: 60, chiefCap: 0.45 },
