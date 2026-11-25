@@ -416,8 +416,10 @@ function clsOf(cls) {
   return { col: CLS[key][0], short: (fly ? '\u2191' : '') + CLS[key][1], full: cls, fly };
 }
 /** A class chip centred on (cx, y is its top edge, y-up). */
-function clsChip(g, c, cx, top, size, label) {
-  g.font = FONT(size); const w = g.measureText(label).width + size * 0.9, h = size * 1.35;
+function clsChip(g, c, cx, top, size, label, maxW = 1e9) {
+  g.font = FONT(size); let tw = g.measureText(label).width;
+  if (tw + size * 0.9 > maxW) { size = Math.max(6, size * (maxW - size * 0.9) / tw); g.font = FONT(size); tw = g.measureText(label).width; }   // whole words, shrunk to fit
+  const w = tw + size * 0.9, h = size * 1.35;
   rrect(g, cx - w / 2, -top, w, h, h / 2); g.fillStyle = c.col; g.fill(); g.lineWidth = 1.2; g.strokeStyle = 'rgba(30,16,4,0.7)'; g.stroke();
   g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'; g.fillText(label, cx, -(top - h / 2) + 0.5);
   return w;
@@ -760,13 +762,13 @@ function drawFx(g, s, now) {
       } else if (pim) {
         // the thing the weapon fires flies from its tip to the target (in an arc if it is lobbed), nose first, then a
         // puff where it lands; the rules give a shot a sixth of a second, so it is quick
-        const q = Math.min(1, k / 0.45);              // lands 0.07 s after firing, while the struck troop is still flinching
+        const fl = f.fly || f.ttl * 0.45, q = Math.min(1, f.t / fl);          // flies for the rules' flight time; the damage lands as it arrives
         if (q < 1) {
           const [px, py] = at(q), [qx, qy] = at(Math.min(1, q + 0.04)), vx = qx - px, vy = qy - py, len = pr[1] * 1.4;
           if (shot === 'bullet' || shot === 'ray' || shot === 'laser' || shot === 'dart') { const [sx, sy] = at(Math.max(0, q - 0.3)); g.globalAlpha = 0.45; g.strokeStyle = shot === 'ray' || shot === 'dart' ? '#8ff3ff' : shot === 'laser' ? '#ff6a5c' : '#ffe9a8'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(sx, -sy); g.lineTo(px, -py); g.stroke(); g.globalAlpha = 1; }
           stamp(g, pim, px, py, len, len * pim.height / pim.width, { flipX: left, rot: left ? Math.atan2(-vy, -vx) : Math.atan2(-vy, vx) });
         } else {
-          const e = (k - 0.45) / 0.55, r = (lob ? 8 : 5) + (lob ? 16 : 9) * e; g.globalAlpha = 1 - e; g.beginPath(); g.arc(f.tx, -f.ty, r, 0, 7); g.fillStyle = SHOT_HIT[shot] || '#ffe9a8'; g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(60,30,8,0.7)'; g.stroke();
+          const e = Math.min(1, (f.t - fl) / Math.max(0.05, f.ttl - fl)), r = (lob ? 8 : 5) + (lob ? 16 : 9) * e; g.globalAlpha = 1 - e; g.beginPath(); g.arc(f.tx, -f.ty, r, 0, 7); g.fillStyle = SHOT_HIT[shot] || '#ffe9a8'; g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(60,30,8,0.7)'; g.stroke();
           if (sp.siege) for (let i = 0; i < 5; i++) { const an = 0.4 + i * 0.55, v = 16 + (i * 37 % 20), cr = 2.5 + i % 2 * 1.5; g.fillStyle = i % 2 ? '#9a8f84' : '#6f655c'; g.fillRect(f.tx + Math.cos(an) * v * e * 2 - cr, -(f.ty + Math.sin(an) * v * e * 2 - 30 * e * e) - cr, cr * 2, cr * 1.7); }
         }
         g.globalAlpha = 1 - k;
@@ -916,8 +918,8 @@ function drawHud(g, s, ui, now) {
       if (cost && !free) sprite(g, 'ui_0', tx - (narrow ? 13 : 15), b.y - (narrow ? 55 : 50) + up, narrow ? 14 : 16);
       text(g, label, tx + (cost && !free ? 8 : 0), b.y - (narrow ? 47 : 41) + up, narrow ? 15 : 16, on ? '#fff' : '#7a4a12', 'center', null);
       if (cl) {
-        if (narrow) clsChip(g, cl, b.w / 2, b.y - 3, 9, cl.short);
-        else { const room = b.w - 54, word = cl.full.length * 5.6 + 9 <= room ? cl.full : cl.short; clsChip(g, cl, b.x + 48 + room / 2, b.y - 41, 9.5, word); }
+        if (narrow) clsChip(g, cl, b.w / 2, b.y - 3, 9, cl.full, b.w - 6);   // full words, never abbreviations
+        else { const room = b.w - 54; clsChip(g, cl, b.x + 48 + room / 2, b.y - 41, 9.5, cl.full, room); }
       }
       if (shut) {                                                      // not unlocked yet: dark cover with the time left
         g.fillStyle = 'rgba(30,16,4,0.62)'; rrect(g, b.x, -b.y, b.w, b.h - 3, 13); g.fill();

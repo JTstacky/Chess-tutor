@@ -1,6 +1,6 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
 export { PRICE_TUNE };
-import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE } from './tuning.js';
+import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE } from './tuning.js';
 export * from './tuning.js';
 // sim.js — Fling Forts rules and physics, side view. Pure: no DOM, so node tests run the same code as the game.
 // World: x runs left to right (0..W), y is height above the ground (0 = ground). Player 0 owns the left fort,
@@ -155,7 +155,7 @@ function newPlayer(id, race) {
 function buildFort() {}                                          // the block grid is gone: one castle per side (player.fortHp)
 function fresh(s) {
   s.players = [newPlayer(0, s.races[0]), newPlayer(1, s.races[1])];
-  s.projectiles = []; s.units = []; s.buildings = []; s.fires = []; s.fx = []; s.bonuses = []; s.blocks = []; s.ko = null;
+  s.projectiles = []; s.units = []; s.buildings = []; s.fires = []; s.fx = []; s.hits = []; s.bonuses = []; s.blocks = []; s.ko = null;
   buildFort(s, 0); buildFort(s, 1);
   s.phase = 'play'; s.clock = SUDDEN_AT; s.roundWinner = null; s.roundT = 0; s.tier = s.open ? TIERS.at.length : 1; s.ultq = []; s.waves = [];   // open: every tier unlocked (rule tests, tools)
   s.bonusTimer = 5 + s.rand() * 3;
@@ -419,6 +419,7 @@ export function step(s, dt = DT) {
   stepProjectiles(s, dt);
   stepBuildings(s, dt);
   stepUnits(s, dt);
+  stepHits(s, dt);
   stepKings(s, dt);
   stepUlts(s, dt);
   stepFires(s, dt);
@@ -673,6 +674,39 @@ function stepAuras(s, dt) {
   return mul;
 }
 
+/** A troop's blow or shot lands. A shot whose target has gone (dead, destroyed) hits the nearest foe of the same kind
+ *  (ground or air) within a small reach of where it lands, else nothing. */
+function landHit(s, h) {
+  const spec = UNIT[h.kind], m = RACES[s.players[h.owner].race].mods, foe = h.foe, u = h.by;
+  let { target, tkind } = h;
+  if (tkind === 'unit' && target.hp <= 0) {
+    const air = !!UNIT[target.kind].air; target = null;
+    let best = 26;
+    for (const e of s.units) if (e.owner === foe && e.hp > 0 && !!UNIT[e.kind].air === air && canHit(spec, UNIT[e.kind])) { const d = Math.abs(e.x - (h.tx ?? e.x)); if (d < best) { best = d; target = e; } }
+    if (!target) return;
+  }
+  if (tkind === 'bld' && (target.dead || target.hp <= 0)) return;
+  const dmg = h.dmg;
+  if (tkind === 'unit') {
+    const hit = (e, amt) => {
+      const es = UNIT[e.kind], dealt = hurtUnit(s, e, amt * (es.air ? spec.vsAir ?? 1 : 1), h.owner, false, !!spec.pierce);
+      if (spec.slow) e.slow = Math.max(e.slow, spec.slow);
+      if (spec.steal && u && u.hp > 0) u.hp = Math.min(u.maxHp, u.hp + dealt * spec.steal);
+      if (e.hp <= 0 && !es.air && !es.minion && (spec.raiser || (m.raise && s.rand() < m.raise))) { e.raiseFor = h.owner; e.raiseKind = spec.raiser || `${spec.race}_skeleton`; }
+    };
+    hit(target, dmg);
+    if (spec.splash) { const air = !!UNIT[target.kind].air; for (const e of s.units) if (e !== target && e.owner === foe && e.hp > 0 && !!UNIT[e.kind].air === air && Math.abs(e.x - target.x) < spec.splash) hit(e, dmg * 0.6); }
+  }
+  else if (tkind === 'bld') hurtBuilding(s, target, dmg * spec.bld, h.owner);
+  else if (tkind === 'fort') hurtFort(s, foe, dmg * spec.bld, h.owner, h.x, 40);
+  else hurtKing(s, foe, dmg * KING_UNIT_MUL, h.x, 20, h.owner);
+}
+function stepHits(s, dt) {
+  for (const h of s.hits) { h.t -= dt; if (h.t <= 0 && live(s)) landHit(s, h); }
+  compact(s.hits, (h) => h.t > 0);
+  if (!live(s)) s.hits.length = 0;
+}
+
 function stepUnits(s, dt) {
   const born = [], auraMul = stepAuras(s, dt);
   for (const u of s.units) {
@@ -706,24 +740,15 @@ function stepUnits(s, dt) {
         u.cd = spec.rate; u.act = 0.28;
         const dmg = (spec.dmg || 4) * (u.fresh && spec.charge ? spec.charge : 1) * (auraMul.get(u) || 1);
         u.fresh = false;
-        if (tkind === 'unit') {
-          const hit = (e, amt) => {
-            const es = UNIT[e.kind], dealt = hurtUnit(s, e, amt * (es.air ? spec.vsAir ?? 1 : 1), u.owner, false, !!spec.pierce);
-            if (spec.slow) e.slow = Math.max(e.slow, spec.slow);
-            if (spec.steal) u.hp = Math.min(u.maxHp, u.hp + dealt * spec.steal);
-            if (e.hp <= 0 && !es.air && !es.minion && (spec.raiser || (m.raise && s.rand() < m.raise))) { e.raiseFor = u.owner; e.raiseKind = spec.raiser || `${spec.race}_skeleton`; }
-          };
-          hit(target, dmg);
-          if (spec.splash) { const air = !!UNIT[target.kind].air; for (const e of s.units) if (e !== target && e.owner === foe && e.hp > 0 && !!UNIT[e.kind].air === air && Math.abs(e.x - target.x) < spec.splash) hit(e, dmg * 0.6); }
-        }
-        else if (tkind === 'bld') hurtBuilding(s, target, dmg * spec.bld, u.owner);
-        else if (tkind === 'fort') hurtFort(s, foe, dmg * spec.bld, u.owner, u.x, 40);
-        else hurtKing(s, foe, dmg * KING_UNIT_MUL, u.x, 20, u.owner);
+        const shot = { owner: u.owner, kind: u.kind, by: u, tkind, target, dmg, foe, x: u.x };
         if (spec.range) {
           const tx = tkind === 'unit' || tkind === 'bld' ? target.x : tkind === 'fort' ? mx(foe, FORT.frontX) : kingPos(foe, s).x;
-          const ty = tkind === 'unit' ? unitY(target) : tkind === 'fort' ? 60 : 24;
-          fx(s, 'bolt', u.x, u.y + spec.r * 1.4, { ttl: 0.16, tx, ty, owner: u.owner, thin: true });
-        }
+          const ty = tkind === 'unit' ? unitY(target) : tkind === 'fort' ? 60 : 24, y0 = u.y + spec.r * 1.4;
+          const F = SHOT_FLIGHT, name = u.kind.split('_').slice(1).join('_'), dist = Math.hypot(tx - u.x, ty - y0);
+          const fly = F.beam.includes(name) ? F.beamTime : spec.drop ? F.drop : clamp(dist / (spec.noAir && !spec.pierce ? F.lob : F.direct), F.min, F.max);
+          s.hits.push({ ...shot, t: fly, tx, ty });
+          fx(s, 'bolt', u.x, y0, { ttl: fly + 0.2, fly, tx, ty, owner: u.owner, thin: true, by: u.id });   // drawn flying for fly s, then the impact
+        } else landHit(s, shot);
       }
       continue;
     }

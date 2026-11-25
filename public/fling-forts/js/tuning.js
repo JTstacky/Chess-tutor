@@ -74,6 +74,14 @@ export const PRICE_K = 0.62;
 
 export const BONUS_R = 30, BONUS_BAND = [140, 320], BONUS_EVERY = [9, 14], CRATE_LIFE = 25, RAPID_TIME = 10;
 export const FORT_GUARD = { range: 130, rate: 1.0, dmg: 10 };   // forts plink enemy troops at the gate
+/** How fast troop shots travel (world units a second). The damage lands when the shot arrives, so a target that dies
+ *  first is not hit twice. Thrown and lobbed things are slower than bullets; beams, lightning and screams are near
+ *  instant; bombs fall from flyers. Flight times are clamped to [min, max]. */
+export const SHOT_FLIGHT = {
+  direct: 250, lob: 160, min: 0.2, max: 1.1,                           // about Warcraft III's archer (0.56 s at full range); lobbed is heavy and slow (docs/ANIMATION-RESEARCH.md)
+  beam: ['laser', 'walker', 'storm', 'tesla', 'bats', 'ghost', 'gale'], beamTime: 0.12,
+  drop: 0.6,                                                           // a bomb falling from a flyer
+};
 export const KING_UNIT_MUL = 0.6;                               // troops hit the chief softer than blocks
 export const AGGRO = 120;
 // the chief fights (owner, 2026-11-25): walks out to enemy ground troops near the fort, hits hard with a splash, and
