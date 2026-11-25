@@ -431,6 +431,11 @@ function clsChip(g, c, cx, top, size, label, maxW = 1e9) {
 const MACHINE = new Set(['aliens_saucer', 'aliens_mothership', 'robots_drone', 'robots_gunship', 'military_chopper', 'military_bomber', 'pirates_sloop', 'steampunk_gyro', 'steampunk_zeppelin']);   // flyers that never flap
 const BLADE = new Set(['shieldbearer', 'dancer', 'skeleton', 'deckhand', 'bosun', 'goblin', 'knight', 'scrap', 'imp', 'thorn', 'vultures']);   // melee troops whose blow is a cut, not a thump
 const REG0 = [1, 0, 0];
+// How each kind of shot moves (docs/ANIMATION-RESEARCH.md): straight and instant-looking, tumbling, or glowing with a tail
+const SHOT_STRAIGHT = new Set(['bullet', 'tracer', 'rivet', 'ray', 'laser', 'dart', 'ring', 'zap', 'screech', 'wail', 'gust', 'shotball', 'shell']);
+const SHOT_SPIN = new Set(['rock', 'coconut', 'keg', 'bomb', 'grenade', 'ball', 'shotball']);
+const SHOT_GLOW = new Set(['fire', 'gfire', 'magma', 'orb', 'wisp', 'skull', 'wail', 'ice', 'acid']);
+const SHOT_GUN = new Set(['bullet', 'tracer', 'rivet', 'shotball', 'shell', 'grenade', 'ball']);
 const ACT_T = 0.28, HURT_T = 0.25;               // how long the rules keep u.act and u.hurt up after a strike or a hit
 /** Which picture a troop shows now: { key, k (height multiplier), dy (lift, as a share of the height) }. */
 function unitFrame(u, spec, now, hit) {
@@ -656,10 +661,10 @@ function drawVfx(g, s, now) {
       g.globalAlpha = 1 - q; g.strokeStyle = '#fff1a8'; g.lineWidth = 4; g.beginPath(); g.ellipse(k.x, -(H * q), 30 * (1 - q * 0.4), 9, 0, 0, 7); g.stroke();
       g.strokeStyle = COLORS[f.p].light; g.lineWidth = 2; g.beginPath(); g.ellipse(k.x, -(H * q * 0.7), 36 * (1 - q * 0.4), 11, 0, 0, 7); g.stroke();
     } else if (f.type === 'bombdrop') {               // a bomb let go by a bomber: falls nose down, picks up speed, bursts on the ground
-      const T = 0.3;
+      const a = f.sim != null ? f.sim + (now - f.simAt) : now - f.t0, T = f.fall || 0.3;                          // the rules' drop time: the blast and the damage arrive together
       if (a < T) {
         const c = a / T, x = f.x + (f.tx - f.x) * c, y = f.y + (f.ty - f.y) * c * c, big = f.big && spr('ultfx_a_1'), im = big || spr('proj_c_3');
-        if (im) { const h = big ? 40 : 22; g.globalAlpha = 0.4; g.strokeStyle = '#fff'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - 5, -(y + h * 0.6)); g.lineTo(x - 5, -(y + h * 0.6 + 26 * c)); g.moveTo(x + 5, -(y + h * 0.6)); g.lineTo(x + 5, -(y + h * 0.6 + 20 * c)); g.stroke(); g.globalAlpha = 1; stamp(g, im, x, y, h * im.width / im.height, h, { rot: big ? 0 : c * 5 }); }
+        if (im) { const h = big ? 40 : 22; g.globalAlpha = 0.4; g.strokeStyle = '#fff'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - 5, -(y + h * 0.6)); g.lineTo(x - 5, -(y + h * 0.6 + 26 * c)); g.moveTo(x + 5, -(y + h * 0.6)); g.lineTo(x + 5, -(y + h * 0.6 + 20 * c)); g.stroke(); g.globalAlpha = 1; stamp(g, im, x, y, h * im.width / im.height, h, { rot: big ? Math.sin(a * 14) * 0.08 * (1 - c) : a * 7 }); }      // the big bomb wobbles on its fins as it steadies; the round one tumbles
       } else {
         if (!f.hit) { f.hit = true; art.onSound?.('boom', f.tx); }
         const c = Math.min(1, (a - T) / (f.dur - T)), h = f.splash * 1.9;
@@ -734,18 +739,22 @@ function drawFx(g, s, now) {
         const flyer = !!sh0 && s.units.some((e) => e.owner !== f.owner && UNIT[e.kind].air && Math.abs(e.x - f.tx) < 8 && Math.abs(e.y - f.ty) < 40);
         BOLT.set(f, info = { sp: sh0 ? UNIT[sh0.kind] : null, m, flyer, drop: !!sh0 && !!UNIT[sh0.kind].drop });
         // a bomber (drop: true) lets a bomb fall straight down from its belly; it bursts on the ground as wide as its splash
-        if (info.drop) VFX.push({ type: 'bombdrop', x: sh0.x, y: sh0.y + UNIT[sh0.kind].r * 0.4, tx: f.tx, ty: Math.max(8, f.ty - 20), big: UNIT[sh0.kind].r >= 20, splash: UNIT[sh0.kind].splash || 40, dur: 0.85 });
+        if (info.drop) VFX.push(info.vfx = { type: 'bombdrop', x: sh0.x, y: sh0.y + UNIT[sh0.kind].r * 0.4, tx: f.tx, ty: Math.max(8, f.ty - 20), big: UNIT[sh0.kind].r >= 20, splash: UNIT[sh0.kind].splash || 40, fall: f.fly || 0.6, dur: (f.fly || 0.6) + 0.5 });
         if (sh0) { const k0 = sh0.kind.split('_').slice(1).join('_'); art.onSound?.('shot_' + (SHOT[k0] || SHOT[String(UNIT[sh0.kind].art || '').split('_').slice(1).join('_')] || 'bullet'), f.x); }
       }
-      if (info.drop) continue;                                      // drawn by drawVfx: the bomb takes longer to fall than the rules' flash lasts
+      if (info.drop) { if (info.vfx) { info.vfx.sim = f.t; info.vfx.simAt = now; } continue; }      // the bomb keeps the rules' clock while its shot lives
+      if (false) continue;                                      // drawn by drawVfx: the bomb takes longer to fall than the rules' flash lasts
       if (info.m) { bx = info.m.x; by = info.m.y; }
       // what the shooter is decides the look: armour-piercing shots go clean through and spark out the far side,
       // anti-air shots that reach a flyer are brighter and burst on it
       const sp = info.sp, aa = !!sp && (sp.vsAir || 1) > 1 && info.flyer, pierce = !!sp?.pierce;      // the burst is for flyers only, not for roof blocks
       const shot = sp ? SHOT[sp.key?.split('_').slice(1).join('_')] || SHOT[String(sp.art || '').split('_').slice(1).join('_')] || 'bullet' : null;
       const lob = !!sp?.noAir && !pierce, pr = PROJ[shot], pim = pr ? spr(pr[0]) : null;
-      const lift = lob ? Math.min(60, 14 + Math.abs(f.tx - bx) * 0.22) : 0;
-      const at = (q) => { const m = 1 - q; return [m * m * bx + 2 * m * q * (bx + f.tx) / 2 + q * q * f.tx, m * m * by + 2 * m * q * ((by + f.ty) / 2 + lift * 2) + q * q * f.ty]; };
+      // The path is a real throw (docs/ANIMATION-RESEARCH.md): steady across, and up and down under gravity for the
+      // rules' flight time fl, so a slow lobbed shot climbs high and a quick one stays flat (peak = g * fl^2 / 8).
+      // Lobbed things feel the world's full gravity; arrows, spears and spells a third of it; bullets and rays none.
+      const fl = f.fly || f.ttl * 0.45, grav = lob ? S.G : SHOT_STRAIGHT.has(shot) ? 0 : S.G * 0.33, peak = Math.min(150, grav * fl * fl / 8);
+      const at = (q) => [bx + (f.tx - bx) * q, by + (f.ty - by) * q + peak * 4 * q * (1 - q)];
       const left = f.tx < bx;
       if (!sp) {                                                    // fort guard and tower bolts: a plain bright line
         g.strokeStyle = f.thin ? COLORS[f.owner].light : '#fff3b0'; g.lineWidth = f.thin ? 3 : 4; g.lineCap = 'round'; g.globalAlpha = 1 - k; g.beginPath(); g.moveTo(bx, -by); g.lineTo(f.tx, -f.ty); g.stroke();
@@ -762,12 +771,24 @@ function drawFx(g, s, now) {
       } else if (pim) {
         // the thing the weapon fires flies from its tip to the target (in an arc if it is lobbed), nose first, then a
         // puff where it lands; the rules give a shot a sixth of a second, so it is quick
-        const fl = f.fly || f.ttl * 0.45, q = Math.min(1, f.t / fl);          // flies for the rules' flight time; the damage lands as it arrives
+        const q = Math.min(1, f.t / fl);                                      // flies for the rules' flight time; the damage lands as it arrives
+        if (f.t < 0.05 && SHOT_GUN.has(shot)) {                               // muzzle flash: two frames of light at the barrel
+          const r = (shot === 'shell' || shot === 'shotball' ? 15 : 9) * (1 - f.t / 0.05 * 0.4); g.globalAlpha = 0.95; g.fillStyle = '#fff6c8'; g.beginPath();
+          for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4, rr = i % 2 ? r * 0.38 : r; g.lineTo(bx + Math.cos(an) * rr * (i % 4 === 0 ? 1.5 : 1), -(by + Math.sin(an) * rr)); } g.closePath(); g.fill(); g.globalAlpha = 1;
+        }
         if (q < 1) {
-          const [px, py] = at(q), [qx, qy] = at(Math.min(1, q + 0.04)), vx = qx - px, vy = qy - py, len = pr[1] * 1.4;
-          if (shot === 'bullet' || shot === 'ray' || shot === 'laser' || shot === 'dart') { const [sx, sy] = at(Math.max(0, q - 0.3)); g.globalAlpha = 0.45; g.strokeStyle = shot === 'ray' || shot === 'dart' ? '#8ff3ff' : shot === 'laser' ? '#ff6a5c' : '#ffe9a8'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(sx, -sy); g.lineTo(px, -py); g.stroke(); g.globalAlpha = 1; }
-          stamp(g, pim, px, py, len, len * pim.height / pim.width, { flipX: left, rot: left ? Math.atan2(-vy, -vx) : Math.atan2(-vy, vx) });
+          const dq = 0.03 / fl, [px, py] = at(q), [qx, qy] = at(Math.min(1, q + dq)), vx = (qx - px) || (f.tx - bx) * 1e-3, vy = qy - py;
+          const spin = SHOT_SPIN.has(shot), stretch = spin ? 1 : 1 + 0.22 * Math.max(0, 1 - q / 0.18), len = pr[1] * 1.4 * stretch;      // stretched as it leaves, true size in flight
+          if (SHOT_GLOW.has(shot)) for (let i = 3; i >= 1; i--) {             // fire and magic leave a short fading tail of themselves
+            const [ax, ay] = at(Math.max(0, q - dq * 1.6 * i)), sz = pr[1] * 1.4 * (1 - i * 0.17);
+            stamp(g, pim, ax, ay, sz, sz * pim.height / pim.width, { flipX: left, rot: left ? Math.atan2(-vy, -vx) : Math.atan2(-vy, vx), alpha: 0.34 - i * 0.09 });
+          }
+          if (shot === 'bullet' || shot === 'tracer' || shot === 'rivet' || shot === 'ray' || shot === 'laser' || shot === 'dart') { const [sx, sy] = at(Math.max(0, q - 0.06 / fl)); g.globalAlpha = 0.45; g.strokeStyle = shot === 'ray' || shot === 'dart' ? '#8ff3ff' : shot === 'laser' ? '#ff6a5c' : '#ffe9a8'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(sx, -sy); g.lineTo(px, -py); g.stroke(); g.globalAlpha = 1; }
+          // thrown round things tumble (about a turn and a half a second, forwards); everything else flies nose first
+          const rot = spin ? (left ? 1 : -1) * f.t * 9.5 : left ? Math.atan2(-vy, -vx) : Math.atan2(-vy, vx);
+          stamp(g, pim, px, py, len, pr[1] * 1.4 * (spin ? 1 : 2 - stretch) * pim.height / pim.width, { flipX: left, rot });
         } else {
+          if (lob && f.t - fl < 0.05) stamp(g, pim, f.tx, f.ty - 2, pr[1] * 1.4 * 1.35, pr[1] * 1.4 * 0.6 * pim.height / pim.width, { flipX: left });      // two frames flattened on the ground before it bursts
           const e = Math.min(1, (f.t - fl) / Math.max(0.05, f.ttl - fl)), r = (lob ? 8 : 5) + (lob ? 16 : 9) * e; g.globalAlpha = 1 - e; g.beginPath(); g.arc(f.tx, -f.ty, r, 0, 7); g.fillStyle = SHOT_HIT[shot] || '#ffe9a8'; g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(60,30,8,0.7)'; g.stroke();
           if (sp.siege) for (let i = 0; i < 5; i++) { const an = 0.4 + i * 0.55, v = 16 + (i * 37 % 20), cr = 2.5 + i % 2 * 1.5; g.fillStyle = i % 2 ? '#9a8f84' : '#6f655c'; g.fillRect(f.tx + Math.cos(an) * v * e * 2 - cr, -(f.ty + Math.sin(an) * v * e * 2 - 30 * e * e) - cr, cr * 2, cr * 1.7); }
         }
