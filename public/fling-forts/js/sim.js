@@ -1,6 +1,6 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
 export { PRICE_TUNE };
-import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT } from './tuning.js';
+import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE } from './tuning.js';
 export * from './tuning.js';
 // sim.js — Fling Forts rules and physics, side view. Pure: no DOM, so node tests run the same code as the game.
 // World: x runs left to right (0..W), y is height above the ground (0 = ground). Player 0 owns the left fort,
@@ -11,7 +11,7 @@ export const G = 900;                         // gravity, units / s^2
 export const V_MAX = 1250, V_MIN = 240;       // launch speed range (full pull reaches right across at 45 degrees)
 export const ANG_MIN = 0.09, ANG_MAX = 1.48;  // launch angle limits above the horizon, radians
 export const KING_HP = KING_BASE_HP, KING_R = 35, KING_Y = 37;     // hit circle matches the 90-unit chief picture (feet to chest)
-export const FORT = { back: 110, cols: 4, kingX: 210, catX: 56, catY: 252, gateX: 338, frontX: 310, domeR: 246, zone: [374, 612] };
+export const FORT = { back: 70, cols: 4, kingX: 352, catX: 190, catY: FORT_H + 24, gateX: 330, frontX: 310, h: FORT_H, domeR: 246, zone: [384, 612] };   // castle x back..frontX, h tall; sling on top; chief at kingX in front
 export const WALL = { w: 34, h: 92 }, TOWER = { w: 38, h: 160 }, MINE = { w: 46, h: 48 };
 export const GEOM = { wall: WALL, tower: TOWER, mine: MINE };
 export const AIR_Y = 150;                     // flyers cruise at this height and a bit above
@@ -30,19 +30,7 @@ for (const [rk, r] of Object.entries(RACE_DATA)) {
     if (u.raiser) UNIT[key].raiser = `${rk}_${u.raiser}`;
   }
   const keys = Object.keys(r.units).filter((k) => !r.units[k].minion).map((k) => `${rk}_${k}`);
-  // the race's hero (races.js `hero`, explicit cost); until lane 3's data lands, a big copy of its strongest troop
-  const hk = `${rk}_hero`;
-  if (r.hero) {
-    UNIT[hk] = { ...r.hero, key: hk, race: rk, hero: true, count: 1, cost: r.hero.cost ?? 140 };
-    if (r.hero.split) UNIT[hk].split = { ...r.hero.split, kind: `${rk}_${r.hero.split.kind}` };
-    if (r.hero.spawn) UNIT[hk].spawn = { ...r.hero.spawn, kind: `${rk}_${r.hero.spawn.kind}` };
-    if (r.hero.raiser) UNIT[hk].raiser = `${rk}_${r.hero.raiser}`;
-  } else {
-    const best = keys.filter((k) => !UNIT[k].air && !UNIT[k].boom).sort((a, b) => UNIT[b].hp * UNIT[b].count - UNIT[a].hp * UNIT[a].count)[0];
-    const b = UNIT[best];
-    UNIT[hk] = { ...b, key: hk, race: rk, hero: true, name: `${r.name} Hero`, short: 'Hero', count: 1, hp: Math.round(b.hp * b.count * 2.2), dmg: Math.round(b.dmg * 2.2), r: Math.round(b.r * 1.45), splash: Math.max(b.splash || 0, 45), cost: 140, art: best, tier: HERO.tier, provisional: true };
-  }
-  UNIT[hk].tier = UNIT[hk].tier ?? HERO.tier;
+  const hk = null;                                               // heroes removed (owner)
   RACES[rk] = { ...r, key: rk, ground: keys.filter((k) => !UNIT[k].air), air: keys.filter((k) => UNIT[k].air), roster: keys, hero: hk, ult: { ...ULT_DEFAULT, ...(r.ult || {}) } };
 }
 export const RACE_KEYS = Object.keys(RACES);
@@ -73,11 +61,15 @@ export const rowY = (r) => (r + 0.5) * CELL;
 /** Where player p's chief stands: home inside the fort, or out fighting (pass the state; without it, home). */
 export const kingHome = (p) => mx(p, FORT.kingX);
 /** How big the chief is: 1 at home, growing to KING_FIGHT.outScale as he walks out (drawing and hits both use it). */
-export const kingScale = (p, s) => (s && s.players[p].kx != null ? 1 + (KING_FIGHT.outScale - 1) * Math.min(1, Math.abs(s.players[p].kx - kingHome(p)) / KING_FIGHT.growIn) : 1);
+export const kingScale = () => 1;                              // owner: the chief is the same size the whole time
 export const kingR = (p, s) => KING_R * kingScale(p, s);
 export const kingPos = (p, s) => ({ x: s && s.players[p].kx != null ? s.players[p].kx : kingHome(p), y: KING_Y * kingScale(p, s) });
 /** The chief's front wall (fort column 0) is all down, so he may come out to fight. */
-export const fortOpen = (s, p) => !s.blocks.some((b) => !b.dead && b.owner === p && b.c === 0);
+export const fortOpen = () => true;                            // (old rule) the chief always guards now
+/** The chief is up (not knocked out): while he is, his castle takes no damage. */
+export const guarded = (s, p) => s.players[p].down <= 0;
+/** The castle's span on the ground for player p (world x, low to high). */
+export const fortSpan = (p) => { const a = mx(p, FORT.back), b = mx(p, FORT.frontX); return [Math.min(a, b), Math.max(a, b)]; };
 export const catPos = (p) => ({ x: mx(p, FORT.catX), y: FORT.catY });
 export const gateX = (p) => mx(p, FORT.gateX);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -115,7 +107,6 @@ export function costFor(s, p, key) {
   if (key === 'shield' && m.shieldCost) return m.shieldCost;
   if (key === 'wall' && m.wallCost) return m.wallCost;
   if (BUILD[key]) return BUILD[key].cost;
-  if (UNIT[key]?.hero) return UNIT[key].cost;
   if (UNIT[key]) return Math.max(8, Math.round(UNIT[key].cost * (m.unitCost || 1)));
   if (key === 'ult') return 0;
   return Infinity;
@@ -125,7 +116,6 @@ export function incomeOf(s, p) {
   const m = raceOf(s, p).mods;
   let n = TIERS.income[(s.tier || 1) - 1] * (s.phase === 'sudden' ? 2 : 1);
   for (const b of s.buildings) if (b.owner === p && b.kind === 'mine' && !b.dead) n += BUILD.mine.income;
-  for (const b of s.blocks) if (b.owner === p && b.kind === 'vault' && !b.dead) n += BUILD.vault.income;
   return n * (m.income || 1);
 }
 /** Gold the other side gets when this troop is killed. */
@@ -160,12 +150,9 @@ export const rosterOf = (s, p) => raceOf(s, p).roster;
 // ---------- state ----------
 function newPlayer(id, race) {
   const kingMax = Math.round(KING_HP * (RACES[race].mods.kingHp || 1));
-  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
+  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, down: 0, fortHp: Math.round(FORT_HP * (RACES[race].mods.blockHp || 1)), fortMax: Math.round(FORT_HP * (RACES[race].mods.blockHp || 1)), fortFlash: 0, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
 }
-function buildFort(s, p) {
-  const r = RACES[s.players[p].race], m = r.mods.blockHp || 1;
-  for (const [c, row, mat] of r.fort.layout) { const kind = MAT[mat], hp = Math.round(BLOCK[kind].hp * m); s.blocks.push({ id: s.nextId++, owner: p, c, r: row, kind, hp, maxHp: hp, drop: 0 }); }
-}
+function buildFort() {}                                          // the block grid is gone: one castle per side (player.fortHp)
 function fresh(s) {
   s.players = [newPlayer(0, s.races[0]), newPlayer(1, s.races[1])];
   s.projectiles = []; s.units = []; s.buildings = []; s.fires = []; s.fx = []; s.bonuses = []; s.blocks = []; s.ko = null;
@@ -182,7 +169,7 @@ const live = (s) => s.phase === 'play' || s.phase === 'sudden';
 const emit = (s, type, data) => { s.events.push({ type, ...data }); };
 const fx = (s, kind, x, y, extra = {}) => { s.fx.push({ kind, x, y, t: 0, ttl: extra.ttl || 0.6, ...extra }); };
 export const blockPos = (b) => ({ x: colX(b.owner, b.c), y: rowY(b.r) });
-export const fortHp = (s, p) => s.blocks.reduce((n, b) => n + (b.owner === p ? b.hp : 0), 0);
+export const fortHp = (s, p) => s.players[p].fortHp;
 
 // ---------- actions (people and the computer both use these; each returns true when it happened) ----------
 export function setAmmo(s, p, kind) { if (!AMMO[kind] || !isOpen(s, p, kind)) return false; s.players[p].ammo = kind; return true; }
@@ -222,13 +209,11 @@ export function placeOk(s, p, kind, x) {
   const u = mx(p, x);                                           // as a left-fort coordinate
   if (!isOpen(s, p, kind)) return false;                        // not unlocked yet this round
   if (kind === 'shield') return s.phase !== 'sudden' && !s.buildings.some((b) => b.owner === p && b.kind === 'shield');
-  if (kind === 'vault') return !s.blocks.some((b) => b.owner === p && b.kind === 'vault' && !b.dead) && (() => { const n = s.blocks.filter((b) => b.owner === p && b.c === 3 && !b.dead).length; return n > 0 && n < 5; })();   // needs a standing back wall
   if (BUILD[kind]) {
     if (u < FORT.zone[0] || u > FORT.zone[1]) return false;
     if (BUILD[kind].max && s.buildings.filter((b) => b.owner === p && b.kind === kind && !b.dead).length >= BUILD[kind].max) return false;
     return !s.buildings.some((b) => b.kind !== 'shield' && Math.abs(b.x - x) < 46);
   }
-  if (UNIT[kind]?.hero) return kind === raceOf(s, p).hero && heroOk(s, p) && u >= FORT.gateX - 40 && u <= FORT.zone[1];
   if (UNIT[kind]) return rosterOf(s, p).includes(kind) && u >= FORT.gateX - 40 && u <= FORT.zone[1];
   return false;
 }
@@ -238,14 +223,6 @@ export function build(s, p, kind, x) {
   const spec = BUILD[kind], cost = costFor(s, p, kind);
   if (!live(s) || !spec || !canAfford(s, p, cost) || !placeOk(s, p, kind, x)) return false;
   const m = raceOf(s, p).mods, pl = s.players[p];
-  if (kind === 'vault') {                                       // a new block on top of the back wall
-    const col = s.blocks.filter((b) => b.owner === p && b.c === 3 && !b.dead), r = col.reduce((n, b) => Math.max(n, b.r + 1), 0);
-    const hp = Math.round(spec.hp * (m.blockHp || 1));
-    s.blocks.push({ id: s.nextId++, owner: p, c: 3, r, kind: 'vault', hp, maxHp: hp, drop: 0 });
-    pl.gold -= cost; pl.spent += cost;
-    emit(s, 'build', { p, kind, x: colX(p, 3) });
-    return true;
-  }
   const hp = Math.round(spec.hp * (kind === 'wall' ? m.wallHp || 1 : kind === 'tower' ? m.towerHp || 1 : 1));
   const b = { id: s.nextId++, owner: p, kind, x, hp, maxHp: hp, cd: 0, age: 0, life: kind === 'shield' ? m.shieldLife || spec.life : 0 };
   if (kind === 'shield') b.x = kingPos(p, s).x;
@@ -275,10 +252,24 @@ export function send(s, p, kind, x = gateX(p)) {
 const hurtKingRaw = (...a) => hurtKing(...a);
 function hurtKing(s, p, dmg, x, y, by) {
   if (!live(s) || dmg <= 0) return;
-  const pl = s.players[p], d = Math.min(pl.kingHp, dmg * (s.phase === 'sudden' ? 2 : 1));
+  const pl = s.players[p];
+  if (pl.down > 0) return;                                         // already knocked out
+  const d = Math.min(pl.kingHp, dmg * (s.phase === 'sudden' ? 2 : 1));
   pl.kingHp -= d; pl.kingFlash = 0.25; pl.kingQuiet = 0; ultGain(s, by, p, d);
   if (by === 0 || by === 1) s.players[by].dealt += d;
   emit(s, 'king-hit', { p, x, y, dmg: d });
+  if (pl.kingHp <= 0) { pl.kingHp = 0; pl.down = KO_DOWN; pl.kx = kingHome(p); pl.koAt = s.time; emit(s, 'chief-down', { p, x: kingPos(p, s).x }); }
+}
+/** Hurt player p's castle. While its chief is up the hit sparks off and does nothing. */
+function hurtFort(s, p, dmg, by, x, y) {
+  if (!live(s) || dmg <= 0) return 0;
+  const pl = s.players[p];
+  if (guarded(s, p)) { if (!(pl.guardFx > s.time)) { pl.guardFx = s.time + 0.25; emit(s, 'fort-guarded', { p, x, y }); fx(s, 'ripple', x, y, { ttl: 0.4, owner: p }); } return 0; }
+  const d = Math.min(pl.fortHp, dmg * (s.phase === 'sudden' ? 2 : 1));
+  pl.fortHp -= d; pl.fortFlash = 0.2; ultGain(s, by, p, d);
+  if (by === 0 || by === 1) s.players[by].dealt += d * 0.5;
+  emit(s, 'fort-hit', { p, dmg: d, x, y });
+  return d;
 }
 /** Charge the ultimate meters: the attacker for damage dealt, the victim for damage taken. */
 function ultGain(s, by, victim, d) {
@@ -286,12 +277,7 @@ function ultGain(s, by, victim, d) {
   if ((by === 0 || by === 1) && by !== victim) s.players[by].ult = Math.min(1, s.players[by].ult + d * ULT.perDealt);
   if (victim === 0 || victim === 1) s.players[victim].ult = Math.min(1, s.players[victim].ult + d * ULT.perTaken);
 }
-function hurtBlock(s, b, dmg, by) {
-  if (b.dead || dmg <= 0) return;
-  b.hp -= dmg; b.flash = 0.2; ultGain(s, by, b.owner, Math.min(dmg, b.hp + dmg));
-  if (by === 0 || by === 1) s.players[by].dealt += Math.min(dmg, b.hp + dmg) * 0.25;
-  if (b.hp <= 0) { b.dead = true; const q = blockPos(b); fx(s, 'rubble', q.x, q.y, { ttl: 0.8, mat: b.kind }); emit(s, 'block-broken', { p: b.owner, x: q.x, y: q.y, mat: b.kind }); s.settle = true; }
-}
+function hurtBlock() {}                                         // (block grid removed)
 /** Hurt a troop. Armour takes a bit off every hit (not off burning). Remembers who did it, for the bounty. */
 function hurtUnit(s, u, dmg, by, dot = false, pierce = false) {
   if (u.hp <= 0 || dmg <= 0) return 0;
@@ -312,34 +298,9 @@ function hurtBuilding(s, b, dmg, by) {
   }
   if (b.hp <= 0) { b.dead = true; fx(s, b.kind === 'shield' ? 'pop' : 'rubble', b.x, 40, { ttl: 0.8, mat: 'wood', owner: b.owner }); emit(s, 'destroyed', { p: b.owner, kind: b.kind, x: b.x }); }
 }
-const has = (s, p, c, r) => s.blocks.some((b) => !b.dead && b.owner === p && b.c === c && b.r === r);
-/** After a block breaks: anything left without support drops; roof blocks land on the chief. */
-function settleFort(s) {
-  s.settle = false;
-  compact(s.blocks, (b) => !b.dead);
-  for (let pass = 0; pass < 6; pass++) {
-    let moved = false;
-    for (const b of s.blocks.slice().sort((a, c) => a.r - c.r)) {
-      if (b.dead || b.r === 0 || has(s, b.owner, b.c, b.r - 1)) continue;
-      const roof = b.c === 1 || b.c === 2;
-      if (roof && b.r === 2) {                                   // each roof beam rests on the wall beside it
-        const side = b.c === 1 ? 0 : 3;
-        if (has(s, b.owner, side, 2)) continue;
-        const q = blockPos(b), k = kingPos(b.owner, s);
-        b.dead = true; moved = true;
-        fx(s, 'rubble', q.x, KING_Y + 20, { ttl: 0.8, mat: b.kind });
-        emit(s, 'crush', { p: b.owner, x: q.x });
-        hurtKing(s, b.owner, CRUSH, k.x, k.y, 1 - b.owner);
-        continue;
-      }
-      b.r--; b.drop += CELL; moved = true;
-    }
-    compact(s.blocks, (b) => !b.dead);
-    if (!moved) break;
-  }
-}
 
-// solid things a shot can hit: returns { kind, ref } for the first one the circle (x, y, rad) touches
+/** After a block breaks: anything left without support drops; roof blocks land on the chief. */
+
 function solidAt(s, pr, x, y, rad) {
   const foe = 1 - pr.owner;
   for (const b of s.buildings) {
@@ -348,18 +309,11 @@ function solidAt(s, pr, x, y, rad) {
     const g = GEOM[b.kind];
     if (Math.abs(x - b.x) < g.w / 2 + rad && y < g.h + rad) return { kind: 'bld', ref: b };
   }
-  for (const b of s.blocks) {
-    if (b.dead) continue;
-    const q = blockPos(b), dx = Math.max(Math.abs(x - q.x) - CELL / 2, 0), dy = Math.max(Math.abs(y - q.y) - CELL / 2, 0);
-    if (dx * dx + dy * dy < rad * rad) return { kind: 'block', ref: b };
-  }
-  for (const p of [0, 1]) { const k = kingPos(p, s); if (hyp(x - k.x, y - k.y) < kingR(p, s) + rad) return { kind: 'king', ref: p }; }
+  for (const p of [0, 1]) { const k = kingPos(p, s); if (p === foe && hyp(x - k.x, y - k.y) < kingR(p, s) + rad) return { kind: 'king', ref: p }; }
   for (const u of s.units) if (u.owner === foe && u.hp > 0 && hyp(x - u.x, y - unitY(u)) < UNIT[u.kind].r + rad) return { kind: 'unit', ref: u };
-  // the catapult stands on a stone pedestal behind each fort
-  for (const p of [0, 1]) { const c = catPos(p); if (p !== pr.owner && Math.abs(x - c.x) < 46 + rad && y < c.y - 16) return { kind: 'pedestal', ref: p }; }
+  { const [a, b] = fortSpan(foe); if (x > a - rad && x < b + rad && y < FORT.h + rad) return { kind: 'fort', ref: foe }; }
   return null;
 }
-
 /** A shot stops at (pr.x, pr.y): damage what it struck, splash the rest. */
 function impact(s, pr, hit) {
   const a = pr.ult ? { ...AMMO[pr.ammo], ...pr.ult } : AMMO[pr.ammo], sh = pr.shard;
@@ -369,29 +323,21 @@ function impact(s, pr, hit) {
   const hurtKing = (s2, p2, amt, x, y, by) => { if (pr.ult) { const pl = s.players[me]; amt = Math.min(amt, pl.ultCap); pl.ultCap -= amt; } hurtKingRaw(s2, p2, amt, x, y, by); };
   let any = false;
   const direct = hit?.ref;
-  if (hit?.kind === 'block' && direct.owner === foe) { hurtBlock(s, direct, dmg * bld, me); any = true; }
+  if (hit?.kind === 'fort' && direct === foe) { hurtFort(s, foe, dmg * bld, me, pr.x, pr.y); any = true; }
   if (hit?.kind === 'bld' && direct.owner === foe) { hurtBuilding(s, direct, dmg * bld, me); any = true; }
   if (hit?.kind === 'king' && direct === foe) { hurtKing(s, foe, dmg * (a.bld > 1 && !sh ? 1.3 : 1), pr.x, pr.y, me); any = true; }
   // splash: troops in the blast, other blocks and buildings at reduced strength, the chief only by line of sight
   for (const u of s.units) if (u.owner === foe && hyp(u.x - pr.x, unitY(u) - pr.y) < r + UNIT[u.kind].r) { hurtUnit(s, u, dmg, me); any = true; }
-  for (const b of s.blocks) { if (b.dead || b.owner !== foe || b === direct) continue; const q = blockPos(b); if (hyp(q.x - pr.x, q.y - pr.y) < r + CELL * 0.3) { hurtBlock(s, b, dmg * bld * 0.4, me); any = true; } }
+  if (hit?.kind !== 'fort') { const [fa, fb] = fortSpan(foe); if (pr.x > fa - r && pr.x < fb + r && pr.y < FORT.h + r) { hurtFort(s, foe, dmg * bld * 0.4, me, pr.x, pr.y); any = true; } }
   for (const b of s.buildings) { if (b.dead || b.owner !== foe || b === direct || b.kind === 'shield') continue; if (Math.abs(b.x - pr.x) < r && pr.y < GEOM[b.kind].h + r) { hurtBuilding(s, b, dmg * bld * 0.4, me); any = true; } }
-  if (hit?.kind !== 'king') { const k = kingPos(foe, s); if (hyp(k.x - pr.x, k.y - pr.y) < r * 0.6 + kingR(foe, s) && !shielded(s, foe, pr.x, pr.y)) { hurtKing(s, foe, dmg * 0.5, pr.x, pr.y, me); any = true; } }
+  if (hit?.kind !== 'king') { const k = kingPos(foe, s); if (hyp(k.x - pr.x, k.y - pr.y) < r * 0.6 + kingR(foe, s)) { hurtKing(s, foe, dmg * 0.5, pr.x, pr.y, me); any = true; } }
   if (a.burn && !sh && pr.y < 30) s.fires.push({ owner: me, kind: 'fire', x: pr.x, r: a.burn.r, t: a.burn.t * (raceOf(s, me).mods.burnTime || 1), dps: a.burn.dps });
   if (any) s.players[me].hits++;
   fx(s, 'boom', pr.x, pr.y, { r, owner: me, ttl: 0.5, big: pr.ammo === 'boulder' && !sh });
   emit(s, 'impact', { p: me, ammo: pr.ammo, x: pr.x, y: pr.y, hit: any, on: hit?.kind || 'ground' });
 }
 /** Is there a block between the blast and the chief? (the blast only reaches the chief through an opening) */
-function shielded(s, p, x, y) {
-  const k = kingPos(p, s);
-  for (let i = 1; i < 6; i++) {
-    const f = i / 6, px = x + (k.x - x) * f, py = y + (k.y - y) * f;
-    for (const b of s.blocks) { if (b.dead || b.owner !== p) continue; const q = blockPos(b); if (Math.abs(px - q.x) < CELL / 2 && Math.abs(py - q.y) < CELL / 2) return true; }
-  }
-  return false;
-}
-
+function shielded() { return false; }                           // (no blocks to hide behind)
 // ---------- bonuses ----------
 function spawnBonus(s) {
   const keys = Object.keys(BONUS), kind = keys[Math.floor(s.rand() * keys.length)];
@@ -431,20 +377,16 @@ function stepBonuses(s, dt) {
   compact(s.bonuses, (b) => !b.gone);
 }
 function hitBonus(s, pr, b) {
-  if (b.cat === 'air') { award(s, pr.owner, b.kind, b.x, bonusY(b)); b.gone = true; return; }
-  b.y = bonusY(b); b.state = 'fall'; b.vy = 0; b.knockedBy = pr.owner;
-  b.x = clamp(b.x, FORT.gateX + 20, W - FORT.gateX - 20);       // crates always come down on the open ground between the forts
-  fx(s, 'pop', b.x, b.y, { ttl: 0.4, owner: pr.owner }); emit(s, 'crate-knock', { p: pr.owner, x: b.x, y: b.y });
+  award(s, pr.owner, b.kind, b.x, bonusY(b)); b.gone = true;    // kites and crates alike pay the shooter at once (owner)
+  if (b.cat === 'crate') fx(s, 'pop', b.x, bonusY(b), { ttl: 0.4, owner: pr.owner });
 }
-
 // ---------- step ----------
 export function step(s, dt = DT) {
   s.time += dt;
   for (const f of s.fx) f.t += dt;
   compact(s.fx, (f) => f.t < f.ttl);
-  for (const b of s.blocks) { if (b.drop > 0) b.drop = Math.max(0, b.drop - 420 * dt); if (b.flash > 0) b.flash -= dt; }
   for (const b of s.buildings) if (b.flash > 0) b.flash -= dt;
-  for (const p of s.players) if (p.kingFlash > 0) p.kingFlash -= dt;
+  for (const p of s.players) { if (p.kingFlash > 0) p.kingFlash -= dt; if (p.fortFlash > 0) p.fortFlash -= dt; }
 
   if (s.phase === 'roundOver') {
     s.interTimer -= dt;
@@ -467,10 +409,10 @@ export function step(s, dt = DT) {
   for (const p of s.players) {
     const m = RACES[p.race].mods;
     p.gold = Math.min(capOf(s), p.gold + incomeOf(s, p.id) * dt);
-    if (p.heroCd > 0) p.heroCd = Math.max(0, p.heroCd - dt);
+    if (p.down > 0) { p.down -= dt; if (p.down <= 0) { p.down = 0; p.kingHp = Math.round(p.kingMax * KO_REVIVE); p.kingQuiet = 0; emit(s, 'chief-up', { p: p.id, x: kingPos(p.id, s).x }); } }
     p.ult = Math.min(1, p.ult + ULT.perSec * dt);
     p.reload = Math.max(0, p.reload - dt); p.rapid = Math.max(0, p.rapid - dt);
-    if (m.kingRegen && p.kingHp > 0 && s.phase === 'play') p.kingHp = Math.min(p.kingMax, p.kingHp + m.kingRegen * dt);
+    if (m.kingRegen && p.down <= 0 && s.phase === 'play') p.kingHp = Math.min(p.kingMax, p.kingHp + m.kingRegen * dt);
   }
   stepBonuses(s, dt);
   stepProjectiles(s, dt);
@@ -479,11 +421,10 @@ export function step(s, dt = DT) {
   stepKings(s, dt);
   stepUlts(s, dt);
   stepFires(s, dt);
-  if (s.settle) settleFort(s);
   reap(s);
   compact(s.buildings, (b) => !b.dead);
-  const k0 = s.players[0].kingHp <= 0, k1 = s.players[1].kingHp <= 0;
-  if (k0 || k1) endRound(s, k0 && k1 ? -1 : k0 ? 1 : 0);
+  const f0 = s.players[0].fortHp <= 0, f1 = s.players[1].fortHp <= 0;   // a castle falls: that round is lost
+  if (f0 || f1) { for (const p of [0, 1]) if (s.players[p].fortHp <= 0) emit(s, 'fort-down', { p, x: (fortSpan(p)[0] + fortSpan(p)[1]) / 2 }); endRound(s, f0 && f1 ? -1 : f0 ? 1 : 0); }
 }
 /** Clear away dead troops: pay the bounty, burst splitters into their little ones, raise skeletons. */
 function reap(s) {
@@ -510,13 +451,13 @@ function reap(s) {
 function timeoutWinner(s) {
   const [a, b] = s.players;
   const cmp = (x, y) => (Math.abs(x - y) < 1e-6 ? 0 : x > y ? 1 : -1);
-  const c = cmp(a.kingHp / a.kingMax, b.kingHp / b.kingMax) || cmp(fortHp(s, 0), fortHp(s, 1)) || cmp(a.dealt, b.dealt);
+  const c = cmp(a.fortHp / a.fortMax, b.fortHp / b.fortMax) || cmp(a.kingHp / a.kingMax, b.kingHp / b.kingMax) || cmp(a.dealt, b.dealt);
   return c === 0 ? -1 : c > 0 ? 0 : 1;
 }
 function endRound(s, winner) {
   s.roundWinner = winner;
   if (winner >= 0) s.roundsWon[winner]++; else s.draws++;
-  const loser = winner >= 0 ? 1 - winner : -1, kp = loser >= 0 ? kingPos(loser, s) : { x: W / 2, y: 120 };
+  const loser = winner >= 0 ? 1 - winner : -1, kp = loser >= 0 ? { x: (fortSpan(loser)[0] + fortSpan(loser)[1]) / 2, y: FORT.h * 0.45 } : { x: W / 2, y: 120 };   // the camera goes to the fallen castle
   s.ko = { winner, loser, x: kp.x, y: kp.y, at: s.time };            // for the knockout picture
   emit(s, 'round-end', { winner, loser, x: kp.x, y: kp.y });
   if (winner >= 0 && s.roundsWon[winner] >= ROUNDS_TO_WIN) { s.phase = 'over'; s.winner = winner; emit(s, 'match-end', { winner }); }
@@ -563,12 +504,6 @@ function nearestFoe(s, owner, x, range) {
   return best;
 }
 function stepBuildings(s, dt) {
-  for (const pl of s.players) {
-    pl.guard -= dt;
-    if (pl.guard > 0) continue;
-    const gx = mx(pl.id, FORT.frontX), best = nearestFoe(s, pl.id, gx, FORT_GUARD.range);
-    if (best) { hurtUnit(s, best, FORT_GUARD.dmg, pl.id); pl.guard = FORT_GUARD.rate; fx(s, 'bolt', gx, CELL * 3, { ttl: 0.18, tx: best.x, ty: unitY(best), owner: pl.id }); }
-  }
   for (const b of s.buildings) {
     b.age += dt;
     if (b.kind === 'shield') { if (b.age > b.life) { b.dead = true; fx(s, 'pop', b.x, 60, { ttl: 0.7, owner: b.owner }); } continue; }
@@ -589,23 +524,15 @@ function obstacle(s, u) {
     const gap = (b.x - u.x) * d - GEOM[b.kind].w / 2;
     if (gap > -40 && gap < bd) { bd = gap; best = { kind: 'bld', ref: b, gap }; }
   }
-  { const k = kingPos(foe, s), gap = (k.x - u.x) * d - kingR(foe, s); if (s.players[foe].kx !== kingHome(foe) && gap > -40 && gap < bd) { bd = gap; best = { kind: 'king', ref: foe, gap }; } }
-  // lowest block of the first fort column still standing in the way
-  for (let c = 0; c < FORT.cols; c++) {
-    const col = s.blocks.filter((b) => !b.dead && b.owner === foe && b.c === c && b.r <= 1);
-    if (c > 0 && c < 3) { const k = kingPos(foe, s), gap = (k.x - u.x) * d - kingR(foe, s); if (gap < bd) { bd = gap; best = { kind: 'king', ref: foe, gap }; } break; }
-    if (!col.length) continue;
-    const b = col.sort((x, y) => x.r - y.r)[0], gap = (colX(foe, c) - u.x) * d - CELL / 2;
-    if (gap < bd) { bd = gap; best = { kind: 'block', ref: b, gap }; }
-    break;
-  }
+  if (guarded(s, foe)) { const k = kingPos(foe, s), gap = (k.x - u.x) * d - kingR(foe, s); if (gap > -60 && gap < bd) { bd = gap; best = { kind: 'king', ref: foe, gap }; } }
+  { const gap = (mx(foe, FORT.frontX) - u.x) * d; if (gap < bd) { bd = gap; best = { kind: 'fort', ref: foe, gap }; } }
   return best;
 }
 /** What a flyer goes for: it flies over everything to the enemy fort, tears the roof off, then dives on the chief. */
 function airTarget(s, u) {
-  const foe = 1 - u.owner, k = kingPos(foe, s), gap = (k.x - u.x) * dir(u.owner);
-  const roof = s.blocks.filter((b) => !b.dead && b.owner === foe && (b.c === 1 || b.c === 2)).sort((a, b) => b.r - a.r || a.c - b.c)[0];
-  return roof ? { kind: 'block', ref: roof, gap } : { kind: 'king', ref: foe, gap };
+  const foe = 1 - u.owner;
+  if (guarded(s, foe)) { const k = kingPos(foe, s); return { kind: 'king', ref: foe, gap: Math.abs(k.x - u.x) - kingR(foe, s) }; }
+  const [a, b] = fortSpan(foe); return { kind: 'fort', ref: foe, gap: u.x >= a && u.x <= b ? 0 : Math.min(Math.abs(u.x - a), Math.abs(u.x - b)) };
 }
 /** Can a troop of type a hit a troop of type b? Flyers are only reached by shooters on the ground and by flyers marked aa. */
 // troop roles (all optional, set in races.js): noAir never targets flyers; vsAir multiplies damage to flyers;
@@ -615,11 +542,11 @@ export const canHit = (a, b) => !b.air || (!a.noAir && !!a.range && !a.boom && (
 function explode(s, u, spec) {
   const foe = 1 - u.owner, y = spec.air ? CELL * 2.5 : 20;
   u.hp = 0; u.spent = true;
-  for (const b of s.blocks) { if (b.dead || b.owner !== foe) continue; const q = blockPos(b); if (hyp(q.x - u.x, q.y - y) < spec.boom.r + CELL * 0.4) hurtBlock(s, b, spec.boom.dmg, u.owner); }
+  { const [a, b] = fortSpan(foe); if (u.x > a - spec.boom.r && u.x < b + spec.boom.r) hurtFort(s, foe, spec.boom.dmg * (spec.bld || 1), u.owner, u.x, y); }
   for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - u.x) < spec.boom.r) hurtBuilding(s, b, spec.boom.dmg, u.owner);
   for (const e of s.units) if (e.owner === foe && e.hp > 0 && !UNIT[e.kind].air && Math.abs(e.x - u.x) < spec.boom.r * 0.7) hurtUnit(s, e, spec.boom.dmg * 0.5, u.owner);
   const k = kingPos(foe, s);
-  if (Math.abs(k.x - u.x) < spec.boom.r * 0.6 + kingR(foe, s) && !shielded(s, foe, u.x, y)) hurtKing(s, foe, spec.boom.dmg * 0.7, u.x, y, u.owner);
+  if (Math.abs(k.x - u.x) < spec.boom.r * 0.6 + kingR(foe, s)) hurtKing(s, foe, spec.boom.dmg * 0.7, u.x, y, u.owner);
   if (spec.boom.cloud) s.fires.push({ owner: u.owner, kind: 'spore', x: u.x, ...spec.boom.cloud });
   fx(s, 'boom', u.x, y + 4, { ttl: 0.6, r: spec.boom.r, owner: u.owner, big: true, spore: !!spec.boom.cloud });
   emit(s, 'boom', { p: u.owner, x: u.x });
@@ -634,9 +561,9 @@ function stepKings(s, dt) {
     const p = pl.id, foe = 1 - p, home = kingHome(p), local = (x) => (p === 0 ? x : W - x);
     pl.kingCd = Math.max(0, pl.kingCd - dt); if (pl.kingAct > 0) pl.kingAct -= dt;
     pl.kingHeal = false;
-    if (pl.kingHp <= 0 || pl.kingIdle) continue;            // kingIdle: tests that need a chief who stays put
+    if (pl.down > 0 || pl.kingIdle) continue;            // kingIdle: tests that need a chief who stays put
     let target = null, td = Infinity;
-    if (fortOpen(s, p)) for (const u of s.units) {
+    for (const u of s.units) {
       if (u.owner !== foe || u.hp <= 0 || UNIT[u.kind].air || local(u.x) > K.aggro) continue;
       const dd = Math.abs(u.x - pl.kx); if (dd < td) { td = dd; target = u; }
     }
@@ -687,13 +614,13 @@ export function ultimate(s, p) {
   pl.ultCap = (U.chiefCap ?? 1) * s.players[foe].kingMax;
   if (U.shape === 'barrage') {
     for (let i = 0; i < (U.n || 8); i++) {
-      const u = 80 + s.rand() * (FORT.gateX + 140 - 80), x = mx(foe, u);       // over the enemy fort and gate
+      const u = FORT.back + s.rand() * (FORT.kingX + 60 - FORT.back), x = mx(foe, u);   // over the enemy castle and its chief
       s.ultq.push({ t: (U.over || 1.5) * i / Math.max(1, (U.n || 8) - 1), owner: p, kind: 'drop', x });
     }
   } else if (U.shape === 'sweep') {
     s.waves.push({ owner: p, x: gateX(p), hit: new Set(), U });
   } else if (U.shape === 'beam') {
-    s.ultq.push({ t: 0.8, owner: p, kind: 'beam', x: kingPos(foe, s).x });
+    s.ultq.push({ t: 0.8, owner: p, kind: 'beam', x: guarded(s, foe) ? kingPos(foe, s).x : (fortSpan(foe)[0] + fortSpan(foe)[1]) / 2 });
   } else if (U.shape === 'summon') {
     for (const [k, n] of U.units || []) { const key = UNIT[k] ? k : `${pl.race}_${k}`; if (UNIT[key]) spawnSquad(s, p, key, gateX(p), n); }
   }
@@ -710,7 +637,7 @@ function stepUlts(s, dt) {
     if (q.kind === 'drop') s.projectiles.push({ id: s.nextId++, owner: q.owner, ammo: 'boulder', x: q.x, y: SKY - 40, vx: 0, vy: -420, split: false, shard: false, t: 0, spin: 0, ult: { dmg: U.dmg, r: U.r, bld: U.bld, size: 15 } });
     if (q.kind === 'beam') {
       const pl = s.players[q.owner];
-      for (const b of s.blocks) if (!b.dead && b.owner === foe && Math.abs(blockPos(b).x - q.x) < (U.r || 50)) hurtBlock(s, b, U.blockDmg ?? 80, q.owner);
+      { const [a, b] = fortSpan(foe); if (q.x > a - (U.r || 50) && q.x < b + (U.r || 50)) hurtFort(s, foe, U.blockDmg ?? 80, q.owner, q.x, 80); }
       for (const u of s.units) if (u.owner === foe && u.hp > 0 && Math.abs(u.x - q.x) < (U.r || 50)) hurtUnit(s, u, (U.dmg || 120) * 0.5, q.owner);
       const amt = Math.min(U.dmg || 120, pl.ultCap); pl.ultCap -= amt; hurtKing(s, foe, amt, q.x, 40, q.owner);
       fx(s, 'boom', q.x, 40, { r: U.r || 50, owner: q.owner, ttl: 0.6, big: true });
@@ -722,7 +649,7 @@ function stepUlts(s, dt) {
     w.x += d * (U.speed || 380) * dt;
     for (const u of s.units) if (u.owner === foe && u.hp > 0 && !UNIT[u.kind].air && !w.hit.has(u.id) && Math.abs(u.x - w.x) < 30) { w.hit.add(u.id); hurtUnit(s, u, U.dmg || 40, w.owner); if (U.slow) u.slow = Math.max(u.slow, U.slow); }
     for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && !w.hit.has('b' + b.id) && Math.abs(b.x - w.x) < 30) { w.hit.add('b' + b.id); hurtBuilding(s, b, U.bldDmg ?? (U.dmg || 40) * 2, w.owner); }
-    for (const b of s.blocks) if (!b.dead && b.owner === foe && b.r <= 1 && !w.hit.has('k' + b.id) && Math.abs(blockPos(b).x - w.x) < 30) { w.hit.add('k' + b.id); hurtBlock(s, b, U.bldDmg ?? (U.dmg || 40) * 2, w.owner); }
+    if (!w.hit.has('fort') && Math.abs(mx(foe, FORT.frontX) - w.x) < 30) { w.hit.add('fort'); hurtFort(s, foe, U.bldDmg ?? (U.dmg || 40) * 2, w.owner, w.x, 40); }
     if (U.burn && Math.floor(w.x / 70) !== Math.floor((w.x - d * (U.speed || 380) * dt) / 70)) s.fires.push({ owner: w.owner, kind: 'fire', x: w.x, r: 40, t: U.burn.t, dps: U.burn.dps });
     if (mx(foe, w.x) < 60) w.done = true;                      // reached the far edge
   }
@@ -789,11 +716,11 @@ function stepUnits(s, dt) {
           if (spec.splash) { const air = !!UNIT[target.kind].air; for (const e of s.units) if (e !== target && e.owner === foe && e.hp > 0 && !!UNIT[e.kind].air === air && Math.abs(e.x - target.x) < spec.splash) hit(e, dmg * 0.6); }
         }
         else if (tkind === 'bld') hurtBuilding(s, target, dmg * spec.bld, u.owner);
-        else if (tkind === 'block') hurtBlock(s, target, dmg * spec.bld, u.owner);
+        else if (tkind === 'fort') hurtFort(s, foe, dmg * spec.bld, u.owner, u.x, 40);
         else hurtKing(s, foe, dmg * KING_UNIT_MUL, u.x, 20, u.owner);
         if (spec.range) {
-          const tx = tkind === 'unit' || tkind === 'bld' ? target.x : tkind === 'block' ? blockPos(target).x : kingPos(foe, s).x;
-          const ty = tkind === 'unit' ? unitY(target) : tkind === 'block' ? blockPos(target).y : 24;
+          const tx = tkind === 'unit' || tkind === 'bld' ? target.x : tkind === 'fort' ? mx(foe, FORT.frontX) : kingPos(foe, s).x;
+          const ty = tkind === 'unit' ? unitY(target) : tkind === 'fort' ? 60 : 24;
           fx(s, 'bolt', u.x, u.y + spec.r * 1.4, { ttl: 0.16, tx, ty, owner: u.owner, thin: true });
         }
       }
@@ -802,7 +729,6 @@ function stepUnits(s, dt) {
     // move: toward an enemy troop in sight, else a dropped crate nearby, else on to the fort
     let goal = u.x + d * 100;
     if (foeUnit && !(spec.boom && spec.air) && fd < Math.max(AGGRO, reach)) goal = foeUnit.x;
-    else if (!spec.boom && !spec.air) { let cd = 220; for (const b of s.bonuses) if (b.state === 'ground' && Math.abs(b.x - u.x) < cd) { cd = Math.abs(b.x - u.x); goal = b.x; } }
     const sp = spec.speed * (m.unitSpeed || 1) * (u.slow > 0 ? 0.5 : 1), stepX = Math.sign(goal - u.x) * Math.min(Math.abs(goal - u.x), sp * dt);
     u.x = clamp(u.x + stepX, 20, W - 20); u.walk += Math.abs(stepX) * 0.09;
   }
@@ -814,10 +740,10 @@ function stepFires(s, dt) {
     f.t -= dt;
     const foe = 1 - f.owner;
     for (const u of s.units) if (u.owner === foe && u.hp > 0 && !UNIT[u.kind].air && Math.abs(u.x - f.x) < f.r) { hurtUnit(s, u, f.dps * dt, f.owner, true); if (f.kind === 'spore') u.slow = Math.max(u.slow, 0.3); }
-    for (const b of s.blocks) { if (b.dead || b.owner !== foe || b.r > 0) continue; if (Math.abs(colX(foe, b.c) - f.x) < f.r + CELL / 2) hurtBlock(s, b, f.dps * 0.5 * dt, f.owner); }
+    { const [a, b] = fortSpan(foe); if (f.x > a - f.r && f.x < b + f.r) hurtFort(s, foe, f.dps * 0.5 * dt, f.owner, f.x, 20); }
     for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - f.x) < f.r + 15) hurtBuilding(s, b, f.dps * 0.6 * dt, f.owner);
     const k = kingPos(foe, s);
-    if (Math.abs(k.x - f.x) < f.r * 0.5 + kingR(foe, s) && !shielded(s, foe, f.x, 20)) hurtKing(s, foe, f.dps * 0.35 * dt, f.x, 10, f.owner);
+    if (Math.abs(k.x - f.x) < f.r * 0.5 + kingR(foe, s)) hurtKing(s, foe, f.dps * 0.35 * dt, f.x, 10, f.owner);
   }
   compact(s.fires, (f) => f.t > 0);
 }

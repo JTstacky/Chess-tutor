@@ -15,15 +15,18 @@ export const ROUND_TIME = SUDDEN_AT;                              // old name, k
 export const GOLD_START = 60, GOLD_RATE = TIERS.income[0], GOLD_CAP = TIERS.cap[2];   // old names; the live values follow the tier
 // what each tier unlocks; troops are all open from the start (a troop may still carry `tier` in races.js; heroes HERO.tier)
 export const AMMO_TIER = { stone: 1, scatter: 1, fire: 2, boulder: 3 };
-export const BUILD_TIER = { wall: 1, mine: 1, tower: 2, shield: 2, vault: 3 };
+export const BUILD_TIER = { wall: 1, mine: 1, tower: 2, shield: 2 };
 // heroes: one alive per player, a cooldown after one dies, bounty capped
-export const HERO = { tier: 3, max: 1, cooldown: 30, bounty: 30 };
+export const HERO = { tier: 3, max: 1, cooldown: 30, bounty: 20 };
 // ultimate meter (0..1): fills with time, damage dealt and damage taken (so the side behind is not starved)
-export const ULT = { perSec: 1 / 170, perDealt: 1 / 2600, perTaken: 1 / 2000 };
+export const ULT = { perSec: 1 / 160, perDealt: 1 / 3200, perTaken: 1 / 2400 };
 // a race without its own ultimate in races.js gets this one
 export const ULT_DEFAULT = { name: 'Barrage', shape: 'barrage', n: 8, dmg: 45, r: 60, bld: 2, over: 1.6, chiefCap: 0.15 };
-export const KING_BASE_HP = 450;
-export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)                                  // was 300: forts and chiefs last the longer round
+export const KING_BASE_HP = 560;   // was 300, then 450 (lane 3)
+export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)
+// the castle (owner: destroy the enemy fort to win; it takes no damage while its chief is up)
+export const FORT_HP = 900, FORT_H = 230;                         // castle hit points and height (world units)
+export const KO_DOWN = 18, KO_REVIVE = 0.5;                        // a knocked-out chief lies stunned this long, then gets up with this share of his HP
 export const BOUNTY = 0.3;                     // share of a troop's price paid to the other side when it is killed
 
 export const CRUSH = 45;                      // a block falling on the chief
@@ -33,14 +36,15 @@ export const AMMO = {
   fire:    { name: 'Firepot', cost: 18, reload: 3.5, dmg: 14, r: 44, bld: 0.8, size: 11, burn: { r: 60, t: 4.5, dps: 14 } },
   boulder: { name: 'Boulder', cost: 25, reload: 4.5, dmg: 48, r: 40, bld: 2.2, size: 15 },
 };
-export const BLOCK = { wood: { hp: 105 }, stone: { hp: 210 }, iron: { hp: 300 }, vault: { hp: 165 } };   // 1.5x for the longer round
+export const BLOCK = { wood: { hp: 125 }, stone: { hp: 250 }, iron: { hp: 355 }, vault: { hp: 195 } };   // 1.5x for the longer round
 export const MAT = { L: 'wood', S: 'stone', I: 'iron' };   // fort layout letters -> block kinds
 export const BUILD = {
-  wall:   { name: 'Wall',   cost: 30, hp: 150 },
+  wall:   { name: 'Wall',   cost: 30, hp: 400 },
   tower:  { name: 'Tower',  cost: 55, hp: 100, range: 190, rate: 0.7, dmg: 12 },
   shield: { name: 'Shield', cost: 45, hp: 90, life: 16 },
   mine:   { name: 'Mine',   cost: 44, hp: 100, income: 2, max: 2 },      // ground building: pays gold every second while it stands
-  vault:  { name: 'Vault',  cost: 60, hp: 120, income: 3.5, max: 1 },       // fort addition: a block on top of the back wall
+  // vault removed (owner: the lockbox did nothing useful)
+  _vault: { name: 'Vault',  cost: 60, hp: 120, income: 3.5, max: 1 },       // fort addition: a block on top of the back wall
 };
 
 /** Fighting worth of one squad, from its stats: this is what prices are made from. */

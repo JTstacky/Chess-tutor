@@ -239,8 +239,8 @@ function drawChief(g, s, p, now) {
   // (S.kingScale: 1 at home, growing once he is out), so the picture matches what shots hit
   const big = S.kingScale(p, s), H = CHIEF_H * big;
   const ko = s.ko && (s.phase === 'roundOver' || s.phase === 'over') ? s.ko : null;
-  if (ko && ko.loser === p) {                    // knocked out: topples back over half a second, bounces once, lies flat
-    const a = s.time - ko.at, fall = Math.min(1, a / 0.5), bounce = a > 0.5 && a < 0.8 ? Math.sin(Math.PI * (a - 0.5) / 0.3) * 0.08 : 0;
+  if (pl.down > 0 || (ko && ko.loser === p && pl.kingHp <= 0)) {   // knocked out: topples back over half a second, bounces once, lies stunned
+    const a = s.time - (pl.koAt ?? s.time), fall = Math.min(1, a / 0.5), bounce = a > 0.5 && a < 0.8 ? Math.sin(Math.PI * (a - 0.5) / 0.3) * 0.08 : 0;
     const back = -face, rot = back * (Math.PI / 2) * (fall * fall) * (1 - bounce);
     g.save(); g.translate(k.x - back * H * 0.12 * fall, 0); g.filter = 'saturate(0.6) brightness(0.92)';
     const ko2 = `kingko_${pl.race}_0`;
@@ -286,7 +286,7 @@ function drawChief(g, s, p, now) {
     g.beginPath(); g.ellipse(k.x, -6, H * 0.5, H * 0.13, 0, 0, 7); g.fillStyle = `rgba(120,255,170,${0.22 + 0.1 * Math.sin(now * 4)})`; g.fill();
     for (let i = 0; i < 4; i++) { const q = (now * 0.7 + i / 4) % 1; text(g, '+', k.x + Math.sin(i * 2.4 + p) * 26, 14 + q * H, 22 - q * 6, `rgba(140,255,160,${1 - q})`, 'center', `rgba(20,70,30,${0.8 * (1 - q)})`); }
   }
-  if (out || pl.kingHp < pl.kingMax - 0.5) {
+  if (pl.down <= 0) {                             // his health over his head (he guards the castle)
     const f = pl.kingHp / pl.kingMax;
     const by = H + 16;
     rrect(g, k.x - 33, -(by + 12), 66, 12, 6); g.fillStyle = INK; g.fill();
@@ -294,14 +294,32 @@ function drawChief(g, s, p, now) {
     sprite(g, 'ui_2', k.x - 36, by - 2, 16);
   }
 }
+/** The castle: race art castle_<race>_0..3 by damage when present; until then a keep built from the race's fort
+ *  blocks with battlements, darkening and losing height as it is damaged. Flashes when hit; sparks show the guard. */
+function drawCastle(g, s, p, now) {
+  const pl = s.players[p], [a, b] = S.fortSpan(p), H = S.FORT.h, w = b - a, cx = (a + b) / 2;
+  const f = pl ? Math.max(0, pl.fortHp / pl.fortMax) : 1, stage = f <= 0 ? 3 : f < 0.34 ? 2 : f < 0.67 ? 1 : 0;
+  const art = pl && spr(`castle_${pl.race}_${stage}`);
+  g.save(); if (pl && pl.fortFlash > 0) g.filter = 'brightness(1.6)';
+  if (art) { sprite(g, `castle_${pl.race}_${stage}`, cx, 0, H * (art.height / art.width) * (w / H) > 0 ? w * art.height / art.width : H, { flip: p === 1 }); g.restore(); return; }
+  const race = pl ? pl.race : S.RACE_KEYS[0], keep = (kind, worn) => blockKey(race, kind, worn);
+  const top = stage === 3 ? CELL : H - stage * 22;                 // ruins are low
+  for (let y = 0; y < top - 1; y += CELL) for (let x = a; x < b - 1; x += CELL) {
+    const tower = x === a || x + CELL >= b - 1, kind = tower ? 'stone' : 'wood';
+    sprite(g, keep(tower ? 'stone' : 'stone', stage >= 1 && ((x + y) / CELL) % 3 === 0), x + CELL / 2, y, CELL + 1);
+  }
+  if (stage < 3) for (let x = a; x < b - 1; x += CELL) if (((x - a) / CELL) % 2 === 0) sprite(g, keep('stone', stage >= 2), x + CELL / 2, top, CELL * 0.62);   // battlements
+  // a gate in the front face (gone once the castle is rubble)
+  if (stage < 3) { const gx = p === 0 ? b - CELL : a + CELL;
+  g.beginPath(); g.moveTo(gx - 22, 0); g.lineTo(gx - 22, -46); g.quadraticCurveTo(gx, -70, gx + 22, -46); g.lineTo(gx + 22, 0); g.closePath(); g.fillStyle = '#2b1d12'; g.fill(); g.lineWidth = 3; g.strokeStyle = INK; g.stroke(); }
+  g.restore();
+}
 const SLING_DIR = [null, null];                  // the last aim direction per player, for the snap after a shot
 function drawFort(g, s, p, ui, now) {
   const col = COLORS[p], pl = s.players[p], flip = p === 1;
-  const c = S.catPos(p);
-  // stone tower under the slingshot
-  const towerTop = Math.floor((c.y - 100) / CELL) * CELL;            // whole blocks, ending just under the sling's base
-  for (let y = 0; y < towerTop; y += CELL) for (const dx of [-22, 22]) sprite(g, 'blocks_2', c.x + dx, y, CELL + 1);
-  rrect(g, c.x - 50, -(towerTop + 8), 100, 10, 4); g.fillStyle = '#6d6a66'; g.fill(); g.strokeStyle = INK; g.lineWidth = 2.5; g.stroke();
+  const fallen = !!pl && pl.fortHp <= 0 && !ui.menu && !ui.pick, drop = fallen ? S.FORT.h - CELL : 0;   // a fallen castle brings its slingshot and flag down onto the rubble
+  const c0 = S.catPos(p), c = { x: c0.x, y: c0.y - drop };
+  drawCastle(g, s, p, now);                                          // the castle; the slingshot stands on its top
   // slingshot: a Y frame on the tower; two bands run from the prong tips to a leather pouch that is pulled back
   // along the aim while a finger drags, and snaps forward and wobbles after a shot. The launch point (S.catPos) is the
   // middle of the fork, so the physics is untouched.
@@ -328,22 +346,13 @@ function drawFort(g, s, p, ui, now) {
     band(tipF);                                                          // the near band in front of everything
   } else sprite(g, 'catapult_0', c.x, c.y - 14, 62, { flip });
   // flag in the side colour
-  const fx = S.colX(p, 3), fy = S.rowY(2) + CELL / 2 + 4;
+  const fx = S.mx(p, S.FORT.back + 22), fy = S.FORT.h + 46 - drop;
   g.strokeStyle = INK; g.lineWidth = 3; g.beginPath(); g.moveTo(fx, -fy + 44); g.lineTo(fx, -fy - 46); g.stroke();
   const wave = Math.sin(now * 3 + p) * 4;
   g.beginPath(); g.moveTo(fx, -fy - 46); g.quadraticCurveTo(fx + d * 20, -fy - 50 + wave, fx + d * 38, -fy - 38); g.quadraticCurveTo(fx + d * 20, -fy - 30 - wave, fx, -fy - 24); g.closePath();
   g.fillStyle = col.main; g.fill(); g.stroke();
   // the chief: behind his blocks while he is at home, drawn again in front of the troops when he is out fighting
-  if (ui.menu || ui.pick || Math.abs(S.kingPos(p, s).x - S.kingPos(p).x) < 1) drawChief(g, s, p, now);
-  // blocks
-  for (const b of s.blocks) {
-    if (b.owner !== p || b.dead) continue;
-    const q = S.blockPos(b), worn = b.hp < b.maxHp * 0.5;
-    const key = blockKey(pl.race, b.kind, worn);
-    g.save(); if (b.flash > 0) g.filter = 'brightness(1.7)';
-    sprite(g, key, q.x, q.y - CELL / 2 + b.drop, CELL + 2);
-    g.restore();
-  }
+  if (ui.menu || ui.pick) drawChief(g, s, p, now);
 }
 
 function drawBuildings(g, s, now) {
@@ -679,14 +688,14 @@ function drawHud(g, s, ui, now) {
     if (ai) text(g, `COMPUTER · ${String(ui.aiLevel).toUpperCase()}`, S.mx(p, 325), -110, 24, '#fff');
     // ---- top panel: chief HP, gold, rounds ----
     const x = S.mx(p, 210), top = ui.topY, d = p === 0 ? 1 : -1, al = p === 0 ? 'left' : 'right', slim = !!DRAW_LAY?.compact;
-    const hpK = pl.kingHp / pl.kingMax, hpCol = hpK > 0.35 ? '#6fd45a' : '#ff5a4a';
+    const hpK = pl.fortHp / pl.fortMax, hpCol = hpK > 0.35 ? '#6fd45a' : '#ff5a4a';   // castle health: the objective
     if (slim) {
       // phones: one row (heart, HP, gold, rounds), starting clear of the slingshot on the back tower
       const left = S.mx(p, 122);
       rrect(g, Math.min(left, left + d * 318), -top, 318, 40, 14); g.fillStyle = 'rgba(40,24,10,0.62)'; g.fill();
       sprite(g, 'ui_2', left + d * 20, top - 31, 22);
       bar(g, left + d * 100, top - 28, 120, 16, hpK, hpCol);
-      text(g, `${Math.ceil(pl.kingHp)}`, left + d * 100, top - 20, 13, '#fff', 'center');
+      text(g, `${Math.ceil(pl.fortHp)}`, left + d * 100, top - 20, 13, '#fff', 'center');
       sprite(g, 'ui_0', left + d * 184, top - 32, 24);
       text(g, `${Math.floor(pl.gold)}`, left + d * 200, top - 20, 22, '#ffe36b', al);
       for (let i = 0; i < S.ROUNDS_TO_WIN; i++) { g.beginPath(); g.arc(left + d * (302 - i * 18), -(top - 20), 6, 0, 7); g.fillStyle = i < s.roundsWon[p] ? '#ffd23f' : 'rgba(255,255,255,0.25)'; g.fill(); }
@@ -699,7 +708,7 @@ function drawHud(g, s, ui, now) {
       for (let i = 0; i < S.ROUNDS_TO_WIN; i++) { g.beginPath(); g.arc(left + d * (360 - i * 24), -(top - 20), 8, 0, 7); g.fillStyle = i < s.roundsWon[p] ? '#ffd23f' : 'rgba(255,255,255,0.25)'; g.fill(); }
       sprite(g, 'ui_2', left + d * 26, top - 68, 24);
       bar(g, left + d * 135, top - 66, 180, 18, hpK, hpCol);
-      text(g, `${Math.ceil(pl.kingHp)}`, left + d * 135, top - 57, 14, '#fff', 'center');
+      text(g, `${Math.ceil(pl.fortHp)}`, left + d * 135, top - 57, 14, '#fff', 'center');
       sprite(g, 'ui_0', left + d * 262, top - 70, 28);
       text(g, `${Math.floor(pl.gold)}`, left + d * 282, top - 56, 24, '#ffe36b', al);
     }
@@ -728,7 +737,7 @@ function drawHud(g, s, ui, now) {
     const a = s.time - s.ultShow.at;
     text(g, s.ultShow.name + '!', W / 2, 400, 58 * Math.min(1, a * 4), COLORS[s.ultShow.p].light);
   } else if (s.tier > 1 && (s.roundT || 0) - S.tierAt(s, s.tier) < 2.4 && !s.open) {   // a new tier
-    const a = s.roundT - S.tierAt(s, s.tier), TN = ['', 'Skirmish', 'Battle!', 'War! Heroes unlocked'];
+    const a = s.roundT - S.tierAt(s, s.tier), TN = ['', 'Skirmish', 'Battle!', 'War!'];
     text(g, `Tier ${s.tier}: ${TN[s.tier]}`, W / 2, 400, 50 * Math.min(1, a * 3), '#ffd23f');
   } else if (s.time < 2.2 && s.phase === 'play') {
     text(g, s.round === 1 ? 'Fling!' : `Round ${s.round}`, W / 2, 400, 64 * Math.min(1, s.time * 3), '#fff');
@@ -783,7 +792,7 @@ export function draw(g, lay, s, ui, now) {
   drawZones(g, s, ui, now);
   drawBuildings(g, s, now);
   drawUnits(g, s, now);
-  for (const p of [0, 1]) if (Math.abs(S.kingPos(p, s).x - S.kingPos(p).x) >= 1) drawChief(g, s, p, now);   // a chief out of his fort
+  for (const p of [0, 1]) drawChief(g, s, p, now);                // chiefs guard in front of their castles
   drawBonuses(g, s, now);
   drawShots(g, s);
   drawFx(g, s, now);
@@ -808,9 +817,12 @@ function camera(lay, ui) {
 }
 /** Stars circling the knocked-out chief's head and a "K.O.!" pop. */
 function drawKo(g, s, now) {
-  const ko = s.ko;
-  if (!ko || ko.loser < 0) return;
+  for (const p of [0, 1]) if (s.players[p].down > 0) drawKoOne(g, s, p, now);
+}
+function drawKoOne(g, s, p, now) {
+  const ko = { loser: p, at: s.players[p].koAt ?? s.time };
   const a = s.time - ko.at, k = S.kingPos(ko.loser, s), H = CHIEF_H * S.kingScale(ko.loser, s);
+  if (a > 2.2) text(g, `${Math.ceil(s.players[p].down)}`, k.x, H * 0.85, 22, '#fff');   // seconds until he gets up
   if (a > 0.35) for (let i = 0; i < 4; i++) {
     const t = now * 3 + i * Math.PI / 2, hx = k.x - S.dir(ko.loser) * H * 0.55;
     sprite(g, 'fx_0', hx + Math.cos(t) * H * 0.32, H * 0.22 + Math.sin(t) * H * 0.08, H * 0.2, { rot: now * 4, alpha: 0.95 });

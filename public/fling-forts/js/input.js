@@ -125,7 +125,7 @@ export function attachInput(canvas, game) {
     if (!a) return;
     ui.aims.delete(e.pointerId);
     if (a.kind === 'button') { clearHeld(a); return; }
-    if (a.kind === 'pause') { ui.pauseHold = 0; return; }
+    if (a.kind === 'pause') { ui.pauseHold = 0; const w = pos(e); if (Math.hypot(w.x - PAUSE.x, w.y - PAUSE.y) < PAUSE.r + 18) game.pause(); return; }   // a tap pauses (owner: holding was not obvious); sliding off cancels
     if (a.kind !== 'field' || !game.playing()) return;
     e.preventDefault();
     if (!a.moved) { place(a.p, a.sx); return; }

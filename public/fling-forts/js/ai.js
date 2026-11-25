@@ -1,5 +1,5 @@
 // ai.js — a computer opponent that plays through the same actions as a person (fire/build/send/setAmmo).
-import { AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
+import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
 
 export const LEVELS = {
   // owner 2026-11-25: the computer was too hard (every level fired at the reload limit). A person fires about 12-18 shots
@@ -8,7 +8,7 @@ export const LEVELS = {
   // reload: about 6 (easy), 9 (normal) and 13 (hard) shots a minute.
   easy:   { aimErr: 0.13,  think: 1.2, special: 0.12, defend: 0.25, offense: 0.35, fireMul: 2.3,  bonus: 0.15, invest: 0.25 },
   normal: { aimErr: 0.075, think: 0.8, special: 0.3,  defend: 0.6,  offense: 0.6,  fireMul: 1.2,  bonus: 0.45, invest: 0.6 },
-  hard:   { aimErr: 0.04,  think: 0.5, special: 0.5,  defend: 0.9,  offense: 0.85, fireMul: 0.55, bonus: 0.8,  invest: 0.9 },
+  hard:   { aimErr: 0.04,  think: 0.5, special: 0.5,  defend: 0.9,  offense: 0.85, fireMul: 0.7, bonus: 0.8,  invest: 0.9 },
 };
 export function pickRace(seed = 1) { return RACE_KEYS[Math.abs(seed) % RACE_KEYS.length]; }
 
@@ -62,13 +62,11 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     const myB = s.buildings.filter((b) => b.owner === p);
     const foeWalls = s.buildings.filter((b) => b.owner === foe && b.kind !== 'shield');
     const foeShield = s.buildings.find((b) => b.owner === foe && b.kind === 'shield');
-    const fb = s.blocks.filter((b) => b.owner === foe && !b.dead);
 
     // --- invest: mines and a vault pay for themselves in about 20 seconds, so early is best ---
     if (cfg.invest && s.phase === 'play' && s.clock > 40 && !close.length && rand() < cfg.invest * 0.5) {
       const mines = myB.filter((b) => b.kind === 'mine').length;
       if (mines < BUILD.mine.max && me.gold >= cost('mine') + 5) buildAt(s, 'mine', true);
-      else if (me.gold >= cost('vault') + 10 && placeOk(s, p, 'vault', 0)) build(s, p, 'vault', 0);
     }
 
     // --- defend ---
@@ -95,23 +93,17 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       if (flying.length && !close.length && rand() < cfg.bonus) { setAmmo(s, p, 'stone'); for (const b of flying) if (bonusShot(s, b)) return; }
       let tx, ty, ang = 0.85, ammo = 'stone';
       const k = kingPos(foe, s);
-      const roof = fb.filter((b) => (b.c === 1 || b.c === 2) && b.r >= 2);
-      const front = fb.filter((b) => b.c === 0).sort((x, y) => y.r - x.r);
+      const up = guarded(s, foe), [fa, fz] = fortSpan(foe), fcx = (fa + fz) / 2;
       const mine = foeWalls.find((b) => b.kind === 'mine');
       if (close.length) {
         const c = close[Math.floor(rand() * close.length)], cs = UNIT[c.kind];
         tx = c.x + dir(foe) * cs.speed * 1.2; ty = c.y; ang = cs.air ? 0.7 : 1.0;
         if (close.length >= 3 && rand() < cfg.special) ammo = rand() < 0.5 ? 'scatter' : 'fire';
       } else if (foeShield && rand() < 0.4) { tx = foeShield.x; ty = 150; if (rand() < cfg.special) ammo = 'boulder'; }
-      else if (!roof.length) { tx = k.x; ty = k.y; ang = 1.2; if (rand() < cfg.special) ammo = rand() < 0.6 ? 'boulder' : 'fire'; }   // open roof: drop it in
-      else if (!front.length) { tx = k.x; ty = k.y; ang = 0.35; }                                                                      // open front: straight in
+      else if (!up) { tx = fcx; ty = FORT.h * 0.55; ang = 0.95; if (rand() < cfg.special * 1.5) ammo = 'boulder'; }                      // chief knocked out: pound the castle
       else if (mine && rand() < 0.3) { tx = mine.x; ty = 20; ang = 0.9; }
       else if (foeWalls.length && rand() < 0.25) { tx = foeWalls[0].x; ty = 40; ang = 0.9; if (rand() < cfg.special) ammo = 'boulder'; }
-      else {
-        const b = rand() < 0.65 ? roof[Math.floor(rand() * roof.length)] : front[0];
-        tx = colX(foe, b.c); ty = rowY(b.r) + 22; ang = b.c === 0 ? 0.7 : 1.1;
-        if (rand() < cfg.special * 0.7) ammo = 'boulder';
-      }
+      else { tx = k.x; ty = k.y; ang = 0.7 + rand() * 0.5; if (rand() < cfg.special * 0.5) ammo = 'boulder'; }                         // the chief guarding the castle
       if (me.freeShots > 0 && ammo === 'stone') ammo = 'boulder';
       setAmmo(s, p, ammo);
       if (me.gold < shotCost(s, p)) setAmmo(s, p, 'stone');
@@ -125,12 +117,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       if ((worth && rand() < 0.5) || s.phase === 'sudden') ultimate(s, p);
     }
 
-    // --- hero: buy it as soon as it is open and affordable; save for it at tier 3 ---
     let saving = false;
-    if (opts.hero !== false && isOpen(s, p, race.hero) && heroOk(s, p)) {
-      if (me.gold >= cost(race.hero)) send(s, p, race.hero, gateX(p));
-      else saving = !close.length && rand() < cfg.offense;
-    }
 
     // --- troops ---
     const reserve = threats.length ? 60 : 35;

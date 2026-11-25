@@ -39,7 +39,7 @@ export const screenToWorld = (lay, sx, sy) => ({ x: (sx - lay.ox) / lay.s, y: (l
 
 // three rows of six slots per player: shots and fort upgrades, then builds and flyers, then ground troops
 const BPER = 6;                                                       // buttons per row
-export const BTN_KEYS = ['stone', 'scatter', 'fire', 'boulder', 'shield', 'vault', 'wall', 'tower', 'mine', 'a0', 'a1', 'hero', 'g0', 'g1', 'g2', 'g3', 'g4', 'ult'];
+export const BTN_KEYS = ['stone', 'scatter', 'fire', 'boulder', 'shield', 'ult', 'wall', 'tower', 'mine', 'a0', 'a1', null, 'g0', 'g1', 'g2', 'g3', null, null];   // owner: no vault, no hero; four ground troops
 export const BW = 100, BH = 60, BGAP = 6, BX0 = 8, BY0 = -12;     // button boxes as left-fort world coords (below ground = negative y)
 /** Button rectangles for player p in world coords: { key, kind, slot, x, y (top), w, h }.
  *  `lay` defaults to the layout on screen; on a phone layout the boxes come from CSS pixels (see computeLayout). */
