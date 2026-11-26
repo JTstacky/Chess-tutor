@@ -134,7 +134,7 @@ export const RACE_DATA = {
   pirates: {
     name: 'Saltdogs', theme: 'Pirates', chief: 'Captain Barnacle, a peg-legged pirate with a huge hat and a parrot',
     tag: 'Fast, loud, and in it for the gold.',
-    traits: { plus: ['plunder', 'rolling'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.35 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['plunder', 'rolling'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.28 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a fort built from a beached pirate ship: plank hull, mast with crow\'s nest, barrels and a skull flag', skin: { L: 'ship planks', S: 'ballast stone', I: 'cannon iron' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [0, 3, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'L'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
@@ -152,7 +152,7 @@ export const RACE_DATA = {
   elementals: {
     name: 'Primal Court', theme: 'Elementals', chief: 'the Ember Sovereign, a calm figure of living flame in a stone crown',
     tag: 'Fire, frost, stone and storm.',
-    traits: { plus: ['burn', 'towers'], minus: ['troopHp', 'slots'] }, traitSize: { burn: 0.80, towers: 1.00, troopHp: 0.06 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['burn', 'fling'], minus: ['troopHp', 'slots'] }, traitSize: { burn: 0.40, fling: 0.15, troopHp: 0.06 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'floating rune-carved boulders and glowing crystal pillars around a fire altar', skin: { L: 'ice crystal', S: 'rune boulder', I: 'obsidian slab' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'S'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
