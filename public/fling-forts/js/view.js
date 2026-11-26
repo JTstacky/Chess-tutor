@@ -605,7 +605,11 @@ function drawBonuses(g, s, now) {
       else sprite(g, `bonus_crate_${CR[b.kind]}`, b.x, y - 56, 112, { rot: Math.sin(now * 1.6 + b.bob) * 0.05 });
     } else {
       const blink = b.state === 'ground' && b.t > S.CRATE_LIFE - 5 && Math.floor(now * 6) % 2;
-      if (!blink) sprite(g, 'bonus_crate_3', b.x, y - 2, 46, { rot: b.state === 'fall' ? Math.sin(now * 9) * 0.15 : 0 });
+      if (!blink) {
+        const rot = b.state === 'fall' ? Math.sin(now * 9) * 0.15 : 0;
+        if (b.cat === 'air') sprite(g, `bonus_air_${AIR[b.kind]}`, b.x, y - 2, 52, { rot, anchorY: 1 });   // a dropped kite
+        else sprite(g, 'bonus_crate_3', b.x, y - 2, 46, { rot });
+      }
       if (b.state === 'ground') text(g, S.BONUS[b.kind].name, b.x, 62 + Math.sin(now * 4) * 3, 15, '#fff6c8');
     }
   }

@@ -1,5 +1,5 @@
 // ai.js — a computer opponent that plays through the same actions as a person (fire/build/send/setAmmo).
-import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, freeSlots, slotCount, powerCost, upgradePower, hasAmmo, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
+import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, freeSlots, slotCount, powerCost, upgradePower, hasAmmo, UNIT, BUILD, W, MID, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
 
 export const LEVELS = {
   // owner 2026-11-25: the computer was too hard (every level fired at the reload limit). A person fires about 12-18 shots
@@ -106,7 +106,9 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     if (me.reload <= 0 && waitFire <= 0) {
       waitFire = fireWait(s);
       const flying = s.bonuses.filter((b) => b.state === 'fly');
-      if (flying.length && !close.length && rand() < cfg.bonus) { setAmmo(s, p, 'stone'); for (const b of flying) if (bonusShot(s, b)) return; }
+      // a hit power-up drops where it is hit, so only shoot ones over your own half (the drop then lands near your side)
+      const nearMe = flying.filter((b) => (b.x - MID) * dir(p) < 0 && (b.vx * dir(p) > 0 || (b.x - MID) * dir(p) < -160));
+      if (nearMe.length && !close.length && rand() < cfg.bonus) { setAmmo(s, p, 'stone'); for (const b of nearMe) if (bonusShot(s, b)) return; }
       let tx, ty, ang = 0.85, ammo = 'stone';
       const k = kingPos(foe, s);
       const up = guarded(s, foe), [fa, fz] = fortSpan(foe), fcx = (fa + fz) / 2;

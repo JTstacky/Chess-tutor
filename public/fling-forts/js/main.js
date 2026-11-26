@@ -150,6 +150,7 @@ function handleEvents() {
       case 'chief-up': sound('chiefUp', e.x); break;
       case 'tower-shot': sound('shot_arrow', e.x); break;
       case 'crate-land': sound('coin', e.x); break;
+      case 'bonus-drop': sound('bonus', e.x); break;
       case 'king-strike': if (!sound('strike_' + game.s.players[e.p].race)) sound('impact'); ui.shake = Math.min(1, ui.shake + 0.1); break;
       case 'build': sound('build', e.x); break;
       case 'send': sound('send', e.x); break;

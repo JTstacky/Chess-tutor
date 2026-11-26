@@ -1,7 +1,7 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
 import { traitMods, traitLines } from './traits.js';
 export { PRICE_TUNE };
-import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER } from './tuning.js';
+import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER, DROP_HOME } from './tuning.js';
 export * from './tuning.js';
 // sim.js — Fling Forts rules and physics, side view. Pure: no DOM, so node tests run the same code as the game.
 // World: x runs left to right (0..W), y is height above the ground (0 = ground). Player 0 owns the left fort,
@@ -40,8 +40,9 @@ for (const [rk, r] of Object.entries(RACE_DATA)) {
 export const RACE_KEYS = Object.keys(RACES);
 
 // ---------- bonuses that fly across the sky ----------
-// air: hit one in flight and it is yours at once. crate: one hit pops the balloon; the crate falls and the
-// first troop to reach it claims it.
+// Hit one (kite or crate balloon) and the power-up drops where it was hit (owner, 2026-11-26): it is not yours yet.
+// It goes to the first ground troop to reach it, or to the side whose castle or chief it lands by. So a hit over your
+// own side pays you, but those are hard shots close to your sling; wait for it to drift and your opponent may hit it.
 export const BONUS = {
   gold:   { cat: 'air',   name: '+40 gold' },
   rapid:  { cat: 'air',   name: 'Rapid reload' },
@@ -401,14 +402,20 @@ function stepBonuses(s, dt) {
       if (b.t > CRATE_LIFE) { b.gone = true; continue; }
       let best = null, bd = Infinity;
       for (const u of s.units) { if (UNIT[u.kind].air) continue; const d = Math.abs(u.x - b.x); if (d < UNIT[u.kind].r + 16 && d < bd) { bd = d; best = u; } }
-      if (best) { award(s, best.owner, b.kind, b.x, 30); b.gone = true; }
+      if (best) { award(s, best.owner, b.kind, b.x, 30); b.gone = true; continue; }
+      for (const p of [0, 1]) {                              // landed by your castle, or your chief walks up to it
+        const k = kingPos(p, s), pl = s.players[p];
+        if (mx(p, b.x) < FORT.kingX + DROP_HOME || (pl.down <= 0 && Math.abs(k.x - b.x) < 40)) { award(s, p, b.kind, b.x, 30); b.gone = true; break; }
+      }
     }
   }
   compact(s.bonuses, (b) => !b.gone);
 }
 function hitBonus(s, pr, b) {
-  award(s, pr.owner, b.kind, b.x, bonusY(b)); b.gone = true;    // kites and crates alike pay the shooter at once (owner)
-  if (b.cat === 'crate') fx(s, 'pop', b.x, bonusY(b), { ttl: 0.4, owner: pr.owner });
+  const y = bonusY(b);                                           // the power-up drops where it was hit (owner, 2026-11-26)
+  b.state = 'fall'; b.y = y; b.vy = 0; b.t = 0; b.by = pr.owner;
+  fx(s, 'pop', b.x, y, { ttl: 0.4, owner: pr.owner });
+  emit(s, 'bonus-drop', { p: pr.owner, kind: b.kind, x: b.x, y });
 }
 // ---------- step ----------
 export function step(s, dt = DT) {

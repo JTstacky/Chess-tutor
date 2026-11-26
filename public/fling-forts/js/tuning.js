@@ -86,6 +86,8 @@ export function worth(u, all) {
 export const PRICE_K = 0.4819;
 
 export const BONUS_R = 30, BONUS_BAND = [140, 320], BONUS_EVERY = [9, 14], CRATE_LIFE = 25, RAPID_TIME = 10;
+// a dropped power-up that lands this far in front of a chief's home spot (or anywhere behind it) goes to that side
+export const DROP_HOME = 40;
 export const FORT_GUARD = { range: 130, rate: 1.0, dmg: 10 };   // forts plink enemy troops at the gate
 /** How fast troop shots travel (world units a second). The damage lands when the shot arrives, so a target that dies
  *  first is not hit twice. Thrown and lobbed things are slower than bullets; beams, lightning and screams are near
