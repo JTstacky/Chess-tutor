@@ -105,3 +105,34 @@ export function sound(kind, x) {
   } catch { return false; }
   return true;
 }
+
+// ---- background music (owner, 2026-11-26): one recorded track, looped, quieter in the menus and while paused, and
+// faster in sudden death. assets/sfx/music.mp3 is the loop with half a second of its own end before it and of its own
+// start after it, so the loop points (LOOP_AT, LOOP_LEN) fall inside the sound and an MP3's padding cannot make a gap.
+// It is fetched once sound is unlocked and the effects are decoded, so it never holds up the menu or the first match.
+const LOOP_AT = 0.5, LOOP_LEN = 153.6, MUSIC_GAIN = 0.2, FAST = 1.22;
+const LEVEL = { off: 0, low: 0.4, play: 1, sudden: 1 };
+let mus = null, musGain = null, musMode = 'off', musLoading = null;
+function loadMusic() {
+  return musLoading ||= (async () => {
+    await decodePack(); if (!actx) { musLoading = null; return; }
+    const raw = await fetch(new URL('../assets/sfx/music.mp3', import.meta.url)).then((r) => r.arrayBuffer());
+    const buf = await new Promise((ok, no) => { const p = actx.decodeAudioData(raw, ok, no); if (p && p.catch) p.catch(no); });
+    musGain = actx.createGain(); musGain.gain.value = 0; musGain.connect(actx.destination);      // past the effects' compressor, so a blast does not pump the music
+    mus = actx.createBufferSource(); mus.buffer = buf; mus.loop = true; mus.loopStart = LOOP_AT; mus.loopEnd = LOOP_AT + LOOP_LEN;
+    mus.connect(musGain); mus.start(0, LOOP_AT);
+    const m = musMode; musMode = null; music(m);
+  })().catch(() => { musLoading = null; });
+}
+/** Set what the music is doing: 'off' (silent), 'low' (menus, pause, round over), 'play', 'sudden' (faster). Cheap to call every frame. */
+export function music(mode) {
+  if (mode === musMode) return;
+  musMode = mode;
+  if (!mus || !actx) { if (actx && mode !== 'off') loadMusic(); return; }
+  const t = actx.currentTime;
+  musGain.gain.cancelScheduledValues(t); musGain.gain.setTargetAtTime(MUSIC_GAIN * (LEVEL[mode] ?? 0), t, mode === 'off' ? 0.15 : 0.5);
+  mus.playbackRate.cancelScheduledValues(t); mus.playbackRate.setTargetAtTime(mode === 'sudden' ? FAST : 1, t, 0.6);      // winds up over a second or two, and back down for the next round
+}
+export const musicState = () => ({ ctx: actx ? actx.state : 'none', mode: musMode, loaded: !!mus, rate: mus ? mus.playbackRate.value : 0, gain: musGain ? musGain.gain.value : 0 });      // test hook
+// a hidden tab is silent: nothing keeps playing behind another app
+if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => { if (!actx) return; if (document.hidden) actx.suspend(); else actx.resume(); });

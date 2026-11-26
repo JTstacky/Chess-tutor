@@ -3,7 +3,7 @@ import { KO } from './tuning.js';
 import * as S from './sim.js';
 import { createAI, pickRace } from './ai.js';
 import { computeLayout, draw, loadArt, loadGroup, worldToScreen, buttons, PICK, PAUSE, art as viewArt, noteEvent, preStep, postStep } from './view.js';
-import { sound, unlockAudio } from './sfx.js';
+import { sound, unlockAudio, music, musicState } from './sfx.js';
 viewArt.onSound = (kind, x) => { if (game.state === 'play') sound(kind, x); };      // shots and hits are heard when they are first drawn
 import { attachInput, blockBrowserGestures, PULL_MAX } from './input.js';
 
@@ -198,6 +198,8 @@ function frame(t) {
     const sec = Math.ceil(game.s.clock); if (sec !== ui.tickAt && sec > 0) { ui.tickAt = sec; sound('tick'); }
   }
   while (acc >= S.DT) { advance(S.DT); acc -= S.DT; }
+  // background music: full in a round, faster in sudden death, quiet in menus, on pause and between rounds
+  music(game.state === 'play' && game.s ? (game.s.phase === 'sudden' ? 'sudden' : game.s.phase === 'play' ? 'play' : 'low') : 'low');
   ui.aimOf = [null, null];
   for (const a of ui.aims.values()) if (a.kind === 'field' && a.aim) ui.aimOf[a.p] = a.aim;
   if (game.lay.view !== layoutView()) resize();
@@ -214,6 +216,7 @@ requestAnimationFrame(frame);
 // test hook (read by the tools)
 window.RR = {
   game, ui, start, pick, S, artReady: false, PULL_MAX, buttons, PICK, PAUSE,
+  musicState, unlockAudio,
   advance: (secs) => { for (let i = 0; i < secs * 60; i++) advance(S.DT); },
   toScreen: (x, y) => worldToScreen(game.lay, x, y),
   demo: (secs, seed = 5) => {
