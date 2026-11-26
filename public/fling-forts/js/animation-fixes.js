@@ -3,14 +3,20 @@ export const MONSTER_FLIGHT = new Set(['monsters_bats', 'monsters_gargoyle']);
 export const DEFENCE_SHOT = Object.freeze({fantasy:'arrow',aliens:'ray',robots:'dart',
   monsters:'spike',military:'bullet',undead:'skull',pirates:'ball',elementals:'ice',
   beastfolk:'javelin',steampunk:'rivet'});
+const ULT_PAYLOAD = Object.freeze({fantasy:0,military:1,pirates:2});
+export function ultimatePayload(race) { return `ultfx_a_${ULT_PAYLOAD[race]??0}`; }
 export function dropBombStyle(kind, big) {
   return kind==='military_bomber' ? {key:'ultfx_a_1',height:34,finned:true}
     : {key:big?'ultfx_a_1':'proj_c_3',height:big?40:22,finned:!!big};
 }
+// Only this lane's directional models: the art lane retains its own facing contract.
+export const TRACKED_FACING = new Set([...MONSTER_FLIGHT, 'military_bomber',
+  'military_chopper', 'robots_drone', 'robots_gunship', 'steampunk_gyro',
+  'robots_laser', 'aliens_trooper', 'aliens_walker', 'steampunk_tesla']);
 const facing = new WeakMap();
 export function monsterFacing(u, now, targetX) {
   const home = u.owner ? -1 : 1;
-  if (!MONSTER_FLIGHT.has(u.kind)) return home;
+  if (!TRACKED_FACING.has(u.kind)) return home;
   let state = facing.get(u);
   if (!state || now < state.time) state = { x: u.x, time: now, face: home };
   const dx = u.x - state.x;
@@ -20,11 +26,20 @@ export function monsterFacing(u, now, targetX) {
   return state.face;
 }
 
+// Troop hits expose a live target; chief/castle hits keep their destination on the shot.
+export function attackFacing(u, now, hits=[], effects=[]) {
+  const targetX=TRACKED_FACING.has(u.kind)&&u.act>0
+    ? hits.find(h=>h.by?.id===u.id)?.target?.x ?? effects.findLast(f=>f.by===u.id&&Number.isFinite(f.tx))?.tx
+    : undefined;
+  return monsterFacing(u,now,targetX);
+}
+
 // Orbital/tesla attacks share mechanics, but have distinct painted sources and payloads.
 // The three converging charges arrive at the recorded strike time, not a new damage event.
-export function drawUltimateStrike(g, f, age, {spr,stamp,sprite}) {
+export function drawUltimateStrike(g, f, age, {spr,stamp,sprite,ceiling=490}) {
   const tesla=f.race==='steampunk', charge=Math.max(.01,f.charge), q=Math.min(1,age/charge);
-  const sourceY=410, payload=tesla?'proj_d_1':'proj_f_0';
+  // Leave space above the source for its painted rotor/ring and packet echoes.
+  const sourceY=Math.min(410,ceiling-80), payload=tesla?'proj_d_1':'proj_f_0';
   const image=(key,x,y,w,alpha=1,rot=0)=>{const im=spr(key);if(im)stamp(g,im,x,y,w,w*im.height/im.width,{alpha,rot});};
   const fade=age<charge?1:Math.max(0,1-(age-charge)/.55);
   if(tesla) {
