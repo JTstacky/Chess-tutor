@@ -1,5 +1,5 @@
 // ai.js — a computer opponent that plays through the same actions as a person (fire/build/send/setAmmo).
-import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
+import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, freeSlots, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
 
 export const LEVELS = {
   // owner 2026-11-25: the computer was too hard (every level fired at the reload limit). A person fires about 12-18 shots
@@ -15,6 +15,7 @@ export function pickRace(seed = 1) { return RACE_KEYS[Math.abs(seed) % RACE_KEYS
 /** opts (for the balance tools): invest/bonus/troops false switch that habit off; only: [unit keys] limits what it sends. */
 export function createAI(p, level = 'normal', seed = 7, opts = {}) {
   const cfg = { ...(LEVELS[level] || LEVELS.normal) };
+  const recent = [];                                               // the last few troops sent
   if (opts.invest === false) cfg.invest = 0;
   if (opts.invest === true) cfg.invest = 1;
   if (opts.bonus === false) cfg.bonus = 0;
@@ -66,7 +67,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     // --- invest: mines and a vault pay for themselves in about 20 seconds, so early is best ---
     if (cfg.invest && s.phase === 'play' && s.clock > 40 && !close.length && rand() < cfg.invest * 0.5) {
       const mines = myB.filter((b) => b.kind === 'mine').length;
-      if (mines < BUILD.mine.max && me.gold >= cost('mine') + 5) buildAt(s, 'mine', true);
+      if (mines < 2 && freeSlots(s, p) >= 2 && me.gold >= cost('mine') + 5) buildAt(s, 'mine', true);   // keeps a slot for a wall or tower
     }
 
     // --- defend ---
@@ -75,7 +76,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       if ((threats.length >= 3 || flyers.length) && towers < 2 && me.gold >= cost('tower')) buildAt(s, 'tower', true);
       else if (walls < 2 && threats.length > flyers.length && me.gold >= cost('wall') + 10) buildAt(s, 'wall', false);
     }
-    const shieldFan = race.mods.shieldCost < BUILD.shield.cost ? 1.8 : 1;
+    const shieldFan = (race.mods.shieldMul || 1) < 1 ? 1.8 : 1;
     if (s.phase === 'play' && me.kingHp < me.kingMax * 0.8 && me.gold > cost('shield') + 40 && rand() < cfg.defend * 0.35 * shieldFan) build(s, p, 'shield', 0);
 
     // --- fetch dropped crates with the fastest ground troop ---
@@ -127,9 +128,15 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       // counters: flyers -> troops that hit air (best vsAir first); walls and towers -> siege, bombs or heavy hitters
       const antiAir = roster.filter((k) => UNIT[k].range && !UNIT[k].boom && !UNIT[k].noAir && (!UNIT[k].air || UNIT[k].aa)).sort((x, y) => (UNIT[y].vsAir ?? 1) - (UNIT[x].vsAir ?? 1));
       const breakers = roster.filter((k) => UNIT[k].siege || (UNIT[k].bld || 1) >= 2 || (UNIT[k].boom && !UNIT[k].air));
-      const pool = flyers.length && antiAir.length ? [antiAir[0], ...antiAir, ...antiAir, ...roster] : foeWalls.length && breakers.length ? [...breakers, ...breakers, tank, ...roster] : threats.length ? [tank, ...roster] : roster;
-      const kind = pool[Math.floor(rand() * pool.length)];
-      if (me.gold >= cost(kind) + reserve * 0.5) send(s, p, kind, gateX(p));
+      // a varied army, like a player: every troop twice, plus one extra pick for whatever counters the board right now
+      // (it used to stack wall-breakers and spent up to half its troop gold on one siege troop, which skewed prices)
+      const pool = [...roster, ...roster];
+      if (flyers.length && antiAir.length) pool.push(antiAir[0], ...antiAir);
+      else if (foeWalls.length >= 2 && breakers.length) pool.push(breakers[Math.floor(rand() * breakers.length)]);
+      if (threats.length) pool.push(tank);
+      let kind = pool[Math.floor(rand() * pool.length)];
+      if (recent.filter((k) => k === kind).length >= 2) kind = pool[Math.floor(rand() * pool.length)];   // rarely the same troop three times running
+      if (me.gold >= cost(kind) + reserve * 0.5 && send(s, p, kind, gateX(p))) { recent.push(kind); if (recent.length > 3) recent.shift(); }
     }
   }
 

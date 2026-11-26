@@ -23,8 +23,8 @@ export const RACE_DATA = {
   fantasy: {
     name: 'Highrealm', theme: 'Fantasy: dwarves, elves and dragons', chief: 'the Dwarf King under the mountain',
     tag: 'Stout walls, sharp arrows, and a dragon when it counts.',
-    pros: ['Stone keep: fort blocks +15% HP', 'Boulders cost 18g', 'A dragon'], cons: ['Shields cost 55g', 'No cheap swarm', 'Troops cost 7% more'],
-    mods: { unitCost: 1.07, kingHp: 0.96, blockHp: 1.15, ammoCost: { boulder: 18}, shieldCost: 55},
+    traits: { plus: ['castle', 'chiefHit'], minus: ['shields', 'reload'] },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a grey stone castle keep with battlements, banners and a round turret at the back', skin: { L: 'oak beams', S: 'castle stone', I: 'iron-bound gate' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -41,8 +41,8 @@ export const RACE_DATA = {
   aliens: {
     name: 'Zyx Swarm', theme: 'Aliens', chief: 'the Overmind, a big brain in a glass jar on spider legs',
     tag: 'Goo that splits, rays that zap, and a saucer overhead.',
-    pros: ['Energy shields cost 38g and last 21s', 'Blobs split when they pop', 'Brood Ship keeps dropping bloblets', 'Troops cost 6% less'], cons: ['Soft fort: blocks -10% HP'],
-    mods: { unitCost: 0.94, kingHp: 0.97, shieldCost: 38, shieldLife: 21, reload: 1, blockHp: 0.9},
+    traits: { plus: ['shields', 'troopCost'], minus: ['castle', 'chiefHp'] }, traitSize: { troopCost: 0.09 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a cluster of glowing green egg pods and purple crystal around a landed saucer hull', skin: { L: 'slime pod', S: 'purple crystal', I: 'saucer hull plate' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [1, 3, 'L'], [2, 2, 'L'], [2, 3, 'L'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
     units: {
@@ -50,7 +50,7 @@ export const RACE_DATA = {
       bloblet: U('Bloblets', 'Bloblets', 1, 10, 62, 3, 0.6, 9, { minion: true }, 'sprout', 'a tiny green jelly drop with one eye'),
       trooper: U('Ray Troopers', 'Troopers', 2, 32, 46, 13, 1.2, 14, { range: 120, pierce: true, bld: 0.7, cls: 'Ranged', role: 'Ray gun cuts armour. Beats tanks' }, 'slinger', 'a little grey alien in a bubble helmet with a ray gun'),
       walker: U('Brain Walker', 'Walker', 1, 210, 24, 11, 1.1, 25, { range: 60, slow: 1.5, siege: true, bld: 7, noAir: true, cls: 'Siege', role: 'Siege. Smashes forts, ignores troops' }, 'bark', 'a tall three-legged walker with a brain dome on top'),
-      spitter: U('Acid Spitters', 'Spitters', 2, 30, 40, 8, 1.3, 15, { range: 110, splash: 40, noAir: true, cls: 'Anti-ground', role: 'Acid splash. Beats swarms' }, 'spore', 'a squat purple alien bug spitting green acid'),
+      spitter: U('Acid Spitters', 'Spitters', 3, 30, 40, 8, 1.3, 15, { range: 110, splash: 40, noAir: true, cls: 'Anti-ground', role: 'Acid splash. Beats swarms' }, 'spore', 'a squat purple alien bug spitting green acid'),
       saucer: U('Scout Saucers', 'Saucers', 2, 48, 70, 8, 0.7, 15, { air: true, range: 85, aa: true, vsAir: 2, bld: 0.7, cls: 'Flying anti-air', role: 'Anti-air flyer. Beats flyers' }, 'skimmer', 'a small flying saucer with a blinking dome'),
       mothership: U('Brood Ship', 'Brood', 1, 150, 26, 5, 1.2, 28, { air: true, range: 80, spawn: { kind: 'bloblet', every: 3.2 }, cls: 'Flying anti-ground', role: 'Flyer. Drops bloblets behind the line' }, 'bark', 'a fat purple mothership dripping green blobs'),
     },
@@ -60,15 +60,15 @@ export const RACE_DATA = {
   robots: {
     name: 'Bolt Brigade', theme: 'Robots', chief: 'Unit Zero, a boxy old robot with a crown-shaped antenna',
     tag: 'Armoured, tireless, expensive to build.',
-    pros: ['Every troop has +1 armour', 'Iron bunker: the hardest blocks', 'Troops cost 23% less', 'Chief +13% HP'], cons: ['Gold comes in 8% slower', 'Slow troops'],
-    mods: { unitCost: 0.77, kingHp: 1.13, unitArmor: 1, income: 0.92},
+    traits: { plus: ['armour', 'troopCost'], minus: ['gold', 'troopSpeed'] }, traitSize: { troopCost: 0.28 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a squat riveted iron bunker with antenna dishes and warning stripes', skin: { L: 'wire mesh crate', S: 'concrete slab', I: 'riveted steel plate' },
       layout: [[0, 0, 'I'], [0, 1, 'I'], [0, 2, 'S'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S']] },
     units: {
-      scrap: U('Scrap Bots', 'Scraps', 3, 22, 54, 5, 0.6, 12, { bld: 0.5, cls: 'Melee', role: 'Cheap swarm. Swamps siege' }, 'skimmer', 'a small rusty wheeled robot with pincer hands'),
+      scrap: U('Scrap Bots', 'Scraps', 5, 22, 54, 5, 0.6, 12, { bld: 0.5, cls: 'Melee', role: 'Cheap swarm. Swamps siege' }, 'skimmer', 'a small rusty wheeled robot with pincer hands'),
       tread: U('Tread Tank', 'Tread', 1, 200, 22, 14, 1.1, 26, { armor: 4, bld: 6, siege: true, cls: 'Siege', role: 'Siege ram. Smashes forts' }, 'anvil', 'a chunky robot on tank treads with ram fists'),
       laser: U('Laser Bots', 'Lasers', 2, 28, 42, 9, 1.0, 14, { range: 125, pierce: true, bld: 0.7, cls: 'Ranged', role: 'Laser cuts armour. Beats tanks' }, 'slinger', 'a thin robot with a glowing red laser eye'),
-      bomb: U('Bomb Bots', 'Bombs', 2, 28, 48, 0, 1.0, 14, { boom: { dmg: 62, r: 68 }, cls: 'Bomber', role: 'Rolling bomb. Beats swarms' }, 'keg', 'a round rolling bomb robot with a ticking timer'),
+      bomb: U('Bomb Bots', 'Bombs', 3, 28, 48, 0, 1.0, 14, { boom: { dmg: 62, r: 68 }, cls: 'Bomber', role: 'Rolling bomb. Beats swarms' }, 'keg', 'a round rolling bomb robot with a ticking timer'),
       drone: U('Hover Drones', 'Drones', 2, 30, 74, 6, 0.6, 13, { air: true, range: 64, bld: 0.7, cls: 'Flying anti-ground', role: 'Flyer. Hunts ground troops' }, 'skimmer', 'a small quad-rotor drone with a stinger gun'),
       gunship: U('Gunship', 'Gunship', 1, 110, 34, 14, 0.95, 26, { air: true, range: 100, aa: true, armor: 2, vsAir: 1.8, cls: 'Flying anti-air', role: 'Anti-air gunship. Beats flyers' }, 'anvil', 'a heavy flying robot gunship with twin rotors'),
     },
@@ -78,15 +78,15 @@ export const RACE_DATA = {
   monsters: {
     name: 'Grimgrowl Pack', theme: 'Monsters', chief: 'the Monster Under the Bed, a huge furry purple beast with tiny horns',
     tag: 'Big, hungry, hard to put down.',
-    pros: ['Troops have +15% HP', 'Chief regrows 2 HP a second'], cons: ['Catapult reloads 5% slower'],
-    mods: { unitCost: 0.99, kingHp: 0.97, unitHp: 1.15, kingRegen: 2, reload: 1.05, ammoCost: { scatter: 18 }},
+    traits: { plus: ['troopHp', 'regen'], minus: ['reload', 'ammo'] }, traitSize: { reload: 0.08, ammo: 0.15 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a rocky cave lair with a giant skull over the door, claw marks and bones', skin: { L: 'bone and hide', S: 'cave rock', I: 'iron cage bars' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [0, 3, 'L'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'L']] },
     units: {
       slime: U('Slimes', 'Slimes', 3, 24, 44, 5, 0.6, 13, { split: { kind: 'slimelet', n: 2 }, bld: 0.5, cls: 'Melee', role: 'Swarm, splits. Swamps siege' }, 'sprout', 'a grinning orange slime with googly eyes'),
       slimelet: U('Slimelets', 'Slimelets', 1, 9, 54, 3, 0.6, 9, { minion: true }, 'sprout', 'a tiny orange slime drop'),
       ogre: U('Ogre', 'Ogre', 1, 240, 22, 16, 1.3, 27, { bld: 7, siege: true, cls: 'Siege', role: 'Siege. Smashes forts' }, 'bark', 'a huge green ogre with a tree-trunk club'),
-      spider: U('Web Spiders', 'Spiders', 2, 30, 50, 8, 1.1, 14, { range: 100, slow: 2.2, vsAir: 2, bld: 0.7, cls: 'Anti-air', role: 'Webs and slows flyers. Beats flyers' }, 'netter', 'a fat purple spider shooting a web ball'),
+      spider: U('Web Spiders', 'Spiders', 3, 30, 50, 8, 1.1, 14, { range: 100, slow: 2.2, vsAir: 2, bld: 0.7, cls: 'Anti-air', role: 'Webs and slows flyers. Beats flyers' }, 'netter', 'a fat purple spider shooting a web ball'),
       cyclops: U('Cyclops', 'Cyclops', 1, 110, 28, 18, 1.8, 22, { range: 140, splash: 44, bld: 1.8, noAir: true, cls: 'Anti-ground', role: 'Rock splash. Beats swarms' }, 'bark', 'a one-eyed giant hurling a rock'),
       bats: U('Bats', 'Bats', 3, 20, 84, 5, 0.5, 11, { air: true, range: 50, aa: true, vsAir: 1.6, bld: 0.5, cls: 'Flying anti-air', role: 'Anti-air swarm. Beats flyers' }, 'skimmer', 'a small black bat with red eyes'),
       gargoyle: U('Gargoyle', 'Gargoyle', 1, 110, 38, 13, 1.0, 22, { air: true, range: 50, armor: 3, bld: 2, cls: 'Flying anti-ground', role: 'Armoured flyer. Breaks walls' }, 'anvil', 'a stone gargoyle with bat wings, diving'),
@@ -97,8 +97,8 @@ export const RACE_DATA = {
   military: {
     name: 'Iron Company', theme: 'Humans / military', chief: 'the General, a moustached commander with a chest full of medals',
     tag: 'Drilled ranks, sandbags and air support.',
-    pros: ['Towers hit 40% harder', 'Walls cost 22g, Scatter 8g'], cons: ['No troop stands out', 'Troops cost 12% more', 'Chief -14% HP'],
-    mods: { unitCost: 1.12, kingHp: 0.86, towerDmg: 1.4, wallCost: 22, ammoCost: { scatter: 8},},
+    traits: { plus: ['towers', 'elite'], minus: ['gold', 'chiefHp'] }, traitSize: { gold: 0.16 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a sandbag and timber command bunker with a radio mast, camo net and a lookout post', skin: { L: 'sandbags', S: 'concrete', I: 'steel plate' },
       layout: [[0, 0, 'L'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -115,8 +115,8 @@ export const RACE_DATA = {
   undead: {
     name: 'Bonewake', theme: 'Undead', chief: 'the Lich Queen, a skeleton in a tattered purple robe and tall crown',
     tag: 'What falls gets up again, on their side.',
-    pros: ['Fallen enemy ground troops may rise as your Skeletons', 'Troops cost 16% less', 'Chief +7% HP'], cons: ['Brittle crypt: blocks -10% HP', 'Troops are weak one by one'],
-    mods: { unitCost: 0.84, kingHp: 1.07, raise: 0.45, blockHp: 0.9},
+    traits: { plus: ['raise', 'troopCost'], minus: ['castle', 'troopHp'] }, traitSize: { troopCost: 0.31 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a crooked graveyard crypt of tombstones and stacked bones with a rusty gate and green candle light', skin: { L: 'stacked bones', S: 'tombstone', I: 'iron coffin' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [1, 3, 'L'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
@@ -133,16 +133,16 @@ export const RACE_DATA = {
   pirates: {
     name: 'Saltdogs', theme: 'Pirates', chief: 'Captain Barnacle, a peg-legged pirate with a huge hat and a parrot',
     tag: 'Fast, loud, and in it for the gold.',
-    pros: ['Plunder: +3 extra gold for every enemy troop killed', 'Gold kites and chests give 50% more'], cons: ['Wooden fort: blocks -15% HP', 'Troops cost 37% more', 'Chief -22% HP'],
-    mods: { unitCost: 1.37, kingHp: 0.78, plunder: 3, bonusGold: 1.5, blockHp: 0.85, towerHp: 0.8},
+    traits: { plus: ['plunder', 'fling'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.33 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a fort built from a beached pirate ship: plank hull, mast with crow\'s nest, barrels and a skull flag', skin: { L: 'ship planks', S: 'ballast stone', I: 'cannon iron' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [0, 3, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'L'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
-      deckhand: U('Deckhands', 'Deckhands', 3, 20, 72, 5, 0.5, 12, { bld: 0.5, cls: 'Melee', role: 'Fast swarm. Swamps siege' }, 'skimmer', 'a scrawny pirate in a striped shirt with a cutlass'),
+      deckhand: U('Deckhands', 'Deckhands', 5, 20, 72, 5, 0.5, 12, { bld: 0.5, cls: 'Melee', role: 'Fast swarm. Swamps siege' }, 'skimmer', 'a scrawny pirate in a striped shirt with a cutlass'),
       buccaneer: U('Buccaneers', 'Pistols', 2, 30, 46, 13, 1.3, 14, { range: 110, vsAir: 2.4, bld: 0.7, cls: 'Anti-air', role: 'Pistols. Beats flyers' }, 'slinger', 'a pirate with an eyepatch firing a flintlock pistol'),
       bosun: U('Bosun', 'Bosun', 1, 240, 28, 19, 1.1, 24, { bld: 2.2, pierce: true, cls: 'Melee', role: 'Bruiser, cuts armour. Beats tanks' }, 'anvil', 'a giant bald pirate swinging an anchor'),
       cannoneer: U('Deck Cannon', 'Cannon', 1, 80, 22, 22, 2.2, 22, { range: 150, splash: 46, siege: true, bld: 7, noAir: true, cls: 'Siege', role: 'Siege cannon. Shells forts from afar' }, 'bark', 'two pirates pushing a small wheeled cannon'),
-      parrots: U('Parrots', 'Parrots', 3, 13, 88, 4, 0.5, 11, { air: true, range: 36, bld: 0.5, cls: 'Flying anti-ground', role: 'Flyer swarm. Hunts ground shooters' }, 'skimmer', 'a red parrot with a tiny bandana'),
+      parrots: U('Parrots', 'Parrots', 5, 13, 88, 4, 0.5, 11, { air: true, range: 36, bld: 0.5, cls: 'Flying anti-ground', role: 'Flyer swarm. Hunts ground shooters' }, 'skimmer', 'a red parrot with a tiny bandana'),
       sloop: U('Sky Sloop', 'Sloop', 1, 140, 30, 12, 1.2, 28, { air: true, range: 110, bld: 1.6, cls: 'Flying anti-ground', role: 'Flyer. Shells walls from afar' }, 'bark', 'a small pirate ship hanging under a patched balloon'),
     },
     ult: { name: 'Broadside', shape: 'barrage', n: 13, dmg: 44, r: 54, bld: 2, over: 2.2, chiefCap: 0.3 },
@@ -151,12 +151,12 @@ export const RACE_DATA = {
   elementals: {
     name: 'Primal Court', theme: 'Elementals', chief: 'the Ember Sovereign, a calm figure of living flame in a stone crown',
     tag: 'Fire, frost, stone and storm.',
-    pros: ['Firepots cost 15g and burn 25% longer', 'Frost and storm slow what they hit'], cons: ['No healing troop', 'Boulders cost 31g', 'Troops cost 19% more', 'Chief -13% HP'],
-    mods: { unitCost: 1.19, kingHp: 0.87, ammoCost: { fire: 15, boulder: 31}, burnTime: 1.25},
+    traits: { plus: ['burn', 'ammo'], minus: ['troopHp', 'build'] }, traitSize: { burn: 0.25, ammo: 0.15, troopHp: 0.08 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'floating rune-carved boulders and glowing crystal pillars around a fire altar', skin: { L: 'ice crystal', S: 'rune boulder', I: 'obsidian slab' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'S'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
     units: {
-      imp: U('Ember Imps', 'Imps', 3, 22, 74, 6, 0.5, 12, { bld: 0.5, cls: 'Melee', role: 'Fast swarm. Swamps siege' }, 'skimmer', 'a tiny fire imp with a mischievous grin'),
+      imp: U('Ember Imps', 'Imps', 5, 22, 74, 6, 0.5, 12, { bld: 0.5, cls: 'Melee', role: 'Fast swarm. Swamps siege' }, 'skimmer', 'a tiny fire imp with a mischievous grin'),
       golem: U('Stone Golem', 'Golem', 1, 230, 20, 15, 1.3, 27, { armor: 5, bld: 7, siege: true, cls: 'Siege', role: 'Siege. Smashes forts' }, 'bark', 'a boulder golem with glowing rune eyes'),
       frost: U('Frost Wisps', 'Frost', 2, 30, 46, 9, 1.0, 14, { range: 115, slow: 2.2, vsAir: 1.6, bld: 0.7, cls: 'Anti-air', role: 'Freezes flyers. Beats flyers' }, 'netter', 'a floating blue ice wisp with a little face'),
       thorn: U('Thorn Elemental', 'Thorn', 1, 90, 38, 9, 0.8, 18, { regen: 3, splash: 48, cls: 'Melee', role: 'Splash, regrows. Beats swarms' }, 'bark', 'a walking tangle of vines and thorns with a flower head'),
@@ -169,8 +169,8 @@ export const RACE_DATA = {
   beastfolk: {
     name: 'Tusk Tribes', theme: 'Beastfolk: orcs, goblins and animal tribes', chief: 'Chief Bigtusk, a fat orc warlord on a throne of shields',
     tag: 'Cheap, fast, and there are always more.',
-    pros: ['Troops move 10% faster', 'Big squads'], cons: ['Walls -30% HP, towers -20% HP', 'Stick fort: blocks -10% HP'],
-    mods: { unitCost: 1.01, kingHp: 0.96, unitSpeed: 1.1, wallHp: 0.7, towerHp: 0.8, blockHp: 0.9},
+    traits: { plus: ['troopSpeed', 'chiefHit'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.13 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a wooden palisade war camp with tusks, hide tents, war drums and a totem pole', skin: { L: 'lashed logs', S: 'boulder and tusk', I: 'scrap-metal shield wall' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
@@ -187,8 +187,8 @@ export const RACE_DATA = {
   steampunk: {
     name: 'Brass Guild', theme: 'Steampunk', chief: 'the Grand Inventor, a tiny lady in goggles driving a brass walking chair',
     tag: 'Gears, steam, and far too much pressure.',
-    pros: ['Catapult reloads 4% faster', 'Boulders cost 16g', 'Troops cost 31% less', 'Chief +14% HP'], cons: ['Troops move 5% slower', 'Shields cost 55g'],
-    mods: { unitCost: 0.69, kingHp: 1.14, reload: 0.96, ammoCost: { boulder: 16}, unitSpeed: 0.95, shieldCost: 55},
+    traits: { plus: ['reload', 'troopCost'], minus: ['troopSpeed', 'shields'] }, traitSize: { troopCost: 0.16 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a brass and brick workshop with a smoking chimney, big gears, pipes and a clock face', skin: { L: 'copper pipework', S: 'red brick', I: 'brass boiler plate' },
       layout: [[0, 0, 'I'], [0, 1, 'S'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -205,65 +205,68 @@ export const RACE_DATA = {
 
 // Price multipliers per troop, found by tools/tune_units.mjs (how well a troop does when it is the only one
 // sent). 1 = the price worked out from its stats. Rewritten by the tool: do not hand-edit between the braces.
+// Per-troop price correction for what the stats do not show (reach, abilities, squad size). The same rule for every
+// race: each race's corrections average 1, so a race is never cheaper or dearer across the board here. A race-wide
+// price level exists only as a listed trait (Cheap troops, Costly troops, Elite troops, Rabble in js/traits.js).
 export const PRICE_TUNE = {
-  aliens_blob: 0.72,
-  aliens_trooper: 0.88,
-  aliens_walker: 0.72,
-  aliens_spitter: 0.72,
-  aliens_saucer: 0.72,
-  aliens_mothership: 0.72,
-  beastfolk_goblin: 1.03,
-  beastfolk_boar: 0.90,
-  beastfolk_shaman: 0.72,
-  beastfolk_troll: 0.98,
-  beastfolk_wyvern: 0.72,
-  beastfolk_vultures: 0.72,
-  military_rifles: 0.90,
-  military_shields: 0.91,
-  military_grenadier: 0.72,
-  military_tank: 0.82,
-  military_chopper: 0.72,
-  military_bomber: 0.72,
-  monsters_slime: 0.72,
-  monsters_ogre: 0.80,
-  monsters_spider: 0.72,
-  monsters_cyclops: 0.85,
-  monsters_bats: 0.72,
-  monsters_gargoyle: 0.72,
-  elementals_imp: 0.72,
-  elementals_golem: 0.72,
-  elementals_frost: 0.72,
-  elementals_thorn: 0.72,
-  elementals_gale: 0.72,
-  elementals_storm: 0.72,
-  fantasy_shieldbearer: 0.81,
-  fantasy_archer: 0.84,
-  fantasy_dancer: 0.93,
-  fantasy_sapper: 0.72,
-  fantasy_gryphon: 0.72,
-  fantasy_dragon: 0.72,
-  pirates_deckhand: 0.78,
-  pirates_buccaneer: 0.82,
-  pirates_bosun: 0.63,
-  pirates_cannoneer: 0.72,
-  pirates_parrots: 0.72,
-  pirates_sloop: 0.72,
-  robots_scrap: 0.94,
-  robots_tread: 0.92,
-  robots_laser: 1.35,
-  robots_bomb: 0.72,
-  robots_drone: 0.86,
-  robots_gunship: 0.72,
-  steampunk_clockwork: 0.95,
-  steampunk_knight: 0.99,
+  aliens_blob: 0.97,
+  aliens_trooper: 1.04,
+  aliens_walker: 1.20,
+  aliens_spitter: 0.90,
+  aliens_saucer: 0.87,
+  aliens_mothership: 0.91,
+  beastfolk_goblin: 1.22,
+  beastfolk_boar: 1.18,
+  beastfolk_shaman: 0.77,
+  beastfolk_troll: 1.22,
+  beastfolk_wyvern: 0.77,
+  beastfolk_vultures: 0.86,
+  military_rifles: 1.01,
+  military_shields: 1.53,
+  military_grenadier: 0.81,
+  military_tank: 0.94,
+  military_chopper: 0.73,
+  military_bomber: 0.84,
+  monsters_slime: 0.89,
+  monsters_ogre: 1.19,
+  monsters_spider: 0.89,
+  monsters_cyclops: 1.05,
+  monsters_bats: 0.89,
+  monsters_gargoyle: 1.08,
+  elementals_imp: 1.08,
+  elementals_golem: 0.84,
+  elementals_frost: 1.08,
+  elementals_thorn: 1.08,
+  elementals_gale: 1.08,
+  elementals_storm: 0.84,
+  fantasy_shieldbearer: 0.76,
+  fantasy_archer: 1.38,
+  fantasy_dancer: 1.22,
+  fantasy_sapper: 0.94,
+  fantasy_gryphon: 1.02,
+  fantasy_dragon: 0.68,
+  pirates_deckhand: 1.04,
+  pirates_buccaneer: 1.09,
+  pirates_bosun: 0.92,
+  pirates_cannoneer: 1.04,
+  pirates_parrots: 0.96,
+  pirates_sloop: 0.96,
+  robots_scrap: 1.14,
+  robots_tread: 0.80,
+  robots_laser: 1.32,
+  robots_bomb: 0.88,
+  robots_drone: 1.04,
+  robots_gunship: 0.89,
+  steampunk_clockwork: 1.09,
+  steampunk_knight: 1.18,
   steampunk_tesla: 0.98,
-  steampunk_boiler: 0.72,
-  steampunk_gyro: 0.72,
-  steampunk_zeppelin: 0.80,
-  undead_skeleton: 0.76,
-  undead_necro: 0.72,
-  undead_golem: 0.72,
-  undead_plague: 0.72,
-  undead_ghost: 0.72,
-  undead_bonedrake: 0.75,
+  steampunk_boiler: 0.83,
+  steampunk_gyro: 0.83,
+  steampunk_zeppelin: 1.09,
+  undead_skeleton: 1.09,
+  undead_necro: 1.03,
+  undead_golem: 0.90,
+  undead_plague: 1.03,
+  undead_ghost: 1.03,
+  undead_bonedrake: 0.93,
 };

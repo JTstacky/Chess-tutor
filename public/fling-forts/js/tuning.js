@@ -23,6 +23,10 @@ export const ULT = { perSec: 1 / 148, perDealt: 1 / 3200, perTaken: 1 / 2400 };
 // a race without its own ultimate in races.js gets this one
 export const ULT_DEFAULT = { name: 'Barrage', shape: 'barrage', n: 8, dmg: 45, r: 60, bld: 2, over: 1.6, chiefCap: 0.15 };
 export const KING_BASE_HP = 400;   // was 300, then 450 (lane 3)
+// building slots (owner, 2026-11-26): three marked spots per side, left-fort x, back to front; any mix of walls, towers, mines
+export const BUILD_SLOTS = [444, 520, 596];
+// each race leans to one building (races.js lean): walls +v health, towers +v damage, mines +v income
+export const LEAN = { size: 0.15, label: { wall: 'Stronger walls', tower: 'Sharper towers', mine: 'Richer mines' } };
 export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)
 // the castle (owner: destroy the enemy fort to win; it takes no damage while its chief is up)
 export const FORT_HP = 1700, FORT_H = 230;                         // castle hit points and height (world units)
@@ -42,7 +46,7 @@ export const BUILD = {
   wall:   { name: 'Wall',   cost: 30, hp: 400 },
   tower:  { name: 'Tower',  cost: 55, hp: 100, range: 190, rate: 0.7, dmg: 12 },
   shield: { name: 'Shield', cost: 45, hp: 90, life: 16 },
-  mine:   { name: 'Mine',   cost: 44, hp: 100, income: 2, max: 2 },      // ground building: pays gold every second while it stands
+  mine:   { name: 'Mine',   cost: 44, hp: 100, income: 2 },              // ground building: pays gold every second while it stands (no own limit: the three slots are the limit)
   // vault removed (owner: the lockbox did nothing useful)
   _vault: { name: 'Vault',  cost: 60, hp: 120, income: 3.5, max: 1 },       // fort addition: a block on top of the back wall
 };
@@ -70,7 +74,7 @@ export function worth(u, all) {
   if (u.spawn) v += (20 / u.spawn.every) * worth(all[u.spawn.kind], all) * 0.5;
   return v;
 }
-export const PRICE_K = 0.62;
+export const PRICE_K = 0.4819;
 
 export const BONUS_R = 30, BONUS_BAND = [140, 320], BONUS_EVERY = [9, 14], CRATE_LIFE = 25, RAPID_TIME = 10;
 export const FORT_GUARD = { range: 130, rate: 1.0, dmg: 10 };   // forts plink enemy troops at the gate

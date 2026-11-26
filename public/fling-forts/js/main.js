@@ -20,7 +20,7 @@ const game = {
 };
 
 // ---------- screens ----------
-function show(id) { for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id; ui.menu = id === 'menu' || id === 'help'; }
+function show(id) { for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id; ui.menu = id === 'menu' || id === 'help' || id === 'guide'; }
 /** Menu -> race pick: each player chooses on their own side; solo: the computer picks at once. */
 function pick(mode, level = ui.aiLevel) {
   ui.aiLevel = level;
@@ -62,6 +62,8 @@ $('btn-2p').addEventListener('click', () => pick('2p'));
 $('btn-solo').addEventListener('click', () => pick('solo', level));
 $('btn-help').addEventListener('click', () => show('help'));
 $('btn-help-back').addEventListener('click', () => show('menu'));
+// the Guidebook (js/guide.js) is fetched only when it is first opened, so the menu's own load stays as it was
+$('btn-guide').addEventListener('click', async () => { unlockAudio(); const m = await import('./guide.js'); m.openGuide(() => show('menu')); show('guide'); });
 $('btn-resume').addEventListener('click', resume);
 $('btn-restart').addEventListener('click', () => start(game.s.mode, ui.aiLevel));
 // quitting throws the match away, so a single stray tap must not do it
@@ -204,7 +206,7 @@ requestAnimationFrame(frame);
 
 // test hook (read by the tools)
 window.RR = {
-  game, start, pick, S, artReady: false, PULL_MAX, buttons, PICK, PAUSE,
+  game, ui, start, pick, S, artReady: false, PULL_MAX, buttons, PICK, PAUSE,
   advance: (secs) => { for (let i = 0; i < secs * 60; i++) advance(S.DT); },
   toScreen: (x, y) => worldToScreen(game.lay, x, y),
   demo: (secs, seed = 5) => {

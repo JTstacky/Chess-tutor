@@ -1,7 +1,7 @@
 // input.js — multi-touch: every pointer belongs to the side of the screen where it went down (left player /
 // right player), tracked by pointerId, so both can drag and tap at the same time. Also blocks the browser's
 // own touch gestures.
-import { autoBuild, W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX, isOpen, unlockAt, heroOk, ultReady, ultimate } from './sim.js';
+import { autoBuild, freeSlots, W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX, isOpen, unlockAt, heroOk, ultReady, ultimate } from './sim.js';
 import { screenToWorld, buttonAt, keyFor, pickHit, PAUSE } from './view.js';
 
 export const PULL_MAX = 300;      // world units of pull for full power
@@ -69,7 +69,7 @@ export function attachInput(canvas, game) {
       return;
     }
     if (key === 'vault') { if (!build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }
-    if (key === 'mine' && s.buildings.filter((q) => q.owner === p && q.kind === 'mine').length >= BUILD.mine.max) return toast(p, `Only ${BUILD.mine.max} mines`);
+    if (!freeSlots(s, p)) return toast(p, 'All three building spots are full');
     // one tap builds (owner, 2026-11-25): no second tap on the ground
     ui.armed[p] = null;
     if (autoBuild(s, p, key)) game.sound('click'); else toast(p, `No room for another ${BUILD[key].name.toLowerCase()}`);

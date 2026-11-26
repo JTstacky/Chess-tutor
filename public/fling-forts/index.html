@@ -26,7 +26,7 @@
           <button data-level="easy">Easy</button><button data-level="normal" class="on">Normal</button><button data-level="hard">Hard</button>
         </div>
       </div>
-      <button id="btn-help" class="small">How to play</button>
+      <div class="row2"><button id="btn-help" class="small">How to play</button><button id="btn-guide" class="small">Guidebook</button></div>
     </div>
   </section>
 
@@ -37,13 +37,32 @@
       <ul>
         <li><b>Fling:</b> drag back anywhere on your side and let go, like a slingshot. Longer pull, harder throw. Only the start of the flight is shown.</li>
         <li><b>Win a round:</b> destroy the other castle. Its chief guards it: while he is standing the castle takes no damage, so knock him out first. He gets back up after a while, so hit the castle hard while he is down.</li>
-        <li><b>Ammo:</b> Stone is free. Scatter splits in three, Firepot burns the ground, Boulder smashes blocks.</li>
+        <li><b>Ammo:</b> Stone is free. Scatter splits in three, Firepot burns the ground, Boulder hits hardest (best against castles, walls and towers).</li>
         <li><b>Troops:</b> tap a troop and they march out. They fight in the middle, then batter the fort.</li>
         <li><b>Build:</b> one tap builds. Wall, Tower and Mine go up at once in front of your castle. A Mine gives gold every second (up to two), and smashing an enemy mine pays 50 gold. Shield puts a dome over your castle for a while.</li>
         <li><b>What is it?</b> Hold your finger on any button to see its name, its class (Melee, Ranged, Anti-air, Siege and so on) and what it does.</li>
         <li><b>Bonuses</b> fly across the sky. Hit a kite or a crate balloon and the bonus is yours.</li>
-        <li>After 80 seconds comes <b>sudden death</b>: shields fall and chiefs take double damage. Win two rounds.</li>
+        <li><b>Stages:</b> a round starts slow. New shots, buildings and gold come in at 1 and 2 minutes.</li>
+        <li>After 4 minutes comes <b>sudden death</b>: shields fall, and castles and chiefs take double damage. Win two rounds.</li>
+        <li><b>Races:</b> every race has two strengths and two weaknesses (a stronger castle, a faster reload, a tough chief, cheaper troops...). They are on the race card when you pick.</li>
       </ul>
+      <h3>Troop types</h3>
+      <p class="hint">Every troop button has a coloured tag with its type. Mix types: each one beats something and loses to something.</p>
+      <table class="types">
+        <tr><th>Type</th><th>Strong against</th><th>Weak against</th></tr>
+        <tr><td><span class="tag melee">Melee</span></td><td>Ranged and anti-ground troops once it reaches them. Holds the front line.</td><td>Splash: bombers and anti-ground. Can't reach flyers.</td></tr>
+        <tr><td><span class="tag ranged">Ranged</span></td><td>Melee walking at it. Piercing shots go through armour.</td><td>Bombers, and fast melee that reaches it.</td></tr>
+        <tr><td><span class="tag aa">Anti-air</span></td><td>Every flyer: big bonus damage on anything in the air.</td><td>Melee and anti-ground troops.</td></tr>
+        <tr><td><span class="tag ag">Anti-ground</span></td><td>Groups of ground troops, with splash. Some pierce armour.</td><td>Flyers: it can't hit the air at all.</td></tr>
+        <tr><td><span class="tag siege">Siege</span></td><td>Castles, walls and towers. Ignores troops and walks to the fort.</td><td>Anything that shoots it on the way. Send it behind a wall of troops.</td></tr>
+        <tr><td><span class="tag bomb">Bomber</span></td><td>Crowds and buildings: blows up on the first thing it reaches.</td><td>Ranged troops that shoot it before it arrives.</td></tr>
+        <tr><td><span class="tag sup">Support</span></td><td>Makes the troops around it stronger or heals them.</td><td>On its own. Keep it behind your army.</td></tr>
+        <tr><td><span class="tag fly">Flying anti-ground</span></td><td>Ground troops that can't hit the air: anti-ground, siege, most melee.</td><td>Anti-air troops and flying anti-air.</td></tr>
+        <tr><td><span class="tag fly">Flying anti-air</span></td><td>Other flyers.</td><td>Ground anti-air.</td></tr>
+        <tr><td><span class="tag fly">Flying ranged</span></td><td>Shoots ground and air from above.</td><td>Anti-air troops.</td></tr>
+        <tr><td><span class="tag fly">Flying bomber</span></td><td>Drops bombs on ground groups and buildings below.</td><td>Anti-air: it can't fight back against flyers.</td></tr>
+      </table>
+      <p class="hint">Want the full story of every race and troop? Open the <b>Guidebook</b> from the menu.</p>
       <button id="btn-help-back" class="big">Back</button>
     </div>
   </section>
