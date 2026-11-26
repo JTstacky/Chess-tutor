@@ -8,7 +8,9 @@
 // whole mix goes through a compressor and a limiter.
 //
 // API: unlockAudio(), sound(kind, x) where x is the world x (0..1280) it happens at, or nothing for the middle.
-// Kinds: SOUND_KINDS (filled once the index has loaded). Chiefs: strike_<race>, ult_<race>. Troop weapons:
+// Kinds: SOUND_KINDS (filled once the index has loaded). Chiefs: strike_<race>, ult_<race>, chiefDown_<race>. Each race's
+// voice: send_<race> (troops sent), die_<race> (a troop beaten); main.js falls back to the plain send / die.
+// Troop weapons:
 // shot_<type> (the PROJ types in view.js, plus laser and zap). Unknown or not-yet-loaded kinds return false.
 let actx = null, out = null, wet = null;
 const last = {};                                  // kind -> time last played, to stop pile-ups in one frame
@@ -75,14 +77,16 @@ export function unlockAudio() {
 /** Play a sound. x: where it happens in the world (0..1280), so it is heard on that side; leave out for the middle. */
 export function sound(kind, x) {
   kind = ALIAS[kind] || kind;
-  const fam = kind.startsWith('strike_') ? 'strike' : kind.startsWith('shot_') ? 'shot' : kind.startsWith('ult_') ? 'ult' : kind;
+  const fam = kind.includes('_') ? kind.slice(0, kind.indexOf('_')) : kind;      // strike_<race>, shot_<type>, ult_<race>, and the race voices send_/die_/chiefDown_<race>
   let takes = TAKES[kind];
   if (!takes?.length && fam === 'ult') { kind = 'ult'; takes = TAKES.ult; }       // a race without its own signature
   if (!takes?.length || !actx || actx.state !== 'running') return false;
   const t = actx.currentTime, gap = GAP[kind] ?? GAP[fam] ?? 0;
   if (t - (last[kind] ?? -1) < gap) return 'held';       // the same sound twice in one instant is just louder
   if (fam === 'shot' && t - (last.anyShot ?? -1) < 0.03) return 'held';      // a volley is a few shots, not thirty at once
-  last[kind] = t; if (fam === 'shot') last.anyShot = t;
+  if (fam === 'die' && t - (last.anyDie ?? -1) < 0.16) return 'held';        // voices: a blast that beats five troops is one or two cries, not a choir
+  if (fam === 'send' && t - (last.anySend ?? -1) < 0.35) return 'held';
+  last[kind] = t; if (fam === 'shot') last.anyShot = t; else if (fam === 'die') last.anyDie = t; else if (fam === 'send') last.anySend = t;
   try {
     let n = Math.floor(Math.random() * takes.length);
     if (takes.length > 1 && n === lastTake[kind]) n = (n + 1) % takes.length;

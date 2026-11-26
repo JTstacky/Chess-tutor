@@ -41,13 +41,13 @@ export const BOUNTY = 0.12;                     // share of a troop's price paid
 export const CRUSH = 45;                      // a block falling on the chief
 export const AMMO = {
   // fling shot types (owner, 2026-11-26): keys kept from the old names (stone, fire, boulder) so saves, art and tools still match
-  stone:   { name: 'Normal',    cost: 0,  reload: 3.0, dmg: 30, r: 46, bld: 1,   size: 11 },
-  scatter: { name: 'Scatter',   cost: 6,  reload: 3.5, dmg: 16, r: 40, bld: 0.7, size: 8, split: 3 },
-  fire:    { name: 'Flame',     cost: 9,  reload: 3.5, dmg: 14, r: 44, bld: 0.8, size: 11, burn: { r: 60, t: 4.5, dps: 14 } },
-  boulder: { name: 'Explosive', cost: 14, reload: 4.5, dmg: 48, r: 58, bld: 2.2, size: 15 },        // was the Boulder: now a bigger blast
+  stone:   { name: 'Normal',    cost: 0,  reload: 3.0, dmg: 30, r: 46, bld: 1,   troop: 1.6, size: 11 },
+  scatter: { name: 'Scatter',   cost: 6,  reload: 3.5, dmg: 16, r: 40, bld: 0.7, troop: 1.6, size: 8, split: 3 },
+  fire:    { name: 'Flame',     cost: 9,  reload: 3.5, dmg: 14, r: 44, bld: 0.8, troop: 1.6, size: 11, burn: { r: 60, t: 4.5, dps: 14 } },
+  boulder: { name: 'Explosive', cost: 14, reload: 4.5, dmg: 48, r: 58, bld: 2.2, troop: 1.6, size: 15 },        // was the Boulder: now a bigger blast
   // race special (traits.js rolling): lands, then rolls on along the ground for roll.t seconds crushing enemy troops (once
   // each), and smashes into the first enemy building or castle it reaches
-  roll:    { name: 'Rolling',   cost: 12, reload: 4.0, dmg: 24, r: 34, bld: 1.2, size: 14, special: true, roll: { t: 2.6, speed: 230, crush: 34 } },
+  roll:    { name: 'Rolling',   cost: 12, reload: 4.0, dmg: 24, r: 34, bld: 1.2, size: 14, special: true, roll: { t: 2.6, speed: 230, crush: 50 } },
 };
 export const BLOCK = { wood: { hp: 125 }, stone: { hp: 250 }, iron: { hp: 355 }, vault: { hp: 195 } };   // 1.5x for the longer round
 export const MAT = { L: 'wood', S: 'stone', I: 'iron' };   // fort layout letters -> block kinds

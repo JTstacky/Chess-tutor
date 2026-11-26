@@ -113,7 +113,13 @@ export function traitMods(r) {
   return m;
 }
 /** Card lines: [{ key, label, text }] strengths and weaknesses. */
+/** The same line in words, no numbers (owner, 2026-11-26: race cards say what a trait does, not by how much). */
+export function plainText(text) {
+  return text.replace(/^\d+ building spots instead of 3$/, 'More building spots').replace(/^Only \d+ building spots instead of 3$/, 'Fewer building spots')
+    .replace(/\+\d+ gold a kill/, 'Extra gold for each kill').replace(/block \d+ damage/, 'shrug off some damage').replace(/ \d+(\.\d+)? health a second/, '')
+    .replace(/up \d+(\.\d+)? s /, 'up ').replace(/\s*\(\d+%\)/g, '').replace(/\d+(\.\d+)?% /g, '');
+}
 export function traitLines(r) {
-  const t = r.traits || { plus: [], minus: [] }, line = (k, up) => { const T = TRAITS[k], v = r.traitSize?.[k] ?? T.size; return { key: k, group: T.group, label: up ? T.plus : T.minus, text: T.text(v, up) }; };
+  const t = r.traits || { plus: [], minus: [] }, line = (k, up) => { const T = TRAITS[k], v = r.traitSize?.[k] ?? T.size, text = T.text(v, up); return { key: k, group: T.group, label: up ? T.plus : T.minus, text, plain: plainText(text) }; };
   return { plus: t.plus.map((k) => line(k, true)), minus: t.minus.map((k) => line(k, false)) };
 }

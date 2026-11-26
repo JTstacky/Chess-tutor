@@ -672,13 +672,78 @@ function muzzleOf(s, f, now) {
   return { x: u.x + S.dir(u.owner) * (tp[0] - 0.5) * w, y: y + (1 - tp[1]) * h };
 }
 
+// ---- cartoon dust: things that break go up in a puffy cloud (sheet dust2, five frames of one burst) and throw out
+// stones, bricks and planks (sheet rubble2). tools/art_dust_manifest.py; owner 2026-11-26. ----
+const DUST_AT = [0, 0.1, 0.26, 0.6, 0.84, 1.001];      // when each frame of the burst starts, as a share of its life
+/** One dust burst at world (x, y = its foot), q running 0..1. size is the height of its biggest frame. False until the sheet is in. */
+function cloud(g, x, y, size, q, { flip = false, alpha = 1 } = {}) {
+  let i = 0; while (i < 4 && q >= DUST_AT[i + 1]) i++;
+  const im = spr(`dust2_${i}`), ref = spr('dust2_2');
+  if (!im || !ref) return false;
+  const loc = (q - DUST_AT[i]) / (DUST_AT[i + 1] - DUST_AT[i]);                 // how far through this frame
+  const pop = i === 0 ? 0.7 + 0.5 * loc : 1 + 0.1 * loc, h = size * im.height / ref.height * pop, w = h * im.width / im.height;
+  const squash = i === 2 ? 1 + 0.07 * Math.sin(loc * Math.PI) : 1;               // the big cloud swells once
+  stamp(g, im, x, y + h * 0.36 + (i > 2 ? size * 0.12 * (i - 3 + loc) : 0), w * squash, h / squash, { flipX: flip, alpha: alpha * (i === 4 ? 1 - loc : 1) });
+  return true;
+}
+/** n pieces of rubble thrown from world (x, y), q running 0..1: they arc out, spin, drop to the ground and fade. */
+function debris(g, x, y, q, n, seed, { size = 14, away = 0, speed = 1, set = [0, 1, 2, 3, 4] } = {}) {
+  if (!spr('rubble2_0')) return false;
+  for (let i = 0; i < n; i++) {
+    const im = spr(`rubble2_${set[i % set.length]}`); if (!im) continue;
+    const an = away ? 0.25 + rnd(i, seed) * 1.2 : (i / n) * Math.PI + (rnd(i, seed) - 0.5) * 0.5, v = (80 + rnd(i, seed + 1) * 90) * speed, d = size * (0.75 + rnd(i, seed + 2) * 0.5);
+    const px = x + (away || 1) * Math.cos(an) * v * q, py = Math.max(d * 0.4, y + Math.sin(an) * v * 1.5 * q - 300 * q * q);
+    stamp(g, im, px, py, d * im.width / im.height, d, { rot: q * (6 + rnd(i, seed + 3) * 8) * (i % 2 ? 1 : -1), alpha: q < 0.7 ? 1 : (1 - q) / 0.3 });
+  }
+  return true;
+}
+// ---- fling shot damage numbers. The rules do not say how much a shot took off, so main.js calls preStep before each
+// step of the rules while shots are flying, and the number is what the struck side lost over that step. ----
+let SNAP = null;
+const CHIP_AT = [0, 0];
+const hpOf = (s) => ({ f: s.players.map((p) => p.fortHp), k: s.players.map((p) => p.kingHp), u: new Map(s.units.map((u) => [u.id, [u.hp, u.x, u.owner, u.y + (UNIT[u.kind]?.r || 12)]])), b: new Map(s.buildings.map((b) => [b, b.dead ? 0 : b.hp])),
+  roll: s.projectiles.filter((q) => q.rolling != null).map((q) => q.owner) });
+export function preStep(s) { SNAP = s.projectiles.length ? hpOf(s) : null; }
+/** What side `foe` lost since the last preStep, near world x. Each loss is counted once (a second shot in the same step gets the rest). */
+function shotDamage(s, foe, x) {
+  if (!SNAP) return 0;
+  const now = hpOf(s), lost = (a, b) => Math.max(0, (a || 0) - Math.max(0, b || 0));
+  let n = lost(SNAP.f[foe], now.f[foe]) + lost(SNAP.k[foe], now.k[foe]);
+  SNAP.f[foe] = now.f[foe]; SNAP.k[foe] = now.k[foe];
+  for (const [id, was] of SNAP.u) if (was[2] === foe && Math.abs(was[1] - x) < 170) { n += lost(was[0], now.u.get(id)?.[0]); was[0] = now.u.get(id)?.[0] || 0; }
+  for (const [b, was] of SNAP.b) if (b.owner === foe && Math.abs(b.x - x) < 170) { const h = b.dead ? 0 : b.hp; n += lost(was, h); SNAP.b.set(b, h); }
+  return n;
+}
+/** After the step: a Rolling shot crushing troops makes no event of its own, so its numbers are read off here. */
+export function postStep(s) {
+  if (!SNAP || !SNAP.roll.length) return;
+  for (const [id, was] of SNAP.u) {
+    if (!SNAP.roll.includes(1 - was[2])) continue;
+    const u = s.units.find((q) => q.id === id), n = was[0] - Math.max(0, u ? u.hp : 0);
+    if (n >= 3 && s.projectiles.some((q) => q.rolling != null && q.owner !== was[2] && Math.abs(q.x - was[1]) < 60)) VFX.push({ type: 'dmg', x: was[1], y: was[3] + 22, n: Math.round(n), p: 1 - was[2], dur: 1.05 });
+  }
+}
+export const debugVfx = () => VFX;                    // test hook (tools/art_collapse_shots.mjs)
 // ---- one-off effects set off by rule events: main.js hands every event to noteEvent ----
 const VFX = [];                                       // { type, x, y, p, dur, t0 } in wall-clock seconds, t0 set at first draw
 const DOWN_AT = [null, null];                         // when each castle started to fall (wall clock), for the collapse
 const ULT_DROP = { fantasy: 0, military: 1, pirates: 2 }, ULT_WAVE = { robots: 0, monsters: 1, elementals: 2 }, ULT_RISE = { undead: 0, beastfolk: 1 };
 const BEAMS = new WeakMap();                          // queued beam -> { fireAt } in wall-clock seconds
 export function noteEvent(e, s) {
-  if (e.type === 'fort-hit') VFX.push({ type: 'chips', x: e.x, y: e.y ?? 90, p: e.p, dur: 0.7 });
+  if (e.type === 'fort-hit') {
+    // The burst belongs on the castle. The rules report where the attacker was (a troop at the gate, a blast on the
+    // ground in front), which is where a knocked-out chief lies: rubble seemed to come out of him (owner, 2026-11-26).
+    // So the point is moved onto the castle's own wall, and small steady damage (fire, a troop's jabs) is thinned out.
+    const [x0, x1] = S.fortSpan(e.p), front = e.p === 0 ? x1 : x0, t = performance.now(), small = (e.dmg || 0) < 4;
+    if (small && t - (CHIP_AT[e.p] || 0) < 260) return;
+    CHIP_AT[e.p] = t;
+    const inside = e.x > x0 + 16 && e.x < x1 - 16, x = inside ? e.x : front - S.dir(e.p) * (14 + Math.random() * 26);
+    VFX.push({ type: 'chips', x, y: Math.max(34, Math.min(FORT.h - 6, (e.y ?? 90) + (inside ? 0 : 20 + Math.random() * 50))), p: e.p, big: (e.dmg || 0) >= 14, dur: 0.75 });
+  }
+  else if (e.type === 'impact' || e.type === 'shield-hit') {                     // a fling shot lands: what it took off, as a number that pops and floats up
+    const n = shotDamage(s, e.type === 'impact' ? 1 - e.p : e.p, e.x);
+    if (n >= 1) VFX.push({ type: 'dmg', x: e.x, y: Math.max(26, (e.y ?? 0) + 26), n: Math.round(n), p: e.type === 'impact' ? e.p : 1 - e.p, dur: 1.05 });
+  }
   else if (e.type === 'fort-guarded') VFX.push({ type: 'guard', x: e.x, y: e.y ?? 90, p: e.p, dur: 0.5 });
   else if (e.type === 'fort-down') VFX.push({ type: 'collapse', p: e.p, x: e.x, dur: 1.9 });
   else if (e.type === 'chief-down') VFX.push({ type: 'dizzy', p: e.p, dur: 2.4 });
@@ -735,30 +800,37 @@ function drawVfx(g, s, now) {
     if (f.t0 == null) { f.t0 = now; if (f.type === 'collapse') DOWN_AT[f.p] = now; }
     const a = now - f.t0, q = Math.max(0, Math.min(1, a / f.dur));
     if (f.type === 'death') { drawDeath(g, f, a, q); continue; }
-    if (f.type === 'chips') {                         // the castle really hurt: stone chips fly, a puff of dust
-      const away = -S.dir(f.p);                       // chips fly back toward the attacker
-      g.globalAlpha = (1 - q) * 0.55; g.fillStyle = '#d9cfc2'; g.beginPath(); g.arc(f.x, -f.y, 10 + 26 * q, 0, 7); g.fill();
-      for (let i = 0; i < 9; i++) {
-        const an = 0.3 + rnd(i, 1) * 1.5, v = 70 + rnd(i, 2) * 110, r = 2.5 + rnd(i, 3) * 3.5, x = f.x + away * Math.cos(an) * v * q * 0.9, y = f.y + Math.sin(an) * v * q - 190 * q * q;
-        g.globalAlpha = 1 - q * q; g.fillStyle = i % 2 ? '#a79c90' : '#7b7168'; g.strokeStyle = INK; g.lineWidth = 1.2; g.beginPath(); g.rect(x - r, -y - r, r * 2, r * 1.7); g.fill(); g.stroke();
-      }
+    if (f.type === 'dmg') {                           // a fling shot's damage: pops, floats up and fades; bigger hits are bigger and hotter
+      const pop = q < 0.12 ? 0.5 + q / 0.12 * 0.8 : q < 0.22 ? 1.3 - (q - 0.12) * 3 : 1, px = (f.n >= 60 ? 30 : f.n >= 25 ? 25 : 20) * pop;
+      g.globalAlpha = q < 0.7 ? 1 : (1 - q) / 0.3;
+      text(g, `-${f.n}`, f.x, f.y + 46 * (1 - (1 - q) * (1 - q)), px, f.n >= 60 ? '#ff7a3c' : f.n >= 25 ? '#ffd23c' : '#ffffff');
+      g.globalAlpha = 1; continue;
+    }
+    if (f.type === 'chips') {                         // the castle really hurt: a puff of dust bursts from its wall and bits of it fly back toward the attacker
+      const away = -S.dir(f.p);
+      if (!cloud(g, f.x, f.y, f.big ? 74 : 52, q)) { g.globalAlpha = (1 - q) * 0.55; g.fillStyle = '#d9cfc2'; g.beginPath(); g.arc(f.x, -f.y, 10 + 26 * q, 0, 7); g.fill(); g.globalAlpha = 1; }
+      debris(g, f.x, f.y, q, f.big ? 6 : 4, f.x * 0.7 + f.y, { size: f.big ? 17 : 13, away, speed: 0.8 });
     } else if (f.type === 'guard') {                  // the chief still stands: the shot rings off a shield of light
       const c = COLORS[f.p].light, r = 16 + 34 * q;
       g.globalAlpha = (1 - q) * 0.9; g.lineWidth = 5 * (1 - q) + 1; g.strokeStyle = c; g.beginPath(); g.arc(f.x, -f.y, r, 0, 7); g.stroke();
       g.strokeStyle = '#fff6c4'; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath();
       for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4 + 0.4; g.moveTo(f.x + Math.cos(an) * r * 0.55, -f.y + Math.sin(an) * r * 0.55); g.lineTo(f.x + Math.cos(an) * r * 1.3, -f.y + Math.sin(an) * r * 1.3); }
       g.stroke();
-    } else if (f.type === 'collapse') {               // the castle comes down: blocks burst out, dust rolls along its foot
+    } else if (f.type === 'collapse') {               // the castle comes down: cartoon dust clouds burst out of it one after another while its stones and beams fly
       const [x0, x1] = S.fortSpan(f.p), w = x1 - x0;
-      for (let i = 0; i < 7; i++) { const dq = Math.max(0, Math.min(1, (a - i * 0.08) / 1.5)); if (dq <= 0) continue; g.globalAlpha = (1 - dq) * 0.7; g.fillStyle = i % 2 ? '#e3d9cb' : '#cbbfae'; g.beginPath(); g.arc(x0 + w * (0.08 + rnd(i, 4) * 0.84), -(18 + rnd(i, 5) * 60 + 50 * dq), 26 + 70 * dq, 0, 7); g.fill(); }
-      for (let i = 0; i < 18; i++) {
-        const st = rnd(i, 6) * 0.5, dq = Math.max(0, Math.min(1, (a - st) / 1.1)); if (dq <= 0 || dq >= 1) continue;
-        const bx = x0 + w * rnd(i, 7), by = 40 + rnd(i, 8) * 170, vx = (rnd(i, 9) - 0.5) * 260, vy = 120 + rnd(i, 10) * 220, r = 4 + rnd(i, 11) * 7;
-        const x = bx + vx * dq, y = Math.max(r, by + vy * dq - 620 * dq * dq);
-        const cim = spr(`castle_${s.players[f.p].race}_2`);                 // pieces cut out of the castle's own picture, so the rubble matches its walls
-        g.globalAlpha = 1 - dq * dq * dq;
-        if (cim) { const sw = cim.width * 0.1, sx = cim.width * (0.22 + rnd(i, 14) * 0.46), sy = cim.height * (0.38 + rnd(i, 15) * 0.42), d = r * 2.6; g.save(); g.translate(x, -y); g.rotate(dq * (rnd(i, 12) - 0.5) * 9); g.drawImage(cim, sx, sy, sw, sw, -d / 2, -d / 2, d, d); g.strokeStyle = INK; g.lineWidth = 1.5; g.strokeRect(-d / 2, -d / 2, d, d); g.restore(); }
-        else { g.fillStyle = '#8a8076'; g.fillRect(x - r, -y - r, r * 2, r * 1.6); }
+      f.from = [x0 + w * 0.1, x1 - w * 0.1];
+      for (let i = 0; i < 20; i++) {                   // pieces first, so the clouds roll over them
+        const st = rnd(i, 6) * 0.55, dq = Math.max(0, Math.min(1, (a - st) / 1.25)); if (dq <= 0 || dq >= 1) continue;
+        const bx = x0 + w * (0.1 + rnd(i, 7) * 0.8), by = 30 + rnd(i, 8) * (FORT.h - 20), vx = (rnd(i, 9) - 0.5) * 300, vy = 150 + rnd(i, 10) * 240, d = 15 + rnd(i, 11) * 15;
+        let y = by + vy * dq - 640 * dq * dq, x = bx + vx * dq; if (y < d * 0.4) y = d * 0.4 + Math.abs(Math.sin(dq * 9 + i)) * 10 * (1 - dq);      // a little bounce where it lands
+        const im = spr(`rubble2_${i % 5}`);
+        if (im) stamp(g, im, x, y, d * im.width / im.height, d, { rot: dq * (rnd(i, 12) - 0.5) * 14, alpha: 1 - dq * dq * dq });
+        else { g.globalAlpha = 1 - dq * dq * dq; g.fillStyle = '#8a8076'; g.fillRect(x - d / 3, -y - d / 3, d * 0.66, d * 0.55); g.globalAlpha = 1; }
+      }
+      for (let i = 0; i < 8; i++) {                    // eight bursts: the first in the middle, then up the walls and along the foot
+        const st = i * 0.11, dq = Math.max(0, Math.min(1, (a - st) / 1.05)); if (dq <= 0 || dq >= 1) continue;
+        const cx = x0 + w * (i === 0 ? 0.5 : 0.1 + rnd(i, 4) * 0.8), cy = i === 0 ? FORT.h * 0.45 : i > 4 ? 26 + rnd(i, 5) * 20 : 50 + rnd(i, 5) * (FORT.h - 40), size = i === 0 ? 150 : 88 + rnd(i, 3) * 46;
+        if (!cloud(g, cx, cy, size, dq, { flip: i % 2 === 1 })) { g.globalAlpha = (1 - dq) * 0.7; g.fillStyle = i % 2 ? '#e3d9cb' : '#cbbfae'; g.beginPath(); g.arc(cx, -cy, 26 + 70 * dq, 0, 7); g.fill(); g.globalAlpha = 1; }
       }
     } else if (f.type === 'dizzy' && s.players[f.p]?.down > 0) {    // a chief out cold: stars circle his head
       const k = S.kingPos(f.p, s), im = spr('proj_f_5'), H = CHIEF_H * S.kingScale(f.p, s);
@@ -835,11 +907,11 @@ function drawFx(g, s, now) {
       if (k < 0.5) { const q = k / 0.5; g.strokeStyle = `rgba(255,244,200,${0.8 * (1 - q)})`; g.lineWidth = (f.big ? 10 : 6) * (1 - q) + 1; g.beginPath(); g.arc(f.x, -f.y, (f.r || 40) * (0.3 + q * (f.big ? 1.5 : 1.1)), 0, 7); g.stroke(); } if (f.spore) g.filter = 'hue-rotate(70deg)'; sprite(g, `fx_${fr}`, f.x, f.y - h * 0.45, h, { alpha: 1 - k * k }); g.filter = 'none'; }
     else if (f.kind === 'burst' || f.kind === 'pop') sprite(g, 'fx_0', f.x, f.y - 30, 60 * (1 + k), { alpha: 1 - k });
     else if (f.kind === 'rubble') {
-      // the block's own picture breaks into six pieces that fly out, spin and fall, over a puff of dust
-      const who = f.owner ?? (f.x < S.MID ? 0 : 1), key = blockKey(s.players[who].race, BLK[f.mat] == null ? 'wood' : f.mat, true);
-      sprite(g, 'fx_3', f.x, f.y - 26, 70 * (0.6 + k), { alpha: 0.75 * (1 - k) });
-      if (!chunks(g, key, f.x, f.y, k, f.x * 0.37 + f.y)) { g.fillStyle = f.mat === 'stone' ? '#9a9793' : '#c9822e'; for (let i = 0; i < 7; i++) { const a = i * 0.9 + 0.3, d = k * 60; g.fillRect(f.x + Math.cos(a) * d - 5, -(f.y + Math.sin(a) * d * 0.7 + 30 * k - 90 * k * k) - 5, 10 * (1 - k) + 2, 10 * (1 - k) + 2); } }
-      if (k < 0.18) sprite(g, 'fx_0', f.x, f.y - 24, 48 + k * 160, { alpha: 1 - k / 0.18 });
+      // something built is smashed: a cartoon dust cloud bursts where it stood and bits of it fly out, spin and fall
+      const who = f.owner ?? (f.x < S.MID ? 0 : 1), big = f.y > 20;                  // buildings (y 40) burst bigger than a single block
+      if (!cloud(g, f.x, f.y - 4, big ? 118 : 84, k)) sprite(g, 'fx_3', f.x, f.y - 26, 70 * (0.6 + k), { alpha: 0.75 * (1 - k) });
+      if (!debris(g, f.x, f.y, k, big ? 7 : 5, f.x * 0.37 + f.y, { size: big ? 19 : 15, set: f.mat === 'stone' || f.mat === 'iron' ? [0, 1, 4, 2] : [3, 0, 3, 2, 1, 4] }))
+        chunks(g, blockKey(s.players[who].race, BLK[f.mat] == null ? 'wood' : f.mat, true), f.x, f.y, k, f.x * 0.37 + f.y);
     }
     else if (f.kind === 'coin') { const pop = k < 0.15 ? 0.6 + k / 0.15 * 0.6 : 1.2 - Math.min(0.2, (k - 0.15) * 0.8), cy = f.y + 20 + (1 - (1 - k) * (1 - k)) * 52; g.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1; sprite(g, 'ui_0', f.x - 16 * pop, cy - 9 * pop, 18 * pop); text(g, `+${f.gold}`, f.x + 8 * pop, cy, 18 * pop, '#ffe36b'); g.globalAlpha = 1; }
     else if (f.kind === 'poof') { if (!VFX.some((v) => v.type === 'death' && Math.abs(v.x - f.x) < 0.5 && Math.abs(v.y - f.y) < 0.5)) sprite(g, 'fx_3', f.x, f.y - 10, 50 * (1 + k), { alpha: 1 - k }); }      // a troop with its own exit (drawDeath) does not also get the puff
@@ -1187,11 +1259,11 @@ function drawPick(g, s, ui, now) {
     if (r) {
       g.font = FONT(19); g.fillStyle = col.light; g.fillText(`${r.name} · ${r.theme}`, x0 + 14, -244, 594);
       g.font = FONT(14, 600); g.fillStyle = '#fff'; g.fillText(r.tag, x0 + 14, -222, r.leanLine ? 340 : 594);
-      if (r.leanLine) { g.textAlign = 'right'; g.font = FONT(13, 800); g.fillStyle = '#ffe36b'; g.fillText(`Builds: ${r.leanLine.text}`, x0 + 608, -222, 240); g.textAlign = 'left'; }   // the race's building leaning (races.js lean)
-      // two strengths left, two weaknesses right: the trait's name, then exactly what it does (js/traits.js)
+      if (r.leanLine) { g.textAlign = 'right'; g.font = FONT(13, 800); g.fillStyle = '#ffe36b'; g.fillText(`Builds: ${r.leanLine.plain}`, x0 + 608, -222, 240); g.textAlign = 'left'; }   // the race's building leaning (races.js lean)
+      // two strengths left, two weaknesses right: the trait's name, then what it does in words (js/traits.js plainText)
       for (const [list, xx, colr, mark] of [[r.traitLines.plus, x0 + 14, '#9be88a', '+ '], [r.traitLines.minus, x0 + 318, '#ffab96', '– ']]) list.forEach((l, i) => {
         const yy = 203 - i * 28; g.fillStyle = colr; g.font = FONT(14, 800); g.fillText(mark + l.label, xx, -yy, 292);
-        g.fillStyle = '#f3e3c2'; g.font = FONT(12, 600); g.fillText(l.text, xx + 14, -(yy - 14), 278);
+        g.fillStyle = '#f3e3c2'; g.font = FONT(12, 600); g.fillText(l.plain, xx + 14, -(yy - 14), 278);   // words only, no numbers (owner); the Guidebook keeps the numbers
       });
       r.roster.forEach((k, i) => { const step = Math.min(100, 594 / r.roster.length), ux = x0 + 14 + step * (i + 0.5); sprite(g, unitKey(k, 0), ux, 120, 30, { flip: p === 1 }); g.font = FONT(11, 700); g.fillStyle = UNIT[k].air ? '#a8d8ff' : '#fff'; g.textAlign = 'center'; g.fillText(UNIT[k].short, ux, -111, step - 6); }); g.textAlign = 'left';
     } else { g.font = FONT(18, 600); g.fillStyle = '#fff'; g.fillText('Tap a card to see its troops and powers', x0 + 14, -182, 594); }
@@ -1205,6 +1277,7 @@ function drawPick(g, s, ui, now) {
 let DRAW_LAY = null;                              // the layout of the frame being drawn
 export function draw(g, lay, s, ui, now) {
   DRAW_LAY = lay;
+  for (const v of VFX) if (v.type === 'collapse' && v.t0 == null) { v.t0 = now; DOWN_AT[v.p] = now; }      // before the castle is drawn, or it shows one frame as finished rubble
   drawBackdrop(g, lay);
   ui.topY = Math.min((lay.gy - 8) / lay.s, 880);
   const shake = ui.shake > 0 ? ui.shake * 7 : 0;

@@ -1,5 +1,5 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
-import { traitMods, traitLines } from './traits.js';
+import { traitMods, traitLines, plainText } from './traits.js';
 export { PRICE_TUNE };
 import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER, DROP_HOME } from './tuning.js';
 export * from './tuning.js';
@@ -35,6 +35,10 @@ for (const [rk, r] of Object.entries(RACE_DATA)) {
   const tl = traitLines(r), mods = traitMods(r);
   if (r.lean) { const v = r.leanSize ?? LEAN.size; if (r.lean === 'wall') mods.wallHp = (mods.wallHp || 1) * (1 + v); else if (r.lean === 'tower') mods.towerDmg = (mods.towerDmg || 1) * (1 + v); else if (r.lean === 'mine') mods.mineMul = (mods.mineMul || 1) * (1 + v); }
   const leanLine = r.lean ? { kind: r.lean, label: LEAN.label[r.lean], text: `${r.lean === 'wall' ? 'Walls have' : r.lean === 'tower' ? 'Towers hit' : 'Mines pay'} ${Math.round((r.leanSize ?? LEAN.size) * 100)}% ${r.lean === 'wall' ? 'more health' : r.lean === 'tower' ? 'harder' : 'more gold'}` } : null;
+  if (leanLine) leanLine.plain = plainText(leanLine.text);
+  // a trait that doubles the race's building leaning gets its own name, so the card does not say the same thing twice (owner)
+  const EVEN = { wall: ['walls', 'Master masons', 'Walls are even stronger'], tower: ['towers', 'Sharpshooters', 'Towers hit even harder'], mine: ['mines', 'Greedy', 'Mines give even more gold'] }[r.lean];
+  if (EVEN) for (const l of tl.plus) if (l.key === EVEN[0]) { l.label = EVEN[1]; l.plain = EVEN[2]; }
   RACES[rk] = { ...r, mods, leanLine, traitLines: tl, pros: tl.plus.map((l) => `${l.label}: ${l.text}`), cons: tl.minus.map((l) => `${l.label}: ${l.text}`), key: rk, ground: keys.filter((k) => !UNIT[k].air), air: keys.filter((k) => UNIT[k].air), roster: keys, hero: hk, ult: { ...ULT_DEFAULT, ...(r.ult || {}) } };
 }
 export const RACE_KEYS = Object.keys(RACES);
@@ -358,7 +362,7 @@ function impact(s, pr, hit) {
   if (hit?.kind === 'bld' && direct.owner === foe) { hurtBuilding(s, direct, dmg * bld, me); any = true; }
   if (hit?.kind === 'king' && direct === foe) { hurtKing(s, foe, dmg * (a.bld > 1 && !sh ? 1.3 : 1), pr.x, pr.y, me); any = true; }
   // splash: troops in the blast, other blocks and buildings at reduced strength, the chief only by line of sight
-  for (const u of s.units) if (u.owner === foe && hyp(u.x - pr.x, unitY(u) - pr.y) < r + UNIT[u.kind].r) { hurtUnit(s, u, dmg, me); any = true; }
+  for (const u of s.units) if (u.owner === foe && hyp(u.x - pr.x, unitY(u) - pr.y) < r + UNIT[u.kind].r) { hurtUnit(s, u, dmg * (pr.ult ? 1 : a.troop ?? 1), me); any = true; }
   if (hit?.kind !== 'fort') { const [fa, fb] = fortSpan(foe); if (pr.x > fa - r && pr.x < fb + r && pr.y < FORT.h + r) { hurtFort(s, foe, dmg * bld * 0.4, me, pr.x, pr.y); any = true; } }
   for (const b of s.buildings) { if (b.dead || b.owner !== foe || b === direct || b.kind === 'shield') continue; if (Math.abs(b.x - pr.x) < r && pr.y < GEOM[b.kind].h + r) { hurtBuilding(s, b, dmg * bld * 0.4, me); any = true; } }
   if (hit?.kind !== 'king') { const k = kingPos(foe, s); if (hyp(k.x - pr.x, k.y - pr.y) < r * 0.6 + kingR(foe, s)) { hurtKing(s, foe, dmg * 0.5, pr.x, pr.y, me); any = true; } }
