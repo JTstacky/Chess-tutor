@@ -1,7 +1,7 @@
 // input.js — multi-touch: every pointer belongs to the side of the screen where it went down (left player /
 // right player), tracked by pointerId, so both can drag and tap at the same time. Also blocks the browser's
 // own touch gestures.
-import { autoBuild, freeSlots, W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX, isOpen, unlockAt, heroOk, ultReady, ultimate } from './sim.js';
+import { powerCost, upgradePower, autoBuild, freeSlots, slotCount as S_COUNT, W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX, isOpen, unlockAt, heroOk, ultReady, ultimate } from './sim.js';
 import { screenToWorld, buttonAt, keyFor, pickHit, PAUSE } from './view.js';
 
 export const PULL_MAX = 300;      // world units of pull for full power
@@ -42,6 +42,13 @@ export function attachInput(canvas, game) {
     const s = game.s, pl = s.players[p], key = keyFor(s, p, b);
     if (!key) return;
     const clock = (t) => { const w = Math.ceil(t); return `${Math.floor(w / 60)}:${String(w % 60).padStart(2, '0')}`; };
+    if (b.kind === 'power') {
+      const c = powerCost(s, p);
+      if (c == null) return toast(p, 'Fling shot power is at its top level');
+      if (pl.gold < c) return toast(p, `Power level ${(pl.power || 0) + 1} needs ${c} gold`);
+      if (upgradePower(s, p)) { game.sound('click'); toast(p, `Fling shot power: level ${pl.power}`); }
+      return;
+    }
     if (b.kind === 'ult') {
       if (pl.ultUsed) return toast(p, 'Ultimate used this round');
       if (!ultReady(s, p)) return toast(p, `Ultimate charging: ${Math.floor(pl.ult * 100)}%`);
@@ -69,7 +76,7 @@ export function attachInput(canvas, game) {
       return;
     }
     if (key === 'vault') { if (!build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }
-    if (!freeSlots(s, p)) return toast(p, 'All three building spots are full');
+    if (!freeSlots(s, p)) return toast(p, `All ${S_COUNT(s, p)} building spots are full`);
     // one tap builds (owner, 2026-11-25): no second tap on the ground
     ui.armed[p] = null;
     if (autoBuild(s, p, key)) game.sound('click'); else toast(p, `No room for another ${BUILD[key].name.toLowerCase()}`);

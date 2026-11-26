@@ -1,5 +1,5 @@
 // ai.js — a computer opponent that plays through the same actions as a person (fire/build/send/setAmmo).
-import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, freeSlots, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
+import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, freeSlots, slotCount, powerCost, upgradePower, hasAmmo, UNIT, BUILD, W, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
 
 export const LEVELS = {
   // owner 2026-11-25: the computer was too hard (every level fired at the reload limit). A person fires about 12-18 shots
@@ -67,8 +67,11 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     // --- invest: mines and a vault pay for themselves in about 20 seconds, so early is best ---
     if (cfg.invest && s.phase === 'play' && s.clock > 40 && !close.length && rand() < cfg.invest * 0.5) {
       const mines = myB.filter((b) => b.kind === 'mine').length;
-      if (mines < 2 && freeSlots(s, p) >= 2 && me.gold >= cost('mine') + 5) buildAt(s, 'mine', true);   // keeps a slot for a wall or tower
+      if (mines < Math.max(1, slotCount(s, p) - 1) && freeSlots(s, p) >= 2 && me.gold >= cost('mine') + 5) buildAt(s, 'mine', true);   // keeps a slot for a wall or tower
     }
+
+    // --- fling shot power: a level now and then when there is gold to spare ---
+    { const pc = powerCost(s, p); if (pc != null && s.phase !== 'roundOver' && me.gold >= pc + 50 && rand() < (cfg.invest || 0.3) * 0.25) upgradePower(s, p); }
 
     // --- defend ---
     if (threats.length && rand() < cfg.defend) {
@@ -100,6 +103,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
         const c = close[Math.floor(rand() * close.length)], cs = UNIT[c.kind];
         tx = c.x + dir(foe) * cs.speed * 1.2; ty = c.y; ang = cs.air ? 0.7 : 1.0;
         if (close.length >= 3 && rand() < cfg.special) ammo = rand() < 0.5 ? 'scatter' : 'fire';
+        if (close.length >= 2 && !cs.air && hasAmmo(s, p, 'roll') && rand() < cfg.special * 1.5) { ammo = 'roll'; ang = 1.15; }   // a steep lob that lands short and rolls into them
       } else if (foeShield && rand() < 0.4) { tx = foeShield.x; ty = 150; if (rand() < cfg.special) ammo = 'boulder'; }
       else if (!up) { tx = fcx; ty = FORT.h * 0.55; ang = 0.95; if (rand() < cfg.special * 1.5) ammo = 'boulder'; }                      // chief knocked out: pound the castle
       else if (mine && rand() < 0.3) { tx = mine.x; ty = 20; ang = 0.9; }

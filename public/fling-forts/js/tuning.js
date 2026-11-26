@@ -14,7 +14,10 @@ export const KO = { slow: 2.0, rate: 0.3, zoom: 2.3, cam: 3.4, over: 4.6 };
 export const ROUND_TIME = SUDDEN_AT;                              // old name, kept for tools
 export const GOLD_START = 60, GOLD_RATE = TIERS.income[0], GOLD_CAP = TIERS.cap[2];   // old names; the live values follow the tier
 // what each tier unlocks; troops are all open from the start (a troop may still carry `tier` in races.js; heroes HERO.tier)
-export const AMMO_TIER = { stone: 1, scatter: 1, fire: 2, boulder: 3 };
+export const AMMO_TIER = { stone: 1, scatter: 1, fire: 2, boulder: 3, roll: 1 };
+// fling shot power (owner, 2026-11-26): up to five levels per round, each dearer than the last; every level adds dmg to all
+// your fling shots (not the ultimate)
+export const POWER = { max: 5, cost: [30, 55, 100, 180, 320], dmg: 0.12 };
 export const BUILD_TIER = { wall: 1, mine: 1, tower: 2, shield: 2 };
 // heroes: one alive per player, a cooldown after one dies, bounty capped
 export const HERO = { tier: 3, max: 1, cooldown: 30, bounty: 20 };
@@ -23,8 +26,10 @@ export const ULT = { perSec: 1 / 148, perDealt: 1 / 3200, perTaken: 1 / 2400 };
 // a race without its own ultimate in races.js gets this one
 export const ULT_DEFAULT = { name: 'Barrage', shape: 'barrage', n: 8, dmg: 45, r: 60, bld: 2, over: 1.6, chiefCap: 0.15 };
 export const KING_BASE_HP = 400;   // was 300, then 450 (lane 3)
-// building slots (owner, 2026-11-26): three marked spots per side, left-fort x, back to front; any mix of walls, towers, mines
+// building slots (owner, 2026-11-26): marked spots per side, left-fort x, back to front; any mix of walls, towers, mines.
+// Three normally; the Sprawling base / Cramped base traits give 4 or 2 (js/traits.js slots)
 export const BUILD_SLOTS = [444, 520, 596];
+export const SLOT_LAYOUT = { 1: [520], 2: [470, 570], 3: BUILD_SLOTS, 4: [432, 492, 552, 612], 5: [426, 474, 522, 570, 618] };
 // each race leans to one building (races.js lean): walls +v health, towers +v damage, mines +v income
 export const LEAN = { size: 0.15, label: { wall: 'Stronger walls', tower: 'Sharper towers', mine: 'Richer mines' } };
 export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)
@@ -35,10 +40,14 @@ export const BOUNTY = 0.12;                     // share of a troop's price paid
 
 export const CRUSH = 45;                      // a block falling on the chief
 export const AMMO = {
-  stone:   { name: 'Stone',   cost: 0,  reload: 3.0, dmg: 30, r: 46, bld: 1,   size: 11 },
-  scatter: { name: 'Scatter', cost: 12, reload: 3.5, dmg: 16, r: 40, bld: 0.7, size: 8, split: 3 },
-  fire:    { name: 'Firepot', cost: 18, reload: 3.5, dmg: 14, r: 44, bld: 0.8, size: 11, burn: { r: 60, t: 4.5, dps: 14 } },
-  boulder: { name: 'Boulder', cost: 25, reload: 4.5, dmg: 48, r: 40, bld: 2.2, size: 15 },
+  // fling shot types (owner, 2026-11-26): keys kept from the old names (stone, fire, boulder) so saves, art and tools still match
+  stone:   { name: 'Normal',    cost: 0,  reload: 3.0, dmg: 30, r: 46, bld: 1,   size: 11 },
+  scatter: { name: 'Scatter',   cost: 12, reload: 3.5, dmg: 16, r: 40, bld: 0.7, size: 8, split: 3 },
+  fire:    { name: 'Flame',     cost: 18, reload: 3.5, dmg: 14, r: 44, bld: 0.8, size: 11, burn: { r: 60, t: 4.5, dps: 14 } },
+  boulder: { name: 'Explosive', cost: 25, reload: 4.5, dmg: 48, r: 58, bld: 2.2, size: 15 },        // was the Boulder: now a bigger blast
+  // race special (traits.js rolling): lands, then rolls on along the ground for roll.t seconds crushing enemy troops (once
+  // each), and smashes into the first enemy building or castle it reaches
+  roll:    { name: 'Rolling',   cost: 20, reload: 4.0, dmg: 24, r: 34, bld: 1.2, size: 14, special: true, roll: { t: 2.6, speed: 230, crush: 34 } },
 };
 export const BLOCK = { wood: { hp: 125 }, stone: { hp: 250 }, iron: { hp: 355 }, vault: { hp: 195 } };   // 1.5x for the longer round
 export const MAT = { L: 'wood', S: 'stone', I: 'iron' };   // fort layout letters -> block kinds

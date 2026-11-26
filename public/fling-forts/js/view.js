@@ -84,6 +84,13 @@ export const unitKey = (kind, frame) => {
 };
 export const kingKey = (race) => (spr(`king_${race}_0`) || coming(`king_${race}_0`) ? `king_${race}_0` : OLD_KINGS[S.RACE_KEYS.indexOf(race) % 3]);
 const BLK = { wood: 0, stone: 1, iron: 2 };
+// A race's own wall, tower and gold mine (art review A12): sheet fortblk_<race>_b, frames 0 wall, 1 tower, 2 mine, which
+// loads with the race's castle. Until it is in (or for a race without one) the shared builds sheet stands in.
+const BLD = { wall: 0, tower: 1, mine: 2 };
+function buildKey(race, kind) {
+  const k = `fortblk_${race}_b_${BLD[kind]}`;
+  return spr(k) ? k : kind === 'mine' && !spr('builds_2') ? 'bonus_crate_2' : `builds_${BLD[kind]}`;
+}
 function blockKey(race, kind, worn) {
   if (kind === 'vault') return spr('builds_3') ? 'builds_3' : 'bonus_crate_3';
   const k = `fortblk_${race}_${BLK[kind] + (worn ? 3 : 0)}`;
@@ -371,7 +378,7 @@ function drawFort(g, s, p, ui, now) {
     band(tipB);                                                          // the far band goes behind the frame
     sprite(g, 'sling_0', c.x, c.y - SL.drop, SL.h, { flip });
     const loaded = aim || (pl.reload <= 0 && kick <= 0);
-    if (loaded) { const IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3 }; sprite(g, `shots_${IDX[pl.ammo] ?? 0}`, pouch.x + Math.cos(ang) * 3 * d * 0, pouch.y - 10, 20, { anchorY: 1 }); }
+    if (loaded) { const IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3, roll: 3 }; sprite(g, `shots_${IDX[pl.ammo] ?? 0}`, pouch.x + Math.cos(ang) * 3 * d * 0, pouch.y - 10, 20, { anchorY: 1 }); }
     sprite(g, 'sling_1', pouch.x, pouch.y - 9, 18, { flip, rot: flip ? -ang + Math.PI : ang });
     band(tipF);                                                          // the near band in front of everything
   } else sprite(g, 'catapult_0', c.x, c.y - 14, 62, { flip });
@@ -385,11 +392,11 @@ function drawFort(g, s, p, ui, now) {
   if (ui.menu || ui.pick) drawChief(g, s, p, now);
 }
 
-/** Each side's three building spots (owner, 2026-11-26): a numbered stone pad in the team colour. An empty pad
+/** Each side's building spots (owner, 2026-11-26; 3, or 4 / 2 by race trait): a numbered stone pad in the team colour. An empty pad
  *  shows a pulsing "+"; a built one keeps its number in the dirt below, so players always see they have exactly three. */
 function drawSlots(g, s, now, top = false) {
-  for (const p of [0, 1]) for (let i = 0; i < 3; i++) {
-    const x = S.slotX(p, i), used = !!S.inSlot(s, p, i), col = COLORS[p], n = String(i + 1);   // numbered from the castle outwards on both sides
+  for (const p of [0, 1]) for (let i = 0; i < S.slotCount(s, p); i++) {
+    const x = S.slotX(s, p, i), used = !!S.inSlot(s, p, i), col = COLORS[p], n = String(i + 1);   // numbered from the castle outwards on both sides
     if (used !== top) continue;
     if (used) {                                                    // a small number badge by the building's foot (drawn over it)
       g.beginPath(); g.arc(x + 30, -12, 10, 0, 7); g.fillStyle = col.main; g.fill(); g.lineWidth = 2; g.strokeStyle = '#fff'; g.stroke();
@@ -422,10 +429,11 @@ function drawBuildings(g, s, now) {
       bar(g, b.x, FORT.domeR + 46, 70, 9, b.hp / b.maxHp, '#8fd8ff');      // above the flingshot's fork, which stands through the top of the dome now that the dome is centred on the castle
       continue;
     }
-    const h = S.GEOM[b.kind].h + 10;
-    const bk = b.kind === 'wall' ? 'builds_0' : b.kind === 'tower' ? 'builds_1' : spr('builds_2') ? 'builds_2' : 'bonus_crate_2';
+    const bk = buildKey(s.players[b.owner].race, b.kind), bi = spr(bk);
+    const gap = S.slotCount(s, b.owner) > 1 ? Math.abs(S.slotX(s, b.owner, 1) - S.slotX(s, b.owner, 0)) : 100;
+    const h = Math.min(S.GEOM[b.kind].h + 10, bi ? Math.min(100, gap + 16) * bi.height / bi.width : 999);      // a wide picture is held to its spot's width (spots are 60 to 100 apart by race), so neighbours do not swallow each other
     // whose it is (art review A12): the same outlined team-colour disc the troops stand on, under the building's foot
-    { const bim = spr(bk), rw = Math.max(24, (bim ? h * bim.width / bim.height : 48) * 0.5); g.beginPath(); g.ellipse(b.x, 1, rw, 8, 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = 0.85; g.fill(); g.globalAlpha = 1; g.lineWidth = 2; g.strokeStyle = col.dark; g.stroke(); }
+    { const rw = Math.max(24, (bi ? h * bi.width / bi.height : 48) * 0.5); g.beginPath(); g.ellipse(b.x, 1, rw, 8, 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = 0.85; g.fill(); g.globalAlpha = 1; g.lineWidth = 2; g.strokeStyle = col.dark; g.stroke(); }
     g.save(); if (b.flash > 0) g.filter = 'brightness(1.7)';
     sprite(g, bk, b.x, -4, h, { flip: b.owner === 1 });
     if (b.kind === 'mine') text(g, `+${BUILD.mine.income}`, b.x, h + 14 + Math.sin(now * 3 + b.id) * 2, 14, '#ffe36b');
@@ -600,7 +608,7 @@ function drawBonuses(g, s, now) {
 }
 
 function drawShots(g, s) {
-  const IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3 };
+  const IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3, roll: 3 };
   for (const pr of s.projectiles) {
     const a = AMMO[pr.ammo], size = (pr.shard ? 14 : a.size * 2.5);
     if (pr.ult) {                                 // an ultimate's barrage: the caster's own shell, bomb or flaming ball, nose down
@@ -958,6 +966,24 @@ function drawZones(g, s, ui, now) {
   }
 }
 
+/** The fling shot power button (owner, 2026-11-26): five pips for the levels, the price of the next one. */
+function drawPowerButton(g, s, p, real, k, b, narrow, ai, col) {
+  const pl = s.players[p], lv = pl.power || 0, cost = S.powerCost(s, p), can = cost != null && pl.gold >= cost;
+  g.save(); g.globalAlpha = ai ? 0.45 : can || cost == null ? 1 : 0.5;
+  g.translate(real.x, -real.y); g.scale(k, k);
+  rrect(g, b.x, -b.y + 3, b.w, b.h, 12); g.fillStyle = 'rgba(40,22,8,0.55)'; g.fill();
+  rrect(g, b.x, -b.y, b.w, b.h - 3, 12); g.fillStyle = '#f6e7c8'; g.fill(); g.lineWidth = 3; g.strokeStyle = INK; g.stroke();
+  const cx = narrow ? b.w / 2 : b.x + 24;
+  sprite(g, 'shots_0', cx, b.y - b.h + (narrow ? 22 : 12), narrow ? 20 : 28);
+  text(g, '▲', cx + (narrow ? 14 : 16), b.y - b.h + (narrow ? 26 : 30), narrow ? 12 : 14, '#3fbf4a', 'center', INK);
+  if (!narrow) { g.font = FONT(13); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = INK; g.fillText('Power', b.x + 48 + (b.w - 54) / 2, -(b.y - 19), b.w - 54); }
+  for (let i = 0; i < 5; i++) { const px = (narrow ? b.w / 2 - 26 : b.x + 10) + i * (narrow ? 13 : 9), py = narrow ? b.y - 8 : b.y - 50; g.beginPath(); g.arc(px, -py, narrow ? 4.5 : 3.5, 0, 7); g.fillStyle = i < lv ? col.main : 'rgba(60,40,20,0.25)'; g.fill(); }
+  const tx = narrow ? b.w / 2 : b.x + 70;
+  if (cost == null) text(g, 'MAX', tx, b.y - (narrow ? 50 : 41), narrow ? 14 : 16, '#7a4a12', 'center', null);
+  else { sprite(g, 'ui_0', tx - (narrow ? 13 : 15), b.y - (narrow ? 58 : 50), narrow ? 14 : 16); text(g, String(cost), tx + 8, b.y - (narrow ? 50 : 41), narrow ? 15 : 16, '#7a4a12', 'center', null); }
+  g.restore();
+}
+
 /** The ultimate button: the race's ultimate name over a meter that fills; glows when ready. */
 const ULT_ORDER = ['fantasy', 'aliens', 'robots', 'monsters', 'military', 'undead', 'pirates', 'elementals', 'beastfolk', 'steampunk'];   // the order of the badges in ulticon_a and ulticon_b
 function drawUltButton(g, s, p, real, k, b, narrow, ai, col) {
@@ -1002,13 +1028,14 @@ function drawHud(g, s, ui, now) {
       // narrow boxes drop the name and stack picture over price
       const k = real.h / BH, b = { ...real, x: 0, y: 0, w: real.w / k, h: BH }, narrow = b.w < 96;
       if (b.kind === 'ult') { drawUltButton(g, s, p, real, k, b, narrow, ai, col); continue; }
+      if (b.kind === 'power') { drawPowerButton(g, s, p, real, k, b, narrow, ai, col); continue; }
       const cost = S.costFor(s, p, key);
       const shut = !S.isOpen(s, p, key), wait = shut ? Math.max(0, S.unlockAt(s, p, key) - (s.roundT || 0)) : 0;
       const free = b.kind === 'ammo' && key !== 'stone' && pl.freeShots > 0;
       const can = free || pl.gold >= cost, on = (b.kind === 'ammo' && pl.ammo === key) || ui.armed[p] === key;
       const locked = (key === 'shield' && (s.phase === 'sudden' || s.buildings.some((q) => q.owner === p && q.kind === 'shield')))
         || (key === 'vault' && !S.placeOk(s, p, 'vault', 0))
-        || ((key === 'wall' || key === 'tower' || key === 'mine') && !S.freeSlots(s, p))   // all three building spots taken
+        || ((key === 'wall' || key === 'tower' || key === 'mine') && !S.freeSlots(s, p))   // all building spots taken
         || shut || (b.kind === 'hero' && !S.heroOk(s, p));
       g.save(); g.globalAlpha = ai ? 0.45 : can && !locked ? 1 : 0.5;
       g.translate(real.x, -real.y); g.scale(k, k);
@@ -1017,11 +1044,10 @@ function drawHud(g, s, ui, now) {
       const chipped = narrow && !!UNIT[key]?.cls;
       const cx = narrow ? b.w / 2 : b.x + 24, iy = b.y - b.h + (narrow ? (chipped ? 20 : 22) : 8), tx = narrow ? b.w / 2 : b.x + 70, z = narrow ? (chipped ? 0.66 : 0.74) : 1;
       const fitH = (k2, h, maxW) => { const im = spr(k2); return im ? Math.min(h, maxW * im.height / im.width) : h; };   // height that keeps a wide picture inside its slot
-      if (b.kind === 'ammo') sprite(g, `shots_${['stone', 'scatter', 'fire', 'boulder'].indexOf(key)}`, cx, iy + 4 * z, 36 * z);
-      else if (key === 'wall') sprite(g, 'builds_0', cx, iy, 44 * z);
-      else if (key === 'tower') sprite(g, 'builds_1', cx, iy, 46 * z);
+      if (b.kind === 'ammo') sprite(g, `shots_${{ stone: 0, scatter: 1, fire: 2, boulder: 3, roll: 3 }[key]}`, cx, iy + 4 * z, 36 * z);
+      else if (key === 'wall' || key === 'tower') { const bk = buildKey(s.players[p].race, key), bh = fitH(bk, 45 * z, 44 * z); sprite(g, bk, cx, iy + (45 * z - bh) / 2, bh, { flip: p === 1 }); }
       else if (key === 'shield') sprite(g, 'ui_1', cx, iy + 3 * z, 38 * z);
-      else if (key === 'mine') { const mk = spr('builds_2') ? 'builds_2' : 'bonus_crate_2', mh = fitH(mk, 42 * z, 44 * z); sprite(g, mk, cx, iy + (42 * z - mh) / 2, mh); }
+      else if (key === 'mine') { const mk = buildKey(s.players[p].race, 'mine'), mh = fitH(mk, 42 * z, 44 * z); sprite(g, mk, cx, iy + (42 * z - mh) / 2, mh); }
       else if (key === 'vault') sprite(g, spr('builds_3') ? 'builds_3' : 'bonus_crate_3', cx, iy + 2 * z, 38 * z);
       else { const uk = unitKey(key, 0), uh = fitH(uk, 44 * z, 44 * z); sprite(g, uk, cx, iy + (44 * z - uh) / 2, uh, { flip: p === 1 }); }
       const name = AMMO[key]?.name || BUILD[key]?.name || UNIT[key].short;

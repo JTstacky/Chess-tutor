@@ -1,7 +1,7 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
 import { traitMods, traitLines } from './traits.js';
 export { PRICE_TUNE };
-import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE, BUILD_SLOTS, LEAN } from './tuning.js';
+import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER } from './tuning.js';
 export * from './tuning.js';
 // sim.js — Fling Forts rules and physics, side view. Pure: no DOM, so node tests run the same code as the game.
 // World: x runs left to right (0..W), y is height above the ground (0 = ground). Player 0 owns the left fort,
@@ -112,6 +112,7 @@ export function costFor(s, p, key) {
   if (BUILD[key]) return Math.round(BUILD[key].cost * (m.buildMul || 1));
   if (UNIT[key]) return Math.max(8, Math.round(UNIT[key].cost * (m.unitCost || 1)));
   if (key === 'ult') return 0;
+  if (key === 'power') return powerCost(s, p) ?? 0;
   return Infinity;
 }
 /** Gold per second for player p right now: base rate, mines and vault, race bonus; the base doubles in sudden death. */
@@ -153,7 +154,7 @@ export const rosterOf = (s, p) => raceOf(s, p).roster;
 // ---------- state ----------
 function newPlayer(id, race) {
   const kingMax = Math.round(KING_HP * (RACES[race].mods.kingHp || 1));
-  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, down: 0, fortHp: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortMax: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortFlash: 0, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
+  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, down: 0, fortHp: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortMax: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortFlash: 0, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, power: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
 }
 function buildFort() {}                                          // the block grid is gone: one castle per side (player.fortHp)
 function fresh(s) {
@@ -175,7 +176,21 @@ export const blockPos = (b) => ({ x: colX(b.owner, b.c), y: rowY(b.r) });
 export const fortHp = (s, p) => s.players[p].fortHp;
 
 // ---------- actions (people and the computer both use these; each returns true when it happened) ----------
-export function setAmmo(s, p, kind) { if (!AMMO[kind] || !isOpen(s, p, kind)) return false; s.players[p].ammo = kind; return true; }
+/** May player p use this shot type? Special shots (the Rolling shot) belong to races with that trait. */
+export const hasAmmo = (s, p, kind) => !!AMMO[kind] && (!AMMO[kind].special || raceOf(s, p).mods.special === kind);
+/** Gold for player p's next fling shot power level, or null at the top. */
+export const powerCost = (s, p) => { const lv = s.players[p].power || 0; return lv >= POWER.max ? null : Math.round(POWER.cost[lv]); };
+/** Buy the next fling shot power level. */
+export function upgradePower(s, p) {
+  const pl = s.players[p], c = powerCost(s, p);
+  if (!live(s) || c == null || pl.gold < c) return false;
+  pl.gold -= c; pl.spent += c; pl.power = (pl.power || 0) + 1;
+  emit(s, 'power', { p, level: pl.power });
+  return true;
+}
+/** Damage multiplier on player p's fling shots: race trait times power level (an ultimate's barrage gets neither). */
+const shotMul = (s, pr) => pr.ult ? 1 : (raceOf(s, pr.owner).mods.shotDmg || 1) * (1 + POWER.dmg * (s.players[pr.owner].power || 0));
+export function setAmmo(s, p, kind) { if (!hasAmmo(s, p, kind) || !isOpen(s, p, kind)) return false; s.players[p].ammo = kind; return true; }
 export const canAfford = (s, p, cost) => s.players[p].gold >= cost;
 
 /** Fire the loaded ammo along (dx, dy) with power 0..1. */
@@ -201,26 +216,29 @@ export function fire(s, p, dx, dy, power) {
 /** One-tap building (owner, 2026-11-25): the first free spot in the build strip, walls from the front, towers and mines
  *  from the back (the same rule the computer uses). Returns true if it was built. */
 export function autoBuild(s, p, kind) {
-  const order = kind === 'wall' ? [2, 1, 0] : [0, 1, 2];
-  for (const i of order) { const x = slotX(p, i); if (placeOk(s, p, kind, x)) return build(s, p, kind, x); }
+  const n = slotCount(s, p), order = [...Array(n).keys()]; if (kind === 'wall') order.reverse();
+  for (const i of order) { const x = slotX(s, p, i); if (placeOk(s, p, kind, x)) return build(s, p, kind, x); }
   return false;
 }
 /** Building slots (owner, 2026-11-26): three per side, marked on the ground. */
-export const slotX = (p, i) => mx(p, BUILD_SLOTS[i]);
-/** Which slot (0-2) a ground position is on, or -1. */
-export const slotAt = (p, x) => BUILD_SLOTS.findIndex((u) => Math.abs(mx(p, x) - u) < 34);
+/** How many building spots player p has: 3, or 4 / 2 from the race's Sprawling base / Cramped base trait. */
+export const slotCount = (s, p) => Math.max(1, Math.min(5, raceOf(s, p).mods.slots || 3));
+const slotsOf = (s, p) => SLOT_LAYOUT[slotCount(s, p)];
+export const slotX = (s, p, i) => mx(p, slotsOf(s, p)[i]);
+/** Which slot a ground position is on (the nearest, within 28), or -1. */
+export const slotAt = (s, p, x) => { const u = mx(p, x); let best = -1, bd = 28; slotsOf(s, p).forEach((v, i) => { const d = Math.abs(u - v); if (d < bd) { bd = d; best = i; } }); return best; };
 /** The building standing in player p's slot i, if any. */
 export const inSlot = (s, p, i) => s.buildings.find((b) => b.owner === p && !b.dead && b.kind !== 'shield' && b.slot === i) || null;
 /** How many of player p's three slots are free. */
-export const freeSlots = (s, p) => BUILD_SLOTS.filter((_, i) => !inSlot(s, p, i)).length;
+export const freeSlots = (s, p) => slotsOf(s, p).filter((_, i) => !inSlot(s, p, i)).length;
 export function placeOk(s, p, kind, x) {
   const u = mx(p, x);                                           // as a left-fort coordinate
   if (!isOpen(s, p, kind)) return false;                        // not unlocked yet this round
   if (kind === 'shield') return s.phase !== 'sudden' && !s.buildings.some((b) => b.owner === p && b.kind === 'shield');
   if (BUILD[kind]) {
     if (BUILD[kind].max && s.buildings.filter((b) => b.owner === p && b.kind === kind && !b.dead).length >= BUILD[kind].max) return false;
-    const i = slotAt(p, x);
-    return i >= 0 && !inSlot(s, p, i);                          // only on a free one of your three slots
+    const i = slotAt(s, p, x);
+    return i >= 0 && !inSlot(s, p, i);                          // only on a free one of your building spots
   }
   if (UNIT[kind]) return rosterOf(s, p).includes(kind) && u >= FORT.gateX - 40 && u <= FORT.zone[1];
   return false;
@@ -231,10 +249,10 @@ export function build(s, p, kind, x) {
   const spec = BUILD[kind], cost = costFor(s, p, kind);
   if (!live(s) || !spec || !canAfford(s, p, cost) || !placeOk(s, p, kind, x)) return false;
   const m = raceOf(s, p).mods, pl = s.players[p];
-  const hp = Math.round(spec.hp * (kind === 'wall' ? m.wallHp || 1 : kind === 'tower' ? m.towerHp || 1 : 1));
+  const hp = Math.round(spec.hp * (kind === 'wall' ? m.wallHp || 1 : kind === 'tower' ? m.towerHp || 1 : kind === 'mine' ? m.mineHp || 1 : 1));
   const b = { id: s.nextId++, owner: p, kind, x, hp, maxHp: hp, cd: 0, age: 0, life: kind === 'shield' ? spec.life * (m.shieldLifeMul || 1) : 0 };
   if (kind === 'shield') { const [fa, fb] = fortSpan(p); b.x = (fa + fb) / 2; }
-  else { b.slot = slotAt(p, x); b.x = slotX(p, b.slot); }                          // snaps to the centre of its slot   // the dome sits over the castle (its roof and the chief at home), not wherever the chief stood
+  else { b.slot = slotAt(s, p, x); b.x = slotX(s, p, b.slot); }                          // snaps to the centre of its slot   // the dome sits over the castle (its roof and the chief at home), not wherever the chief stood
   s.buildings.push(b);
   pl.gold -= cost; pl.spent += cost;
   emit(s, 'build', { p, kind, x: b.x });
@@ -329,7 +347,7 @@ function solidAt(s, pr, x, y, rad) {
 /** A shot stops at (pr.x, pr.y): damage what it struck, splash the rest. */
 function impact(s, pr, hit) {
   const a = pr.ult ? { ...AMMO[pr.ammo], ...pr.ult } : AMMO[pr.ammo], sh = pr.shard;
-  const dmg = (sh ? AMMO.scatter.dmg : a.dmg) * (pr.ult ? 1 : raceOf(s, pr.owner).mods.shotDmg || 1), r = sh ? AMMO.scatter.r : a.r, bld = sh ? AMMO.scatter.bld : a.bld;
+  const dmg = (sh ? AMMO.scatter.dmg : a.dmg) * shotMul(s, pr), r = sh ? AMMO.scatter.r : a.r, bld = sh ? AMMO.scatter.bld : a.bld;
   const me = pr.owner, foe = 1 - me;
   // an ultimate's hits on the chief are capped per use (TIERS-era rule: no coin-flip ultimates)
   const hurtKing = (s2, p2, amt, x, y, by) => hurtKingRaw(s2, p2, amt, x, y, by, pr.ult ? s.players[me] : null);
@@ -486,6 +504,7 @@ function stepProjectiles(s, dt) {
 }
 /** Advance one shot. Moves in small sub-steps so nothing thin can be skipped. Returns false when used up. */
 function stepShot(s, pr, dt, born) {
+  if (pr.rolling != null) return stepRoll(s, pr, dt);
   pr.t += dt; pr.spin += dt * 7;
   const rad = pr.shard ? AMMO.scatter.size * 0.8 : AMMO[pr.ammo].size;
   const n = Math.max(1, Math.ceil(hyp(pr.vx, pr.vy) * dt / 6)), h = dt / n;
@@ -501,12 +520,36 @@ function stepShot(s, pr, dt, born) {
     for (const b of s.bonuses) if (b.state === 'fly' && !b.gone && hyp(pr.x - b.x, pr.y - bonusY(b)) < BONUS_R + rad) hitBonus(s, pr, b);
     const hit = solidAt(s, pr, pr.x, pr.y, rad * 0.85);
     if (hit) {
-      if (hit.kind === 'shield') { hurtBuilding(s, hit.ref, (pr.shard ? AMMO.scatter.dmg : AMMO[pr.ammo].dmg) * (pr.ammo === 'boulder' && !pr.shard ? 1.6 : 1) * (pr.ult ? 1 : raceOf(s, pr.owner).mods.shotDmg || 1)); fx(s, 'ripple', pr.x, pr.y, { ttl: 0.5, owner: hit.ref.owner }); emit(s, 'shield-hit', { p: hit.ref.owner, x: pr.x, y: pr.y }); return false; }
+      if (hit.kind === 'shield') { hurtBuilding(s, hit.ref, (pr.shard ? AMMO.scatter.dmg : AMMO[pr.ammo].dmg) * (pr.ammo === 'boulder' && !pr.shard ? 1.6 : 1) * shotMul(s, pr)); fx(s, 'ripple', pr.x, pr.y, { ttl: 0.5, owner: hit.ref.owner }); emit(s, 'shield-hit', { p: hit.ref.owner, x: pr.x, y: pr.y }); return false; }
       impact(s, pr, hit); return false;
     }
-    if (pr.y <= 0) { pr.y = 0; impact(s, pr, null); return false; }
+    if (pr.y <= 0) {
+      const ro = AMMO[pr.ammo].roll;
+      if (ro && !pr.shard && !pr.ult && live(s)) {               // the Rolling shot lands and keeps going
+        pr.rolling = ro.t; pr.y = AMMO[pr.ammo].size; pr.vy = 0; pr.vx = Math.sign(pr.vx || dir(pr.owner)) * ro.speed; pr.crushed = [];
+        fx(s, 'boom', pr.x, 0, { r: 22, owner: pr.owner, ttl: 0.3 }); emit(s, 'roll', { p: pr.owner, x: pr.x });
+        return true;
+      }
+      pr.y = 0; impact(s, pr, null); return false;
+    }
     if (pr.x < -150 || pr.x > W + 150) return false;
   }
+  return true;
+}
+/** A Rolling shot on the ground: crushes each enemy ground troop it runs over once, smashes into the first enemy
+ *  building (walls too: a wall stops anything on the ground) or the castle, and stops when its time runs out. */
+function stepRoll(s, pr, dt) {
+  const a = AMMO[pr.ammo], foe = 1 - pr.owner, rad = a.size;
+  pr.t += dt; pr.rolling -= dt; pr.spin += dt * 9 * Math.sign(pr.vx);
+  pr.x += pr.vx * dt; pr.vx *= Math.pow(0.82, dt);              // slows down a little as it rolls
+  if (!live(s)) return false;
+  for (const u of s.units) if (u.owner === foe && u.hp > 0 && !UNIT[u.kind].air && !pr.crushed.includes(u.id) && Math.abs(u.x - pr.x) < UNIT[u.kind].r + rad) {
+    pr.crushed.push(u.id); hurtUnit(s, u, a.roll.crush * shotMul(s, pr), pr.owner); fx(s, 'boom', u.x, unitY(u), { r: 14, owner: pr.owner, ttl: 0.25 }); s.players[pr.owner].hits++;
+  }
+  for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - pr.x) < GEOM[b.kind].w / 2 + rad) { impact(s, pr, { kind: 'bld', ref: b }); return false; }
+  { const [fa, fb] = fortSpan(foe); if (pr.x > fa - rad && pr.x < fb + rad) { impact(s, pr, { kind: 'fort', ref: foe }); return false; } }
+  if (guarded(s, foe)) { const k = kingPos(foe, s); if (Math.abs(k.x - pr.x) < kingR(foe, s) + rad) { impact(s, pr, { kind: 'king', ref: foe }); return false; } }
+  if (pr.rolling <= 0 || pr.x < -60 || pr.x > W + 60) { pr.y = 0; impact(s, pr, null); return false; }
   return true;
 }
 
