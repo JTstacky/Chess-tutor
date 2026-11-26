@@ -99,7 +99,7 @@ const fsOK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 const fsBtn = document.createElement('button');
 fsBtn.id = 'btn-fullscreen'; fsBtn.type = 'button'; fsBtn.setAttribute('aria-label', 'Full screen');
 fsBtn.style.cssText = 'position:fixed;z-index:50;width:44px;height:44px;padding:0;border:0;border-radius:12px;' +
-  'background:rgba(40,24,10,0.62);color:#fff;font:700 24px/44px system-ui,sans-serif;touch-action:manipulation;cursor:pointer;';
+  'background:rgba(40,24,10,0.72);color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.85);font:700 24px/44px system-ui,sans-serif;touch-action:manipulation;cursor:pointer;';
 const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
 const fsIcon = () => { fsBtn.textContent = isFull() ? '✕' : '⛶'; fsBtn.title = isFull() ? 'Leave full screen' : 'Full screen'; };
 fsBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
@@ -113,18 +113,21 @@ fsBtn.addEventListener('click', (e) => {
   }
 });
 for (const ev of ['fullscreenchange', 'webkitfullscreenchange']) document.addEventListener(ev, () => { fsIcon(); setTimeout(resize, 50); });
+// coming back to the app: re-check the icon and put the button back, even before the next frame runs
+const fsBack = () => { if (document.hidden) return; fsIcon(); resize(); placeFullscreen(true); };
+for (const ev of ['visibilitychange', 'pageshow', 'focus']) (ev === 'visibilitychange' ? document : window).addEventListener(ev, fsBack);
 if (fsOK) { fsIcon(); document.body.appendChild(fsBtn); }
 let fsAt = '';
-function placeFullscreen() {
+function placeFullscreen(force = false) {
   if (!fsOK || !game.lay) return;
   let at;
   if (game.state === 'pick') at = 'none';
-  else if (game.state === 'play') {
+  else if (game.state === 'play' || game.state === 'paused') {   // paused too: leaving the app pauses the match, and in the corner it vanished on the right player's panel (owner bug 2026-11-26)
     const lay = game.lay, c = worldToScreen(lay, PAUSE.x, PAUSE.y);
     const sz = lay.compact ? Math.max(32, Math.round(PAUSE.r * 2 * lay.s)) : 44;     // on phones, the same size as the pause button
     at = `${Math.round(c.x + PAUSE.r * lay.s + 8)},${Math.round(c.y - sz / 2)},${sz}`;
   } else at = 'corner';
-  if (at === fsAt) return;
+  if (at === fsAt && !force) return;
   fsAt = at;
   if (at === 'none') { fsBtn.style.display = 'none'; return; }
   fsBtn.style.display = '';
