@@ -12,7 +12,7 @@ export const G = 900;                         // gravity, units / s^2
 export const V_MAX = 1250, V_MIN = 240;       // launch speed range (full pull reaches right across at 45 degrees)
 export const ANG_MIN = 0.09, ANG_MAX = 1.48;  // launch angle limits above the horizon, radians
 export const KING_HP = KING_BASE_HP, KING_R = 35, KING_Y = 37;     // hit circle matches the 90-unit chief picture (feet to chest)
-export const FORT = { back: 70, cols: 4, kingX: 352, catX: 190, catY: FORT_H + 24, gateX: 330, frontX: 310, h: FORT_H, domeR: 246, zone: [384, 612] };   // castle x back..frontX, h tall; sling on top; chief at kingX in front
+export const FORT = { back: 70, cols: 4, kingX: 352, catX: 190, catY: FORT_H + 24, gateX: 330, frontX: 310, h: FORT_H, domeR: 280, zone: [384, 612] };   // castle x back..frontX, h tall; sling on top; chief at kingX in front
 export const WALL = { w: 34, h: 92 }, TOWER = { w: 38, h: 160 }, MINE = { w: 46, h: 48 };
 export const GEOM = { wall: WALL, tower: TOWER, mine: MINE };
 export const AIR_Y = 150;                     // flyers cruise at this height and a bit above
@@ -626,47 +626,77 @@ function explode(s, u, spec) {
 function stepKings(s, dt) {
   const K = KING_FIGHT;
   for (const pl of s.players) {
-    const A = KING_ATK[pl.race] || { range: 0, dmg: 1, splash: K.splash };
+    const A = KING_ATK[pl.race] || { kind: 'area', shape: 'blast', range: 0, dmg: 1, splash: K.splash };
     const p = pl.id, foe = 1 - p, home = kingHome(p), local = (x) => (p === 0 ? x : W - x);
     pl.kingCd = Math.max(0, pl.kingCd - dt); if (pl.kingAct > 0) pl.kingAct -= dt;
     pl.kingHeal = false;
     if (pl.down > 0 || pl.kingIdle) continue;            // kingIdle: tests that need a chief who stays put
-    let target = null, td = Infinity;
+    // He walks out only for ground troops. Flyers he strikes from where he stands, and only when no ground troop is in
+    // his reach (owner, 2026-11-26: chiefs attack air units too; ground troops screen flyers from him).
+    let target = null, td = Infinity, flyer = null, fd = Infinity;
     for (const u of s.units) {
-      if (u.owner !== foe || u.hp <= 0 || (UNIT[u.kind].air && !K.air) || local(u.x) > K.aggro) continue;
-      const dd = Math.abs(u.x - pl.kx); if (dd < td) { td = dd; target = u; }
+      if (u.owner !== foe || u.hp <= 0) continue;
+      const dd = Math.abs(u.x - pl.kx);
+      if (UNIT[u.kind].air) { if (K.air && A.air && dd <= K.airReach && dd < fd) { fd = dd; flyer = u; } continue; }
+      if (local(u.x) > K.aggro) continue;
+      if (dd < td) { td = dd; target = u; }
     }
+    const sc = kingScale(p, s), mul = RACES[pl.race].mods.kingDmg || 1;
+    const reach = target ? kingR(p, s) + UNIT[target.kind].r + K.reach + A.range * sc : 0;
+    const inReach = target && td <= reach + 2;
+    // One strike. kind 'single': the target alone. 'area': everything in the shape takes the same damage. 'chain': the
+    // target, then it jumps to the nearest troop not yet hit within K.chainR, up to K.chain.length - 1 times, weaker
+    // each jump. Ground strikes never touch flyers and air strikes never touch ground troops.
+    const strike = (t, spec, air) => {
+      pl.kingCd = K.rate * (spec.rate ?? 1); pl.kingAct = spec.act ?? 0.3; pl.kingQuiet = 0;
+      pl.kingFace = Math.sign(t.x - pl.kx) || pl.kingFace;
+      const dmg = K.dmg * spec.dmg * mul * (air ? K.air : 1), f = pl.kingFace, kind = spec.kind || 'area';
+      const pool = s.units.filter((e) => e.owner === foe && e.hp > 0 && !!UNIT[e.kind].air === air);
+      const hits = [[t, 1]];
+      if (kind === 'area') {
+        for (const e of pool) {
+          if (e === t) continue;
+          const inShape = air ? hyp(e.x - t.x, unitY(e) - unitY(t)) < (spec.r ?? K.splash)
+            : spec.shape === 'blast' ? Math.abs(e.x - t.x) < (spec.splash ?? K.splash)
+            : (e.x - pl.kx) * f >= 0 && Math.abs(e.x - pl.kx) <= kingR(p, s) + UNIT[e.kind].r + K.reach + spec.range * sc;
+          if (inShape) hits.push([e, spec.side ?? 1]);
+        }
+      } else if (kind === 'chain') {
+        let last = t;
+        for (let j = 1; j < K.chain.length; j++) {
+          let best = null, bd = K.chainR;
+          for (const e of pool) { if (hits.some((h) => h[0] === e)) continue; const d = hyp(e.x - last.x, unitY(e) - unitY(last)); if (d < bd) { bd = d; best = e; } }
+          if (!best) break;
+          hits.push([best, K.chain[j]]); last = best;
+        }
+      }
+      const aim = { x: t.x, y: air ? unitY(t) : 26, air, kind, n: hits.length, from: pl.kx, face: f };
+      // area strikes say how big they were: r = radius around (x, y) for air bursts and ground blasts; len = how far
+      // along the ground from the chief a 'front' or 'line' swing reached
+      if (kind === 'area') { if (air) aim.r = spec.r ?? K.splash; else if (spec.shape === 'blast') aim.r = spec.splash ?? K.splash; else aim.len = kingR(p, s) + K.reach + spec.range * sc; }
+      if (kind === 'chain') aim.links = hits.slice(1).map(([e]) => ({ x: e.x, y: air ? unitY(e) : 26 }));
+      for (const [e, m] of hits) {
+        hurtUnit(s, e, dmg * m, p);
+        if (spec.push && e.hp > 0) e.x = clamp(e.x - dir(e.owner) * spec.push, 0, W);   // shoved back toward its own fort
+      }
+      pl.kingAim = aim;                                              // what the last strike hit: the drawing reads this
+      fx(s, 'burst', aim.x, aim.y, { ttl: 0.3, owner: p });
+      emit(s, 'king-strike', { p, x: aim.x, y: aim.y, air, kind });
+    };
+    if (flyer && !inReach && pl.kingCd <= 0) strike(flyer, A.air, true);
     if (target) {
       pl.kingQuiet = 0;
-      const reach = kingR(p, s) + UNIT[target.kind].r + K.reach + A.range * kingScale(p, s);
-      pl.kingFace = Math.sign(target.x - pl.kx) || pl.kingFace;
+      if (pl.kingAct <= 0 || !pl.kingAim?.air) pl.kingFace = Math.sign(target.x - pl.kx) || pl.kingFace;
       if (td > reach) {
         const nx = pl.kx + Math.sign(target.x - pl.kx) * Math.min(K.speed * dt, td - reach);
         pl.kx = p === 0 ? clamp(nx, home, K.leash) : clamp(nx, W - K.leash, home);
       }
-      if (td <= reach + 2 && pl.kingCd <= 0) {
-        pl.kingCd = K.rate * (A.rate ?? 1); pl.kingAct = 0.3;
-        // attack shape from KING_ATK: 'blast' (default) hits the target and everything within splash of it; 'front' and
-        // 'line' hit every enemy ground troop on the side he faces within his reach (melee swing, beam or wave)
-        const dmg = K.dmg * A.dmg * (RACES[pl.race].mods.kingDmg || 1), side = A.side ?? K.splashMul, f = pl.kingFace, sc = kingScale(p, s);
-        const wide = A.shape === 'front' || A.shape === 'line';
-        for (const e of s.units) {
-          if (e.owner !== foe || e.hp <= 0 || (UNIT[e.kind].air && !K.air)) continue;
-          const hit = e === target || (wide
-            ? (e.x - pl.kx) * f >= 0 && Math.abs(e.x - pl.kx) <= kingR(p, s) + UNIT[e.kind].r + K.reach + A.range * sc
-            : Math.abs(e.x - target.x) < A.splash);
-          if (!hit) continue;
-          hurtUnit(s, e, (e === target ? dmg : dmg * side) * (UNIT[e.kind].air ? K.air : 1), p);
-          if (A.push && e.hp > 0) e.x = clamp(e.x - dir(e.owner) * A.push, 0, W);   // shoved back toward its own fort
-        }
-        const air = !!UNIT[target.kind].air;
-        fx(s, 'burst', target.x, air ? unitY(target) : 26, { ttl: 0.3, owner: p });
-        emit(s, 'king-strike', { p, x: target.x, air });             // air: the art lane's anti-air strike
-      }
+      if (inReach && pl.kingCd <= 0) strike(target, A, false);
       continue;
     }
-    if (Math.abs(pl.kx - home) > 0.5) { pl.kingFace = Math.sign(home - pl.kx); pl.kx += Math.sign(home - pl.kx) * Math.min(K.speed * dt, Math.abs(home - pl.kx)); continue; }
-    pl.kx = home; pl.kingFace = dir(p);
+    if (flyer) { pl.kingQuiet = 0; }                       // flyers overhead: no healing, but he may walk home
+    if (Math.abs(pl.kx - home) > 0.5) { if (!flyer) pl.kingFace = Math.sign(home - pl.kx); pl.kx += Math.sign(home - pl.kx) * Math.min(K.speed * dt, Math.abs(home - pl.kx)); continue; }
+    pl.kx = home; if (!flyer) pl.kingFace = dir(p);
     pl.kingQuiet += dt;
     if (pl.kingQuiet > K.calm && pl.kingHp < pl.kingMax) { pl.kingHp = Math.min(pl.kingMax, pl.kingHp + K.regen * dt); pl.kingHeal = true; }
   }
@@ -760,7 +790,9 @@ function landHit(s, h) {
       const es = UNIT[e.kind], dealt = hurtUnit(s, e, amt * (es.air ? spec.vsAir ?? 1 : 1), h.owner, false, !!spec.pierce);
       if (spec.slow) e.slow = Math.max(e.slow, spec.slow);
       if (spec.steal && u && u.hp > 0) u.hp = Math.min(u.maxHp, u.hp + dealt * spec.steal);
-      if (e.hp <= 0 && !es.air && !es.minion && (spec.raiser || (m.raise && s.rand() < m.raise))) { e.raiseFor = h.owner; e.raiseKind = spec.raiser || `${spec.race}_skeleton`; }
+      // a raiser (the Necromancer) raises whatever it kills, flyers too (needed once it is air-only); the race-wide chance
+      // stays ground-only (Codex playtest lane, 2026-11-26)
+      if (e.hp <= 0 && !es.minion && (spec.raiser || (!es.air && m.raise && s.rand() < m.raise))) { e.raiseFor = h.owner; e.raiseKind = spec.raiser || `${spec.race}_skeleton`; }
     };
     hit(target, dmg);
     if (spec.splash) { const air = !!UNIT[target.kind].air; for (const e of s.units) if (e !== target && e.owner === foe && e.hp > 0 && !!UNIT[e.kind].air === air && Math.abs(e.x - target.x) < spec.splash) hit(e, dmg * 0.6); }

@@ -109,18 +109,38 @@ export const AGGRO = 120;
 // splash of it; side: share of the damage for everything but the target; rate: multiplier on KING_FIGHT.rate (above 1
 // is slower); push: world units survivors are shoved back. Melee range ends where the effect picture ends.
 // dmg is balanced on tools/kingbench.mjs (tools/kingtune.mjs) so every chief scores about 100.
+// Chief attack styles (owner, 2026-11-26): every chief is one of three kinds, so a player can read the enemy chief
+// and pick troops against him.
+//   single: all the damage on one troop (weak to swarms)
+//   area:   every troop in the shape takes the same modest damage (weak to one tough troop)
+//           shape 'front' / 'line': everything on the side he faces within reach; 'blast': within splash of the target
+//   chain:  the target, then jumps to the nearest troops within KING_FIGHT.chainR at KING_FIGHT.chain strength
+// air: his separate attack on flyers (same kinds; area uses r, a radius around the struck flyer). He strikes a flyer
+// only when no ground troop is in his reach, and never walks toward one.
+// what: the kind in words for the race card and Guidebook; weak: what beats him.
 export const KING_ATK = {
-  fantasy:    { shape: 'front', range: 34,  dmg: 2.1 , side: 0.7, rate: 1.1 },            // warhammer: slow, the shockwave hits everything in reach hard
-  aliens:     { shape: 'line',  range: 150, dmg: 0.63, side: 0.3 },                        // laser: long thin beam, mostly one target
-  robots:     { shape: 'line',  range: 140, dmg: 0.57, side: 0.5, rate: 1.25 },                       // lightning: arcs through the line
-  monsters:   { shape: 'front', range: 28,  dmg: 1.35, side: 0.5, rate: 0.7 },             // claws: fast swipes, short reach
-  military:   { shape: 'blast', range: 130, dmg: 0.96, side: 0.6, splash: 50, rate: 1.3 }, // rocket: slow, bursts where it lands
-  undead:     { shape: 'blast', range: 120, dmg: 0.85, splash: 40 },                       // ghost-fire skull: bursts where it lands
-  pirates:    { shape: 'front', range: 26,  dmg: 2.15, side: 0.6 },                        // cutlass: wide arc up close
-  elementals: { shape: 'line',  range: 120, dmg: 0.48, side: 1, rate: 1.5 },                         // fire wave: rolls over everyone alike, low damage
-  beastfolk:  { shape: 'front', range: 38,  dmg: 1.91, side: 0.6 },             // bone axe: heavy ground slam
-  steampunk:  { shape: 'front', range: 60,  dmg: 0.72, side: 0.8, push: 24 },              // steam blast: shoves troops back
+  fantasy:    { kind: 'single', range: 50,  dmg: 3.8,  rate: 1.4, what: 'One crushing hammer blow on a single troop', weak: 'swarms',
+                air: { kind: 'single', dmg: 3.0, rate: 1.4 } },                               // hammer lightning: one heavy bolt
+  aliens:     { kind: 'single', range: 150, dmg: 1.1,  rate: 0.9, what: 'A quick laser on one troop at long reach', weak: 'swarms',
+                air: { kind: 'single', dmg: 0.95, rate: 0.9 } },                               // ray pistol: the best flyer-killer
+  robots:     { kind: 'chain',  range: 140, dmg: 0.9,  rate: 1.25, what: 'Lightning that jumps from troop to troop', weak: 'one tough troop',
+                air: { kind: 'chain', dmg: 0.9, rate: 1.25 } },                               // tesla prod: chains between flyers
+  monsters:   { kind: 'area',   shape: 'front', range: 28,  dmg: 0.8,  rate: 0.7, what: 'Fast claw swipes at everything close', weak: 'ranged troops and one tough troop',
+                air: { kind: 'single', dmg: 2.2, rate: 1.8 } },                               // thrown rock: heavy, slow, poor against flocks
+  military:   { kind: 'area',   shape: 'blast', range: 130, dmg: 0.9, splash: 50, rate: 1.4, what: 'A slow rocket that bursts among troops', weak: 'one tough troop',
+                air: { kind: 'area', dmg: 0.8, rate: 1.4, r: 45 } },                          // bazooka: a burst in the air
+  undead:     { kind: 'chain',  range: 120, dmg: 0.75, rate: 1.0, what: 'A ghost-fire skull that leaps between troops', weak: 'one tough troop',
+                air: { kind: 'single', dmg: 1.2, rate: 1.0 } },                               // spectral skull: homes on one flyer
+  pirates:    { kind: 'area',   shape: 'front', range: 26,  dmg: 0.9,  rate: 1.0, what: 'A wide cutlass arc up close', weak: 'ranged troops',
+                air: { kind: 'single', dmg: 2.2, rate: 1.6 } },                               // flintlock: one heavy shot
+  elementals: { kind: 'area',   shape: 'line',  range: 120, dmg: 0.65, rate: 1.3, what: 'A long, weak fire wave over everyone', weak: 'one tough troop',
+                air: { kind: 'area', dmg: 0.5, rate: 1.5, r: 70 } },                          // fire fan: weak, wide
+  beastfolk:  { kind: 'single', range: 50,  dmg: 3.2,  rate: 1.15, what: 'One heavy axe slam', weak: 'swarms',
+                air: { kind: 'single', dmg: 1.6, rate: 1.3 } },                               // bone javelin
+  steampunk:  { kind: 'area',   shape: 'front', range: 60,  dmg: 0.65, rate: 1.0, push: 12, what: 'A steam blast that shoves troops back', weak: 'ranged troops',
+                air: { kind: 'single', dmg: 1.2, rate: 1.2, push: 40 } },                     // brass fist: knocks the flyer back
 };
-// air: chiefs hit flyers too, at this share of their damage (owner, 2026-11-26; 0 = ground only). Balance lane tunes it.
-export const KING_FIGHT = { air: 1, outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 3, calm: 2.5 };
+// air: share of damage chiefs do to flyers (0 = ground only). airReach: how far along the ground a flyer may be for him
+// to strike it. chain: strength of the first hit and each jump; chainR: how far a jump reaches.
+export const KING_FIGHT = { air: 1, airReach: 170, chain: [1, 0.6, 0.36, 0.22], chainR: 70, outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 3, calm: 2.5 };
 

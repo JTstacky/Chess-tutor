@@ -154,7 +154,7 @@ function handleEvents() {
       case 'tower-shot': sound('shot_arrow', e.x); break;
       case 'crate-land': sound('coin', e.x); break;
       case 'bonus-drop': sound('bonus', e.x); break;
-      case 'king-strike': if (!sound('strike_' + game.s.players[e.p].race)) sound('impact'); ui.shake = Math.min(1, ui.shake + 0.1); break;
+      case 'king-strike': if (!sound((e.air ? 'strike_air_' : 'strike_') + game.s.players[e.p].race, e.x)) sound('impact', e.x); ui.shake = Math.min(1, ui.shake + 0.1); break;   // air: the chief's anti-air weapon sound (art lane, sfx.js aliases)
       case 'build': sound('build', e.x); break;
       case 'send': if (!sound('send_' + game.s.players[e.p].race, e.x)) sound('send', e.x); break;
       case 'boom': case 'destroyed': sound('boom', e.x); break;

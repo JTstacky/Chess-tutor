@@ -22,6 +22,9 @@ const WET = { click: 0, tick: 0.02, coin: 0.04, boom: 0.26, fortDown: 0.35, win:
 const VARY = { click: 0.02, tick: 0, coin: 0.05, win: 0, lose: 0, roundStart: 0, tier: 0, sudden: 0, ult: 0.015, die: 0.09, hit: 0.08, slash: 0.07, shot: 0.06, strike: 0.04, fortDown: 0.02 };
 // projectiles that share the sound of a near relative
 const ALIAS = { shot_tracer: 'shot_bullet', shot_shotball: 'shot_bullet', shot_rivet: 'shot_bullet', shot_ring: 'shot_ray', shot_dart: 'shot_ray', shot_javelin: 'shot_arrow', shot_screech: 'shot_claw', shot_spike: 'shot_rock', shot_coconut: 'shot_rock', shot_wail: 'shot_skull', shot_magma: 'shot_fire', shot_orb: 'shot_acid', shot_shell: 'shot_ball', shot_keg: 'shot_bomb' };
+// The integrator routes king-strike's air flag to strike_air_<race>; reuse the recorded weapon takes.
+const CHIEF_AIR = { fantasy:'shot_zap', aliens:'shot_ray', robots:'shot_zap', monsters:'shot_rock', military:'strike_military', undead:'shot_skull', pirates:'shot_bullet', elementals:'shot_fire', beastfolk:'shot_arrow', steampunk:'strike_steampunk' };
+for (const [race,kind] of Object.entries(CHIEF_AIR)) ALIAS['strike_air_'+race]=kind;
 const WORLD_W = 1300;
 
 export const SOUND_KINDS = [];

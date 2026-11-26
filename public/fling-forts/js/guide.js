@@ -266,12 +266,15 @@ function showRace(r) {
   const cols = el('div', 'gb-cols'), T = R.traitLines;
   cols.append(traitBox('good', 'Strengths', T.plus), traitBox('bad', 'Weaknesses', T.minus));
   const lean = R.leanLine ? el('p', 'note', `Buildings: ${R.leanLine.label}. ${R.leanLine.text}.`) : null;   // races.js lean (integrator)
+  // the chief's fighting style (owner, 2026-11-26: read the enemy chief and pick troops to beat him); tuning.js KING_ATK
+  const KA = S.KING_ATK[r], KIND = { single: 'Single target', area: 'Area attack', chain: 'Chain attack' };
+  const chief = KA?.what ? el('p', 'note', `Chief: ${KIND[KA.kind] || 'Attack'}. ${KA.what}; also hits flyers. Weak to ${KA.weak}.`) : null;
   const ult = el('div', 'gb-box gb-ult'), ri = ULT_ORDER.indexOf(r), uw = el('div');
   if (ri >= 0 && art.meta?.[`ulticon_${ri < 5 ? 'a' : 'b'}`]) ult.append(pic(`ulticon_${ri < 5 ? 'a' : 'b'}_${ri % 5}`, null));
   uw.append(el('h4', null, `Ultimate: ${R.ult.name}`), el('p', null, ultText(r)), el('p', 'note', ultNote(r))); ult.append(uw);
   const wait = el('div', 'gb-wait', 'Fetching the troops…'), units = el('div', 'gb-units');
   for (const k of R.roster) units.append(unitCard(k));
-  body.append(hero, cols, ...(lean ? [lean] : []), ult, el('h4', null, 'Troops'), wait, units);
+  body.append(hero, cols, ...(lean ? [lean] : []), ...(chief ? [chief] : []), ult, el('h4', null, 'Troops'), wait, units);
   // the race's pictures: base sheets first, then the in-between frames; the panels fill in as they arrive
   const done = () => { if (current === r) wait.remove(); };
   loadGroup(r).then(() => { done(); return loadGroup(r + '+'); }).catch(done);
