@@ -602,9 +602,10 @@ function airTarget(s, u) {
   const [a, b] = fortSpan(foe); return { kind: 'fort', ref: foe, gap: u.x >= a && u.x <= b ? 0 : Math.min(Math.abs(u.x - a), Math.abs(u.x - b)) };
 }
 /** Can a troop of type a hit a troop of type b? Flyers are only reached by shooters on the ground and by flyers marked aa. */
-// troop roles (all optional, set in races.js): noAir never targets flyers; vsAir multiplies damage to flyers;
+// troop roles (all optional, set in races.js): noAir never targets flyers; airOnly never targets ground troops (owner,
+// 2026-11-26: anti-air focuses on one or the other; it still attacks buildings and the castle); vsAir multiplies damage to flyers;
 // pierce ignores armour; siege ignores enemy troops and goes straight for buildings and the fort
-export const canHit = (a, b) => !b.air || (!a.noAir && !!a.range && !a.boom && (!a.air || !!a.aa));
+export const canHit = (a, b) => !b.air ? !a.airOnly : (!a.noAir && !!a.range && !a.boom && (!a.air || !!a.aa));
 
 function explode(s, u, spec) {
   const foe = 1 - u.owner, y = spec.air ? CELL * 2.5 : 20;
@@ -619,7 +620,8 @@ function explode(s, u, spec) {
   emit(s, 'boom', { p: u.owner, x: u.x });
 }
 
-/** Chiefs fight: go for the nearest enemy ground troop near the fort (never past the leash), strike with a splash;
+/** Chiefs fight: go for the nearest enemy troop near the fort, flyers too (owner, 2026-11-26; KING_FIGHT.air scales the
+ *  damage to flyers, 0 turns it off), never past the leash, strike with a splash;
  *  with none near, walk home and, after a calm spell, heal slowly. */
 function stepKings(s, dt) {
   const K = KING_FIGHT;
@@ -631,7 +633,7 @@ function stepKings(s, dt) {
     if (pl.down > 0 || pl.kingIdle) continue;            // kingIdle: tests that need a chief who stays put
     let target = null, td = Infinity;
     for (const u of s.units) {
-      if (u.owner !== foe || u.hp <= 0 || UNIT[u.kind].air || local(u.x) > K.aggro) continue;
+      if (u.owner !== foe || u.hp <= 0 || (UNIT[u.kind].air && !K.air) || local(u.x) > K.aggro) continue;
       const dd = Math.abs(u.x - pl.kx); if (dd < td) { td = dd; target = u; }
     }
     if (target) {
@@ -649,16 +651,17 @@ function stepKings(s, dt) {
         const dmg = K.dmg * A.dmg * (RACES[pl.race].mods.kingDmg || 1), side = A.side ?? K.splashMul, f = pl.kingFace, sc = kingScale(p, s);
         const wide = A.shape === 'front' || A.shape === 'line';
         for (const e of s.units) {
-          if (e.owner !== foe || e.hp <= 0 || UNIT[e.kind].air) continue;
+          if (e.owner !== foe || e.hp <= 0 || (UNIT[e.kind].air && !K.air)) continue;
           const hit = e === target || (wide
             ? (e.x - pl.kx) * f >= 0 && Math.abs(e.x - pl.kx) <= kingR(p, s) + UNIT[e.kind].r + K.reach + A.range * sc
             : Math.abs(e.x - target.x) < A.splash);
           if (!hit) continue;
-          hurtUnit(s, e, e === target ? dmg : dmg * side, p);
+          hurtUnit(s, e, (e === target ? dmg : dmg * side) * (UNIT[e.kind].air ? K.air : 1), p);
           if (A.push && e.hp > 0) e.x = clamp(e.x - dir(e.owner) * A.push, 0, W);   // shoved back toward its own fort
         }
-        fx(s, 'burst', target.x, 26, { ttl: 0.3, owner: p });
-        emit(s, 'king-strike', { p, x: target.x });
+        const air = !!UNIT[target.kind].air;
+        fx(s, 'burst', target.x, air ? unitY(target) : 26, { ttl: 0.3, owner: p });
+        emit(s, 'king-strike', { p, x: target.x, air });             // air: the art lane's anti-air strike
       }
       continue;
     }

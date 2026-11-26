@@ -121,5 +121,6 @@ export const KING_ATK = {
   beastfolk:  { shape: 'front', range: 38,  dmg: 1.91, side: 0.6 },             // bone axe: heavy ground slam
   steampunk:  { shape: 'front', range: 60,  dmg: 0.72, side: 0.8, push: 24 },              // steam blast: shoves troops back
 };
-export const KING_FIGHT = { outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 3, calm: 2.5 };
+// air: chiefs hit flyers too, at this share of their damage (owner, 2026-11-26; 0 = ground only). Balance lane tunes it.
+export const KING_FIGHT = { air: 1, outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 3, calm: 2.5 };
 
