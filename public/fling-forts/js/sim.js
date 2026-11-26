@@ -1,7 +1,7 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
 import { traitMods, traitLines, plainText } from './traits.js';
 export { PRICE_TUNE };
-import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER, DROP_HOME } from './tuning.js';
+import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_DOWN_STEP, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER } from './tuning.js';
 export * from './tuning.js';
 // sim.js — Fling Forts rules and physics, side view. Pure: no DOM, so node tests run the same code as the game.
 // World: x runs left to right (0..W), y is height above the ground (0 = ground). Player 0 owns the left fort,
@@ -10,7 +10,7 @@ export * from './tuning.js';
 export const W = 1300, SKY = 900, CELL = 50, MID = W / 2;
 export const G = 900;                         // gravity, units / s^2
 export const V_MAX = 1250, V_MIN = 240;       // launch speed range (full pull reaches right across at 45 degrees)
-export const ANG_MIN = 0.09, ANG_MAX = 1.48;  // launch angle limits above the horizon, radians
+export const ANG_MIN = -Math.PI / 2, ANG_MAX = 1.48; // allow downward shots, including straight down
 export const KING_HP = KING_BASE_HP, KING_R = 35, KING_Y = 37;     // hit circle matches the 90-unit chief picture (feet to chest)
 export const FORT = { back: 70, cols: 4, kingX: 352, catX: 190, catY: FORT_H + 24, gateX: 330, frontX: 310, h: FORT_H, domeR: 280, zone: [384, 612] };   // castle x back..frontX, h tall; sling on top; chief at kingX in front
 export const WALL = { w: 34, h: 92 }, TOWER = { w: 38, h: 160 }, MINE = { w: 46, h: 48 };
@@ -44,13 +44,11 @@ for (const [rk, r] of Object.entries(RACE_DATA)) {
 export const RACE_KEYS = Object.keys(RACES);
 
 // ---------- bonuses that fly across the sky ----------
-// Hit one (kite or crate balloon) and the power-up drops where it was hit (owner, 2026-11-26): it is not yours yet.
-// It goes to the first ground troop to reach it, or to the side whose castle or chief it lands by. So a hit over your
-// own side pays you, but those are hard shots close to your sling; wait for it to drift and your opponent may hit it.
+// Pop a balloon, then hit its landed crate with a fling shot to claim it. Troops never collect crates.
 export const BONUS = {
-  gold:   { cat: 'air',   name: '+40 gold' },
-  rapid:  { cat: 'air',   name: 'Rapid reload' },
-  ammo:   { cat: 'air',   name: '3 free specials' },
+  gold:   { cat: 'crate',   name: '+40 gold' },
+  rapid:  { cat: 'crate',   name: 'Rapid reload' },
+  ammo:   { cat: 'crate',   name: '3 free specials' },
   repair: { cat: 'crate', name: 'Chief healed' },
   troops: { cat: 'crate', name: 'Free troops' },
   chest:  { cat: 'crate', name: '+90 gold' },
@@ -77,6 +75,7 @@ export const kingPos = (p, s) => ({ x: s && s.players[p].kx != null ? s.players[
 export const fortOpen = () => true;                            // (old rule) the chief always guards now
 /** The chief is up (not knocked out): while he is, his castle takes no damage. */
 export const guarded = (s, p) => s.players[p].down <= 0;
+export const reviveDelay = (s, p) => Math.max(2, KO_DOWN + (RACES[s.players[p].race].mods.koDown || 0)) + Math.max(0, (s.players[p].deaths || 0) - 1) * KO_DOWN_STEP;
 /** The castle's span on the ground for player p (world x, low to high). */
 export const fortSpan = (p) => { const a = mx(p, FORT.back), b = mx(p, FORT.frontX); return [Math.min(a, b), Math.max(a, b)]; };
 export const catPos = (p) => ({ x: mx(p, FORT.catX), y: FORT.catY });
@@ -88,9 +87,9 @@ export function compact(arr, keep) { let n = 0; for (let i = 0; i < arr.length; 
 /** Launch velocity for a pull: (dx, dy) points the way the shot should go, power 0..1. Null when it points backwards. */
 export function launch(p, dx, dy, power) {
   const fx = dx * dir(p);
-  if (hyp(dx, dy) < 1e-6 || fx <= 0 && dy <= 0) return null;
+  if (hyp(dx, dy) < 1e-6 || fx < 0 && dy <= 0) return null;
   let ang = Math.atan2(dy, fx);
-  if (ang > Math.PI / 2 + 0.5 || ang < -0.9) return null;      // pulled the wrong way
+  if (ang > Math.PI / 2 + 0.5 || ang < ANG_MIN) return null;      // pulled the wrong way
   ang = clamp(ang, ANG_MIN, ANG_MAX);
   const v = V_MIN + clamp(power, 0, 1) * (V_MAX - V_MIN);
   return { vx: Math.cos(ang) * v * dir(p), vy: Math.sin(ang) * v, ang, v };
@@ -159,11 +158,13 @@ export const rosterOf = (s, p) => raceOf(s, p).roster;
 // ---------- state ----------
 function newPlayer(id, race) {
   const kingMax = Math.round(KING_HP * (RACES[race].mods.kingHp || 1));
-  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, down: 0, fortHp: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortMax: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortFlash: 0, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, power: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
+  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, down: 0, deaths: 0, fortHp: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortMax: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortFlash: 0, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, power: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
 }
 function buildFort() {}                                          // the block grid is gone: one castle per side (player.fortHp)
 function fresh(s) {
+  const deaths = s.players?.map(p => p.deaths) || [0, 0];
   s.players = [newPlayer(0, s.races[0]), newPlayer(1, s.races[1])];
+  s.players.forEach((p, i) => { p.deaths = deaths[i]; }); // fatigue persists until a new match
   s.projectiles = []; s.units = []; s.buildings = []; s.fires = []; s.fx = []; s.hits = []; s.bonuses = []; s.blocks = []; s.ko = null;
   buildFort(s, 0); buildFort(s, 1);
   s.phase = 'play'; s.clock = SUDDEN_AT; s.roundWinner = null; s.roundT = 0; s.tier = s.open ? TIERS.at.length : 1; s.ultq = []; s.waves = [];   // open: every tier unlocked (rule tests, tools)
@@ -269,7 +270,7 @@ function makeUnit(s, p, kind, x) {
 }
 function spawnSquad(s, p, kind, x, n = UNIT[kind].count) {
   const spec = UNIT[kind];
-  const gap = spec.r * (n >= 4 ? 2.5 : 1.7);                       // big squads march a body apart, so five read as five (not one clump)
+  const gap = Math.min(spec.r * (n >= 4 ? 2.5 : 1.7), Math.max(0, mx(p, x) - 20) / Math.max(1, n - 1));                       // big squads march a body apart, so five read as five (not one clump)
   for (let i = 0; i < n; i++) s.units.push(makeUnit(s, p, kind, x - dir(p) * i * gap));
 }
 export function send(s, p, kind, x = gateX(p)) {
@@ -292,7 +293,7 @@ function hurtKing(s, p, dmg, x, y, by, cap = null) {
   pl.kingHp -= d; pl.kingFlash = 0.25; pl.kingQuiet = 0; ultGain(s, by, p, d);
   if (by === 0 || by === 1) s.players[by].dealt += d;
   emit(s, 'king-hit', { p, x, y, dmg: d });
-  if (pl.kingHp <= 0) { pl.kingHp = 0; pl.down = Math.max(2, KO_DOWN + (RACES[pl.race].mods.koDown || 0)); pl.kx = kingHome(p); pl.koAt = s.time; emit(s, 'chief-down', { p, x: kingPos(p, s).x }); }
+  if (pl.kingHp <= 0) { pl.kingHp = 0; pl.deaths++; pl.down = reviveDelay(s, p); pl.kx = kingHome(p); pl.koAt = s.time; emit(s, 'chief-down', { p, x: kingPos(p, s).x }); }
 }
 /** Hurt player p's castle. While its chief is up the hit sparks off and does nothing. */
 function hurtFort(s, p, dmg, by, x, y) {
@@ -395,29 +396,29 @@ function award(s, p, kind, x, y) {
   emit(s, 'bonus', { p, kind, x, y });
 }
 export const bonusY = (b) => (b.state === 'fly' ? b.y + Math.sin(b.t * 2.2 + b.bob) * 10 : b.y);
+// The 112-high balloon art has its envelope above centre and its hanging crate below.
+// One circle at the rope missed visible hits on both the cap and the crate.
+const hitsBalloon = (b, x, y, r) => {
+  const cy = bonusY(b);
+  return hyp(x - b.x, y - cy - 24) < BONUS_R + r || hyp(x - b.x, y - cy + 34) < 22 + r;
+};
 function stepBonuses(s, dt) {
   s.bonusTimer -= dt;
   if (s.bonusTimer <= 0 && s.bonuses.filter((b) => b.state === 'fly').length < 2) { spawnBonus(s); s.bonusTimer = BONUS_EVERY[0] + s.rand() * (BONUS_EVERY[1] - BONUS_EVERY[0]); }
   for (const b of s.bonuses) {
     b.t += dt;
     if (b.state === 'fly') { b.x += b.vx * dt; if (b.x < -80 || b.x > W + 80) b.gone = true; }
-    else if (b.state === 'fall') { b.vy -= G * 0.6 * dt; b.y += b.vy * dt; if (b.y <= 0) { b.y = 0; b.state = 'ground'; b.t = 0; emit(s, 'crate-land', { x: b.x }); } }
-    else if (b.state === 'ground') {
-      if (b.t > CRATE_LIFE) { b.gone = true; continue; }
-      let best = null, bd = Infinity;
-      for (const u of s.units) { if (UNIT[u.kind].air) continue; const d = Math.abs(u.x - b.x); if (d < UNIT[u.kind].r + 16 && d < bd) { bd = d; best = u; } }
-      if (best) { award(s, best.owner, b.kind, b.x, 30); b.gone = true; continue; }
-      for (const p of [0, 1]) {                              // landed by your castle, or your chief walks up to it
-        const k = kingPos(p, s), pl = s.players[p];
-        if (mx(p, b.x) < FORT.kingX + DROP_HOME || (pl.down <= 0 && Math.abs(k.x - b.x) < 40)) { award(s, p, b.kind, b.x, 30); b.gone = true; break; }
-      }
-    }
+    else if (b.state === 'fall') { b.vy -= G * 0.6 * dt; b.y += b.vy * dt; b.x += (b.vx || 0) * dt; if (b.y <= 0) { b.y = 0; b.x = b.landX ?? b.x; b.state = 'ground'; b.t = 0; emit(s, 'crate-land', { x: b.x }); } }
+    else if (b.state === 'ground' && b.t > CRATE_LIFE) b.gone = true;
   }
   compact(s.bonuses, (b) => !b.gone);
 }
 function hitBonus(s, pr, b) {
-  const y = bonusY(b);                                           // the power-up drops where it was hit (owner, 2026-11-26)
+  const y = bonusY(b);
   b.state = 'fall'; b.y = y; b.vy = 0; b.t = 0; b.by = pr.owner;
+  // Crates above a castle drift to its front, so every landed reward is reachable by a shot.
+  b.landX = clamp(b.x, FORT.frontX + 30, W - FORT.frontX - 30);
+  b.vx = (b.landX - b.x) / Math.max(DT, Math.sqrt(2 * Math.max(0, y) / (G * 0.6)));
   fx(s, 'pop', b.x, y, { ttl: 0.4, owner: pr.owner });
   emit(s, 'bonus-drop', { p: pr.owner, kind: b.kind, x: b.x, y });
 }
@@ -513,22 +514,30 @@ function stepProjectiles(s, dt) {
   compact(s.projectiles, (pr) => stepShot(s, pr, dt, born));
   for (const b of born) s.projectiles.push(b);
 }
-/** Advance one shot. Moves in small sub-steps so nothing thin can be skipped. Returns false when used up. */
+/** A direct fling hit claims one landed reward, once. */
+function claimCrate(s, pr) {
+  if (pr.ult) return false; // rewards belong to aimed fling shots, not ultimate barrages
+  const r = (pr.shard ? AMMO.scatter.size * 0.8 : AMMO[pr.ammo].size) + 22;
+  const b = s.bonuses.find(b => b.state === 'ground' && !b.gone && hyp(pr.x - b.x, pr.y - 20) < r);
+  if (!b) return false;
+  b.gone = true; award(s, pr.owner, b.kind, b.x, 30); return true;
+}
+/** Advance in small sub-steps so thin targets cannot be skipped. */
 function stepShot(s, pr, dt, born) {
   if (pr.rolling != null) return stepRoll(s, pr, dt);
   pr.t += dt; pr.spin += dt * 7;
   const rad = pr.shard ? AMMO.scatter.size * 0.8 : AMMO[pr.ammo].size;
   const n = Math.max(1, Math.ceil(hyp(pr.vx, pr.vy) * dt / 6)), h = dt / n;
   for (let i = 0; i < n; i++) {
-    const vy0 = pr.vy;
     pr.x += pr.vx * h; pr.y += pr.vy * h - 0.5 * G * h * h; pr.vy -= G * h;
     if (!live(s)) { if (pr.y <= 0) return false; continue; }
-    if (pr.split && vy0 > 0 && pr.vy <= 0) {                     // scatter bursts at the top of its arc
-      for (const k of [-1, 0, 1]) born.push({ ...pr, id: s.nextId++, split: false, shard: true, vx: pr.vx * (1 + k * 0.13), vy: k === 0 ? 0 : 40 });
+    if (pr.split && pr.vy <= 0) {                     // scatter bursts at the top of its arc
+      for (const k of [-1, 0, 1]) born.push({ ...pr, id: s.nextId++, split: false, shard: true, vx: pr.vx * (1 + k * 0.13), vy: pr.vy + (k === 0 ? 0 : 40) });
       fx(s, 'burst', pr.x, pr.y, { ttl: 0.35, owner: pr.owner });
       return false;
     }
-    for (const b of s.bonuses) if (b.state === 'fly' && !b.gone && hyp(pr.x - b.x, pr.y - bonusY(b)) < BONUS_R + rad) hitBonus(s, pr, b);
+    if (claimCrate(s, pr)) return false;
+    for (const b of s.bonuses) if (b.state === 'fly' && !b.gone && hitsBalloon(b, pr.x, pr.y, rad)) hitBonus(s, pr, b);
     const hit = solidAt(s, pr, pr.x, pr.y, rad * 0.85);
     if (hit) {
       if (hit.kind === 'shield') { hurtBuilding(s, hit.ref, (pr.shard ? AMMO.scatter.dmg : AMMO[pr.ammo].dmg) * (pr.ammo === 'boulder' && !pr.shard ? 1.6 : 1) * shotMul(s, pr)); fx(s, 'ripple', pr.x, pr.y, { ttl: 0.5, owner: hit.ref.owner }); emit(s, 'shield-hit', { p: hit.ref.owner, x: pr.x, y: pr.y }); return false; }
@@ -554,6 +563,7 @@ function stepRoll(s, pr, dt) {
   pr.t += dt; pr.rolling -= dt; pr.spin += dt * 9 * Math.sign(pr.vx);
   pr.x += pr.vx * dt; pr.vx *= Math.pow(0.82, dt);              // slows down a little as it rolls
   if (!live(s)) return false;
+  if (claimCrate(s, pr)) return false;
   for (const u of s.units) if (u.owner === foe && u.hp > 0 && !UNIT[u.kind].air && !pr.crushed.includes(u.id) && Math.abs(u.x - pr.x) < UNIT[u.kind].r + rad) {
     pr.crushed.push(u.id); hurtUnit(s, u, a.roll.crush * shotMul(s, pr), pr.owner); fx(s, 'boom', u.x, unitY(u), { r: 14, owner: pr.owner, ttl: 0.25 }); s.players[pr.owner].hits++;
   }
@@ -612,7 +622,7 @@ function explode(s, u, spec) {
   u.hp = 0; u.spent = true;
   { const [a, b] = fortSpan(foe); if (u.x > a - spec.boom.r && u.x < b + spec.boom.r) hurtFort(s, foe, spec.boom.dmg * (spec.bld || 1), u.owner, u.x, y); }
   for (const b of s.buildings) if (b.owner === foe && !b.dead && b.kind !== 'shield' && Math.abs(b.x - u.x) < spec.boom.r) hurtBuilding(s, b, spec.boom.dmg, u.owner);
-  for (const e of s.units) if (e.owner === foe && e.hp > 0 && !UNIT[e.kind].air && Math.abs(e.x - u.x) < spec.boom.r * 0.7) hurtUnit(s, e, spec.boom.dmg * 0.5, u.owner);
+  for (const e of s.units) if (e.owner === foe && e.hp > 0 && !UNIT[e.kind].air && Math.abs(e.x - u.x) < spec.boom.r * 0.7) hurtUnit(s, e, spec.boom.dmg, u.owner);
   const k = kingPos(foe, s);
   if (Math.abs(k.x - u.x) < spec.boom.r * 0.6 + kingR(foe, s)) hurtKing(s, foe, spec.boom.dmg * 0.7, u.x, y, u.owner);
   if (spec.boom.cloud) s.fires.push({ owner: u.owner, kind: 'spore', x: u.x, ...spec.boom.cloud });
@@ -853,7 +863,7 @@ function stepUnits(s, dt) {
       }
       continue;
     }
-    // move: toward an enemy troop in sight, else a dropped crate nearby, else on to the fort
+    // move: toward an enemy troop in sight, otherwise on to the fort
     let goal = u.x + d * 100;
     if (!spec.siege && foeUnit && !(spec.boom && spec.air) && fd < Math.max(AGGRO, reach)) goal = foeUnit.x;
     const sp = spec.speed * (m.unitSpeed || 1) * (u.slow > 0 ? 0.5 : 1), stepX = Math.sign(goal - u.x) * Math.min(Math.abs(goal - u.x), sp * dt);

@@ -30,7 +30,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
 
   /** Fling at a point with this level's wobble. Tries the wanted lob angle first, then others that reach. */
   function shootAt(s, tx, ty, ang) {
-    for (const an of [ang, 0.95, 0.75, 1.15, 0.55]) {
+    for (const an of [ang, -1.45, -1.1, -0.6, 0, 0.95, 0.75, 1.15, 0.55]) {
       const sol = solve(p, tx, ty, an);
       if (!sol) continue;
       const ang2 = an + gauss() * cfg.aimErr, pw = sol.power * (1 + gauss() * cfg.aimErr * 0.7);
@@ -94,19 +94,17 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     const shieldFan = (race.mods.shieldMul || 1) < 1 ? 1.8 : 1;
     if (s.phase === 'play' && me.kingHp < me.kingMax * 0.8 && me.gold > cost('shield') + 40 && rand() < cfg.defend * 0.35 * shieldFan) build(s, p, 'shield', 0);
 
-    // --- fetch dropped crates with the fastest ground troop ---
-    const crate = s.bonuses.find((b) => b.state === 'ground');
-    if (crate && roster.length && rand() < cfg.offense * 0.6 && !s.units.some((u) => u.owner === p && !UNIT[u.kind].air && Math.abs(u.x - crate.x) < 260)) {
-      const fast = roster.filter((k) => !UNIT[k].boom && !UNIT[k].air).sort((x, y) => UNIT[y].speed - UNIT[x].speed)[0];
-      if (fast && me.gold >= cost(fast)) send(s, p, fast);
-    }
-
     // --- shoot ---
     waitFire -= cfg.think;
     if (me.reload <= 0 && waitFire <= 0) {
       waitFire = fireWait(s);
+      // Landed rewards need a second shot; no troop dispatch or passive collection.
+      if (!close.length && rand() < cfg.bonus) {
+        const c = catPos(p), crates = s.bonuses.filter(b => b.state === 'ground' && !b.gone && (b.x-c.x)*dir(p)>1).sort((a,b)=>Math.abs(a.x-c.x)-Math.abs(b.x-c.x));
+        for (const b of crates) { setAmmo(s, p, 'stone'); if (shootAt(s, b.x, 20, -0.6)) return; }
+      }
       const flying = s.bonuses.filter((b) => b.state === 'fly');
-      // a hit power-up drops where it is hit, so only shoot ones over your own half (the drop then lands near your side)
+      // Prefer nearby balloons: their landed crates are easier to claim with the next shot.
       const nearMe = flying.filter((b) => (b.x - MID) * dir(p) < 0 && (b.vx * dir(p) > 0 || (b.x - MID) * dir(p) < -160));
       if (nearMe.length && !close.length && rand() < cfg.bonus) { setAmmo(s, p, 'stone'); for (const b of nearMe) if (bonusShot(s, b)) return; }
       let tx, ty, ang = 0.85, ammo = 'stone';

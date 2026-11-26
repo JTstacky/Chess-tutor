@@ -35,7 +35,7 @@ export const LEAN = { size: 0.15, label: { wall: 'Stronger walls', tower: 'Sharp
 export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)
 // the castle (owner: destroy the enemy fort to win; it takes no damage while its chief is up)
 export const FORT_HP = 1700, FORT_H = 230;                         // castle hit points and height (world units)
-export const KO_DOWN = 12, KO_REVIVE = 0.5;                        // a knocked-out chief lies stunned this long, then gets up with this share of his HP
+export const KO_DOWN = 12, KO_DOWN_STEP = 6, KO_REVIVE = 0.5;                        // a knocked-out chief lies stunned this long, then gets up with this share of his HP
 export const BOUNTY = 0.12;                     // share of a troop's price paid to the other side when it is killed
 
 export const CRUSH = 45;                      // a block falling on the chief
@@ -60,6 +60,9 @@ export const BUILD = {
   _vault: { name: 'Vault',  cost: 60, hp: 120, income: 3.5, max: 1 },       // fort addition: a block on top of the back wall
 };
 
+export const HEAVY_PRICE = 1.35;
+export const heavyGround = (u) => !u.air && !u.boom && u.count === 1 && u.hp >= 150;
+
 /** Fighting worth of one squad, from its stats: this is what prices are made from. */
 export function worth(u, all) {
   const air = u.air ? 1.15 : 1;
@@ -81,13 +84,11 @@ export function worth(u, all) {
   if (u.raiser) v *= 1.2;
   if (u.split) v += u.count * u.split.n * worth(all[u.split.kind], all) * 0.8;
   if (u.spawn) v += (20 / u.spawn.every) * worth(all[u.spawn.kind], all) * 0.5;
-  return v;
+  return v * (heavyGround(u) ? HEAVY_PRICE : 1); // large ground troops pay for their staying power
 }
 export const PRICE_K = 0.4819;
 
 export const BONUS_R = 30, BONUS_BAND = [140, 320], BONUS_EVERY = [9, 14], CRATE_LIFE = 25, RAPID_TIME = 10;
-// a dropped power-up that lands this far in front of a chief's home spot (or anywhere behind it) goes to that side
-export const DROP_HOME = 40;
 export const FORT_GUARD = { range: 130, rate: 1.0, dmg: 10 };   // forts plink enemy troops at the gate
 /** How fast troop shots travel (world units a second). The damage lands when the shot arrives, so a target that dies
  *  first is not hit twice. Thrown and lobbed things are slower than bullets; beams, lightning and screams are near

@@ -703,20 +703,18 @@ function drawUnits(g, s, now) {
 }
 
 function drawBonuses(g, s, now) {
-  const AIR = { gold: 0, rapid: 1, ammo: 2 }, CR = { repair: 0, troops: 1, chest: 2 };
   for (const b of s.bonuses) {
     const y = S.bonusY(b);
     if (b.state === 'fly') {
-      if (b.cat === 'air') sprite(g, `bonus_air_${AIR[b.kind]}`, b.x, y - 46, 92, { flip: b.vx < 0, rot: Math.sin(now * 2 + b.bob) * 0.08, anchorY: 1 });
-      else sprite(g, `bonus_crate_${CR[b.kind]}`, b.x, y - 56, 112, { rot: Math.sin(now * 1.6 + b.bob) * 0.05 });
+      sprite(g, 'bonus_crate_2', b.x, y - 56, 112, { rot: Math.sin(now * 1.6 + b.bob) * 0.05 });
+      text(g, S.BONUS[b.kind].name, b.x, y + 58, 13, '#fff6c8');
     } else {
       const blink = b.state === 'ground' && b.t > S.CRATE_LIFE - 5 && Math.floor(now * 6) % 2;
       if (!blink) {
         const rot = b.state === 'fall' ? Math.sin(now * 9) * 0.15 : 0;
-        if (b.cat === 'air') sprite(g, `bonus_air_${AIR[b.kind]}`, b.x, y - 2, 52, { rot, anchorY: 1 });   // a dropped kite
-        else sprite(g, 'bonus_crate_3', b.x, y - 2, 46, { rot });
+        sprite(g, 'bonus_crate_3', b.x, y - 2, 46, { rot });
       }
-      if (b.state === 'ground') text(g, S.BONUS[b.kind].name, b.x, 62 + Math.sin(now * 4) * 3, 15, '#fff6c8');
+      if (b.state === 'ground') text(g, S.BONUS[b.kind].name + ' - hit to claim', b.x, 62 + Math.sin(now * 4) * 3, 15, '#fff6c8');
     }
   }
 }
@@ -1119,7 +1117,7 @@ function drawAbove(g, s, ui, now) {
     sprite(g, key, Math.max(20, Math.min(W - 20, x)), yy - 20 - size * 1.5 * z, size * 1.5 * z, { alpha: 0.95 });
   };
   for (const pr of s.projectiles) mark(pr.x, pr.y, pr.ult ? ultimatePayload(s.players[pr.owner]?.race) : pr.shard ? 'shots_0' : shotKey(pr.ammo), COLORS[pr.owner]?.main || '#fff', pr.shard ? 14 : 24);
-  for (const b of s.bonuses) if (b.state === 'fly') mark(b.x, S.bonusY(b), b.cat === 'air' ? `bonus_air_${{ gold: 0, rapid: 1, shield: 2 }[b.kind] ?? 0}` : 'bonus_crate_0', '#ffd23f', 30);
+  for (const b of s.bonuses) if (b.state === 'fly') mark(b.x, S.bonusY(b), 'bonus_crate_2', '#ffd23f', 30);
 }
 
 function drawAim(g, s, ui) {

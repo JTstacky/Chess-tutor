@@ -40,7 +40,7 @@ const file = (key) => { const m = /^(.*)_(\d+)$/.exec(key), a = art.meta?.[key] 
 const pic = (key, cls, alt = '') => { const i = el('img', cls); i.alt = alt; i.loading = 'lazy'; i.decoding = 'async'; i.draggable = false; i.src = file(key); return i; };
 const num = (v) => (Math.abs(v - Math.round(v)) < 0.05 ? String(Math.round(v)) : v.toFixed(1));
 const ULT_ORDER = ['fantasy', 'aliens', 'robots', 'monsters', 'military', 'undead', 'pirates', 'elementals', 'beastfolk', 'steampunk'];   // the badges' order in ulticon_a and ulticon_b
-const plural = (n, name) => `${n} ${n === 1 ? name.replace(/s$/, '') : name}`;
+const plural = (n, name) => `${n} ${n === 1 ? name.replace(/s$/, '') : name.endsWith('s') ? name : name + 's'}`;
 
 /** A troop's numbers as it really fights for its race (the race's modifiers applied, as sim.js applies them). */
 function statsOf(key) {
@@ -58,6 +58,7 @@ function abilities(u) {
   const out = [], name = (k) => S.UNIT[k]?.name || k;
   const hitsAir = !u.noAir && !!u.range && !u.boom && (!u.air || !!u.aa);       // the rules' canHit
   out.push([hitsAir ? 'Can hit flyers' : 'Cannot hit flyers', hitsAir ? 'yes' : 'no']);
+  if (S.heavyGround(u)) out.push(['Large ground troop: powerful, with a higher price']);
   if (u.air) out.push(['Flies over walls and troops']);
   if (u.vsAir > 1) out.push([`${num(u.vsAir)}× damage to flyers`]);
   if (u.splash) out.push(['Splash: hits everything close to its target']);
@@ -65,13 +66,13 @@ function abilities(u) {
   if (u.siege) out.push([u.range ? 'Prioritises chiefs and buildings; can defend against troops' : 'Ignores troops and goes for chiefs and buildings']);
   if ((u.chief ?? 1) > 1) out.push(['Extra damage against chiefs']);
   if (u.bld > 1) out.push([`${num(u.bld)}× damage to buildings`]);
-  if (u.boom) out.push(['Blows itself up on buildings' + (u.boom.cloud ? ' and leaves a poison cloud' : '')]);
+  if (u.boom) out.push(['Explodes on contact with ground troops or buildings' + (u.boom.cloud ? ' and leaves a poison cloud' : '')]);
   if (u.drop) out.push(['Drops bombs from above']);
   if (u.heal) out.push([`Heals friends nearby (${u.heal.amt} each time)`]);
   if (u.slow) out.push([`Slows what it hits for ${num(u.slow)} seconds`]);
   if (u.charge) out.push([`First hit does ${num(u.charge)}× damage`]);
   if (u.regen) out.push([`Regrows ${num(u.regen)} health a second`]);
-  if (u.steal) out.push(['Heals itself with half the damage it does']);
+  if (u.steal) out.push([`Heals itself for ${Math.round(u.steal * 100)}% of damage dealt`]);
   if (u.split) out.push([`Splits into ${plural(u.split.n, name(u.split.kind))} when it pops`]);
   if (u.spawn) out.push([`Drops a ${name(u.spawn.kind).replace(/s$/, '')} every ${num(u.spawn.every)} seconds`]);
   if (u.raiser) out.push([`Enemies it beats rise as your ${name(u.raiser)}`]);
@@ -87,7 +88,7 @@ function ultText(race) {
   if (U.shape === 'summon') return `Calls in a free army at your gate: ${U.units.map(([k, n]) => plural(n, S.UNIT[`${race}_${k}`]?.name || k)).join(', ').replace(/, ([^,]*)$/, ' and $1')}.`;
   return '';
 }
-const ultNote = (race) => { const c = S.RACES[race].ult.chiefCap; return `Fills up as you fight. One use each round.${c && c < 1 ? ` It can take off no more than ${Math.round(c * 100)}% of the enemy chief's health.` : ''}`; };
+const ultNote = (race) => { const u = S.RACES[race].ult, c = u.chiefCap; return `Fills up as you fight. One use each round.${u.shape !== 'summon' && c && c < 1 ? ` It can take off no more than ${Math.round(c * 100)}% of the enemy chief's health.` : ''}`; };
 
 /** "Strong against / Weak against" for a troop type, read from the Help screen's own table so the wording is one. */
 function matchups(cls) {
