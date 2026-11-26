@@ -119,25 +119,25 @@ export const AGGRO = 120;
 // only when no ground troop is in his reach, and never walks toward one.
 // what: the kind in words for the race card and Guidebook; weak: what beats him.
 export const KING_ATK = {
-  fantasy:    { kind: 'single', range: 50,  dmg: 3.8,  rate: 1.4, what: 'One crushing hammer blow on a single troop', weak: 'swarms',
+  fantasy:    { kind: 'single', range: 50,  dmg: 3.4,  rate: 1.4, what: 'One crushing hammer blow on a single troop', weak: 'swarms',
                 air: { kind: 'single', dmg: 3.0, rate: 1.4 } },                               // hammer lightning: one heavy bolt
-  aliens:     { kind: 'single', range: 150, dmg: 1.1,  rate: 0.9, what: 'A quick laser on one troop at long reach', weak: 'swarms',
+  aliens:     { kind: 'single', range: 150, dmg: 1.0,  rate: 0.9, what: 'A quick laser on one troop at long reach', weak: 'swarms',
                 air: { kind: 'single', dmg: 0.95, rate: 0.9 } },                               // ray pistol: the best flyer-killer
-  robots:     { kind: 'chain',  range: 140, dmg: 0.9,  rate: 1.25, what: 'Lightning that jumps from troop to troop', weak: 'one tough troop',
+  robots:     { kind: 'chain',  range: 140, dmg: 0.8,  rate: 1.25, what: 'Lightning that jumps from troop to troop', weak: 'one tough troop',
                 air: { kind: 'chain', dmg: 0.9, rate: 1.25 } },                               // tesla prod: chains between flyers
-  monsters:   { kind: 'area',   shape: 'front', range: 28,  dmg: 0.8,  rate: 0.7, what: 'Fast claw swipes at everything close', weak: 'ranged troops and one tough troop',
+  monsters:   { kind: 'area',   shape: 'front', range: 28,  dmg: 0.9,  rate: 0.7, what: 'Fast claw swipes at everything close', weak: 'ranged troops and one tough troop',
                 air: { kind: 'single', dmg: 2.2, rate: 1.8 } },                               // thrown rock: heavy, slow, poor against flocks
-  military:   { kind: 'area',   shape: 'blast', range: 130, dmg: 0.9, splash: 50, rate: 1.4, what: 'A slow rocket that bursts among troops', weak: 'one tough troop',
-                air: { kind: 'area', dmg: 0.8, rate: 1.4, r: 45 } },                          // bazooka: a burst in the air
-  undead:     { kind: 'chain',  range: 120, dmg: 0.75, rate: 1.0, what: 'A ghost-fire skull that leaps between troops', weak: 'one tough troop',
+  military:   { kind: 'area',   shape: 'blast', range: 130, dmg: 1.5, splash: 50, rate: 1.4, what: 'A slow rocket that bursts among troops', weak: 'one tough troop',
+                air: { kind: 'area', dmg: 1.3, rate: 1.4, r: 45 } },                          // bazooka: a burst in the air
+  undead:     { kind: 'chain',  range: 120, dmg: 0.9,  rate: 1.0, what: 'A ghost-fire skull that leaps between troops', weak: 'one tough troop',
                 air: { kind: 'single', dmg: 1.2, rate: 1.0 } },                               // spectral skull: homes on one flyer
-  pirates:    { kind: 'area',   shape: 'front', range: 26,  dmg: 0.9,  rate: 1.0, what: 'A wide cutlass arc up close', weak: 'ranged troops',
-                air: { kind: 'single', dmg: 2.2, rate: 1.6 } },                               // flintlock: one heavy shot
-  elementals: { kind: 'area',   shape: 'line',  range: 120, dmg: 0.65, rate: 1.3, what: 'A long, weak fire wave over everyone', weak: 'one tough troop',
-                air: { kind: 'area', dmg: 0.5, rate: 1.5, r: 70 } },                          // fire fan: weak, wide
-  beastfolk:  { kind: 'single', range: 50,  dmg: 3.2,  rate: 1.15, what: 'One heavy axe slam', weak: 'swarms',
+  pirates:    { kind: 'area',   shape: 'front', range: 26,  dmg: 0.45,  rate: 1.0, what: 'A wide cutlass arc up close', weak: 'ranged troops',
+                air: { kind: 'single', dmg: 1.2, rate: 1.6 } },                               // flintlock: one heavy shot
+  elementals: { kind: 'area',   shape: 'line',  range: 120, dmg: 1.4,  rate: 1.3, what: 'A long fire wave over everyone', weak: 'one tough troop',
+                air: { kind: 'area', dmg: 1.1, rate: 1.5, r: 70 } },                          // fire fan: wide
+  beastfolk:  { kind: 'single', range: 50,  dmg: 3.8,  rate: 1.15, what: 'One heavy axe slam', weak: 'swarms',
                 air: { kind: 'single', dmg: 1.6, rate: 1.3 } },                               // bone javelin
-  steampunk:  { kind: 'area',   shape: 'front', range: 60,  dmg: 0.65, rate: 1.0, push: 12, what: 'A steam blast that shoves troops back', weak: 'ranged troops',
+  steampunk:  { kind: 'area',   shape: 'front', range: 60,  dmg: 0.4,  rate: 1.0, push: 12, what: 'A steam blast that shoves troops back', weak: 'ranged troops',
                 air: { kind: 'single', dmg: 1.2, rate: 1.2, push: 40 } },                     // brass fist: knocks the flyer back
 };
 // air: share of damage chiefs do to flyers (0 = ground only). airReach: how far along the ground a flyer may be for him
