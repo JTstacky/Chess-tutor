@@ -73,7 +73,7 @@ export function worth(u, all) {
   if (u.vsAir) dps *= 1 + (u.vsAir - 1) * 0.15;      // extra damage to flyers only
   if (u.noAir && u.range) dps *= 0.92;                 // cannot shoot flyers at all
   if (u.pierce) dps *= 1.12;                           // ignores armour
-  if (u.siege) dps *= 0.85;                            // only ever hits buildings and walls
+  if (u.siege) dps *= 0.85;                            // structure-first targeting reduces its flexibility against troops
   if (u.steal) ehp *= 1 + u.steal * 0.5;
   // staying power counts for a little more than hitting power: a troop has to live long enough to reach the fort
   let v = u.count * 0.72 * Math.pow(ehp, 0.58) * Math.pow(dps, 0.42) * (1 + (u.range || 0) / 260) * Math.pow(u.speed / 45, 0.25) * air;

@@ -62,7 +62,8 @@ function abilities(u) {
   if (u.vsAir > 1) out.push([`${num(u.vsAir)}× damage to flyers`]);
   if (u.splash) out.push(['Splash: hits everything close to its target']);
   if (u.pierce) out.push(['Cuts through armour']);
-  if (u.siege) out.push(['Ignores troops and goes for buildings']);
+  if (u.siege) out.push([u.range ? 'Prioritises chiefs and buildings; can defend against troops' : 'Ignores troops and goes for chiefs and buildings']);
+  if ((u.chief ?? 1) > 1) out.push(['Extra damage against chiefs']);
   if (u.bld > 1) out.push([`${num(u.bld)}× damage to buildings`]);
   if (u.boom) out.push(['Blows itself up on buildings' + (u.boom.cloud ? ' and leaves a poison cloud' : '')]);
   if (u.drop) out.push(['Drops bombs from above']);

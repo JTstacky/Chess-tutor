@@ -602,9 +602,9 @@ function airTarget(s, u) {
   const [a, b] = fortSpan(foe); return { kind: 'fort', ref: foe, gap: u.x >= a && u.x <= b ? 0 : Math.min(Math.abs(u.x - a), Math.abs(u.x - b)) };
 }
 /** Can a troop of type a hit a troop of type b? Flyers are only reached by shooters on the ground and by flyers marked aa. */
-// troop roles (all optional, set in races.js): noAir never targets flyers; airOnly never targets ground troops (owner,
-// 2026-11-26: anti-air focuses on one or the other; it still attacks buildings and the castle); vsAir multiplies damage to flyers;
-// pierce ignores armour; siege ignores enemy troops and goes straight for buildings and the fort
+// troop roles (all optional, set in races.js): noAir never targets flyers; airOnly never targets ground troops (flyer
+// specialists; ground ranged troops hit both again, owner 2026-11-26; airOnly still attacks buildings); vsAir multiplies damage to flyers;
+// pierce ignores armour; siege prioritises chiefs/structures. Ranged siege can defend against troops while advancing.
 export const canHit = (a, b) => !b.air ? !a.airOnly : (!a.noAir && !!a.range && !a.boom && (!a.air || !!a.aa));
 
 function explode(s, u, spec) {
@@ -827,10 +827,11 @@ function stepUnits(s, dt) {
       if (healed) { u.cd = spec.rate; u.act = 0.3; fx(s, 'heal', u.x, 30, { ttl: 0.5, r: spec.heal.r, owner: u.owner }); }
     }
     let foeUnit = null, fd = Infinity;
-    if (!spec.siege) for (const e of s.units) { if (e.owner !== foe || e.hp <= 0 || !canHit(spec, UNIT[e.kind])) continue; const dd = Math.abs(e.x - u.x); if (dd < fd) { fd = dd; foeUnit = e; } }
+    if (!spec.siege || spec.range) for (const e of s.units) { if (e.owner !== foe || e.hp <= 0 || !canHit(spec, UNIT[e.kind])) continue; const dd = Math.abs(e.x - u.x); if (dd < fd) { fd = dd; foeUnit = e; } }
     const reach = spec.range || 0, ob = spec.air ? airTarget(s, u) : obstacle(s, u);
     let target = null, tkind = null;
-    if (foeUnit && !(spec.boom && spec.air) && fd < (reach || spec.r + UNIT[foeUnit.kind].r + 4)) { target = foeUnit; tkind = 'unit'; }
+    if (spec.siege && ob && ob.gap < Math.max(reach, spec.r + 2)) { target = ob.ref; tkind = ob.kind; }
+    else if (foeUnit && !(spec.boom && spec.air) && fd < (reach || spec.r + UNIT[foeUnit.kind].r + 4)) { target = foeUnit; tkind = 'unit'; }
     else if (ob && ob.gap < Math.max(reach, spec.r + 2)) { target = ob.ref; tkind = ob.kind; }
 
     if (target !== null) {
@@ -854,7 +855,7 @@ function stepUnits(s, dt) {
     }
     // move: toward an enemy troop in sight, else a dropped crate nearby, else on to the fort
     let goal = u.x + d * 100;
-    if (foeUnit && !(spec.boom && spec.air) && fd < Math.max(AGGRO, reach)) goal = foeUnit.x;
+    if (!spec.siege && foeUnit && !(spec.boom && spec.air) && fd < Math.max(AGGRO, reach)) goal = foeUnit.x;
     const sp = spec.speed * (m.unitSpeed || 1) * (u.slow > 0 ? 0.5 : 1), stepX = Math.sign(goal - u.x) * Math.min(Math.abs(goal - u.x), sp * dt);
     u.x = clamp(u.x + stepX, 20, W - 20); u.walk += Math.abs(stepX) * 0.09;
   }
