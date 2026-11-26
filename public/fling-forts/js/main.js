@@ -158,6 +158,7 @@ function handleEvents() {
       case 'bonus': sound('bonus'); ui.toast[e.p] = { text: S.BONUS[e.kind].name + '!', until: game.clock + 1.8 }; break;
       case 'sudden': sound('sudden'); break;
       case 'tier': sound('tier'); break;
+      case 'power': sound('build', e.x); sound('coin', e.x); break;
       case 'ult': if (!sound('ult_' + game.s.players[e.p].race, e.x)) sound('ult', e.x); break;
       case 'hero': sound('build'); break;
       case 'round-end': ui.armed = [null, null]; ui.aims.clear(); ui.held = null;

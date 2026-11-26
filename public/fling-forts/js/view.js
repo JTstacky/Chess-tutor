@@ -84,6 +84,10 @@ export const unitKey = (kind, frame) => {
 };
 export const kingKey = (race) => (spr(`king_${race}_0`) || coming(`king_${race}_0`) ? `king_${race}_0` : OLD_KINGS[S.RACE_KEYS.indexOf(race) % 3]);
 const BLK = { wood: 0, stone: 1, iron: 2 };
+// The picture of a fling shot. The Explosive (a fused bomb) and the Rolling shot (a spiked stone wheel) have their own on
+// the shots2 sheet (tools/art_shots2_manifest.py); the old boulder stands in until that has loaded.
+const SHOT_IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3, roll: 3 }, SHOT2 = { roll: 0, boulder: 1 };
+const shotKey = (ammo) => (SHOT2[ammo] != null && spr(`shots2_${SHOT2[ammo]}`) ? `shots2_${SHOT2[ammo]}` : `shots_${SHOT_IDX[ammo] ?? 0}`);
 // A race's own wall, tower and gold mine (art review A12): sheet fortblk_<race>_b, frames 0 wall, 1 tower, 2 mine, which
 // loads with the race's castle. Until it is in (or for a race without one) the shared builds sheet stands in.
 const BLD = { wall: 0, tower: 1, mine: 2 };
@@ -378,7 +382,7 @@ function drawFort(g, s, p, ui, now) {
     band(tipB);                                                          // the far band goes behind the frame
     sprite(g, 'sling_0', c.x, c.y - SL.drop, SL.h, { flip });
     const loaded = aim || (pl.reload <= 0 && kick <= 0);
-    if (loaded) { const IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3, roll: 3 }; sprite(g, `shots_${IDX[pl.ammo] ?? 0}`, pouch.x + Math.cos(ang) * 3 * d * 0, pouch.y - 10, 20, { anchorY: 1 }); }
+    if (loaded) { sprite(g, shotKey(pl.ammo), pouch.x + Math.cos(ang) * 3 * d * 0, pouch.y - 10, 20, { anchorY: 1 }); }
     sprite(g, 'sling_1', pouch.x, pouch.y - 9, 18, { flip, rot: flip ? -ang + Math.PI : ang });
     band(tipF);                                                          // the near band in front of everything
   } else sprite(g, 'catapult_0', c.x, c.y - 14, 62, { flip });
@@ -608,17 +612,22 @@ function drawBonuses(g, s, now) {
 }
 
 function drawShots(g, s) {
-  const IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3, roll: 3 };
   for (const pr of s.projectiles) {
     const a = AMMO[pr.ammo], size = (pr.shard ? 14 : a.size * 2.5);
     if (pr.ult) {                                 // an ultimate's barrage: the caster's own shell, bomb or flaming ball, nose down
       const uk = `ultfx_a_${ULT_DROP[s.players[pr.owner]?.race] ?? 0}`, ui2 = spr(uk);
       if (ui2) { stamp(g, ui2, pr.x, pr.y + 30, 84 * ui2.width / ui2.height, 84); continue; }
     }
+    if (pr.rolling != null) {                     // rolling along the ground: the wheel turns the way it travels and kicks up dust behind it
+      const d = Math.sign(pr.vx) || 1;
+      for (let i = 0; i < 4; i++) { const q = ((pr.t * 3.2 + i / 4) % 1); sprite(g, 'fx_3', pr.x - d * (size * 0.5 + q * 46), 2 + q * 10, 12 + q * 22, { alpha: 0.5 * (1 - q) }); }
+      sprite(g, shotKey(pr.ammo), pr.x, pr.y - size / 2 + Math.abs(Math.sin(pr.t * 23)) * 1.5, size, { rot: pr.spin, anchorY: 1 });
+      continue;
+    }
     // motion streak
     g.strokeStyle = pr.ammo === 'fire' ? 'rgba(255,170,60,0.55)' : 'rgba(255,255,255,0.45)'; g.lineWidth = size * 0.45; g.lineCap = 'round';
     g.beginPath(); g.moveTo(pr.x, -pr.y); g.lineTo(pr.x - pr.vx * 0.035, -(pr.y - pr.vy * 0.035)); g.stroke();
-    sprite(g, `shots_${pr.shard ? 0 : IDX[pr.ammo]}`, pr.x, pr.y - size / 2, size, { rot: pr.spin * (pr.vx > 0 ? 1 : -1), anchorY: 1 });
+    sprite(g, pr.shard ? 'shots_0' : shotKey(pr.ammo), pr.x, pr.y - size / 2, size, { rot: pr.spin * (pr.vx > 0 ? 1 : -1), anchorY: 1 });
   }
 }
 
@@ -670,6 +679,7 @@ export function noteEvent(e, s) {
   else if (e.type === 'fort-down') VFX.push({ type: 'collapse', p: e.p, x: e.x, dur: 1.9 });
   else if (e.type === 'chief-down') VFX.push({ type: 'dizzy', p: e.p, dur: 2.4 });
   else if (e.type === 'chief-up') VFX.push({ type: 'rise', p: e.p, dur: 0.8 });
+  else if (e.type === 'power') VFX.push({ type: 'power', p: e.p, level: e.level, dur: 0.9 });
   else if (e.type === 'ult' && e.shape === 'summon') VFX.push({ type: 'summon', p: e.p, x: S.gateX(e.p) + S.dir(e.p) * 185, race: s.players[e.p].race, dur: 2.4 });
   else if (e.type === 'bounty' && UNIT[e.kind] && e.y != null && VFX.reduce((n, v) => n + (v.type === 'death'), 0) < 24) VFX.push({ type: 'death', kind: e.kind, x: e.x, y: e.y, p: 1 - e.p, dur: UNIT[e.kind].air ? 1 : 0.75 });
   else if (e.type === 'round-start') { VFX.length = 0; DOWN_AT[0] = DOWN_AT[1] = null; }
@@ -749,6 +759,12 @@ function drawVfx(g, s, now) {
     } else if (f.type === 'dizzy' && s.players[f.p]?.down > 0) {    // a chief out cold: stars circle his head
       const k = S.kingPos(f.p, s), im = spr('proj_f_5'), H = CHIEF_H * S.kingScale(f.p, s);
       if (im && a > 0.5) for (let i = 0; i < 3; i++) { const an = now * 4 + i * 2.094, sx = k.x - S.dir(f.p) * H * 0.45 + Math.cos(an) * 20, sy = H * 0.42 + Math.sin(an) * 6; stamp(g, im, sx, sy, 15, 15 * im.height / im.width, { alpha: Math.min(1, (a - 0.5) * 3) * (0.65 + 0.35 * Math.sin(an)), rot: an }); }
+    } else if (f.type === 'power') {                  // a fling shot power level bought: gold rings burst from the sling on the castle roof, one spark per level
+      const sp = S.fortSpan(f.p), x = (sp[0] + sp[1]) / 2, y = FORT.h + 45;
+      g.save();
+      for (let i = 0; i < 2; i++) { const c = Math.max(0, Math.min(1, q * 1.3 - i * 0.25)); if (c <= 0 || c >= 1) continue; g.beginPath(); g.arc(x, -y, 14 + c * 62, 0, 7); g.lineWidth = 9 * (1 - c) + 2; g.strokeStyle = `rgba(120,70,10,${0.5 * (1 - c)})`; g.stroke(); g.lineWidth = 6 * (1 - c) + 1; g.strokeStyle = `rgba(255,205,60,${1 - c})`; g.stroke(); }
+      for (let i = 0; i < (f.level || 1); i++) { const an = -Math.PI / 2 + (i - ((f.level || 1) - 1) / 2) * 0.5, r = 22 + q * 58; g.beginPath(); g.arc(x + Math.cos(an) * r, -y + Math.sin(an) * r, 5 * (1 - q) + 1, 0, 7); g.fillStyle = `rgba(255,240,170,${1 - q})`; g.fill(); }
+      g.restore();
     } else if (f.type === 'rise') {                   // back on his feet: a ring of light climbs him
       const k = S.kingPos(f.p, s), H = CHIEF_H * S.kingScale(f.p, s);
       g.globalAlpha = 1 - q; g.strokeStyle = '#fff1a8'; g.lineWidth = 4; g.beginPath(); g.ellipse(k.x, -(H * q), 30 * (1 - q * 0.4), 9, 0, 0, 7); g.stroke();
@@ -921,7 +937,7 @@ function drawFx(g, s, now) {
 /** Shots and flying bonuses that are above the top of the screen: an arrow at the top edge at their x, with a small
  *  picture of the thing, shrinking the higher it is. */
 function drawAbove(g, s, ui, now) {
-  const lay = DRAW_LAY, edge = lay.gy / lay.s, IDX = { stone: 0, scatter: 1, fire: 2, boulder: 3 };
+  const lay = DRAW_LAY, edge = lay.gy / lay.s, IDX = SHOT_IDX;
   const mark = (x, y, key, col, size) => {
     const over = y - edge; if (over <= 0) return;
     if (Math.abs(x - W / 2) < 100) x = W / 2 + (x < W / 2 ? -100 : 100);          // beside the clock, never on it
@@ -933,7 +949,7 @@ function drawAbove(g, s, ui, now) {
     g.restore();
     sprite(g, key, Math.max(20, Math.min(W - 20, x)), yy - 20 - size * 1.5 * z, size * 1.5 * z, { alpha: 0.95 });
   };
-  for (const pr of s.projectiles) mark(pr.x, pr.y, `shots_${pr.shard ? 0 : IDX[pr.ammo]}`, COLORS[pr.owner]?.main || '#fff', pr.shard ? 14 : 24);
+  for (const pr of s.projectiles) mark(pr.x, pr.y, pr.shard ? 'shots_0' : shotKey(pr.ammo), COLORS[pr.owner]?.main || '#fff', pr.shard ? 14 : 24);
   for (const b of s.bonuses) if (b.state === 'fly') mark(b.x, S.bonusY(b), b.cat === 'air' ? `bonus_air_${{ gold: 0, rapid: 1, shield: 2 }[b.kind] ?? 0}` : 'bonus_crate_0', '#ffd23f', 30);
 }
 
@@ -974,8 +990,9 @@ function drawPowerButton(g, s, p, real, k, b, narrow, ai, col) {
   rrect(g, b.x, -b.y + 3, b.w, b.h, 12); g.fillStyle = 'rgba(40,22,8,0.55)'; g.fill();
   rrect(g, b.x, -b.y, b.w, b.h - 3, 12); g.fillStyle = '#f6e7c8'; g.fill(); g.lineWidth = 3; g.strokeStyle = INK; g.stroke();
   const cx = narrow ? b.w / 2 : b.x + 24;
-  sprite(g, 'shots_0', cx, b.y - b.h + (narrow ? 22 : 12), narrow ? 20 : 28);
-  text(g, '▲', cx + (narrow ? 14 : 16), b.y - b.h + (narrow ? 26 : 30), narrow ? 12 : 14, '#3fbf4a', 'center', INK);
+  if (spr('shots2_2')) sprite(g, 'shots2_2', cx, b.y - b.h + (narrow ? 15 : 8), narrow ? 32 : 38);      // its own icon: a glowing stone in a drawn sling
+  else sprite(g, 'shots_0', cx, b.y - b.h + (narrow ? 22 : 12), narrow ? 20 : 28);
+  text(g, '▲', cx + (narrow ? 15 : 17), b.y - b.h + (narrow ? 26 : 30), narrow ? 12 : 14, '#3fbf4a', 'center', INK);
   if (!narrow) { g.font = FONT(13); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = INK; g.fillText('Power', b.x + 48 + (b.w - 54) / 2, -(b.y - 19), b.w - 54); }
   for (let i = 0; i < 5; i++) { const px = (narrow ? b.w / 2 - 26 : b.x + 10) + i * (narrow ? 13 : 9), py = narrow ? b.y - 8 : b.y - 50; g.beginPath(); g.arc(px, -py, narrow ? 4.5 : 3.5, 0, 7); g.fillStyle = i < lv ? col.main : 'rgba(60,40,20,0.25)'; g.fill(); }
   const tx = narrow ? b.w / 2 : b.x + 70;
@@ -1044,7 +1061,7 @@ function drawHud(g, s, ui, now) {
       const chipped = narrow && !!UNIT[key]?.cls;
       const cx = narrow ? b.w / 2 : b.x + 24, iy = b.y - b.h + (narrow ? (chipped ? 20 : 22) : 8), tx = narrow ? b.w / 2 : b.x + 70, z = narrow ? (chipped ? 0.66 : 0.74) : 1;
       const fitH = (k2, h, maxW) => { const im = spr(k2); return im ? Math.min(h, maxW * im.height / im.width) : h; };   // height that keeps a wide picture inside its slot
-      if (b.kind === 'ammo') sprite(g, `shots_${{ stone: 0, scatter: 1, fire: 2, boulder: 3, roll: 3 }[key]}`, cx, iy + 4 * z, 36 * z);
+      if (b.kind === 'ammo') sprite(g, shotKey(key), cx, iy + 4 * z, 36 * z);
       else if (key === 'wall' || key === 'tower') { const bk = buildKey(s.players[p].race, key), bh = fitH(bk, 45 * z, 44 * z); sprite(g, bk, cx, iy + (45 * z - bh) / 2, bh, { flip: p === 1 }); }
       else if (key === 'shield') sprite(g, 'ui_1', cx, iy + 3 * z, 38 * z);
       else if (key === 'mine') { const mk = buildKey(s.players[p].race, 'mine'), mh = fitH(mk, 42 * z, 44 * z); sprite(g, mk, cx, iy + (42 * z - mh) / 2, mh); }
