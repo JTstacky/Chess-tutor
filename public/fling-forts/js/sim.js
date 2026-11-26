@@ -799,7 +799,7 @@ function landHit(s, h) {
   }
   else if (tkind === 'bld') hurtBuilding(s, target, dmg * spec.bld, h.owner);
   else if (tkind === 'fort') hurtFort(s, foe, dmg * spec.bld, h.owner, h.x, 40);
-  else hurtKing(s, foe, dmg * KING_UNIT_MUL, h.x, 20, h.owner);
+  else hurtKing(s, foe, dmg * KING_UNIT_MUL * (spec.chief ?? 1), h.x, 20, h.owner);   // chief: a troop's damage multiplier on chiefs (owner, 2026-11-26: siege strong against chiefs); set in races.js
 }
 function stepHits(s, dt) {
   for (const h of s.hits) { h.t -= dt; if (h.t <= 0 && live(s)) landHit(s, h); }
