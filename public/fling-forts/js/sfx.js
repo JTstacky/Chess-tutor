@@ -126,9 +126,12 @@ function loadMusic() {
 }
 /** Set what the music is doing: 'off' (silent), 'low' (menus, pause, round over), 'play', 'sudden' (faster). Cheap to call every frame. */
 export function music(mode) {
+  // not loaded yet: start loading as soon as sound is unlocked, even if the mode has not changed since (the menu stays
+  // 'low' through the unlock, so a same-mode early return would leave it silent until the first match). loadMusic
+  // starts only once, so calling it every frame is cheap.
+  if (!mus || !actx) { musMode = mode; if (actx && mode !== 'off') loadMusic(); return; }
   if (mode === musMode) return;
   musMode = mode;
-  if (!mus || !actx) { if (actx && mode !== 'off') loadMusic(); return; }
   const t = actx.currentTime;
   musGain.gain.cancelScheduledValues(t); musGain.gain.setTargetAtTime(MUSIC_GAIN * (LEVEL[mode] ?? 0), t, mode === 'off' ? 0.15 : 0.5);
   mus.playbackRate.cancelScheduledValues(t); mus.playbackRate.setTargetAtTime(mode === 'sudden' ? FAST : 1, t, 0.6);      // winds up over a second or two, and back down for the next round
