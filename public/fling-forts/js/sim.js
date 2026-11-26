@@ -58,7 +58,10 @@ export const DT = 1 / 60;
 // ---------- helpers ----------
 export function rng(seed) {             // mulberry32
   let a = seed >>> 0;
-  return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const next = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  next.getState = () => a;
+  next.setState = (state) => { a = state >>> 0; };
+  return next;
 }
 export const dir = (p) => (p === 0 ? 1 : -1);                 // +x direction a player shoots and marches toward
 export const mx = (p, x) => (p === 0 ? x : W - x);            // a left-fort x mirrored for player p

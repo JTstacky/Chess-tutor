@@ -46,13 +46,13 @@ export function attachInput(canvas, game) {
       const c = powerCost(s, p);
       if (c == null) return toast(p, 'Fling shot power is at its top level');
       if (pl.gold < c) return toast(p, `Power level ${(pl.power || 0) + 1} needs ${c} gold`);
-      if (upgradePower(s, p)) { game.sound('click'); toast(p, `Fling shot power: level ${pl.power}`); }
+      if (game.act.upgradePower(s, p)) { game.sound('click'); toast(p, `Fling shot power: level ${(pl.power || 0) + 1}`); }
       return;
     }
     if (b.kind === 'ult') {
       if (pl.ultUsed) return toast(p, 'Ultimate used this round');
       if (!ultReady(s, p)) return toast(p, `Ultimate charging: ${Math.floor(pl.ult * 100)}%`);
-      ultimate(s, p); return;
+      game.act.ultimate(s, p); return;
     }
     if (!isOpen(s, p, key)) return toast(p, `Unlocks in ${clock(Math.max(0, unlockAt(s, p, key) - s.roundT))}`);
     const cost = costFor(s, p, key);
@@ -60,32 +60,32 @@ export function attachInput(canvas, game) {
       if (pl.heroCd > 0) return toast(p, `Hero back in ${Math.ceil(pl.heroCd)} s`);
       if (!heroOk(s, p)) return toast(p, 'Your hero is already out');
       if (pl.gold < cost) return toast(p, `${UNIT[key].name} needs ${cost} gold`);
-      send(s, p, key, gateX(p)); return;
+      game.act.send(s, p, key, gateX(p)); return;
     }
     if (b.kind === 'ammo') {
       const free = key !== 'stone' && pl.freeShots > 0;
       if (!free && pl.gold < cost) return toast(p, `${AMMO[key].name} needs ${cost} gold`);
-      setAmmo(s, p, key); ui.armed[p] = null; game.sound('click');
+      game.act.setAmmo(s, p, key); ui.armed[p] = null; game.sound('click');
       return;
     }
     if (pl.gold < cost) return toast(p, `${(BUILD[key] || UNIT[key]).name} needs ${cost} gold`);
-    if (b.kind === 'unit') { if (send(s, p, key, gateX(p))) ui.armed[p] = null; return; }       // troops march out of the gate at once
+    if (b.kind === 'unit') { if (game.act.send(s, p, key, gateX(p))) ui.armed[p] = null; return; }       // troops march out of the gate at once
     if (key === 'shield') {
       if (s.phase === 'sudden') return toast(p, 'No shields in sudden death');
-      if (!build(s, p, 'shield', 0)) toast(p, 'Your shield is already up');
+      if (!game.act.build(s, p, 'shield', 0)) toast(p, 'Your shield is already up');
       return;
     }
-    if (key === 'vault') { if (!build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }
+    if (key === 'vault') { if (!game.act.build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }
     if (!freeSlots(s, p)) return toast(p, `All ${S_COUNT(s, p)} building spots are full`);
     // one tap builds (owner, 2026-11-25): no second tap on the ground
     ui.armed[p] = null;
-    if (autoBuild(s, p, key)) game.sound('click'); else toast(p, `No room for another ${BUILD[key].name.toLowerCase()}`);
+    if (game.act.autoBuild(s, p, key)) game.sound('click'); else toast(p, `No room for another ${BUILD[key].name.toLowerCase()}`);
   }
 
   function place(p, x) {
     const s = game.s, k = ui.armed[p];
     if (!k) return;
-    if (build(s, p, k, x)) { ui.armed[p] = null; return; }
+    if (game.act.build(s, p, k, x)) { ui.armed[p] = null; return; }
     if (s.players[p].gold < costFor(s, p, k)) { toast(p, 'Not enough gold'); ui.armed[p] = null; }
     else if (!placeOk(s, p, k, x)) toast(p, 'Not there: tap the bright strip');
   }
@@ -94,13 +94,14 @@ export function attachInput(canvas, game) {
     e.preventDefault();
     const w = pos(e), p = w.x < W / 2 ? 0 : 1;
     if (game.state === 'pick') {                                   // both players choose at once
-      if (game.s.mode === 'solo' && p === 1) return;
+      if ((game.s.mode === 'solo' && p === 1) || (game.online && p !== game.online.side)) return;
       const hit = pickHit(p, w.x, w.y);
-      if (hit?.race && !ui.pick.ready[p]) { ui.pick.race[p] = hit.race; game.sound('click'); }
+      if (hit?.race && !ui.pick.ready[p]) { ui.pick.race[p] = hit.race; game.sound('click'); if (game.online) game.pickChanged(); }
       else if (hit?.ready && ui.pick.race[p]) { ui.pick.ready[p] = !ui.pick.ready[p]; game.sound('click'); game.pickChanged(); }
       return;
     }
     if (!game.playing()) return;
+    if (game.online && (p !== game.online.side || game.online.wait || game.online.reconnecting)) return;
     const live = game.s.phase === 'play' || game.s.phase === 'sudden';
     try { canvas.setPointerCapture(e.pointerId); } catch {}
     if (Math.hypot(w.x - PAUSE.x, w.y - PAUSE.y) < PAUSE.r + 10) { ui.aims.set(e.pointerId, { p, kind: 'pause', at: game.now() }); ui.pauseHold = game.now(); return; }
@@ -140,8 +141,8 @@ export function attachInput(canvas, game) {
     if (!aim || aim.power < 0.05) return;
     const s = game.s, pl = s.players[a.p];
     if (pl.reload > 0) { toast(a.p, 'Reloading…'); return; }
-    if (pl.gold < shotCost(s, a.p)) { setAmmo(s, a.p, 'stone'); toast(a.p, 'Out of gold: stones loaded'); return; }
-    if (fire(s, a.p, aim.dx, aim.dy, aim.power)) ui.kick[a.p] = 1;
+    if (pl.gold < shotCost(s, a.p)) { game.act.setAmmo(s, a.p, 'stone'); toast(a.p, 'Out of gold: stones loaded'); return; }
+    if (game.act.fire(s, a.p, aim.dx, aim.dy, aim.power)) ui.kick[a.p] = 1;
   }
   function cancel(e) { const a = ui.aims.get(e.pointerId); if (a?.kind === 'pause') ui.pauseHold = 0; if (a?.kind === 'button') clearHeld(a); ui.aims.delete(e.pointerId); }
   // a finger resting on a control-strip button: ui.held = { p, key, b } so view.js can show the button's name (phones show no names)

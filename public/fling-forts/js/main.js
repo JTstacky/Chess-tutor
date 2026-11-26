@@ -6,6 +6,7 @@ import { computeLayout, draw, loadArt, loadGroup, worldToScreen, buttons, PICK, 
 import { sound, unlockAudio, music, musicState } from './sfx.js';
 viewArt.onSound = (kind, x) => { if (game.state === 'play') sound(kind, x); };      // shots and hits are heard when they are first drawn
 import { attachInput, blockBrowserGestures, PULL_MAX } from './input.js';
+import { createOnline } from './online.js';
 
 const canvas = document.getElementById('game');
 const g = canvas.getContext('2d');
@@ -16,13 +17,14 @@ const game = {
   s: S.createGame(), ui, lay: null, ai: null, state: 'menu', clock: 0,
   now: () => game.clock,
   playing: () => game.state === 'play',
-  pause, sound, unlockAudio, pickChanged,
+  pause, sound, unlockAudio, pickChanged, act: S, online: null,
 };
 
 // ---------- screens ----------
 function show(id) { for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id; ui.menu = id === 'menu' || id === 'help' || id === 'guide'; }
 /** Menu -> race pick: each player chooses on their own side; solo: the computer picks at once. */
 function pick(mode, level = ui.aiLevel) {
+  leaveOnline();
   ui.aiLevel = level;
   game.s = S.createGame({ mode, seed: 1 });
   ui.pick = { mode, level, race: [null, null], ready: [false, false] };
@@ -32,6 +34,13 @@ function pick(mode, level = ui.aiLevel) {
 function pickChanged() {
   const pk = ui.pick;
   if (!pk) return;
+  if (game.online) {
+    const p = game.online.side;
+    game.online.cmd('pick', { race: pk.race[p] });
+    game.online.cmd('ready', { on: pk.ready[p] });
+    if (pk.race[p]) loadGroup(pk.race[p]);
+    return;
+  }
   for (const r of pk.race) if (r) loadGroup(r);            // fetch a race's sprites as soon as its card is chosen
   // both ready: start once both races' sprites are in (or after 4 s on a very slow line; fallbacks cover the rest)
   if (pk.ready[0] && pk.ready[1]) {
@@ -47,19 +56,48 @@ function start(mode, level = ui.aiLevel, seed = (Math.random() * 1e9) | 0, races
   ui.armed = [null, null]; ui.aims.clear(); ui.toast = [null, null]; ui.kick = [0, 0];
   game.state = 'play'; show(null); unlockAudio(); sound('roundStart'); ui.tickAt = null;
 }
-function pause() { if (game.state !== 'play') return; game.state = 'paused'; ui.aims.clear(); quitArmed = 0; $('btn-quit').textContent = 'Quit to menu (tap twice)'; show('pause'); }
+function pause() { if (game.state !== 'play') return; game.state = 'paused'; ui.aims.clear(); quitArmed = 0; $('btn-quit').textContent = 'Quit to menu (tap twice)'; $('btn-restart').hidden = !!game.online; show('pause'); }
 function resume() {
   game.state = 'play'; last = performance.now();
   const wait = game.s && game.s.phase === 'over' ? (ui.overAt || 0) - performance.now() : 0;
   show(game.s && game.s.phase === 'over' && wait <= 0 ? 'over' : null);
   if (wait > 0) setTimeout(() => { if (game.s.phase === 'over' && game.state === 'play') show('over'); }, wait);   // the knockout still plays out first
 }
-function toMenu() { game.state = 'menu'; ui.pick = null; show('menu'); }
+function toMenu() { leaveOnline(); game.state = 'menu'; ui.pick = null; show('menu'); }
+
+const HOST_CHECKPOINT_KEY = 'fling-forts:host-room';
+const profileId = () => { try { return localStorage.getItem('tenggames.profileId'); } catch { return null; } };
+const savedHost = () => {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(HOST_CHECKPOINT_KEY));
+    return value && value.data?.v === 1 && /^[A-Z0-9]{4,8}$/.test(value.code) &&
+      /^[a-f0-9]{64}$/.test(value.hostToken) && value.profileId === profileId() &&
+      Date.now() - value.at < 10 * 60_000 ? value : null;
+  } catch { return null; }
+};
+const clearHost = () => { try { sessionStorage.removeItem(HOST_CHECKPOINT_KEY); } catch {} };
+
+const online = createOnline({
+  checkpoint(value) { try { sessionStorage.setItem(HOST_CHECKPOINT_KEY, JSON.stringify({ ...value, profileId: profileId() })); } catch {} },
+  status(s) { $('online-status').textContent = s === 'reconnecting' ? 'Reconnecting…' : s === 'open' ? 'Connected' : s === 'failed' ? 'Connection failed' : 'Connecting…'; },
+  lobby(o) { $('online-code').textContent = o.code || ''; $('online-status').textContent = o.peers === 2 ? 'Both players connected' : 'Share this code with a friend'; if (!o.isHost && o.code) { const u = new URL(location.href); u.searchParams.set('room', o.code); history.replaceState(null, '', u); } },
+  stage(stage, o) {
+    if (stage === 'pick') { game.state = 'pick'; ui.pick = { mode: 'online', race: o.pick?.race || [null, null], ready: o.pick?.ready || [false, false] }; show(null); resize(); }
+    if (stage === 'play') { game.state = 'play'; ui.pick = null; ui.aims.clear(); show(o.cur?.phase === 'over' ? 'over' : null); resize(); }
+  },
+  error(message) { if (message.startsWith('Saved room could not be reopened:')) clearHost(); $('online-status').textContent = message; if (game.state !== 'menu') { game.state = 'menu'; show('online'); } },
+});
+function leaveOnline() { if (game.online) { online.leave(); clearHost(); game.online = null; game.act = S; const u = new URL(location.href); u.searchParams.delete('room'); history.replaceState(null, '', u); } }
+function enterOnline() { game.online = online; game.act = online.act; show('online'); }
 
 let level = 'normal', quitArmed = 0;
 for (const b of document.querySelectorAll('[data-level]')) b.addEventListener('click', () => { level = b.dataset.level; for (const o of document.querySelectorAll('[data-level]')) o.classList.toggle('on', o === b); });
 $('btn-2p').addEventListener('click', () => pick('2p'));
 $('btn-solo').addEventListener('click', () => pick('solo', level));
+$('btn-online').addEventListener('click', enterOnline);
+$('btn-host').addEventListener('click', () => { clearHost(); enterOnline(); online.host(); });
+$('btn-join').addEventListener('click', () => { clearHost(); enterOnline(); online.join($('join-code').value); });
+$('btn-online-back').addEventListener('click', toMenu);
 $('btn-help').addEventListener('click', () => show('help'));
 $('btn-help-back').addEventListener('click', () => show('menu'));
 // the Guidebook (js/guide.js) is fetched only when it is first opened, so the menu's own load stays as it was
@@ -68,9 +106,9 @@ $('btn-resume').addEventListener('click', resume);
 $('btn-restart').addEventListener('click', () => start(game.s.mode, ui.aiLevel));
 // quitting throws the match away, so a single stray tap must not do it
 $('btn-quit').addEventListener('click', () => { if (performance.now() - quitArmed < 2500) toMenu(); else { quitArmed = performance.now(); $('btn-quit').textContent = 'Tap again to quit'; } });
-$('btn-rematch').addEventListener('click', () => start(game.s.mode, ui.aiLevel));
+$('btn-rematch').addEventListener('click', () => { if (game.online) { game.online.cmd('rematch', { races: false }); show(null); } else start(game.s.mode, ui.aiLevel); });
 $('btn-over-menu').addEventListener('click', toMenu);
-document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && !game.online) pause(); });
 
 // ---------- loop ----------
 function resize() {
@@ -179,6 +217,7 @@ function advance(dt) {
   game.clock += dt;
   if (input) input.tick();
   if (game.state !== 'play') return;
+  if (game.online) { const s = game.online.view(dt); if (s) { game.s = s; handleEvents(); } return; }
   if (game.ai) game.ai.update(game.s, dt);
   preStep(game.s);                             // for the fling shot damage numbers
   S.step(game.s, dt);
@@ -193,6 +232,7 @@ function frame(t) {
   let real = Math.min(0.25, (t - last) / 1000); last = t;
   if (ui.hitstop > 0) { ui.hitstop -= real; real = 0; } else if (ui.slowmo > 0) { ui.slowmo -= real; real *= KO.rate; }
   acc += real;
+  if (game.online?.stage === 'pick' && game.online.pick && ui.pick) { ui.pick.race = game.online.pick.race.slice(); ui.pick.ready = game.online.pick.ready.slice(); }
   // countdown tick over the last five seconds of a round or of sudden death
   if (game.state === 'play' && game.s && (game.s.phase === 'play' || game.s.phase === 'sudden') && game.s.clock <= 5.0) {
     const sec = Math.ceil(game.s.clock); if (sec !== ui.tickAt && sec > 0) { ui.tickAt = sec; sound('tick'); }
@@ -210,12 +250,15 @@ function frame(t) {
 blockBrowserGestures();
 input = attachInput(canvas, game);
 show('menu');
+const resumeCode = new URL(location.href).searchParams.get('room');
+if (resumeCode && /^[A-Z0-9]{4,8}$/i.test(resumeCode)) { enterOnline(); $('join-code').value = resumeCode.toUpperCase(); online.join(resumeCode); }
+else { const saved = savedHost(); if (saved) { enterOnline(); online.host(saved); } }
 loadArt().then(() => { window.RR.artReady = true; });
 requestAnimationFrame(frame);
 
 // test hook (read by the tools)
 window.RR = {
-  game, ui, start, pick, S, artReady: false, PULL_MAX, buttons, PICK, PAUSE,
+  game, ui, start, pick, online, S, artReady: false, PULL_MAX, buttons, PICK, PAUSE,
   musicState, unlockAudio,
   advance: (secs) => { for (let i = 0; i < secs * 60; i++) advance(S.DT); },
   toScreen: (x, y) => worldToScreen(game.lay, x, y),

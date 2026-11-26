@@ -19,7 +19,7 @@
     <div class="card">
       <h1><span class="ember">Fling</span> <span class="tide">Forts</span></h1>
       <p class="tag">Two forts. One tablet. Fling, build, march.</p>
-      <button id="btn-2p" class="big">Two players</button>
+      <div class="row2"><button id="btn-2p" class="big">Two players</button><button id="btn-online" class="big online">Play online</button></div>
       <div class="solo">
         <button id="btn-solo" class="big alt">Solo vs computer</button>
         <div class="levels">
@@ -27,6 +27,18 @@
         </div>
       </div>
       <div class="row2"><button id="btn-help" class="small">How to play</button><button id="btn-guide" class="small">Guidebook</button></div>
+    </div>
+  </section>
+
+  <section id="online" class="screen" hidden>
+    <div class="card">
+      <h2>Play online</h2>
+      <p>Host a room and share its code, or enter a friend's code.</p>
+      <button id="btn-host" class="big">Host a game</button>
+      <div id="online-code" class="code" aria-live="polite"></div>
+      <div class="row2"><input id="join-code" maxlength="8" placeholder="Room code" autocomplete="off" autocapitalize="characters" aria-label="Room code"><button id="btn-join" class="big">Join</button></div>
+      <p id="online-status" aria-live="polite"></p>
+      <button id="btn-online-back" class="small">Back</button>
     </div>
   </section>
 
@@ -84,6 +96,8 @@
     </div>
   </section>
 
+  <script src="js/vendor/peerjs.min.js"></script>
+  <script type="importmap">{ "imports": { "peerjs": "./js/vendor/peerjs-shim.js" } }</script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
