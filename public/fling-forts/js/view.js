@@ -1,6 +1,7 @@
 // view.js — sprite loading and all drawing (art and game-feel lane, see docs/COORDINATION.md). Side view: left fort v
 // right fort. Layout and touch geometry live in layout.js and are re-exported here for existing imports.
 import * as S from './sim.js';
+import { victoryDance, slingFall } from './celebration.js';
 import { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, BH, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit } from './layout.js';
 export { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit };
 
@@ -271,10 +272,11 @@ function drawChief(g, s, p, now) {
     g.restore();
     return;
   }
-  if (ko && ko.winner === p) {                   // the winner jumps and waves
-    const a = s.time - ko.at, j = Math.abs(Math.sin(a * 7)) * H * 0.16, cheer = `kingko_${pl.race}_3`;
-    if (spr(cheer)) sprite(g, cheer, k.x, j, H * (art.meta?.[`kingko_${pl.race}`]?.k || 1), { flip });
-    else sprite(g, kingKey(pl.race), k.x, j, H, { flip, rot: Math.sin(a * 7) * 0.12 });
+  if (ko && ko.winner === p) {
+    const dance = victoryDance(s.time - ko.at, p), walk = `king2_${pl.race}`, cheer = `kingko_${pl.race}_3`;
+    const key = dance.step < 4 && spr(`${walk}_0`) ? `${walk}_${Math.floor(dance.stride * 12) % 4}` : spr(cheer) ? cheer : kingKey(pl.race);
+    const km = art.meta?.[key.replace(/_\d+$/, '')], facing = face * (dance.turn ? -1 : 1);
+    sprite(g, key, k.x + face * dance.x * H, dance.y * H, H * (km?.k || 1), { flip: facing < 0, rot: face * dance.rot, sx: dance.sx, sy: dance.sy });
     return;
   }
   // he stands out at all times: a soft gold glow behind him and a gold ring in his side's colour under his feet
@@ -346,7 +348,34 @@ function drawCastle(g, s, p, now) {
   g.restore();
 }
 const SLING_DIR = [null, null];                  // the last aim direction per player, for the snap after a shot
-function drawFort(g, s, p, ui, now) {
+function drawBrokenSling(g, c, SL, p, age) {
+  const f = slingFall(age), d = S.dir(p), base = c.y - SL.drop, im = spr('sling_0');
+  if (!im) return;
+  const h = SL.h, w = h * im.width / im.height;
+  if (!f.broken) {
+    g.save(); g.translate(c.x, -base); g.rotate(d * f.fall * Math.PI / 2);
+    sprite(g, 'sling_0', 0, 0, h, { flip: p === 1 });
+    sprite(g, 'sling_1', 0, h * 0.7, 18, { flip: p === 1 });
+    // The slack bands stay attached until the fork strikes the roof.
+    for (const side of [-1, 1]) { g.beginPath(); g.moveTo(side * 25 * h / 118, -h * 0.84); g.quadraticCurveTo(side * 12, -h * 0.64, 0, -h * 0.76); g.strokeStyle = INK; g.lineWidth = 6; g.stroke(); g.strokeStyle = '#d59a55'; g.lineWidth = 3; g.stroke(); }
+    g.restore();
+    return;
+  }
+  // Three non-overlapping pieces of the existing painted frame: both fork arms and the stock.
+  // They begin exactly where the tipped frame ended, then tumble down and remain on the grass.
+  const pieces = [[0, 0, .5, .54], [.5, 0, .5, .54], [0, .54, 1, .46]];
+  pieces.forEach(([rx, ry, rw, rh], i) => {
+    const cx = (rx + rw / 2 - .5) * w * (p === 1 ? -1 : 1), cy = (ry + rh / 2) * h;
+    const fromX = c.x + d * (h - cy), fromY = base - d * cx;
+    const q = f.scatter, x = fromX + d * (i - 1) * 52 * q;
+    const y = fromY * (1 - q) + (rw * w / 2 + 2) * q + Math.sin(q * Math.PI) * (22 + i * 8);
+    g.save(); g.translate(x, -y); g.rotate(d * Math.PI / 2 + d * (i - 1) * Math.PI * 2 * q); g.scale(p === 1 ? -1 : 1, 1);
+    g.drawImage(im, rx * im.width, ry * im.height, rw * im.width, rh * im.height, -rw * w / 2, -rh * h / 2, rw * w, rh * h); g.restore();
+  });
+  sprite(g, 'sling_1', c.x + d * (h * .7 + 38 * f.scatter), base * (1 - f.scatter) + 8, 18, { rot: d * f.scatter * 5 });
+  if (f.dust > 0) sprite(g, 'fx_3', c.x + d * h * .5, base, h * (.5 + (1 - f.dust) * .6), { alpha: f.dust * .8 });
+}
+function drawFort(g, s, p, ui, now, wrecks) {
   const col = COLORS[p], pl = s.players[p], flip = p === 1;
   const fallen = !!pl && pl.fortHp <= 0 && !ui.menu && !ui.pick, drop = fallen ? S.FORT.h - CELL : 0;   // a fallen castle brings its slingshot and flag down onto the rubble
   const c0 = S.catPos(p), c = { x: c0.x, y: c0.y - drop };
@@ -378,7 +407,9 @@ function drawFort(g, s, p, ui, now) {
   } else pouch = { x: c.x + d * 1, y: c.y - 14 + Math.sin(now * 2 + p) * 1.2 };
   const band = (tip) => { g.lineCap = 'round'; g.strokeStyle = INK; g.lineWidth = 6.5; g.beginPath(); g.moveTo(tip.x, -tip.y); g.lineTo(pouch.x, -pouch.y); g.stroke(); g.strokeStyle = aim ? '#e9b06a' : '#d59a55'; g.lineWidth = 3.5; g.beginPath(); g.moveTo(tip.x, -tip.y); g.lineTo(pouch.x, -pouch.y); g.stroke(); };
   const hasSling = !!spr('sling_0');
-  if (hasSling) {
+  const defeated = !ui.menu && !ui.pick && s.ko?.loser === p && (s.phase === 'roundOver' || s.phase === 'over');
+  if (defeated) wrecks.push(() => drawBrokenSling(g, c, SL, p, s.time - s.ko.at));
+  else if (hasSling) {
     band(tipB);                                                          // the far band goes behind the frame
     sprite(g, 'sling_0', c.x, c.y - SL.drop, SL.h, { flip });
     const loaded = aim || (pl.reload <= 0 && kick <= 0);
@@ -542,6 +573,21 @@ function drawUnits(g, s, now) {
   for (const u of us) {
     const spec = UNIT[u.kind], col = COLORS[u.owner], h = spec.r * 3.5, air = !!spec.air;
     const y = air ? u.y + Math.sin(now * 2.4 + u.id) * 6 : LANE_Y(u);
+    const victory = s.ko && s.ko.loser >= 0 && s.ko.winner === u.owner && (s.phase === 'roundOver' || s.phase === 'over');
+    if (victory) {
+      const machine = MACHINE.has(u.kind) || u.kind === 'military_tank' || u.kind === 'robots_tread';
+      const dance = victoryDance(s.time - s.ko.at, u.id, air, machine), face = S.dir(u.owner) * (dance.turn ? -1 : 1);
+      // Advance the painted feet/wings even though combat has stopped. Never retain a frozen attack,
+      // muzzle flash or hurt tint on the winner, and never move the actual collision body.
+      const footTime = air || dance.step < 4 ? dance.stride : dance.step < 6 ? .32 : 0;
+      const pose = { ...u, hurt: 0, act: 0, walk: footTime * 0.09 * h * 0.85 };
+      const fr = unitFrame(pose, spec, s.time - s.ko.at, null), rg = art.reg?.[fr.key] || REG0, hk = h * fr.k;
+      const x = u.x + S.dir(u.owner) * dance.x * h, yy = (air ? u.y : y) + dance.y * h;
+      g.beginPath(); g.ellipse(x, air ? 0 : -y + 1, spec.r * 1.1, spec.r * .3, 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = air ? .35 : .8; g.fill(); g.globalAlpha = 1;
+      sprite(g, fr.key, x + face * rg[1] * hk, yy + fr.dy * h + rg[2] * hk, hk * rg[0], { flip: face < 0, rot: S.dir(u.owner) * dance.rot, sx: dance.sx, sy: dance.sy });
+      if (art.trace) art.trace.push(['victory', u.id, u.kind, fr.key, !!spr(fr.key), dance.step, x, yy, face]);
+      continue;
+    }
     let hit = HITS.get(u.id);
     if (u.hurt > 0) { if (!hit || now - hit.seen > 0.1) { HITS.set(u.id, hit = { t0: now, seen: now, kick: 0 }); art.onSound?.('hit', u.x); } hit.seen = now; }
     let fr = unitFrame(u, spec, now, hit); const dirU = S.dir(u.owner);
@@ -553,9 +599,9 @@ function drawUnits(g, s, now) {
     if (hold && hold.busy && busy && hold.key !== fr.key && now - hold.t < 0.066 && now >= hold.t && spr(hold.key)) fr = hold.fr; else if (!hold || hold.key !== fr.key) HELD.set(u.id, { key: fr.key, fr, t: now, busy });
     if (art.trace) art.trace.push(['u', u.id, u.kind, fr.key, !!spr(fr.key), +(spec.r * 3.5 * fr.k).toFixed(1), +fr.dy.toFixed(3), +u.x.toFixed(1), +(u.hurt || 0).toFixed(3), +(u.act || 0).toFixed(3)]);     // test hook: tools/art_battle_record.mjs
     const koS = s.ko && s.ko.loser >= 0 && (s.phase === 'roundOver' || s.phase === 'over') ? s.ko : null;
-    const win = koS && u.owner === koS.winner, lose = koS && u.owner === koS.loser;
-    let hop = win ? Math.abs(Math.sin(now * 8 + u.id)) * spec.r * 1.1 : air || u.act > 0 || u.hurt > 0 || lose ? 0 : Math.abs(Math.sin(u.walk * Math.PI)) * spec.r * 0.22;
-    if (fr.walk && !win) hop = 0;                           // the walk cycle has its own bob drawn in
+    const lose = koS && u.owner === koS.loser;
+    let hop = air || u.act > 0 || u.hurt > 0 || lose ? 0 : Math.abs(Math.sin(u.walk * Math.PI)) * spec.r * 0.22;
+    if (fr.walk) hop = 0;                           // the walk cycle has its own bob drawn in
     if (lose) { g.save(); g.filter = 'saturate(0.35) brightness(0.85)'; }
     // team-colour disc on the ground (a fainter shadow under flyers)
     g.beginPath(); g.ellipse(u.x, air ? 0 : -y + 1, spec.r * (air ? 0.9 : 1.15), spec.r * (air ? 0.24 : 0.34), 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = air ? 0.35 : 0.8; g.fill();
@@ -575,7 +621,7 @@ function drawUnits(g, s, now) {
     const fl = he >= 0 && he < 0.22 ? `brightness(${1.9 - he * 4})` : '';
     if (u.slow > 0 || fl) g.filter = `${u.slow > 0 ? 'hue-rotate(160deg) saturate(0.7) ' : ''}${fl}`.trim();                      // white flash on the hit
     const rg = art.reg?.[fr.key] || REG0, hk = h * fr.k;         // the frame's registration: holds the body steady through its cycle
-    if (!sprite(g, fr.key, u.x + dx + dirU * rg[1] * hk, y + hop + fr.dy * h + rg[2] * hk, hk * rg[0], { flip: u.owner === 1, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : win ? Math.sin(now * 8 + u.id) * 0.1 : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
+    if (!sprite(g, fr.key, u.x + dx + dirU * rg[1] * hk, y + hop + fr.dy * h + rg[2] * hk, hk * rg[0], { flip: u.owner === 1, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
     g.restore();
     if (!spec.range && !spec.heal && ae >= 0.1 && ae < 0.62) {       // a melee blow: a blade leaves a slash arc, anything else an impact burst, where it lands
       const blade = BLADE.has(u.kind), fxi = spr(blade ? 'proj_f_4' : 'proj_f_5'), q = (ae - 0.1) / 0.52;
@@ -1286,7 +1332,8 @@ export function draw(g, lay, s, ui, now) {
   const flatT = () => g.setTransform(lay.dpr * lay.s, 0, 0, lay.dpr * lay.s, lay.dpr * lay.ox, lay.dpr * lay.gy);
   worldT();
   PAUSE.y = ui.topY - 100;
-  drawFort(g, s, 0, ui, now); drawFort(g, s, 1, ui, now);
+  const wrecks = [];                            // the losing sling must remain readable in front of castle dust
+  drawFort(g, s, 0, ui, now, wrecks); drawFort(g, s, 1, ui, now, wrecks);
   if (ui.menu) return;
   if (ui.pick) { drawPick(g, s, ui, now); return; }
   drawZones(g, s, ui, now);
@@ -1299,6 +1346,7 @@ export function draw(g, lay, s, ui, now) {
   drawShots(g, s);
   drawFx(g, s, now);
   drawVfx(g, s, now);
+  for (const drawWreck of wrecks) drawWreck();
   drawAim(g, s, ui);
   drawKo(g, s, now);
   if (cam.z > 1.001) flatT();                     // the control strip, clock and banners do not zoom
