@@ -23,7 +23,7 @@ export const RACE_DATA = {
   fantasy: {
     name: 'Highrealm', theme: 'Fantasy: dwarves, elves and dragons', chief: 'the Dwarf King under the mountain',
     tag: 'Stout walls, sharp arrows, and a dragon when it counts.',
-    traits: { plus: ['castle', 'chiefHit'], minus: ['shields', 'reload'] },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['castle', 'walls'], minus: ['shields', 'reload'] }, traitSize: { reload: 0.13 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a grey stone castle keep with battlements, banners and a round turret at the back', skin: { L: 'oak beams', S: 'castle stone', I: 'iron-bound gate' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
@@ -41,8 +41,8 @@ export const RACE_DATA = {
   aliens: {
     name: 'Zyx Swarm', theme: 'Aliens', chief: 'the Overmind, a big brain in a glass jar on spider legs',
     tag: 'Goo that splits, rays that zap, and a saucer overhead.',
-    traits: { plus: ['shields', 'troopCost'], minus: ['castle', 'chiefHp'] }, traitSize: { troopCost: 0.09 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
-    lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
+    traits: { plus: ['slots', 'troopCost'], minus: ['sturdy', 'chiefHp'] }, traitSize: { troopCost: 0.09 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a cluster of glowing green egg pods and purple crystal around a landed saucer hull', skin: { L: 'slime pod', S: 'purple crystal', I: 'saucer hull plate' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [1, 3, 'L'], [2, 2, 'L'], [2, 3, 'L'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
     units: {
@@ -60,7 +60,7 @@ export const RACE_DATA = {
   robots: {
     name: 'Bolt Brigade', theme: 'Robots', chief: 'Unit Zero, a boxy old robot with a crown-shaped antenna',
     tag: 'Armoured, tireless, expensive to build.',
-    traits: { plus: ['armour', 'troopCost'], minus: ['gold', 'troopSpeed'] }, traitSize: { troopCost: 0.28 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['armour', 'troopCost'], minus: ['gold', 'troopSpeed'] }, traitSize: { troopCost: 0.3 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a squat riveted iron bunker with antenna dishes and warning stripes', skin: { L: 'wire mesh crate', S: 'concrete slab', I: 'riveted steel plate' },
       layout: [[0, 0, 'I'], [0, 1, 'I'], [0, 2, 'S'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S']] },
@@ -78,7 +78,7 @@ export const RACE_DATA = {
   monsters: {
     name: 'Grimgrowl Pack', theme: 'Monsters', chief: 'the Monster Under the Bed, a huge furry purple beast with tiny horns',
     tag: 'Big, hungry, hard to put down.',
-    traits: { plus: ['troopHp', 'regen'], minus: ['reload', 'ammo'] }, traitSize: { reload: 0.08, ammo: 0.15 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['troopHp', 'regen'], minus: ['reload', 'ammo'] }, traitSize: { troopHp: 0.15, regen: 1.5, reload: 0.08, ammo: 0.15 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a rocky cave lair with a giant skull over the door, claw marks and bones', skin: { L: 'bone and hide', S: 'cave rock', I: 'iron cage bars' },
       layout: [[0, 0, 'S'], [0, 1, 'S'], [0, 2, 'S'], [0, 3, 'L'], [1, 2, 'S'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'L']] },
@@ -98,7 +98,7 @@ export const RACE_DATA = {
     name: 'Iron Company', theme: 'Humans / military', chief: 'the General, a moustached commander with a chest full of medals',
     tag: 'Drilled ranks, sandbags and air support.',
     traits: { plus: ['towers', 'elite'], minus: ['gold', 'chiefHp'] }, traitSize: { gold: 0.16 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
-    lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
+    lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a sandbag and timber command bunker with a radio mast, camo net and a lookout post', skin: { L: 'sandbags', S: 'concrete', I: 'steel plate' },
       layout: [[0, 0, 'L'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -115,7 +115,7 @@ export const RACE_DATA = {
   undead: {
     name: 'Bonewake', theme: 'Undead', chief: 'the Lich Queen, a skeleton in a tattered purple robe and tall crown',
     tag: 'What falls gets up again, on their side.',
-    traits: { plus: ['raise', 'troopCost'], minus: ['castle', 'troopHp'] }, traitSize: { troopCost: 0.31 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['raise', 'troopCost'], minus: ['castle', 'troopHp'] }, traitSize: { troopCost: 0.27 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a crooked graveyard crypt of tombstones and stacked bones with a rusty gate and green candle light', skin: { L: 'stacked bones', S: 'tombstone', I: 'iron coffin' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [1, 3, 'L'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
@@ -133,7 +133,7 @@ export const RACE_DATA = {
   pirates: {
     name: 'Saltdogs', theme: 'Pirates', chief: 'Captain Barnacle, a peg-legged pirate with a huge hat and a parrot',
     tag: 'Fast, loud, and in it for the gold.',
-    traits: { plus: ['plunder', 'fling'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.33 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['plunder', 'rolling'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.28 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a fort built from a beached pirate ship: plank hull, mast with crow\'s nest, barrels and a skull flag', skin: { L: 'ship planks', S: 'ballast stone', I: 'cannon iron' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [0, 3, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'L'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
@@ -151,7 +151,7 @@ export const RACE_DATA = {
   elementals: {
     name: 'Primal Court', theme: 'Elementals', chief: 'the Ember Sovereign, a calm figure of living flame in a stone crown',
     tag: 'Fire, frost, stone and storm.',
-    traits: { plus: ['burn', 'ammo'], minus: ['troopHp', 'build'] }, traitSize: { burn: 0.25, ammo: 0.15, troopHp: 0.08 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['burn', 'towers'], minus: ['troopHp', 'slots'] }, traitSize: { burn: 0.25, troopHp: 0.08 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'floating rune-carved boulders and glowing crystal pillars around a fire altar', skin: { L: 'ice crystal', S: 'rune boulder', I: 'obsidian slab' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'S'], [1, 2, 'S'], [2, 2, 'S'], [3, 0, 'I'], [3, 1, 'L'], [3, 2, 'L']] },
@@ -169,8 +169,8 @@ export const RACE_DATA = {
   beastfolk: {
     name: 'Tusk Tribes', theme: 'Beastfolk: orcs, goblins and animal tribes', chief: 'Chief Bigtusk, a fat orc warlord on a throne of shields',
     tag: 'Cheap, fast, and there are always more.',
-    traits: { plus: ['troopSpeed', 'chiefHit'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.13 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
-    lean: 'wall',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
+    traits: { plus: ['troopSpeed', 'slots'], minus: ['troopCost', 'walls'] }, traitSize: { troopCost: 0.22 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a wooden palisade war camp with tusks, hide tents, war drums and a totem pole', skin: { L: 'lashed logs', S: 'boulder and tusk', I: 'scrap-metal shield wall' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
     units: {
@@ -187,8 +187,8 @@ export const RACE_DATA = {
   steampunk: {
     name: 'Brass Guild', theme: 'Steampunk', chief: 'the Grand Inventor, a tiny lady in goggles driving a brass walking chair',
     tag: 'Gears, steam, and far too much pressure.',
-    traits: { plus: ['reload', 'troopCost'], minus: ['troopSpeed', 'shields'] }, traitSize: { troopCost: 0.16 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
-    lean: 'tower',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
+    traits: { plus: ['mines', 'troopCost'], minus: ['troopSpeed', 'sturdy'] }, traitSize: { troopCost: 0.22 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a brass and brick workshop with a smoking chimney, big gears, pipes and a clock face', skin: { L: 'copper pipework', S: 'red brick', I: 'brass boiler plate' },
       layout: [[0, 0, 'I'], [0, 1, 'S'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
     units: {
@@ -209,64 +209,64 @@ export const RACE_DATA = {
 // race: each race's corrections average 1, so a race is never cheaper or dearer across the board here. A race-wide
 // price level exists only as a listed trait (Cheap troops, Costly troops, Elite troops, Rabble in js/traits.js).
 export const PRICE_TUNE = {
-  aliens_blob: 0.97,
-  aliens_trooper: 1.04,
-  aliens_walker: 1.20,
-  aliens_spitter: 0.90,
-  aliens_saucer: 0.87,
-  aliens_mothership: 0.91,
-  beastfolk_goblin: 1.22,
-  beastfolk_boar: 1.18,
-  beastfolk_shaman: 0.77,
-  beastfolk_troll: 1.22,
-  beastfolk_wyvern: 0.77,
-  beastfolk_vultures: 0.86,
-  military_rifles: 1.01,
-  military_shields: 1.53,
-  military_grenadier: 0.81,
-  military_tank: 0.94,
-  military_chopper: 0.73,
-  military_bomber: 0.84,
-  monsters_slime: 0.89,
-  monsters_ogre: 1.19,
-  monsters_spider: 0.89,
-  monsters_cyclops: 1.05,
-  monsters_bats: 0.89,
-  monsters_gargoyle: 1.08,
-  elementals_imp: 1.08,
-  elementals_golem: 0.84,
-  elementals_frost: 1.08,
-  elementals_thorn: 1.08,
-  elementals_gale: 1.08,
-  elementals_storm: 0.84,
-  fantasy_shieldbearer: 0.76,
-  fantasy_archer: 1.38,
-  fantasy_dancer: 1.22,
-  fantasy_sapper: 0.94,
-  fantasy_gryphon: 1.02,
-  fantasy_dragon: 0.68,
-  pirates_deckhand: 1.04,
-  pirates_buccaneer: 1.09,
-  pirates_bosun: 0.92,
-  pirates_cannoneer: 1.04,
-  pirates_parrots: 0.96,
-  pirates_sloop: 0.96,
-  robots_scrap: 1.14,
-  robots_tread: 0.80,
-  robots_laser: 1.32,
-  robots_bomb: 0.88,
-  robots_drone: 1.04,
-  robots_gunship: 0.89,
-  steampunk_clockwork: 1.09,
-  steampunk_knight: 1.18,
-  steampunk_tesla: 0.98,
-  steampunk_boiler: 0.83,
-  steampunk_gyro: 0.83,
-  steampunk_zeppelin: 1.09,
-  undead_skeleton: 1.09,
-  undead_necro: 1.03,
-  undead_golem: 0.90,
-  undead_plague: 1.03,
-  undead_ghost: 1.03,
-  undead_bonedrake: 0.93,
+  aliens_blob: 0.98,
+  aliens_trooper: 1.05,
+  aliens_walker: 1.22,
+  aliens_spitter: 0.91,
+  aliens_saucer: 0.85,
+  aliens_mothership: 0.89,
+  beastfolk_goblin: 1.08,
+  beastfolk_boar: 1.05,
+  beastfolk_shaman: 0.95,
+  beastfolk_troll: 1.08,
+  beastfolk_wyvern: 0.85,
+  beastfolk_vultures: 0.94,
+  military_rifles: 0.75,
+  military_shields: 1.45,
+  military_grenadier: 0.90,
+  military_tank: 1.10,
+  military_chopper: 0.72,
+  military_bomber: 0.85,
+  monsters_slime: 0.95,
+  monsters_ogre: 1.40,
+  monsters_spider: 0.66,
+  monsters_cyclops: 1.15,
+  monsters_bats: 0.78,
+  monsters_gargoyle: 1.00,
+  elementals_imp: 1.17,
+  elementals_golem: 1.00,
+  elementals_frost: 0.95,
+  elementals_thorn: 1.10,
+  elementals_gale: 0.91,
+  elementals_storm: 0.80,
+  fantasy_shieldbearer: 0.85,
+  fantasy_archer: 1.15,
+  fantasy_dancer: 1.20,
+  fantasy_sapper: 0.97,
+  fantasy_gryphon: 0.95,
+  fantasy_dragon: 0.72,
+  pirates_deckhand: 1.15,
+  pirates_buccaneer: 1.07,
+  pirates_bosun: 1.00,
+  pirates_cannoneer: 1.09,
+  pirates_parrots: 0.95,
+  pirates_sloop: 0.95,
+  robots_scrap: 0.92,
+  robots_tread: 0.85,
+  robots_laser: 1.20,
+  robots_bomb: 0.72,
+  robots_drone: 1.15,
+  robots_gunship: 1.27,
+  steampunk_clockwork: 0.95,
+  steampunk_knight: 1.00,
+  steampunk_tesla: 1.00,
+  steampunk_boiler: 0.77,
+  steampunk_gyro: 0.96,
+  steampunk_zeppelin: 1.27,
+  undead_skeleton: 1.00,
+  undead_necro: 1.20,
+  undead_golem: 0.85,
+  undead_plague: 0.85,
+  undead_ghost: 1.00,
+  undead_bonedrake: 1.20,
 };

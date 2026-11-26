@@ -23,7 +23,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
   let a = seed >>> 0;
   const rand = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
   const gauss = () => (rand() + rand() + rand() - 1.5) / 1.5;
-  let timer = 0, waitFire = 0;
+  let timer = 0, waitFire = 0, planRound = 0, planDone = 0;
   const fireWait = (s) => cfg.fireMul * AMMO_R(s);
   const AMMO_R = (s) => (AMMO[s.players[p].ammo]?.reload || 3) * (raceOf(s, p).mods.reload || 1);
   const foe = 1 - p;
@@ -65,16 +65,28 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     const foeShield = s.buildings.find((b) => b.owner === foe && b.kind === 'shield');
 
     // --- invest: mines and a vault pay for themselves in about 20 seconds, so early is best ---
-    if (cfg.invest && s.phase === 'play' && s.clock > 40 && !close.length && rand() < cfg.invest * 0.5) {
+    // opts.plan (balance tools): build exactly these, in this order, as soon as each is affordable, and nothing else.
+    // Each is built once a round; opts.rebuild: how many times a round a lost one is replaced (default 0).
+    if (opts.plan) {
+      if (planRound !== s.round) { planRound = s.round; planDone = 0; }
+      const live = myB.filter((x) => !x.dead && x.kind !== 'shield'), cap = opts.plan.length * (1 + (opts.rebuild || 0));
+      const want = opts.plan.find((k, n) => isOpen(s, p, k) && live.filter((x) => x.kind === k).length < opts.plan.slice(0, n + 1).filter((x) => x === k).length);
+      if (want && s.roundT >= (opts.after || 0) && planDone < cap && freeSlots(s, p) > 0 && me.gold >= cost(want) + 5 && buildAt(s, want)) planDone++;
+    }
+    if (!opts.plan && cfg.invest && s.phase === 'play' && s.clock > 40 && !close.length && rand() < cfg.invest * 0.5) {
       const mines = myB.filter((b) => b.kind === 'mine').length;
       if (mines < Math.max(1, slotCount(s, p) - 1) && freeSlots(s, p) >= 2 && me.gold >= cost('mine') + 5) buildAt(s, 'mine', true);   // keeps a slot for a wall or tower
     }
 
+    // a Cramped base (2 spots): the tower goes up as soon as towers open, not after 3 threats (f2: mine+tower 73% v the old habit's 51%)
+    if (!opts.plan && slotCount(s, p) <= 2 && s.phase !== 'roundOver' && isOpen(s, p, 'tower') && !myB.some((b) => b.kind === 'tower' && !b.dead) && freeSlots(s, p) > 0 && me.gold >= cost('tower') + 5) buildAt(s, 'tower', true);
+
     // --- fling shot power: a level now and then when there is gold to spare ---
-    { const pc = powerCost(s, p); if (pc != null && s.phase !== 'roundOver' && me.gold >= pc + 50 && rand() < (cfg.invest || 0.3) * 0.25) upgradePower(s, p); }
+    // opts.power (balance tools): false never buys; a number buys up to that level as soon as it can pay
+    { const pc = powerCost(s, p); if (pc != null && s.phase !== 'roundOver' && opts.power !== false && (typeof opts.power === 'number' ? (me.power || 0) < opts.power && me.gold >= pc + 5 : me.gold >= pc + 50 && rand() < (cfg.invest || 0.3) * 0.25)) upgradePower(s, p); }
 
     // --- defend ---
-    if (threats.length && rand() < cfg.defend) {
+    if (!opts.plan && threats.length && rand() < cfg.defend) {
       const towers = myB.filter((b) => b.kind === 'tower').length, walls = myB.filter((b) => b.kind === 'wall').length;
       if ((threats.length >= 3 || flyers.length) && towers < 2 && me.gold >= cost('tower')) buildAt(s, 'tower', true);
       else if (walls < 2 && threats.length > flyers.length && me.gold >= cost('wall') + 10) buildAt(s, 'wall', false);
@@ -109,6 +121,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       else if (mine && rand() < 0.3) { tx = mine.x; ty = 20; ang = 0.9; }
       else if (foeWalls.length && rand() < 0.25) { tx = foeWalls[0].x; ty = 40; ang = 0.9; if (rand() < cfg.special) ammo = 'boulder'; }
       else { tx = k.x; ty = k.y; ang = 0.7 + rand() * 0.5; if (rand() < cfg.special * 0.5) ammo = 'boulder'; }                         // the chief guarding the castle
+      if (opts.shot) ammo = opts.shot;                              // balance tools: every shot is this type (Normal when it cannot pay)
       if (me.freeShots > 0 && ammo === 'stone') ammo = 'boulder';
       setAmmo(s, p, ammo);
       if (me.gold < shotCost(s, p)) setAmmo(s, p, 'stone');

@@ -17,7 +17,7 @@ export const GOLD_START = 60, GOLD_RATE = TIERS.income[0], GOLD_CAP = TIERS.cap[
 export const AMMO_TIER = { stone: 1, scatter: 1, fire: 2, boulder: 3, roll: 1 };
 // fling shot power (owner, 2026-11-26): up to five levels per round, each dearer than the last; every level adds dmg to all
 // your fling shots (not the ultimate)
-export const POWER = { max: 5, cost: [30, 55, 100, 180, 320], dmg: 0.12 };
+export const POWER = { max: 5, cost: [20, 35, 60, 100, 170], dmg: 0.25 };
 export const BUILD_TIER = { wall: 1, mine: 1, tower: 2, shield: 2 };
 // heroes: one alive per player, a cooldown after one dies, bounty capped
 export const HERO = { tier: 3, max: 1, cooldown: 30, bounty: 20 };
@@ -42,20 +42,20 @@ export const CRUSH = 45;                      // a block falling on the chief
 export const AMMO = {
   // fling shot types (owner, 2026-11-26): keys kept from the old names (stone, fire, boulder) so saves, art and tools still match
   stone:   { name: 'Normal',    cost: 0,  reload: 3.0, dmg: 30, r: 46, bld: 1,   size: 11 },
-  scatter: { name: 'Scatter',   cost: 12, reload: 3.5, dmg: 16, r: 40, bld: 0.7, size: 8, split: 3 },
-  fire:    { name: 'Flame',     cost: 18, reload: 3.5, dmg: 14, r: 44, bld: 0.8, size: 11, burn: { r: 60, t: 4.5, dps: 14 } },
-  boulder: { name: 'Explosive', cost: 25, reload: 4.5, dmg: 48, r: 58, bld: 2.2, size: 15 },        // was the Boulder: now a bigger blast
+  scatter: { name: 'Scatter',   cost: 6,  reload: 3.5, dmg: 16, r: 40, bld: 0.7, size: 8, split: 3 },
+  fire:    { name: 'Flame',     cost: 9,  reload: 3.5, dmg: 14, r: 44, bld: 0.8, size: 11, burn: { r: 60, t: 4.5, dps: 14 } },
+  boulder: { name: 'Explosive', cost: 14, reload: 4.5, dmg: 48, r: 58, bld: 2.2, size: 15 },        // was the Boulder: now a bigger blast
   // race special (traits.js rolling): lands, then rolls on along the ground for roll.t seconds crushing enemy troops (once
   // each), and smashes into the first enemy building or castle it reaches
-  roll:    { name: 'Rolling',   cost: 20, reload: 4.0, dmg: 24, r: 34, bld: 1.2, size: 14, special: true, roll: { t: 2.6, speed: 230, crush: 34 } },
+  roll:    { name: 'Rolling',   cost: 12, reload: 4.0, dmg: 24, r: 34, bld: 1.2, size: 14, special: true, roll: { t: 2.6, speed: 230, crush: 34 } },
 };
 export const BLOCK = { wood: { hp: 125 }, stone: { hp: 250 }, iron: { hp: 355 }, vault: { hp: 195 } };   // 1.5x for the longer round
 export const MAT = { L: 'wood', S: 'stone', I: 'iron' };   // fort layout letters -> block kinds
 export const BUILD = {
-  wall:   { name: 'Wall',   cost: 30, hp: 400 },
-  tower:  { name: 'Tower',  cost: 55, hp: 100, range: 190, rate: 0.7, dmg: 12 },
+  wall:   { name: 'Wall',   cost: 20, hp: 1200 },                    // strong and cheap: it only holds troops up (shots fly through), so it has to last
+  tower:  { name: 'Tower',  cost: 55, hp: 70, range: 190, rate: 0.7, dmg: 15 },   // fragile but damaging (owner)
   shield: { name: 'Shield', cost: 45, hp: 90, life: 16 },
-  mine:   { name: 'Mine',   cost: 44, hp: 100, income: 2 },              // ground building: pays gold every second while it stands (no own limit: the three slots are the limit)
+  mine:   { name: 'Mine',   cost: 44, hp: 220, income: 2 },              // ground building: pays gold every second while it stands (no own limit: the three slots are the limit)
   // vault removed (owner: the lockbox did nothing useful)
   _vault: { name: 'Vault',  cost: 60, hp: 120, income: 3.5, max: 1 },       // fort addition: a block on top of the back wall
 };
