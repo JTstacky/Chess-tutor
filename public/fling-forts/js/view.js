@@ -9,6 +9,8 @@ import {drawTroopDeath} from './animation-deaths.js';
 import {drawChiefRecovery} from './animation-chief-recovery.js';
 import {prepareBomberFrame,drawBomberCue} from './animation-bomber-prep.js';
 import {drawMeleeStructureChips,boltStructureContact} from './animation-impacts.js';
+import {victoryFlightY,terminalTroopPose} from './animation-victory-flight.js';
+import {attackFrameIndex,holdCombatFrame} from './animation-release.js';
 import { chiefAim, drawChiefAim } from './chief-effects.js';
 import { drawCastleSmoke } from './castle-smoke.js';
 import { CONTRAST_KINDS, prepareTroopContrast, drawTroopContrast, rotorContrastSource } from './troop-contrast.js';
@@ -605,10 +607,10 @@ function unitFrame(u, spec, now, hit) {
   const spin = ROTOR.has(u.kind) && !!spr(`f_${u.kind}_0`) && !(ACT_T - u.act >= 0.035 && ACT_T - u.act < 0.12);
   if (u.act > 0 && !spin) {
     const e = Math.max(0, ACT_T - u.act);
-    // each troop's own four-frame attack (sheet a_<unit>, drawn as one picture): a short wind-up, the strike as the
-    // blow lands or the shot leaves, the follow-through, the recover
+    // Ranged shots begin on their release picture; melee keeps its short wind-up.
+    // Both then follow through and recover using their original painted frames.
     const am = art.meta?.[`a_${u.kind}`];
-    if (am && spr(`a_${u.kind}_0`)) return { key: `a_${u.kind}_${e < 0.035 ? 0 : e < 0.12 ? 1 : e < 0.2 ? 2 : 3}`, k: am.k || 1, dy: am.dy || 0 };
+    if (am && spr(`a_${u.kind}_0`)) return { key: `a_${u.kind}_${attackFrameIndex(e,!!spec.range)}`, k: am.k || 1, dy: am.dy || 0 };
     if (!has) return base(2);
     // a shooter is already at full draw when its shot leaves; a fighter is caught mid-swing first
     return spec.range ? (e < 0.14 ? base(2) : extra(3)) : e < 0.05 ? extra(2) : e < 0.18 ? base(2) : extra(3);
@@ -644,10 +646,11 @@ function drawUnits(g, s, now) {
   if (HITS.size > 400) HITS.clear();
   if (HELD.size > 600) HELD.clear();
   const us = s.units.slice().sort((a, b) => (UNIT[a.kind].air ? 1 : 0) - (UNIT[b.kind].air ? 1 : 0) || b.lane - a.lane);
-  for (const u of us) {
+  for (const liveUnit of us) {
+    const u = terminalTroopPose(liveUnit,s);
     const spec = UNIT[u.kind], col = COLORS[u.owner], h = spec.r * 3.5, air = !!spec.air;
     if (u.kind === 'military_bomber') loadSprite('ultfx_a_1'); // its painted olive/yellow payload, before release
-    const y = air ? u.y + Math.sin(now * 2.4 + u.id) * 6 : LANE_Y(u);
+    const y = air ? (u !== liveUnit && s.ko.loser === u.owner ? victoryFlightY(u.kind,u.y,h,{y:0},false,DRAW_LAY,art.meta) : u.y + Math.sin(now * 2.4 + u.id) * 6) : LANE_Y(u);
     const victory = s.ko && s.ko.loser >= 0 && s.ko.winner === u.owner && (s.phase === 'roundOver' || s.phase === 'over');
     if (victory) {
       const machine = MACHINE.has(u.kind) || u.kind === 'military_tank' || u.kind === 'robots_tread';
@@ -657,23 +660,20 @@ function drawUnits(g, s, now) {
       const footTime = air || dance.step < 4 ? dance.stride : dance.step < 6 ? .32 : 0;
       const pose = { ...u, hurt: 0, act: 0, walk: footTime * 0.09 * h * 0.85 };
       const fr = unitFrame(pose, spec, s.time - s.ko.at, null), rg = art.reg?.[fr.key] || REG0, hk = h * fr.k;
-      const x = u.x + S.dir(u.owner) * dance.x * h, yy = (air ? u.y : y) + dance.y * h;
+      const x = u.x + S.dir(u.owner) * dance.x * h, yy = air ? victoryFlightY(u.kind,u.y,h,dance,machine,DRAW_LAY,art.meta) : y + dance.y * h;
       g.beginPath(); g.ellipse(x, air ? 0 : -y + 1, spec.r * 1.1, spec.r * .3, 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = air ? .35 : .8; g.fill(); g.globalAlpha = 1;
       sprite(g, fr.key, x + face * rg[1] * hk, yy + fr.dy * h + rg[2] * hk, hk * rg[0], { contrast: CONTRAST_KINDS.has(u.kind), rotor: fr.rotor, flip: face < 0, rot: S.dir(u.owner) * dance.rot, sx: dance.sx, sy: dance.sy });
       if (art.trace) art.trace.push(['victory', u.id, u.kind, fr.key, !!spr(fr.key), dance.step, x, yy, face]);
       continue;
     }
-    let hit = HITS.get(u.id);
+    let hit = u !== liveUnit ? null : HITS.get(u.id);
     if (u.hurt > 0) { if (!hit || now - hit.seen > 0.1) { HITS.set(u.id, hit = { t0: now, seen: now, kick: 0 }); art.onSound?.('hit', u.x); } hit.seen = now; }
     let fr = prepareBomberFrame(u, s, unitFrame(u, spec, now, hit), {spr, meta:art.meta});
     const dirU = attackFacing(u, now, s.hits, s.fx, s.units);
     if (art.trace) { art.trace.push(['face', u.id, u.kind, dirU]); if(fr.rotor)art.trace.push(['rotor',u.id,u.kind,rotorPhase(now,u.id)]); }
-    // no picture is shown for a single frame: once a troop changes pose it holds it for at least 1/15 s (a blow
-    // landing mid-recovery, or blows arriving every other frame, otherwise make it flick between two poses)
-    const hold = HELD.get(u.id);
-    // (only between hit and attack poses: a walking troop that is struck reacts on the very next frame)
-    const busy = u.hurt > 0 || u.act > 0;
-    if (hold && hold.busy && busy && hold.key !== fr.key && now - hold.t < 0.066 && now >= hold.t && spr(hold.key)) fr = hold.fr; else if (!hold || hold.key !== fr.key) HELD.set(u.id, { key: fr.key, fr, t: now, busy });
+    // Hold ordinary combat pictures briefly to prevent rapid-hit flicker. A new
+    // ranged release bypasses a completed flinch so it matches the real projectile.
+    fr = holdCombatFrame(HELD,u,fr,now,!!spec.range,spr);
     if (art.trace) art.trace.push(['u', u.id, u.kind, fr.key, !!spr(fr.key), +(spec.r * 3.5 * fr.k).toFixed(1), +fr.dy.toFixed(3), +u.x.toFixed(1), +(u.hurt || 0).toFixed(3), +(u.act || 0).toFixed(3)]);     // test hook: tools/art_battle_record.mjs
     const koS = s.ko && s.ko.loser >= 0 && (s.phase === 'roundOver' || s.phase === 'over') ? s.ko : null;
     const lose = koS && u.owner === koS.loser;
