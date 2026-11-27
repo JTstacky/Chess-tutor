@@ -25,6 +25,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
   const rand = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
   const gauss = () => (rand() + rand() + rand() - 1.5) / 1.5;
   let timer = 0, waitFire = 0, planRound = 0, planDone = 0;
+  let observedRound = 0, lastFoeTroopAt = 0;
   const fireWait = (s) => cfg.fireMul * AMMO_R(s) * Math.max(0.35, rulesOf(s).reload);   // no-reload modes: about three times the shots
   const AMMO_R = (s) => (AMMO[s.players[p].ammo]?.reload || 3) * (raceOf(s, p).mods.reload || 1);
   const foe = 1 - p;
@@ -64,6 +65,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
 
   function think(s) {
     const me = s.players[p], race = raceOf(s, p), cost = (k) => costFor(s, p, k);
+    let savingPower = false;
     const roster = (opts.only || (opts.troops === false ? [] : race.roster)).filter((k) => isOpen(s, p, k));   // only what this tier has unlocked
     const myFront = mx(p, FORT.frontX);
     const threats = s.units.filter((u) => u.owner === foe && Math.abs(u.x - myFront) < 520);
@@ -92,7 +94,16 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
 
     // --- fling shot power: a level now and then when there is gold to spare ---
     // opts.power (balance tools): false never buys; a number buys up to that level as soon as it can pay
-    { const pc = powerCost(s, p); if (pc != null && s.phase !== 'roundOver' && opts.power !== false && (typeof opts.power === 'number' ? (me.power || 0) < opts.power && me.gold >= pc + 5 : me.gold >= pc + 50 && rand() < (cfg.invest || 0.3) * 0.25)) upgradePower(s, p); }
+    {
+      const pc = powerCost(s, p), goal = Math.min(2, s.tier || 1);
+      // Hard buys one modest upgrade per early tier when the field is quiet.
+      // Threats end saving; Easy and Normal retain their existing spending.
+      savingPower = level === 'hard' && opts.power === undefined && pc != null && me.power < goal && !threats.length;
+      if (pc != null && s.phase !== 'roundOver' && opts.power !== false &&
+          (typeof opts.power === 'number' ? (me.power || 0) < opts.power && me.gold >= pc + 5 :
+            me.gold >= pc + (savingPower ? 5 : 50) && rand() < (cfg.invest || 0.3) * 0.25)) upgradePower(s, p);
+      savingPower &&= me.power < goal;
+    }
 
     // --- defend ---
     if (!opts.plan && threats.length && rand() < cfg.defend) {
@@ -144,11 +155,9 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       if ((worth && rand() < 0.5) || s.phase === 'sudden') ultimate(s, p);
     }
 
-    let saving = false;
-
     // --- troops ---
     const reserve = threats.length ? 60 : 35;
-    if (saving) return;
+    if (savingPower) return;
     if (roster.length && me.gold > reserve + 20 && rand() < cfg.offense * 0.5) {
       const boomer = roster.find((k) => UNIT[k].boom && !UNIT[k].air), tank = roster.slice().sort((x, y) => UNIT[y].hp * UNIT[y].count - UNIT[x].hp * UNIT[x].count)[0];
       // counters: flyers -> troops that hit air (best vsAir first); walls and towers -> siege, bombs or heavy hitters
@@ -157,6 +166,13 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       // a varied army, like a player: every troop twice, plus one extra pick for whatever counters the board right now
       // (it used to stack wall-breakers and spent up to half its troop gold on one siege troop, which skewed prices)
       const pool = [...roster, ...roster];
+      // A player who keeps the field empty is investing in shots and defenses.
+      // After observing that for a while, put more gold into the siege counter
+      // instead of feeding isolated cheap squads to the defending chief.
+      if (level === 'hard' && s.roundT > 35 && s.roundT - lastFoeTroopAt > 20) {
+        const siege = roster.filter(k => UNIT[k].siege);
+        for (let i = 0; i < 18; i++) pool.push(...siege);
+      }
       if (flyers.length && antiAir.length) pool.push(antiAir[0], ...antiAir);
       else if (foeWalls.length >= 2 && breakers.length) pool.push(breakers[Math.floor(rand() * breakers.length)]);
       if (threats.length) pool.push(tank);
@@ -170,7 +186,9 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     level, p,
     update(s, dt) {
       if (s.phase !== 'play' && s.phase !== 'sudden') return;
+      if (observedRound !== s.round) { observedRound = s.round; lastFoeTroopAt = s.roundT; }
       for (const u of s.units) if (u.owner === foe && u.hp > 0) {
+        lastFoeTroopAt = s.roundT;
         const seen = motion.get(u);
         if (seen) {
           const elapsed = s.time - seen.time;
