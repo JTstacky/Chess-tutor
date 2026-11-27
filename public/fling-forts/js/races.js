@@ -67,7 +67,7 @@ export const RACE_DATA = {
       layout: [[0, 0, 'I'], [0, 1, 'I'], [0, 2, 'S'], [1, 2, 'I'], [2, 2, 'I'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S']] },
     units: {
       scrap: U('Scrap Bots', 'Scraps', 5, 22, 54, 5, 0.6, 12, { bld: 0.5, noAir: true, cls: 'Melee', role: 'Cheap swarm. Swamps siege' }, 'skimmer', 'a small rusty wheeled robot with pincer hands'),
-      tread: U('Tread Tank', 'Tread', 1, 200, 22, 14, 1.1, 26, { armor: 4, bld: 9, siege: true, chief: 3, noAir: true, cls: 'Siege', role: 'Heavy siege; breaks chiefs and buildings' }, 'anvil', 'a chunky robot on tank treads with ram fists'),
+      tread: U('Tread Tank', 'Tread', 1, 200, 28, 14, 1.1, 26, { armor: 4, bld: 9, siege: true, chief: 3, noAir: true, cls: 'Siege', role: 'Heavy siege; breaks chiefs and buildings' }, 'anvil', 'a chunky robot on tank treads with ram fists'),
       laser: U('Laser Bots', 'Lasers', 2, 28, 42, 9, 1.0, 14, { range: 125, pierce: true, bld: 0.7, vsAir: 1.8, cls: 'Anti-air', role: 'Pierces armour on air and ground; strong against flyers' }, 'slinger', 'a thin robot with a glowing red laser eye'),
       bomb: U('Bomb Bots', 'Bombs', 3, 28, 48, 0, 1.0, 14, { boom: { dmg: 124, r: 68 }, noAir: true, cls: 'Bomber', role: 'Special: Rolling bomb. Beats swarms' }, 'keg', 'a round rolling bomb robot with a ticking timer'),
       drone: U('Hover Drones', 'Drones', 2, 30, 74, 6, 0.6, 13, { air: true, range: 64, bld: 0.7, noAir: true, cls: 'Flying anti-ground', role: 'Flyer. Hunts ground troops' }, 'skimmer', 'a small quad-rotor drone with a stinger gun'),
@@ -236,7 +236,7 @@ export const PRICE_TUNE = {
   monsters_gargoyle: 0.80,
   elementals_imp: 1.06,
   elementals_golem: 0.70,
-  elementals_frost: 0.80,
+  elementals_frost: 1.00,
   elementals_thorn: 0.72,
   elementals_gale: 1.08,
   elementals_storm: 1.10,
