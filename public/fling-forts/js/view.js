@@ -11,8 +11,8 @@ import { drawCastleSmoke } from './castle-smoke.js';
 import { CONTRAST_KINDS, prepareTroopContrast, drawTroopContrast, rotorContrastSource } from './troop-contrast.js';
 import { filteredSprite } from './sprite-filter.js';
 import { drawCachedControl } from './control-cache.js';
-import { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, BH, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit } from './layout.js';
-export { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit };
+import { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, BH, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit, pickStack, pickPoint, pickToScreen } from './layout.js';
+export { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit, pickPoint, pickToScreen };
 
 const { W, CELL, FORT, AMMO, BUILD, UNIT, RACES } = S;
 export const COLORS = [
@@ -1254,7 +1254,6 @@ function drawHud(g, s, ui, now) {
       text(g, nm, cx, top - 15 * k, 18 * k, '#fff', 'center', null);
       if (hc) { clsChip(g, hc, cx, top - 28 * k, 12 * k, hc.full); if (role) text(g, role, cx, top - 28 * k - 16 * k - 12 * k, 12 * k, '#f3e3c2', 'center', null); }
     }
-    if (ai) text(g, `COMPUTER · ${String(ui.aiLevel).toUpperCase()}`, S.mx(p, 325), -110, 24, '#fff');
     // ---- top panel: chief HP, gold, rounds ----
     const x = S.mx(p, 210), top = ui.topY, d = p === 0 ? 1 : -1, al = p === 0 ? 'left' : 'right', slim = !!DRAW_LAY?.compact;
     const hpK = pl.fortHp / pl.fortMax, hpCol = hpK > 0.35 ? '#6fd45a' : '#ff5a4a';   // castle health: the objective
@@ -1271,7 +1270,7 @@ function drawHud(g, s, ui, now) {
     } else {
       const left = S.mx(p, 24);
       rrect(g, Math.min(left, left + d * 390), -top, 390, 78, 16); g.fillStyle = 'rgba(40,24,10,0.62)'; g.fill();
-      g.font = FONT(20); g.textAlign = al; g.textBaseline = 'middle'; g.fillStyle = col.light; g.fillText(RACES[pl.race].name, left + d * 14, -(top - 20), 200);
+      g.font = FONT(20); g.textAlign = al; g.textBaseline = 'middle'; g.fillStyle = col.light; g.fillText(ai ? `Computer · ${String(ui.aiLevel)[0].toUpperCase()}${String(ui.aiLevel).slice(1)}` : RACES[pl.race].name, left + d * 14, -(top - 20), 200);
       // income sits in the top row beside the round dots, so it can never run into the gold number
       text(g, `+${S.incomeOf(s, p).toFixed(1).replace('.0', '')}/s`, left + d * (350 - S.ROUNDS_TO_WIN * 24), top - 20, 14, '#fff6c8', p === 0 ? 'right' : 'left', null);
       for (let i = 0; i < S.ROUNDS_TO_WIN; i++) { g.beginPath(); g.arc(left + d * (360 - i * 24), -(top - 20), 8, 0, 7); g.fillStyle = i < s.roundsWon[p] ? '#ffd23f' : 'rgba(255,255,255,0.25)'; g.fill(); }
@@ -1289,7 +1288,7 @@ function drawHud(g, s, ui, now) {
   const sud = s.phase === 'sudden', secs = Math.max(0, Math.ceil(s.clock));
   rrect(g, W / 2 - 74, -ui.topY, 148, 56, 16); g.fillStyle = sud ? 'rgba(170,30,20,0.85)' : 'rgba(40,24,10,0.62)'; g.fill();
   text(g, `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, W / 2, ui.topY - 30, 30, sud && Math.floor(now * 3) % 2 ? '#ffd23f' : '#fff');
-  if (sud) text(g, 'SUDDEN DEATH · double damage', W / 2, ui.topY - 76, 18, '#ffd23f');
+  if (sud) text(g, 'SUDDEN DEATH · 2× damage', W / 2, ui.topY - 76, 18, '#ffd23f');
   g.beginPath(); g.arc(PAUSE.x, -PAUSE.y, PAUSE.r, 0, 7); g.fillStyle = 'rgba(40,24,10,0.62)'; g.fill();
   g.fillStyle = '#fff'; g.fillRect(PAUSE.x - 9, -PAUSE.y - 10, 6, 20); g.fillRect(PAUSE.x + 3, -PAUSE.y - 10, 6, 20);
   // ---- banners ----
@@ -1320,10 +1319,12 @@ function drawHud(g, s, ui, now) {
 
 function drawPick(g, s, ui, now) {
   const pk = ui.pick;
-  g.fillStyle = 'rgba(30,18,8,0.6)'; g.fillRect(-400, -1400, W + 800, 1700);
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = 'rgba(30,18,8,0.6)'; g.fillRect(0, 0, g.canvas.width, g.canvas.height); g.restore();
   for (const p of [0, 1]) {
+    const st = pickStack(DRAW_LAY, p);   // portrait: this player's half fills half the screen
+    if (st) g.setTransform(DRAW_LAY.dpr * st.s, 0, 0, DRAW_LAY.dpr * st.s, DRAW_LAY.dpr * st.ox, DRAW_LAY.dpr * st.gy);
     const col = COLORS[p], ai = pk.mode === 'solo' && p === 1;
-    text(g, ai ? 'Computer' : p === 0 ? 'Left player: pick your people' : 'Right player: pick your people', S.mx(p, 325), 592, 24, col.light);
+    text(g, ai ? 'Computer' : p === 0 ? 'Left player: choose a race' : 'Right player: choose a race', S.mx(p, 325), 592, 24, col.light);
     for (const c of PICK.cards) {
       const x = p === 0 ? c.x : W - c.x - c.w, r = RACES[c.key], on = pk.race[p] === c.key;
       rrect(g, x, -c.y, c.w, c.h, 14); g.fillStyle = on ? '#fff3d6' : 'rgba(246,231,200,0.9)'; g.fill(); g.lineWidth = on ? 6 : 3; g.strokeStyle = on ? col.main : INK; g.stroke();
@@ -1335,31 +1336,30 @@ function drawPick(g, s, ui, now) {
     rrect(g, x0, -262, 622, 160, 14); g.fillStyle = 'rgba(40,24,10,0.72)'; g.fill();
     g.textAlign = 'left'; g.textBaseline = 'middle';
     if (r) {
-      g.font = FONT(19); g.fillStyle = col.light; g.fillText(`${r.name} · ${r.theme}`, x0 + 14, -244, 594);
+      g.font = FONT(20); g.fillStyle = col.light; g.fillText(`${r.name} · ${r.theme.split(':')[0]}`, x0 + 14, -244, 594);
       g.font = FONT(14, 600); g.fillStyle = '#fff'; g.fillText(r.tag, x0 + 14, -222, r.leanLine ? 340 : 594);
-      if (r.leanLine) { g.textAlign = 'right'; g.font = FONT(13, 800); g.fillStyle = '#ffe36b'; g.fillText(`Builds: ${r.leanLine.plain}`, x0 + 608, -222, 240); g.textAlign = 'left'; }   // the race's building leaning (races.js lean)
+      if (r.leanLine) { g.textAlign = 'right'; g.font = FONT(13, 800); g.fillStyle = '#ffe36b'; g.fillText(r.leanLine.plain, x0 + 608, -222, 240); g.textAlign = 'left'; }   // the race's building leaning (races.js lean)
       // two strengths left, two weaknesses right: the trait's name, then what it does in words (js/traits.js plainText)
       for (const [list, xx, colr, mark] of [[r.traitLines.plus, x0 + 14, '#9be88a', '+ '], [r.traitLines.minus, x0 + 318, '#ffab96', '– ']]) list.forEach((l, i) => {
-        const yy = 203 - i * 28; g.fillStyle = colr; g.font = FONT(14, 800); g.fillText(mark + l.label, xx, -yy, 292);
-        g.fillStyle = '#f3e3c2'; g.font = FONT(12, 600); g.fillText(l.plain, xx + 14, -(yy - 14), 278);   // words only, no numbers (owner); the Guidebook keeps the numbers
+        g.fillStyle = colr; g.font = FONT(15, 800); g.fillText(mark + l.plain, xx, -(196 - i * 24), 292);   // what it does, in words (owner: no numbers); the Guidebook has names and numbers
       });
       // One chief sentence, from the same tuning text as the Guidebook. The bottom strip holds two
       // readable lines instead of squeezing a long sentence to subpixel text on a landscape phone.
       const chief = S.KING_ATK[pk.race[p]];
       if (chief?.what && chief?.weak) {
         const what = chief.what[0].toLowerCase() + chief.what.slice(1);
-        const summary = `Chief: ${what}, weak to ${chief.weak}`;
-        g.font = FONT(24, 600); g.fillStyle = '#fff3cf';
+        const summary = `Chief: ${what}. Weak to ${chief.weak}.`;
+        g.font = FONT(20, 600); g.fillStyle = '#fff3cf';
         const lines = []; let line = '';
         for (const word of summary.split(/\s+/)) {
           const next = line ? line + ' ' + word : word;
           if (line && g.measureText(next).width > 594) { lines.push(line); line = word; } else line = next;
         }
         if (line) lines.push(line);
-        lines.forEach((line, i) => g.fillText(line, x0 + 14, -(lines.length === 1 ? 128 : 140 - i * 25)));
-        if (art.trace) art.trace.push(['pickChief', p, pk.race[p], summary, lines, 24]);
+        lines.forEach((line, i) => g.fillText(line, x0 + 14, -(lines.length === 1 ? 128 : 140 - i * 22)));
+        if (art.trace) art.trace.push(['pickChief', p, pk.race[p], summary, lines, 20]);
       }
-    } else { g.font = FONT(18, 600); g.fillStyle = '#fff'; g.fillText('Tap a card to see its troops and powers', x0 + 14, -182, 594); }
+    } else { g.font = FONT(18, 600); g.fillStyle = '#fff'; g.fillText('Tap a card to see its strengths', x0 + 14, -182, 594); }
     const rd = PICK.ready, rx = p === 0 ? rd.x : W - rd.x - rd.w, ready = pk.ready[p], can = !!pk.race[p];
     rrect(g, rx, -rd.y, rd.w, rd.h, 20); g.fillStyle = ready ? '#6fd45a' : can ? col.main : 'rgba(120,110,100,0.8)'; g.fill(); g.lineWidth = 4; g.strokeStyle = '#fff'; g.stroke();
     text(g, ready ? 'Ready!' : can ? 'Tap when ready' : 'Choose a card', rx + rd.w / 2, rd.y - rd.h / 2, 24, '#fff');

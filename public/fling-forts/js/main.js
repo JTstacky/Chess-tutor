@@ -2,7 +2,7 @@ import { MODES, KO } from './tuning.js';
 // main.js — boot, menus, fixed-step loop, sound.
 import * as S from './sim.js';
 import { createAI, pickRace } from './ai.js';
-import { computeLayout, draw, loadArt, loadGroup, worldToScreen, buttons, PICK, PAUSE, art as viewArt, noteEvent, preStep, postStep } from './view.js';
+import { computeLayout, draw, loadArt, loadGroup, worldToScreen, pickToScreen, buttons, PICK, PAUSE, art as viewArt, noteEvent, preStep, postStep } from './view.js';
 import { sound, unlockAudio, music, musicState } from './sfx.js';
 viewArt.onSound = (kind, x) => { if (game.state === 'play') sound(kind, x); };      // shots and hits are heard when they are first drawn
 import { attachInput, blockBrowserGestures, PULL_MAX } from './input.js';
@@ -59,7 +59,7 @@ function start(mode, level = ui.aiLevel, seed = (Math.random() * 1e9) | 0, races
   ui.armed = [null, null]; ui.aims.clear(); ui.toast = [null, null]; ui.kick = [0, 0];
   game.state = 'play'; show(null); unlockAudio(); sound('roundStart'); ui.tickAt = null;
 }
-function pause() { if (game.state !== 'play') return; game.state = 'paused'; ui.aims.clear(); quitArmed = 0; $('btn-quit').textContent = 'Quit to menu (tap twice)'; $('btn-restart').hidden = !!game.online; show('pause'); }
+function pause() { if (game.state !== 'play') return; game.state = 'paused'; ui.aims.clear(); quitArmed = 0; $('btn-quit').textContent = 'Quit (tap twice)'; $('btn-restart').hidden = !!game.online; show('pause'); }
 function resume() {
   game.state = 'play'; last = performance.now();
   const wait = game.s && game.s.phase === 'over' ? (ui.overAt || 0) - performance.now() : 0;
@@ -280,6 +280,7 @@ window.RR = {
   musicState, unlockAudio,
   advance: (secs) => { for (let i = 0; i < secs * 60; i++) advance(S.DT); },
   toScreen: (x, y) => worldToScreen(game.lay, x, y),
+  pickToScreen: (p, x, y) => pickToScreen(game.lay, p, x, y),   // race-pick cards in either layout (portrait stacks the players)
   demo: (secs, seed = 5) => {
     const a = createAI(0, 'normal', seed), b = game.ai || createAI(1, 'normal', seed + 1);
     for (let i = 0; i < secs * 60 && game.s.phase !== 'over'; i++) { a.update(game.s, S.DT); if (!game.ai) b.update(game.s, S.DT); advance(S.DT); }

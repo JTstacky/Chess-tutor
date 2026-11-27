@@ -2,7 +2,7 @@
 // right player), tracked by pointerId, so both can drag and tap at the same time. Also blocks the browser's
 // own touch gestures.
 import { powerCost, upgradePower, autoBuild, freeSlots, slotCount as S_COUNT, W, AMMO, BUILD, UNIT, launch, fire, setAmmo, build, send, placeOk, costFor, shotCost, gateX, isOpen, unlockAt, heroOk, ultReady, ultimate } from './sim.js';
-import { screenToWorld, buttonAt, keyFor, pickHit, PAUSE } from './view.js';
+import { screenToWorld, buttonAt, keyFor, pickHit, pickPoint, PAUSE } from './view.js';
 
 export const PULL_MAX = 300;      // world units of pull for full power
 const TAP_SLOP = 26;              // a press that moves less than this is a tap
@@ -44,22 +44,22 @@ export function attachInput(canvas, game) {
     const clock = (t) => { const w = Math.ceil(t); return `${Math.floor(w / 60)}:${String(w % 60).padStart(2, '0')}`; };
     if (b.kind === 'power') {
       const c = powerCost(s, p);
-      if (c == null) return toast(p, 'Fling shot power is at its top level');
-      if (pl.gold < c) return toast(p, `Power level ${(pl.power || 0) + 1} needs ${c} gold`);
+      if (c == null) return toast(p, 'Power is at its top level');
+      if (pl.gold < c) return toast(p, `Power ${(pl.power || 0) + 1} needs ${c} gold`);
       const next = (pl.power || 0) + 1;   // read before the action: locally it raises pl.power at once, online it only queues the order
-      if (game.act.upgradePower(s, p)) { game.sound('click'); toast(p, `Fling shot power: level ${next}`); }
+      if (game.act.upgradePower(s, p)) { game.sound('click'); toast(p, `Power level ${next}`); }
       return;
     }
     if (b.kind === 'ult') {
       if (pl.ultUsed) return toast(p, 'Ultimate used this round');
-      if (!ultReady(s, p)) return toast(p, `Ultimate charging: ${Math.floor(pl.ult * 100)}%`);
+      if (!ultReady(s, p)) return toast(p, `Ultimate ${Math.floor(pl.ult * 100)}% charged`);
       game.act.ultimate(s, p); return;
     }
     if (!isOpen(s, p, key)) return toast(p, `Unlocks in ${clock(Math.max(0, unlockAt(s, p, key) - s.roundT))}`);
     const cost = costFor(s, p, key);
     if (b.kind === 'hero') {
       if (pl.heroCd > 0) return toast(p, `Hero back in ${Math.ceil(pl.heroCd)} s`);
-      if (!heroOk(s, p)) return toast(p, 'Your hero is already out');
+      if (!heroOk(s, p)) return toast(p, 'Hero already out');
       if (pl.gold < cost) return toast(p, `${UNIT[key].name} needs ${cost} gold`);
       game.act.send(s, p, key, gateX(p)); return;
     }
@@ -73,16 +73,16 @@ export function attachInput(canvas, game) {
     if (b.kind === 'unit') { if (game.act.send(s, p, key, gateX(p))) ui.armed[p] = null; return; }       // troops march out of the gate at once
     if (key === 'shield') {
       if (s.phase === 'sudden') return toast(p, 'No shields in sudden death');
-      if (s.buildings.some((b) => b.owner === p && b.kind === 'shield')) return toast(p, 'Your shield is already up');
+      if (s.buildings.some((b) => b.owner === p && b.kind === 'shield')) return toast(p, 'Shield already up');
       if (pl.shieldCd > 0) return toast(p, `Shield ready in ${Math.ceil(pl.shieldCd)} s`);
       if (!game.act.build(s, p, 'shield', 0)) toast(p, 'Shield not ready');
       return;
     }
-    if (key === 'vault') { if (!game.act.build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }
-    if (!freeSlots(s, p)) return toast(p, `All ${S_COUNT(s, p)} building spots are full`);
+    if (key === 'vault') { if (!game.act.build(s, p, 'vault', 0)) toast(p, 'Vault already built'); return; }
+    if (!freeSlots(s, p)) return toast(p, 'Building spots full');
     // one tap builds (owner, 2026-11-25): no second tap on the ground
     ui.armed[p] = null;
-    if (game.act.autoBuild(s, p, key)) game.sound('click'); else toast(p, `No room for another ${BUILD[key].name.toLowerCase()}`);
+    if (game.act.autoBuild(s, p, key)) game.sound('click'); else toast(p, `No room for a ${BUILD[key].name.toLowerCase()}`);
   }
 
   function place(p, x) {
@@ -90,15 +90,16 @@ export function attachInput(canvas, game) {
     if (!k) return;
     if (game.act.build(s, p, k, x)) { ui.armed[p] = null; return; }
     if (s.players[p].gold < costFor(s, p, k)) { toast(p, 'Not enough gold'); ui.armed[p] = null; }
-    else if (!placeOk(s, p, k, x)) toast(p, 'Not there: tap the bright strip');
+    else if (!placeOk(s, p, k, x)) toast(p, 'Tap the bright strip');
   }
 
   function down(e) {
     e.preventDefault();
     const w = pos(e), p = w.x < W / 2 ? 0 : 1;
     if (game.state === 'pick') {                                   // both players choose at once
+      const r = canvas.getBoundingClientRect(), q = pickPoint(game.lay, e.clientX - r.left, e.clientY - r.top), p = q.p;   // portrait stacks the players
       if ((game.s.mode === 'solo' && p === 1) || (game.online && p !== game.online.side)) return;
-      const hit = pickHit(p, w.x, w.y);
+      const hit = pickHit(p, q.x, q.y);
       if (hit?.race && !ui.pick.ready[p]) { ui.pick.race[p] = hit.race; game.sound('click'); if (game.online) game.pickChanged(); }
       else if (hit?.ready && ui.pick.race[p]) { ui.pick.ready[p] = !ui.pick.ready[p]; game.sound('click'); game.pickChanged(); }
       return;
@@ -145,7 +146,7 @@ export function attachInput(canvas, game) {
     if (!aim || aim.power < 0.05) return;
     const s = game.s, pl = s.players[a.p];
     if (pl.reload > 0) { toast(a.p, 'Reloading…'); return; }
-    if (pl.gold < shotCost(s, a.p)) { game.act.setAmmo(s, a.p, 'stone'); toast(a.p, 'Out of gold: stones loaded'); return; }
+    if (pl.gold < shotCost(s, a.p)) { game.act.setAmmo(s, a.p, 'stone'); toast(a.p, 'Out of gold: Normal shot loaded'); return; }
     if (game.act.fire(s, a.p, aim.dx, aim.dy, aim.power)) ui.kick[a.p] = 1;
   }
   function cancel(e) { const a = ui.aims.get(e.pointerId); if (a?.kind === 'pause') ui.pauseHold = 0; if (a?.kind === 'button') clearHeld(a); ui.aims.delete(e.pointerId); }

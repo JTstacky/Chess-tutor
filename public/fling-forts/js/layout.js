@@ -70,6 +70,25 @@ export const keyFor = (s, p, b) => (b.kind === 'ammo' && !S.hasAmmo(s, p, b.key)
 export const PAUSE = { x: W / 2, y: SKY_MIN - 96, r: 26 };
 // race pick: three cards per player in their own half, a Ready button under them (world coords for player 0)
 export const PICK = { cards: S.RACE_KEYS.map((k, i) => ({ key: k, x: 12 + (i % 5) * 126, y: 566 - Math.floor(i / 5) * 150, w: 120, h: 144 })), ready: { x: 170, y: 104, w: 300, h: 102 } };   // at least 44 CSS px on a 568px-wide phone
+// Portrait race pick (owner 2026-11-27: text was tiny): each player's half of the pick (world x 0..PICK_W for the
+// left player, W-PICK_W..W for the right, y 0..PICK_H) gets half the screen height, left player on top.
+const PICK_W = 650, PICK_H = 630;
+export function pickStack(lay, p) {
+  if (!lay || lay.view !== 'pick' || !lay.portrait) return null;
+  const half = (lay.h - (lay.safe?.t || 0) - (lay.safe?.b || 0)) / 2, s = Math.min(lay.w / PICK_W, half / PICK_H);
+  const x0 = p === 0 ? 0 : W - PICK_W;
+  return { s, ox: (lay.w - PICK_W * s) / 2 - x0 * s, gy: (lay.safe?.t || 0) + half * (p + 1) - (half - PICK_H * s) / 2 };
+}
+/** A race-pick point in player p's own frame (x as for the left player) to screen CSS px, for either layout. */
+export function pickToScreen(lay, p, x, y) {
+  const wx = p ? W - x : x, t = pickStack(lay, p);
+  return t ? { x: t.ox + wx * t.s, y: t.gy - y * t.s } : worldToScreen(lay, wx, y);
+}
+/** Screen point (CSS px) to {p, x, y} on the race pick, for either layout. */
+export function pickPoint(lay, sx, sy) {
+  if (pickStack(lay, 0)) { const p = sy < lay.h / 2 ? 0 : 1, t = pickStack(lay, p); return { p, x: (sx - t.ox) / t.s, y: (t.gy - sy) / t.s }; }
+  const w = screenToWorld(lay, sx, sy); return { p: w.x < W / 2 ? 0 : 1, x: w.x, y: w.y };
+}
 export function pickHit(p, x, y) {
   const u = p === 0 ? x : W - x;
   const hit = (r) => u >= r.x && u <= r.x + r.w && y <= r.y && y >= r.y - r.h;
