@@ -34,7 +34,7 @@ export const SLOT_LAYOUT = { 1: [520], 2: [470, 570], 3: BUILD_SLOTS, 4: [432, 4
 export const LEAN = { size: 0.15, label: { wall: 'Stronger walls', tower: 'Sharper towers', mine: 'Richer mines' } };
 export const MINE_LOOT = 50;                                      // gold for destroying an enemy mine (owner)
 // the castle (owner: destroy the enemy fort to win; it takes no damage while its chief is up)
-export const FORT_HP = 1700, FORT_H = 230;                         // castle hit points and height (world units)
+export const FORT_HP = 1200, FORT_H = 230;                         // castle hit points and height (world units)
 export const KO_DOWN = 12, KO_DOWN_STEP = 6, KO_REVIVE = 0.5;                        // a knocked-out chief lies stunned this long, then gets up with this share of his HP
 export const BOUNTY = 0.12;                     // share of a troop's price paid to the other side when it is killed
 
@@ -128,13 +128,13 @@ export const KING_ATK = {
                 air: { kind: 'chain', dmg: 0.9, rate: 1.25 } },                               // tesla prod: chains between flyers
   monsters:   { kind: 'area',   shape: 'front', range: 28,  dmg: 0.9,  rate: 0.7, what: 'Fast claw swipes at everything close', weak: 'ranged troops and one tough troop',
                 air: { kind: 'single', dmg: 2.2, rate: 1.8 } },                               // thrown rock: heavy, slow, poor against flocks
-  military:   { kind: 'area',   shape: 'blast', range: 130, dmg: 1.5, splash: 50, rate: 1.4, what: 'A slow rocket that bursts among troops', weak: 'one tough troop',
+  military:   { kind: 'area',   shape: 'blast', range: 130, dmg: 1.1, splash: 50, rate: 1.4, what: 'A slow rocket that bursts among troops', weak: 'one tough troop',
                 air: { kind: 'area', dmg: 1.3, rate: 1.4, r: 45 } },                          // bazooka: a burst in the air
   undead:     { kind: 'chain',  range: 120, dmg: 0.9,  rate: 1.0, what: 'A ghost-fire skull that leaps between troops', weak: 'one tough troop',
                 air: { kind: 'single', dmg: 1.2, rate: 1.0 } },                               // spectral skull: homes on one flyer
   pirates:    { kind: 'area',   shape: 'front', range: 26,  dmg: 0.45,  rate: 1.0, what: 'A wide cutlass arc up close', weak: 'ranged troops',
                 air: { kind: 'single', dmg: 1.2, rate: 1.6 } },                               // flintlock: one heavy shot
-  elementals: { kind: 'area',   shape: 'line',  range: 120, dmg: 1.4,  rate: 1.3, what: 'A long fire wave over everyone', weak: 'one tough troop',
+  elementals: { kind: 'area',   shape: 'line',  range: 120, dmg: 0.9,  rate: 1.3, what: 'A long fire wave over everyone', weak: 'one tough troop',
                 air: { kind: 'area', dmg: 1.1, rate: 1.5, r: 70 } },                          // fire fan: wide
   beastfolk:  { kind: 'single', range: 50,  dmg: 3.8,  rate: 1.15, what: 'One heavy axe slam', weak: 'swarms',
                 air: { kind: 'single', dmg: 1.6, rate: 1.3 } },                               // bone javelin
@@ -143,5 +143,5 @@ export const KING_ATK = {
 };
 // air: share of damage chiefs do to flyers (0 = ground only). airReach: how far along the ground a flyer may be for him
 // to strike it. chain: strength of the first hit and each jump; chainR: how far a jump reaches.
-export const KING_FIGHT = { air: 1, airReach: 170, chain: [1, 0.6, 0.36, 0.22], chainR: 70, outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 3, calm: 2.5 };
+export const KING_FIGHT = { air: 1, airReach: 170, chain: [1, 0.6, 0.36, 0.22], chainR: 70, outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 2, calm: 6 };
 

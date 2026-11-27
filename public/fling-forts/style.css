@@ -86,6 +86,23 @@ button.big.online { background: #5b4a8a; }
 .code:empty { display: none; }
 .status { margin: 0; font-size: 14px; color: #6b5d48; word-break: break-all; min-height: 1em; }
 
+/* Keep the complete online lobby reachable on short landscape phones. */
+@media (orientation: landscape) and (max-height: 430px) {
+  #online .card { padding: 10px 16px; gap: 5px; }
+  #online h2 { font-size: 22px; line-height: 26px; }
+  #online p { margin: 0; font-size: 14px; line-height: 18px; }
+  #online button.big { font-size: 17px; padding: 7px 12px; min-height: 44px; }
+  #online button.small { padding: 6px 12px; min-height: 44px; }
+  #online .code { font-size: 28px; line-height: 34px; letter-spacing: 7px; }
+  #online .row2 input {
+    flex: 1; min-width: 0; height: 44px; padding: 4px 8px;
+    font: 800 18px "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    text-align: center; text-transform: uppercase;
+    border: 3px solid #2b2620; border-radius: 14px; background: #fff;
+    -webkit-user-select: text; user-select: text; touch-action: manipulation;
+  }
+}
+
 /* Phones held upright: the field would shrink to a strip, so ask for a turn instead of showing it tiny.
    A 600px-wide seven-inch tablet still gets the game. */
 @media (orientation: portrait) and (max-width: 520px) {
