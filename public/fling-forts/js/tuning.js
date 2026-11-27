@@ -135,7 +135,7 @@ export const KING_ATK = {
   pirates:    { kind: 'area',   shape: 'front', range: 26,  dmg: 0.45,  rate: 1.0, what: 'A wide cutlass arc up close', weak: 'ranged troops',
                 air: { kind: 'single', dmg: 1.2, rate: 1.6 } },                               // flintlock: one heavy shot
   elementals: { kind: 'area',   shape: 'line',  range: 120, dmg: 0.9,  rate: 1.3, what: 'A long fire wave over everyone', weak: 'one tough troop',
-                air: { kind: 'area', dmg: 1.1, rate: 1.5, r: 70 } },                          // fire fan: wide
+                air: { kind: 'area', dmg: 0.7, rate: 1.5, r: 70 } },                          // fire fan: wide
   beastfolk:  { kind: 'single', range: 50,  dmg: 3.8,  rate: 1.15, what: 'One heavy axe slam', weak: 'swarms',
                 air: { kind: 'single', dmg: 1.6, rate: 1.3 } },                               // bone javelin
   steampunk:  { kind: 'area',   shape: 'front', range: 60,  dmg: 0.4,  rate: 1.0, push: 12, what: 'A steam blast that shoves troops back', weak: 'ranged troops',

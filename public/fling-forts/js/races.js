@@ -134,7 +134,7 @@ export const RACE_DATA = {
   pirates: {
     name: 'Saltdogs', theme: 'Pirates', chief: 'Captain Barnacle, a peg-legged pirate with a huge hat and a parrot',
     tag: 'Fast, loud, and in it for the gold.',
-    traits: { plus: ['plunder', 'rolling'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.28 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['plunder', 'rolling'], minus: ['troopCost', 'castle'] }, traitSize: { troopCost: 0.18 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a fort built from a beached pirate ship: plank hull, mast with crow\'s nest, barrels and a skull flag', skin: { L: 'ship planks', S: 'ballast stone', I: 'cannon iron' },
       layout: [[0, 0, 'S'], [0, 1, 'L'], [0, 2, 'L'], [0, 3, 'L'], [1, 2, 'L'], [2, 2, 'L'], [3, 0, 'L'], [3, 1, 'L'], [3, 2, 'L'], [3, 3, 'L']] },
@@ -188,7 +188,7 @@ export const RACE_DATA = {
   steampunk: {
     name: 'Brass Guild', theme: 'Steampunk', chief: 'the Grand Inventor, a tiny lady in goggles driving a brass walking chair',
     tag: 'Gears, steam, and far too much pressure.',
-    traits: { plus: ['mines', 'troopCost'], minus: ['troopSpeed', 'sturdy'] }, traitSize: { troopCost: 0.27 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
+    traits: { plus: ['mines', 'troopCost'], minus: ['troopSpeed', 'sturdy'] }, traitSize: { troopCost: 0.27, mines: 0.18 },   // two strengths, two weaknesses (js/traits.js); traitSize: {} tunes them
     lean: 'mine',   // the building this race leans to (tuning.js LEAN): shown on the race card and in the guidebook
     fort: { look: 'a brass and brick workshop with a smoking chimney, big gears, pipes and a clock face', skin: { L: 'copper pipework', S: 'red brick', I: 'brass boiler plate' },
       layout: [[0, 0, 'I'], [0, 1, 'S'], [0, 2, 'L'], [1, 2, 'I'], [2, 2, 'L'], [3, 0, 'S'], [3, 1, 'S'], [3, 2, 'S'], [3, 3, 'L']] },
