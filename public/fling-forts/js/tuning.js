@@ -54,7 +54,7 @@ export const MAT = { L: 'wood', S: 'stone', I: 'iron' };   // fort layout letter
 export const BUILD = {
   wall:   { name: 'Wall',   cost: 20, hp: 1200 },                    // strong and cheap: it only holds troops up (shots fly through), so it has to last
   tower:  { name: 'Tower',  cost: 55, hp: 70, range: 190, rate: 0.7, dmg: 15 },   // fragile but damaging (owner)
-  shield: { name: 'Shield', cost: 45, hp: 90, life: 16 },
+  shield: { name: 'Shield', cost: 45, hp: 90, life: 16, cd: 30 },   // cd: seconds after buying one before the next (owner)
   mine:   { name: 'Mine',   cost: 44, hp: 220, income: 2 },              // ground building: pays gold every second while it stands (no own limit: the three slots are the limit)
   // vault removed (owner: the lockbox did nothing useful)
   _vault: { name: 'Vault',  cost: 60, hp: 120, income: 3.5, max: 1 },       // fort addition: a block on top of the back wall
@@ -145,3 +145,13 @@ export const KING_ATK = {
 // to strike it. chain: strength of the first hit and each jump; chainR: how far a jump reaches.
 export const KING_FIGHT = { air: 1, airReach: 170, chain: [1, 0.6, 0.36, 0.22], chainR: 70, outScale: 1.45, growIn: 60, aggro: 560, leash: 520, speed: 70, dmg: 40, rate: 0.9, splash: 60, splashMul: 0.5, reach: 10, regen: 2, calm: 6 };
 
+
+// Game modes (owner, 2026-11-27). reload: share of the fling shot reload kept (0 = none); gold: multiplier on starting
+// gold, income and the gold cap; speed: how fast the whole match runs. Online play stays Classic.
+export const MODES = {
+  classic: { name: 'Classic', about: 'The normal game', reload: 1, gold: 1, speed: 1 },
+  frenzy:  { name: 'Frenzy', about: 'No reload, double gold, double speed', reload: 0, gold: 2, speed: 2 },
+  rapid:   { name: 'Rapid fire', about: 'No fling shot reload', reload: 0, gold: 1, speed: 1 },
+  rich:    { name: 'Gold rush', about: 'Double gold', reload: 1, gold: 2, speed: 1 },
+  turbo:   { name: 'Turbo', about: 'Everything at double speed', reload: 1, gold: 1, speed: 2 },
+};

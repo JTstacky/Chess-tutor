@@ -1,4 +1,4 @@
-import { KO } from './tuning.js';
+import { MODES, KO } from './tuning.js';
 // main.js — boot, menus, fixed-step loop, sound.
 import * as S from './sim.js';
 import { createAI, pickRace } from './ai.js';
@@ -51,9 +51,9 @@ function pickChanged() {
     Promise.race([Promise.all([...pk.race.map((r) => loadGroup(r)), new Promise((ok) => setTimeout(ok, 450))]), new Promise((ok) => setTimeout(ok, 4000))]).then(go);
   }
 }
-function start(mode, level = ui.aiLevel, seed = (Math.random() * 1e9) | 0, races = ui.races) {
+function start(mode, level = ui.aiLevel, seed = (Math.random() * 1e9) | 0, races = ui.races, rules = gameMode) {
   ui.races = races.slice(); ui.pick = null;
-  game.s = S.createGame({ mode, seed, races });
+  game.s = S.createGame({ mode, seed, races, rules });
   ui.aiLevel = level;
   game.ai = mode === 'solo' ? createAI(1, level, seed ^ 0x5eed) : null;
   ui.armed = [null, null]; ui.aims.clear(); ui.toast = [null, null]; ui.kick = [0, 0];
@@ -94,6 +94,17 @@ function leaveOnline() { if (game.online) { online.leave(); clearHost(); game.on
 function enterOnline() { game.online = online; game.act = online.act; show('online'); }
 
 let level = 'normal', quitArmed = 0;
+// game mode (owner, 2026-11-27): Classic, Frenzy, Rapid fire, Gold rush, Turbo; remembered on this device
+let gameMode = 'classic';
+try { const m = localStorage.getItem('fling-forts:mode'); if (MODES[m]) gameMode = m; } catch {}
+function setMode(m) {
+  gameMode = m;
+  for (const o of document.querySelectorAll('[data-mode]')) o.classList.toggle('on', o.dataset.mode === m);
+  $('mode-about').textContent = MODES[m].about;
+  try { localStorage.setItem('fling-forts:mode', m); } catch {}
+}
+for (const b of document.querySelectorAll('[data-mode]')) b.addEventListener('click', () => setMode(b.dataset.mode));
+setMode(gameMode);
 for (const b of document.querySelectorAll('[data-level]')) b.addEventListener('click', () => { level = b.dataset.level; for (const o of document.querySelectorAll('[data-level]')) o.classList.toggle('on', o === b); });
 $('btn-2p').addEventListener('click', () => pick('2p'));
 $('btn-solo').addEventListener('click', () => pick('solo', level));
@@ -106,10 +117,10 @@ $('btn-help-back').addEventListener('click', () => show('menu'));
 // the Guidebook (js/guide.js) is fetched only when it is first opened, so the menu's own load stays as it was
 $('btn-guide').addEventListener('click', async () => { unlockAudio(); const m = await import('./guide.js'); m.openGuide(() => show('menu')); show('guide'); });
 $('btn-resume').addEventListener('click', resume);
-$('btn-restart').addEventListener('click', () => start(game.s.mode, ui.aiLevel));
+$('btn-restart').addEventListener('click', () => start(game.s.mode, ui.aiLevel, undefined, ui.races, game.s.rules));
 // quitting throws the match away, so a single stray tap must not do it
 $('btn-quit').addEventListener('click', () => { if (quitArmed && performance.now() - quitArmed < 2500) toMenu(); else { quitArmed = performance.now(); $('btn-quit').textContent = 'Tap again to quit'; } });
-$('btn-rematch').addEventListener('click', () => { if (game.online) { game.online.cmd('rematch', { races: false }); show(null); } else start(game.s.mode, ui.aiLevel); });
+$('btn-rematch').addEventListener('click', () => { if (game.online) { game.online.cmd('rematch', { races: false }); show(null); } else start(game.s.mode, ui.aiLevel, undefined, ui.races, game.s.rules); });
 $('btn-over-menu').addEventListener('click', toMenu);
 document.addEventListener('visibilitychange', () => { if (document.hidden && !game.online) pause(); });
 
@@ -237,6 +248,7 @@ function frame(t) {
   // game feel: a few frames of hit-stop when a block breaks, slow motion on the winning hit (both players alike)
   let real = Math.min(0.25, (t - last) / 1000); last = t;
   if (ui.hitstop > 0) { ui.hitstop -= real; real = 0; } else if (ui.slowmo > 0) { ui.slowmo -= real; real *= KO.rate; }
+  if (game.state === 'play' && game.s && !game.online) real *= S.rulesOf(game.s).speed;   // Turbo and Frenzy: the whole match runs faster
   acc += real;
   if (game.online?.stage === 'pick' && game.online.pick && ui.pick) { ui.pick.race = game.online.pick.race.slice(); ui.pick.ready = game.online.pick.ready.slice(); }
   // countdown tick over the last five seconds of a round or of sudden death

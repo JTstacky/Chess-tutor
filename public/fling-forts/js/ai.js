@@ -1,5 +1,5 @@
 // ai.js — a computer opponent that plays through the same actions as a person (fire/build/send/setAmmo).
-import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, freeSlots, slotCount, powerCost, upgradePower, hasAmmo, UNIT, BUILD, W, MID, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY } from './sim.js';
+import { guarded, fortSpan, AMMO, isOpen, heroOk, ultReady, ultimate, autoBuild, freeSlots, slotCount, powerCost, upgradePower, hasAmmo, UNIT, BUILD, W, MID, FORT, RACE_KEYS, kingPos, catPos, colX, rowY, mx, dir, gateX, solve, fire, build, send, setAmmo, placeOk, costFor, shotCost, raceOf, bonusY, rulesOf } from './sim.js';
 
 export const LEVELS = {
   // owner 2026-11-25: the computer was too hard (every level fired at the reload limit). A person fires about 12-18 shots
@@ -24,7 +24,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
   const rand = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
   const gauss = () => (rand() + rand() + rand() - 1.5) / 1.5;
   let timer = 0, waitFire = 0, planRound = 0, planDone = 0;
-  const fireWait = (s) => cfg.fireMul * AMMO_R(s);
+  const fireWait = (s) => cfg.fireMul * AMMO_R(s) * Math.max(0.35, rulesOf(s).reload);   // no-reload modes: about three times the shots
   const AMMO_R = (s) => (AMMO[s.players[p].ammo]?.reload || 3) * (raceOf(s, p).mods.reload || 1);
   const foe = 1 - p;
 

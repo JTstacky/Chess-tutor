@@ -1,7 +1,7 @@
 import { RACE_DATA, PRICE_TUNE } from './races.js';
 import { traitMods, traitLines, plainText } from './traits.js';
 export { PRICE_TUNE };
-import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_DOWN_STEP, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER } from './tuning.js';
+import { ROUND_TIME, SUDDEN_TIME, INTERMISSION, ROUNDS_TO_WIN, MAX_DRAWS, GOLD_START, GOLD_RATE, GOLD_CAP, BOUNTY, CRUSH, AMMO, BLOCK, MAT, BUILD, worth, PRICE_K, BONUS_R, BONUS_BAND, BONUS_EVERY, CRATE_LIFE, RAPID_TIME, FORT_GUARD, KING_UNIT_MUL, SHOT_FLIGHT, AGGRO, KING_FIGHT, KING_ATK, TIERS, SUDDEN_AT, AMMO_TIER, BUILD_TIER, HERO, ULT, ULT_DEFAULT, KING_BASE_HP, MINE_LOOT, FORT_HP, FORT_H, KO_DOWN, KO_DOWN_STEP, KO_REVIVE, SLOT_LAYOUT, LEAN, POWER, MODES } from './tuning.js';
 export * from './tuning.js';
 // sim.js — Fling Forts rules and physics, side view. Pure: no DOM, so node tests run the same code as the game.
 // World: x runs left to right (0..W), y is height above the ground (0 = ground). Player 0 owns the left fort,
@@ -127,7 +127,7 @@ export function incomeOf(s, p) {
   const m = raceOf(s, p).mods;
   let n = TIERS.income[(s.tier || 1) - 1] * (s.phase === 'sudden' ? 2 : 1);
   for (const b of s.buildings) if (b.owner === p && b.kind === 'mine' && !b.dead) n += BUILD.mine.income * (m.mineMul || 1);
-  return n * (m.income || 1);
+  return n * (m.income || 1) * rulesOf(s).gold;
 }
 /** Gold the other side gets when this troop is killed. */
 export function bountyOf(kind, s, owner) {
@@ -138,7 +138,7 @@ export function bountyOf(kind, s, owner) {
   return u.hero ? Math.min(HERO.bounty, g) : g;
 }
 /** The gold cap now (it rises with the tier). */
-export const capOf = (s) => TIERS.cap[(s.tier || 1) - 1];
+export const capOf = (s) => TIERS.cap[(s.tier || 1) - 1] * rulesOf(s).gold;
 /** Seconds into the round when tier t opens (later rounds escalate faster). */
 export const tierAt = (s, t) => TIERS.at[t - 1] * (s.round > 1 ? TIERS.laterRounds : 1);
 /** Which tier an ammo, building or troop belongs to. */
@@ -159,22 +159,24 @@ export function shotCost(s, p) {
 export const rosterOf = (s, p) => raceOf(s, p).roster;
 
 // ---------- state ----------
+/** The game mode's rules (Classic for older saves and online states without one). */
+export const rulesOf = (s) => MODES[s.rules] || MODES.classic;
 function newPlayer(id, race) {
   const kingMax = Math.round(KING_HP * (RACES[race].mods.kingHp || 1));
-  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, down: 0, deaths: 0, fortHp: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortMax: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortFlash: 0, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, power: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
+  return { id, race, guard: 0, earned: 0, kills: 0, gold: GOLD_START, kingHp: kingMax, kingMax, down: 0, deaths: 0, fortHp: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortMax: Math.round(FORT_HP * (RACES[race].mods.castleHp || 1)), fortFlash: 0, ult: 0, ultUsed: false, ultCap: 0, heroCd: 0, shieldCd: 0, kx: kingHome(id), kingCd: 0, kingAct: 0, kingQuiet: 0, kingHeal: false, kingFace: dir(id), reload: 0, power: 0, ammo: 'stone', rapid: 0, freeShots: 0, shots: 0, hits: 0, spent: 0, bonuses: 0, dealt: 0 };
 }
 function buildFort() {}                                          // the block grid is gone: one castle per side (player.fortHp)
 function fresh(s) {
   const deaths = s.players?.map(p => p.deaths) || [0, 0];
   s.players = [newPlayer(0, s.races[0]), newPlayer(1, s.races[1])];
-  s.players.forEach((p, i) => { p.deaths = deaths[i]; }); // fatigue persists until a new match
+  s.players.forEach((p, i) => { p.deaths = deaths[i]; p.gold = Math.round(p.gold * rulesOf(s).gold); }); // fatigue persists until a new match
   s.projectiles = []; s.units = []; s.buildings = []; s.fires = []; s.fx = []; s.hits = []; s.bonuses = []; s.blocks = []; s.ko = null;
   buildFort(s, 0); buildFort(s, 1);
   s.phase = 'play'; s.clock = SUDDEN_AT; s.roundWinner = null; s.roundT = 0; s.tier = s.open ? TIERS.at.length : 1; s.ultq = []; s.waves = [];   // open: every tier unlocked (rule tests, tools)
   s.bonusTimer = 5 + s.rand() * 3;
 }
-export function createGame({ mode = '2p', seed = 1, races = ['fantasy', 'pirates'], open = false } = {}) {
-  const s = { mode, seed, open, rand: rng(seed), time: 0, nextId: 1, races: races.slice(), round: 1, roundsWon: [0, 0], draws: 0, interTimer: 0, winner: null, events: [], bonusSide: 0 };
+export function createGame({ mode = '2p', seed = 1, races = ['fantasy', 'pirates'], open = false, rules = 'classic' } = {}) {
+  const s = { mode, seed, open, rules: MODES[rules] ? rules : 'classic', rand: rng(seed), time: 0, nextId: 1, races: races.slice(), round: 1, roundsWon: [0, 0], draws: 0, interTimer: 0, winner: null, events: [], bonusSide: 0 };
   fresh(s);
   return s;
 }
@@ -215,7 +217,7 @@ export function fire(s, p, dx, dy, power) {
   s.projectiles.push({ id: s.nextId++, owner: p, ammo: pl.ammo, x: c.x, y: c.y, vx: vel.vx, vy: vel.vy, split: !!a.split, shard: false, t: 0, spin: 0 });
   if (pl.ammo !== 'stone' && pl.freeShots > 0) pl.freeShots--;
   pl.gold -= cost; pl.spent += cost; pl.shots++;
-  pl.reload = a.reload * (raceOf(s, p).mods.reload || 1) * (pl.rapid > 0 ? 0.5 : 1);
+  pl.reload = a.reload * (raceOf(s, p).mods.reload || 1) * (pl.rapid > 0 ? 0.5 : 1) * rulesOf(s).reload;
   emit(s, 'fire', { p, ammo: pl.ammo, x: c.x, y: c.y });
   if (pl.ammo !== 'stone' && pl.gold < shotCost(s, p)) pl.ammo = 'stone';
   return true;
@@ -243,7 +245,7 @@ export const freeSlots = (s, p) => slotsOf(s, p).filter((_, i) => !inSlot(s, p, 
 export function placeOk(s, p, kind, x) {
   const u = mx(p, x);                                           // as a left-fort coordinate
   if (!isOpen(s, p, kind)) return false;                        // not unlocked yet this round
-  if (kind === 'shield') return s.phase !== 'sudden' && !s.buildings.some((b) => b.owner === p && b.kind === 'shield');
+  if (kind === 'shield') return s.phase !== 'sudden' && !(s.players[p].shieldCd > 0) && !s.buildings.some((b) => b.owner === p && b.kind === 'shield');
   if (BUILD[kind]) {
     if (BUILD[kind].max && s.buildings.filter((b) => b.owner === p && b.kind === kind && !b.dead).length >= BUILD[kind].max) return false;
     const i = slotAt(s, p, x);
@@ -260,7 +262,7 @@ export function build(s, p, kind, x) {
   const m = raceOf(s, p).mods, pl = s.players[p];
   const hp = Math.round(spec.hp * (kind === 'wall' ? m.wallHp || 1 : kind === 'tower' ? m.towerHp || 1 : kind === 'mine' ? m.mineHp || 1 : 1));
   const b = { id: s.nextId++, owner: p, kind, x, hp, maxHp: hp, cd: 0, age: 0, life: kind === 'shield' ? spec.life * (m.shieldLifeMul || 1) : 0 };
-  if (kind === 'shield') { const [fa, fb] = fortSpan(p); b.x = (fa + fb) / 2; }
+  if (kind === 'shield') { const [fa, fb] = fortSpan(p); b.x = (fa + fb) / 2; pl.shieldCd = spec.cd || 0; }
   else { b.slot = slotAt(s, p, x); b.x = slotX(s, p, b.slot); }                          // snaps to the centre of its slot   // the dome sits over the castle (its roof and the chief at home), not wherever the chief stood
   s.buildings.push(b);
   pl.gold -= cost; pl.spent += cost;
@@ -456,7 +458,7 @@ export function step(s, dt = DT) {
     p.gold = Math.min(capOf(s), p.gold + incomeOf(s, p.id) * dt);
     if (p.down > 0) { p.down -= dt; if (p.down <= 0) { p.down = 0; p.kingHp = Math.round(p.kingMax * KO_REVIVE); p.kingQuiet = 0; emit(s, 'chief-up', { p: p.id, x: kingPos(p.id, s).x }); } }
     p.ult = Math.min(1, p.ult + ULT.perSec * dt);
-    p.reload = Math.max(0, p.reload - dt); p.rapid = Math.max(0, p.rapid - dt);
+    p.reload = Math.max(0, p.reload - dt); p.rapid = Math.max(0, p.rapid - dt); p.shieldCd = Math.max(0, (p.shieldCd || 0) - dt);
     if (m.kingRegen && p.down <= 0 && s.phase === 'play') p.kingHp = Math.min(p.kingMax, p.kingHp + m.kingRegen * dt);
   }
   stepBonuses(s, dt);

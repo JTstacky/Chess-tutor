@@ -73,7 +73,9 @@ export function attachInput(canvas, game) {
     if (b.kind === 'unit') { if (game.act.send(s, p, key, gateX(p))) ui.armed[p] = null; return; }       // troops march out of the gate at once
     if (key === 'shield') {
       if (s.phase === 'sudden') return toast(p, 'No shields in sudden death');
-      if (!game.act.build(s, p, 'shield', 0)) toast(p, 'Your shield is already up');
+      if (s.buildings.some((b) => b.owner === p && b.kind === 'shield')) return toast(p, 'Your shield is already up');
+      if (pl.shieldCd > 0) return toast(p, `Shield ready in ${Math.ceil(pl.shieldCd)} s`);
+      if (!game.act.build(s, p, 'shield', 0)) toast(p, 'Shield not ready');
       return;
     }
     if (key === 'vault') { if (!game.act.build(s, p, 'vault', 0)) toast(p, 'Your vault is already built'); return; }

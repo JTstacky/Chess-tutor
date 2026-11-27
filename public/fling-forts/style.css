@@ -62,6 +62,9 @@ button.small { font-size: 15px; padding: 9px 14px; }
 .levels { display: flex; gap: 6px; justify-content: center; }
 .levels button { flex: 1; padding: 8px 4px; font-size: 15px; }
 .levels button.on { background: #2b2620; color: #f6ecd6; }
+.modes { display: flex; flex-direction: column; gap: 4px; }
+.modes .levels button { font-size: 13px; padding: 8px 2px; }
+.mode-about { margin: 0; text-align: center; font-size: 13px; color: #6b5d48; font-weight: 700; }
 
 /* Short phones must expose every menu action without a hidden bottom row. */
 @media (max-height: 460px) and (orientation: landscape) {
@@ -72,6 +75,8 @@ button.small { font-size: 15px; padding: 9px 14px; }
   #menu button.big { font-size: 18px; padding: 8px 10px; }
   #menu button.small { padding: 6px 10px; }
   #menu .solo { gap: 4px; }
+  #menu .mode-about { display: none; }
+  #menu .modes .levels button { padding: 6px 2px; }
 }
 
 /* online screen */

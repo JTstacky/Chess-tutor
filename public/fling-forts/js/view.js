@@ -1194,11 +1194,11 @@ function drawHud(g, s, ui, now) {
       const shut = !S.isOpen(s, p, key), wait = shut ? Math.max(0, S.unlockAt(s, p, key) - (s.roundT || 0)) : 0;
       const free = b.kind === 'ammo' && key !== 'stone' && pl.freeShots > 0;
       const can = free || pl.gold >= cost, on = (b.kind === 'ammo' && pl.ammo === key) || ui.armed[p] === key;
-      const locked = (key === 'shield' && (s.phase === 'sudden' || s.buildings.some((q) => q.owner === p && q.kind === 'shield')))
+      const locked = (key === 'shield' && (s.phase === 'sudden' || pl.shieldCd > 0 || s.buildings.some((q) => q.owner === p && q.kind === 'shield')))
         || (key === 'vault' && !S.placeOk(s, p, 'vault', 0))
         || ((key === 'wall' || key === 'tower' || key === 'mine') && !S.freeSlots(s, p))   // all building spots taken
         || shut || (b.kind === 'hero' && !S.heroOk(s, p));
-      const cacheKey = [pl.race, key, ai, can, locked, on, free, pl.freeShots, cost, Math.ceil(wait), pl.heroCd, art.revision].join(':');
+      const cacheKey = [pl.race, key, ai, can, locked, on, free, pl.freeShots, cost, Math.ceil(wait), pl.heroCd, key === 'shield' ? Math.ceil((pl.shieldCd || 0) * 4) : 0, art.revision].join(':');
       drawCachedControl(g, DRAW_LAY, real, `${p}:${b.key}`, cacheKey, (g) => {
       g.save(); g.globalAlpha = ai ? 0.45 : can && !locked ? 1 : 0.5;
       g.translate(real.x, -real.y); g.scale(k, k);
@@ -1227,6 +1227,9 @@ function drawHud(g, s, ui, now) {
       if (shut) {                                                      // not unlocked yet: dark cover with the time left
         g.fillStyle = 'rgba(30,16,4,0.62)'; rrect(g, b.x, -b.y, b.w, b.h - 3, 13); g.fill();
         text(g, `${Math.floor(Math.ceil(wait) / 60)}:${String(Math.ceil(wait) % 60).padStart(2, '0')}`, b.w / 2, -b.h / 2 - 1, narrow ? 16 : 19, '#fff', 'center', INK);
+      } else if (key === 'shield' && pl.shieldCd > 0 && !s.buildings.some((q) => q.owner === p && q.kind === 'shield')) {   // cooldown after the dome ends
+        g.fillStyle = 'rgba(30,16,4,0.55)'; rrect(g, b.x, -b.y, b.w * pl.shieldCd / BUILD.shield.cd, b.h - 3, 13); g.fill();
+        text(g, `${Math.ceil(pl.shieldCd)}`, b.w / 2, -b.h / 2 - 1, narrow ? 16 : 19, '#fff', 'center', INK);
       } else if (b.kind === 'hero' && pl.heroCd > 0) {
         g.fillStyle = 'rgba(30,16,4,0.55)'; rrect(g, b.x, -b.y, b.w * pl.heroCd / S.HERO_CD, b.h - 3, 13); g.fill();
       }
