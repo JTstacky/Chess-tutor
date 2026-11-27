@@ -8,6 +8,7 @@ viewArt.onSound = (kind, x) => { if (game.state === 'play') sound(kind, x); };  
 import { attachInput, blockBrowserGestures, PULL_MAX } from './input.js';
 import { createOnline } from './online.js';
 import { renderDpr, createRenderBudget } from './render-budget.js';
+import { addRecoveryAction } from './online-recovery.js';
 
 const canvas = document.getElementById('game');
 // The backdrop covers every pixel; an opaque surface avoids needless full-screen alpha compositing.
@@ -81,6 +82,7 @@ const savedHost = () => {
 const clearHost = () => { try { sessionStorage.removeItem(HOST_CHECKPOINT_KEY); } catch {} };
 
 const online = createOnline({
+  saved() { if (!$('online').hidden) $('online-status').textContent = 'Saved for 30 minutes. Recover with this code and the same profile.'; },
   checkpoint(value) { try { sessionStorage.setItem(HOST_CHECKPOINT_KEY, JSON.stringify({ ...value, profileId: profileId() })); } catch {} },
   status(s) { $('online-status').textContent = s === 'reconnecting' ? 'Reconnecting…' : s === 'open' ? 'Connected' : s === 'failed' ? 'Connection failed' : 'Connecting…'; },
   lobby(o) { $('online-code').textContent = o.code || ''; $('online-status').textContent = o.peers === 2 ? 'Both players connected' : 'Share this code with a friend'; if (!o.isHost && o.code) { const u = new URL(location.href); u.searchParams.set('room', o.code); history.replaceState(null, '', u); } },
@@ -112,6 +114,7 @@ $('btn-online').addEventListener('click', enterOnline);
 $('btn-host').addEventListener('click', () => { clearHost(); enterOnline(); online.host(); });
 $('btn-join').addEventListener('click', () => { clearHost(); enterOnline(); online.join($('join-code').value); });
 $('btn-online-back').addEventListener('click', toMenu);
+addRecoveryAction(code => { clearHost(); enterOnline(); online.recover(code); });
 $('btn-help').addEventListener('click', () => show('help'));
 $('btn-help-back').addEventListener('click', () => show('menu'));
 // the Guidebook (js/guide.js) is fetched only when it is first opened, so the menu's own load stays as it was

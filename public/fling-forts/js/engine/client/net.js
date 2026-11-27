@@ -14,6 +14,7 @@ import { Peer } from 'peerjs';
 import { randomCode } from '../server/hub.js';
 import { SnapDecoder } from '../shared/snapcodec.js';
 import { turnEndpoint, validTurnResponse } from './turn.js';
+import { recoveryConfig, recoverySession, claimRoom, RECOVERY_PATH, CHECKPOINT_RULES } from '../../net-checkpoint.js';
 
 const TOKEN_KEY = 'tenggames-token:';
 
@@ -172,6 +173,8 @@ export class Net {
     this.impl?.send(m);
   }
 
+  endRoom() { if (this.impl?.cloud && this.impl.rws?.readyState === 1) this.impl.rws.send('release'); }
+
   close() {
     this.impl?.close();
     this.impl = null;
@@ -297,7 +300,7 @@ class P2PHost {
     this.boot(0);
   }
 
-  boot(attempt) {
+  async boot(attempt) {
     this.attempt = attempt;
     this.code = this.net.p2p.resume?.code || randomCode();
     this.started = false;
@@ -309,6 +312,25 @@ class P2PHost {
       console.error('Host worker error', e);
       this.net.onMessage({ t: 'error', text: 'The game host crashed. Please reload.' });
     };
+    const config = await recoveryConfig();
+    if (this.closed || this.attempt !== attempt) return;
+    if (config && (!this.net.p2p.resume || this.net.p2p.resume.cloud)) {
+      this.cloud = true; this.peerDown = true; this.relayBase = config.ws;
+      try {
+        const claimed = await claimRoom(config, this.code, this.net.p2p.resume ? 'resume' : 'create');
+        if (this.closed || this.attempt !== attempt) return;
+        this.claimed = claimed; this.session = recoverySession();
+        if (claimed.resume) { this.net.p2p.resume = { ...claimed.resume, cloud: true }; this.hello.token = claimed.resume.hostToken; }
+        this.leaseDeadline = performance.now() + claimed.leaseMs - 5000;
+        this.openRelay();
+      } catch (e) {
+        if (this.closed) return;
+        if (e.status === 409 && attempt < 30) { this.teardown(); setTimeout(() => !this.closed && this.boot(attempt + 1), 1000); }
+        else this.net.onMessage({ t: 'error', text: e.message, fatal: true });
+      }
+      return;
+    }
+    if (this.net.p2p.resume?.cloud) { this.net.onMessage({ t: 'error', text: 'Room recovery is not enabled on this site yet.', fatal: true }); return; }
     relayUrl().then((url) => {
       if (this.closed || this.attempt !== attempt) return;
       if (!RELAY_ONLY) prepareIce(url).then(() => { if (!this.closed && this.attempt === attempt) this.startPeer(); });
@@ -390,17 +412,31 @@ class P2PHost {
   }
 
   openRelay() {
-    const ws = new WebSocket(`${this.relayBase}/${this.net.p2p.prefix}/${this.code}?role=host`);
+    const path = this.cloud ? `${RECOVERY_PATH}${this.code}/socket?role=host&ticket=${this.claimed.ticket}` : `/${this.net.p2p.prefix}/${this.code}?role=host`;
+    const ws = new WebSocket(`${this.relayBase}${path}`);
     this.rws = ws;
     ws.onopen = () => {
       this.relayDown = false;
       this.start();
       clearInterval(this.beat);
       this.beat = setInterval(() => ws.readyState === 1 && ws.send('~'), HEARTBEAT_MS);
+      if (this.cloud) this.leaseWatch = setInterval(() => {
+        if (performance.now() >= this.leaseDeadline || recoverySession() !== this.session) this.cloudLost();
+      }, 500);
     };
     ws.onmessage = (e) => {
+      if (this.closed || this.rws !== ws) return;
       const s = String(e.data);
       if (s === '~') return;
+      if (this.cloud && s.startsWith('checkpoint|')) {
+        try { const ack = JSON.parse(s.slice(11));
+          if (ack.seq === this.saveSeq && Number.isFinite(ack.leaseMs)) {
+            this.leaseDeadline = Math.min(performance.now(), this.sentAt) + Math.min(20000, ack.leaseMs) - 5000;
+            this.net.p2p.onSaved?.(ack.expiresAt);
+          }
+        } catch {} return;
+      }
+      if (this.cloud && s.startsWith('checkpointError|')) { this.net.onMessage({ t: 'error', text: s.slice(16), fatal: true }); return; }
       if (s[0] === '+') {
         const gid = s.slice(1);
         const id = `r${gid}`;
@@ -422,6 +458,7 @@ class P2PHost {
       clearInterval(this.beat);
       for (const id of [...this.conns.keys()]) if (id[0] === 'r') this.gone(id);
       if (this.closed) return;
+      if (this.cloud) return this.cloudLost();
       if (e.code === 4409) return this.restart();
       if (e.code === 4403) console.warn('The relay does not accept this page\'s address (ALLOWED_ORIGINS).');
       if (!this.started) {
@@ -463,7 +500,12 @@ class P2PHost {
 
   fromWorker(m) {
     if (m.type === 'checkpoint') {
-      this.net.p2p.onCheckpoint?.({ code: this.code, hostToken: this.hello.token, data: m.data, at: Date.now() });
+      const snapshot = { code: this.code, hostToken: this.hello.token, data: m.data, at: Date.now(), cloud: !!this.cloud, rules: CHECKPOINT_RULES };
+      this.net.p2p.onCheckpoint?.(snapshot);
+      if (this.cloud && this.rws?.readyState === 1 && this.rws.bufferedAmount < BACKLOG && (!this.sentAt || performance.now() - this.sentAt >= this.claimed.saveMs)) {
+        this.sentAt = performance.now(); this.saveSeq = (this.saveSeq || 0) + 1;
+        this.rws.send(`checkpoint|${JSON.stringify({ seq: this.saveSeq, snapshot })}`);
+      }
     } else if (m.type === 'restoreFailed') {
       this.net.onMessage({ t: 'error', text: `Saved room could not be reopened: ${m.text}`, fatal: true });
     } else if (m.type === 'send') {
@@ -503,6 +545,7 @@ class P2PHost {
     for (const c of this.conns.values()) c.close();
     this.conns.clear();
     clearInterval(this.beat);
+    clearInterval(this.leaseWatch);
     this.worker?.terminate();
     this.peer?.destroy();
     const ws = this.rws;
@@ -513,6 +556,11 @@ class P2PHost {
   close() {
     this.closed = true;
     this.teardown();
+  }
+
+  cloudLost() {
+    if (this.closed) return;
+    this.net.onMessage({ t: 'error', text: 'Host connection lost. Sign in to this profile and recover the room using its code.', fatal: true });
   }
 }
 
@@ -526,8 +574,10 @@ class P2PClient {
     this.attempt = 0; // direct dials that never opened (no relay available)
     this.mode = RELAY_ONLY ? 'relay' : 'direct';
     net.onStatus('connecting');
-    relayUrl().then((url) => prepareIce(url).then(() => url)).then((url) => {
-      this.relayBase = url;
+    Promise.all([recoveryConfig(), relayUrl()]).then(async ([config, url]) => {
+      this.cloud = !!config;
+      if (config) { this.mode = 'relay'; this.relayBase = config.ws; }
+      else { await prepareIce(url); this.relayBase = url; }
       if (!this.closed) this.dial();
     });
   }
@@ -620,7 +670,8 @@ class P2PClient {
   }
 
   dialRelay() {
-    const ws = new WebSocket(`${this.relayBase}/${this.net.p2p.prefix}/${this.code}?role=guest`);
+    const path = this.cloud ? `${RECOVERY_PATH}${this.code}/socket?role=guest` : `/${this.net.p2p.prefix}/${this.code}?role=guest`;
+    const ws = new WebSocket(`${this.relayBase}${path}`);
     this.ws = ws;
     let open = false;
     clearTimeout(this.dialTimer);
@@ -653,7 +704,14 @@ class P2PClient {
       }
       if (e.code === 4404) {
         if (this.joined) return this.lost();
+        // A pre-upgrade host may still be in the legacy namespace. Never do
+        // this for a reserved saved room (4412), which could revive a stale host.
+        if (this.cloud) { this.cloud = false; this.mode = RELAY_ONLY ? 'relay' : 'direct'; return this.dial(); }
         return this.fail('No game with that code — or its host has left.');
+      }
+      if (e.code === 4412) {
+        if (this.joined) return this.lost();
+        return this.fail('This room is saved. Ask its host to recover it using the same player profile.');
       }
       if (!open && !this.joined) return this.fail("Couldn't reach the game. Check your internet connection and try again.");
       this.lost();

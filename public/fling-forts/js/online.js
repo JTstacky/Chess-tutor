@@ -20,17 +20,23 @@ export function createOnline(hooks) {
 
   function connect(hello, resume = null) {
     leave(true);
-    o.active = true; o.cur = o.prev = null; o.fx = []; o.events = []; o.stage = null; o.code = hello.code || null;
+    o.active = true; o.cur = o.prev = null; o.fx = []; o.events = []; o.stage = null; o.savedUntil = 0; o.code = hello.code || null;
     net = new Net(onMessage, (s) => { o.reconnecting = s === 'reconnecting' || s === 'closed'; hooks.status?.(s); }, {
-      p2p: { prefix: PREFIX, resume, onCheckpoint: hooks.checkpoint,
+      p2p: { prefix: PREFIX, resume, onCheckpoint: hooks.checkpoint, onSaved: until => { o.savedUntil = until; hooks.saved?.(); },
         createWorker: () => new Worker(new URL('./host-worker.js', import.meta.url), { type: 'module' }) },
     });
     net.connect(hello);
     o.isHost = hello.t === 'create';
   }
   o.host = (resume = null) => connect({ t: 'create', name: 'Red' }, resume);
+  o.recover = code => {
+    code = String(code).trim().toUpperCase();
+    if (!/^[A-Z]{4}$/.test(code)) { hooks.error?.('Enter the four-letter room code.'); return; }
+    connect({ t: 'create', name: 'Red' }, { code, cloud: true });
+  };
   o.join = (code) => connect({ t: 'join', code: String(code).trim().toUpperCase(), name: 'Blue' });
   function leave(quiet) {
+    if (!quiet) net?.endRoom();
     net?.close(); net = null;
     if (o.active && !quiet) hooks.left?.();
     o.active = false; o.stage = null;

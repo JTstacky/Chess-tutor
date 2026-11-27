@@ -6,6 +6,7 @@ const REGIONS = Object.freeze({
   robots_drone:[[0,0,1,.32],[0,.76,1,.24]],
   robots_gunship:[[0,0,1,.30]],
   steampunk_gyro:[[0,0,1,.26]],
+  pirates_sloop:[[0,0,1,.22]],
 });
 export const hasRotorRig = kind => Object.hasOwn(REGIONS,kind);
 export function rotorPhase(now,seed=0) {
@@ -17,7 +18,10 @@ export function paintRotorCraft(g,kind,now,seed,im,w,h,anchorY,spr) {
   const phase=rotorPhase(now,seed),x=-w/2,y=-h*anchorY;
   const cut=()=>{for(const [rx,ry,rw,rh] of regions)g.rect(x+rx*w,y+ry*h,rw*w,rh*h);};
   g.save();g.beginPath();g.rect(x-1,y-1,w+2,h+2);cut();g.clip('evenodd');
-  g.drawImage(im,x,y,w,h);g.restore();
+  // Keep the sloop's original alternating exhaust/porthole animation below the
+  // rotor cut. Its body stays sharp while the blades use fractional exposures.
+  const hull=kind==='pirates_sloop' ? spr(`f_${kind}_${Math.floor(now*8+seed)%2}`)||im : im;
+  g.drawImage(hull,x,y,w,h);g.restore();
   g.save();g.beginPath();cut();g.clip();
   // Fractional blend prevents a hard blade-angle jump at 18 Hz; a faint previous
   // exposure reads as motion blur while leaving faces, guns and hull outlines sharp.

@@ -16,6 +16,7 @@ export function pickRace(seed = 1) { return RACE_KEYS[Math.abs(seed) % RACE_KEYS
 export function createAI(p, level = 'normal', seed = 7, opts = {}) {
   const cfg = { ...(LEVELS[level] || LEVELS.normal) };
   const recent = [];                                               // the last few troops sent
+  const motion = new WeakMap();                                    // observed positions, never a live aim reference
   if (opts.invest === false) cfg.invest = 0;
   if (opts.invest === true) cfg.invest = 1;
   if (opts.bonus === false) cfg.bonus = 0;
@@ -29,9 +30,17 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
   const foe = 1 - p;
 
   /** Fling at a point with this level's wobble. Tries the wanted lob angle first, then others that reach. */
-  function shootAt(s, tx, ty, ang) {
+  function shootAt(s, tx, ty, ang, vx = 0) {
     for (const an of [ang, -1.45, -1.1, -0.6, 0, 0.95, 0.75, 1.15, 0.55]) {
-      const sol = solve(p, tx, ty, an);
+      let aimX = tx, sol;
+      // Use this trajectory's flight time, rather than assuming every shot
+      // takes 1.2 seconds and every target is still marching at full speed.
+      for (let i = 0; i < 4; i++) {
+        sol = solve(p, aimX, ty, an);
+        if (!sol || !vx) break;
+        aimX = Math.max(20, Math.min(W - 20, tx + vx * sol.t));
+      }
+      sol = solve(p, aimX, ty, an);
       if (!sol) continue;
       const ang2 = an + gauss() * cfg.aimErr, pw = sol.power * (1 + gauss() * cfg.aimErr * 0.7);
       return fire(s, p, Math.cos(ang2) * dir(p), Math.sin(ang2), pw);
@@ -107,13 +116,13 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       // Prefer nearby balloons: their landed crates are easier to claim with the next shot.
       const nearMe = flying.filter((b) => (b.x - MID) * dir(p) < 0 && (b.vx * dir(p) > 0 || (b.x - MID) * dir(p) < -160));
       if (nearMe.length && !close.length && rand() < cfg.bonus) { setAmmo(s, p, 'stone'); for (const b of nearMe) if (bonusShot(s, b)) return; }
-      let tx, ty, ang = 0.85, ammo = 'stone';
+      let tx, ty, vx = 0, ang = 0.85, ammo = 'stone';
       const k = kingPos(foe, s);
       const up = guarded(s, foe), [fa, fz] = fortSpan(foe), fcx = (fa + fz) / 2;
       const mine = foeWalls.find((b) => b.kind === 'mine');
       if (close.length) {
         const c = close[Math.floor(rand() * close.length)], cs = UNIT[c.kind];
-        tx = c.x + dir(foe) * cs.speed * 1.2; ty = c.y; ang = cs.air ? 0.7 : 1.0;
+        tx = c.x; ty = c.y + cs.r; vx = motion.get(c)?.vx || 0; ang = cs.air ? 0.7 : 1.0;
         if (close.length >= 3 && rand() < cfg.special) ammo = rand() < 0.5 ? 'scatter' : 'fire';
         if (close.length >= 2 && !cs.air && hasAmmo(s, p, 'roll') && rand() < cfg.special * 1.5) { ammo = 'roll'; ang = 1.15; }   // a steep lob that lands short and rolls into them
       } else if (foeShield && rand() < 0.4) { tx = foeShield.x; ty = 150; if (rand() < cfg.special) ammo = 'boulder'; }
@@ -125,7 +134,7 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
       if (me.freeShots > 0 && ammo === 'stone') ammo = 'boulder';
       setAmmo(s, p, ammo);
       if (me.gold < shotCost(s, p)) setAmmo(s, p, 'stone');
-      shootAt(s, tx, ty, ang);
+      shootAt(s, tx, ty, ang, vx);
     }
 
     // --- ultimate: fire it when it will hit something worth hitting ---
@@ -161,6 +170,14 @@ export function createAI(p, level = 'normal', seed = 7, opts = {}) {
     level, p,
     update(s, dt) {
       if (s.phase !== 'play' && s.phase !== 'sudden') return;
+      for (const u of s.units) if (u.owner === foe && u.hp > 0) {
+        const seen = motion.get(u);
+        if (seen) {
+          const elapsed = s.time - seen.time;
+          seen.vx = elapsed > 0 ? (u.x - seen.x) / elapsed : 0;
+          seen.x = u.x; seen.time = s.time;
+        } else motion.set(u, { x: u.x, time: s.time, vx: 0 });
+      }
       timer -= dt;
       if (timer <= 0) { timer = cfg.think * (0.7 + rand() * 0.6); think(s); }
     },
