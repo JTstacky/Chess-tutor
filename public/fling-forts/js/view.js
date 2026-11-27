@@ -20,6 +20,7 @@ import { drawCachedControl } from './control-cache.js';
 import { drawGroundMarker, drawVictoryMarker, drawAirMarker, drawHealthBar } from './shape-cache.js';
 import { drawCachedBackdrop } from './backdrop-cache.js';
 import { liveFilteredSprite } from './live-filter-cache.js';
+import { portraitHud } from './portrait-hud.js';
 import { drawDebris } from './particle-draw.js';
 import {createFortImpactQueue,trimDecorativeChips} from './fort-impact-queue.js';
 import { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, BH, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit, pickStack, pickPoint, pickToScreen } from './layout.js';
@@ -1100,7 +1101,8 @@ function drawAbove(g, s, ui, now) {
   const mark = (x, y, key, col, size) => {
     const over = y - edge; if (over <= 0) return;
     if (Math.abs(x - W / 2) < 100) x = W / 2 + (x < W / 2 ? -100 : 100);          // beside the clock, never on it
-    const panelH = DRAW_LAY?.compact ? 40 : 78, underPanel = Math.abs(x - W / 2) > 250;                   // the score panels sit in the top corners
+    const portrait = portraitHud(lay);
+    const panelH = portrait ? portrait.clock.h / lay.s : DRAW_LAY?.compact ? 40 : 78, underPanel = Math.abs(x - W / 2) > 250; // score panels sit in the top corners
     const z = Math.max(0.55, 1 - over / 900), yy = underPanel ? Math.min(edge - 18, (ui.topY || edge) - panelH - 16) : edge - 18, bob = Math.sin(now * 8) * 2;
     g.save(); g.translate(Math.max(20, Math.min(W - 20, x)), -(yy + bob)); g.scale(z * 1.5, z * 1.5);
     g.beginPath(); g.moveTo(0, -9); g.lineTo(13, 9); g.lineTo(-13, 9); g.closePath();
@@ -1195,7 +1197,34 @@ function drawUltButton(g, s, p, real, k, b, narrow, ai, col) {
   }
   g.restore();
 }
+function drawPortraitScore(g, s, p, hud) {
+  const pl = s.players[p], panel = hud.panels[p];
+  const at = x => p ? panel.x + panel.w - x : panel.x + x;
+  const hp = pl.fortHp / pl.fortMax, hpWidth = panel.w - 76;
+  g.save(); g.setTransform(DRAW_LAY.dpr, 0, 0, DRAW_LAY.dpr, 0, 0);
+  rrect(g, panel.x, panel.y, panel.w, panel.h, 12); g.fillStyle = 'rgba(40,24,10,0.72)'; g.fill();
+  sprite(g, 'ui_2', at(14), -(panel.y + 22), 16);
+  drawHealthBar(g, at(28 + hpWidth / 2), -(panel.y + 20), hpWidth, 14, hp,
+    hp > .35 ? '#6fd45a' : '#ff5a4a', 'rgba(40,24,10,0.75)', DRAW_LAY.dpr);
+  text(g, String(Math.ceil(pl.fortHp)), at(28 + hpWidth / 2), -(panel.y + 13), hud.hpFont, '#fff');
+  sprite(g, 'ui_0', at(14), -(panel.y + 40), 18);
+  text(g, String(Math.floor(pl.gold)), at(28), -(panel.y + 31), hud.goldFont, '#ffe36b', p ? 'right' : 'left');
+  for (let i = 0; i < S.ROUNDS_TO_WIN; i++) {
+    g.beginPath(); g.arc(at(panel.w - 13 - i * 13), panel.y + 13, 4.5, 0, 7);
+    g.fillStyle = i < s.roundsWon[p] ? '#ffd23f' : 'rgba(255,255,255,0.25)'; g.fill();
+  }
+  if (pl.rapid > 0) {
+    const b = hud.rapid[p], label = `rapid ${Math.ceil(pl.rapid)}s`;
+    rrect(g, b.x, b.y, b.w, b.h, 8); g.fillStyle = 'rgba(40,24,10,0.72)'; g.fill();
+    text(g, label, b.x + b.w / 2, -(b.y + b.h / 2), hud.rapidFont, '#9fe0ff');
+    if (art.trace) art.trace.push(['portraitRapid',p,b,hud.rapidFont,label]);
+  }
+  g.restore();
+  if (art.trace) art.trace.push(['portraitScore', p, panel, hud.hpFont, hud.goldFont]);
+}
+
 function drawHud(g, s, ui, now) {
+  const portrait = portraitHud(DRAW_LAY);
   for (const p of [0, 1]) {
     const pl = s.players[p], col = COLORS[p], ai = s.mode === 'solo' && p === 1;
     // ---- control strip ----
@@ -1277,7 +1306,9 @@ function drawHud(g, s, ui, now) {
     // ---- top panel: chief HP, gold, rounds ----
     const x = S.mx(p, 210), top = ui.topY, d = p === 0 ? 1 : -1, al = p === 0 ? 'left' : 'right', slim = !!DRAW_LAY?.compact;
     const hpK = pl.fortHp / pl.fortMax, hpCol = hpK > 0.35 ? '#6fd45a' : '#ff5a4a';   // castle health: the objective
-    if (slim) {
+    if (portrait) {
+      drawPortraitScore(g, s, p, portrait);
+    } else if (slim) {
       // phones: one row (heart, HP, gold, rounds), starting clear of the slingshot on the back tower
       const left = S.mx(p, 122);
       rrect(g, Math.min(left, left + d * 318), -top, 318, 40, 14); g.fillStyle = 'rgba(40,24,10,0.62)'; g.fill();
@@ -1300,17 +1331,28 @@ function drawHud(g, s, ui, now) {
       sprite(g, 'ui_0', left + d * 262, top - 70, 28);
       text(g, `${Math.floor(pl.gold)}`, left + d * 282, top - 56, 24, '#ffe36b', al);
     }
-    if (pl.rapid > 0) text(g, `rapid ${Math.ceil(pl.rapid)}s`, x, top - (slim ? 58 : 96), 16, '#9fe0ff');
+    if (pl.rapid > 0 && !portrait) text(g, `rapid ${Math.ceil(pl.rapid)}s`, x, top - (slim ? 58 : 96), 16, '#9fe0ff');
     const t = ui.toast[p];
     if (t && t.until > now) text(g, t.text, S.mx(p, 330), 330, 22, '#fff');
   }
   // ---- clock ----
   const sud = s.phase === 'sudden', secs = Math.max(0, Math.ceil(s.clock));
-  rrect(g, W / 2 - 74, -ui.topY, 148, 56, 16); g.fillStyle = sud ? 'rgba(170,30,20,0.85)' : 'rgba(40,24,10,0.62)'; g.fill();
-  text(g, `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, W / 2, ui.topY - 30, 30, sud && Math.floor(now * 3) % 2 ? '#ffd23f' : '#fff');
-  if (sud) text(g, 'SUDDEN DEATH · 2× damage', W / 2, ui.topY - 76, 18, '#ffd23f');
+  const clockText = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+  if (portrait) {
+    const c = portrait.clock;
+    g.save(); g.setTransform(DRAW_LAY.dpr, 0, 0, DRAW_LAY.dpr, 0, 0);
+    rrect(g, c.x, c.y, c.w, c.h, 12); g.fillStyle = sud ? 'rgba(170,30,20,0.85)' : 'rgba(40,24,10,0.72)'; g.fill();
+    text(g, clockText, c.x + c.w / 2, -(c.y + c.h / 2), portrait.clockFont, sud && Math.floor(now * 3) % 2 ? '#ffd23f' : '#fff');
+    if (sud) text(g, 'SUDDEN DEATH · 2× damage', DRAW_LAY.w / 2, -portrait.noticeY, 13, '#ffd23f');
+    g.restore();
+  } else {
+    rrect(g, W / 2 - 74, -ui.topY, 148, 56, 16); g.fillStyle = sud ? 'rgba(170,30,20,0.85)' : 'rgba(40,24,10,0.62)'; g.fill();
+    text(g, clockText, W / 2, ui.topY - 30, 30, sud && Math.floor(now * 3) % 2 ? '#ffd23f' : '#fff');
+    if (sud) text(g, 'SUDDEN DEATH · 2× damage', W / 2, ui.topY - 76, 18, '#ffd23f');
+  }
   g.beginPath(); g.arc(PAUSE.x, -PAUSE.y, PAUSE.r, 0, 7); g.fillStyle = 'rgba(40,24,10,0.62)'; g.fill();
-  g.fillStyle = '#fff'; g.fillRect(PAUSE.x - 9, -PAUSE.y - 10, 6, 20); g.fillRect(PAUSE.x + 3, -PAUSE.y - 10, 6, 20);
+  const pauseInk = portrait ? 1 / DRAW_LAY.s : 1;
+  g.fillStyle = '#fff'; g.fillRect(PAUSE.x - 9 * pauseInk, -PAUSE.y - 10 * pauseInk, 6 * pauseInk, 20 * pauseInk); g.fillRect(PAUSE.x + 3 * pauseInk, -PAUSE.y - 10 * pauseInk, 6 * pauseInk, 20 * pauseInk);
   // ---- banners ----
   const BY = Math.min(400, (ui.topY || 880) - 205);                  // mid-sky banners sit below the pause button on short screens
   const camOn = ui.cam && performance.now() / 1000 - ui.cam.at < ui.cam.dur - 0.4;   // the knockout zoom plays first, then the banner
@@ -1411,7 +1453,8 @@ export function draw(g, lay, s, ui, now) {
   const flatT = () => g.setTransform(lay.dpr * lay.s, 0, 0, lay.dpr * lay.s, lay.dpr * lay.ox, lay.dpr * lay.gy);
   worldT();
   PAUSE.r = Math.max(26, 22 / lay.s); // at least a 44px touch target, including small phones
-  PAUSE.y = ui.topY - Math.max(100, 56 + (22 + 6) / lay.s);
+  const portrait = portraitHud(lay);
+  PAUSE.y = portrait ? (lay.gy - portrait.pauseY) / lay.s : ui.topY - Math.max(100, 56 + (22 + 6) / lay.s);
   const wrecks = [];                            // the losing sling must remain readable in front of castle dust
   drawFort(g, s, 0, ui, now, wrecks); drawFort(g, s, 1, ui, now, wrecks);
   if (ui.menu) return;
