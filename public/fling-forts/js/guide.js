@@ -195,7 +195,7 @@ const CSS = `
 #guide .gb-wait { color: #6b5d48; font-weight: 700; text-align: center; padding: 6px; }
 @media (max-width: 720px), (max-height: 460px) {
   #guide .gb { font-size: 13.5px; }
-  #guide .gb-top { padding: 5px 62px 5px 8px; } #guide .gb-top h2 { font-size: 18px; } #guide .gb-top button { padding: 5px 14px; min-height: 36px; }
+  #guide .gb-top { padding: 5px 62px 5px 8px; } #guide .gb-top h2 { font-size: 18px; } #guide .gb-top button { padding: 5px 14px; min-height: 44px; }
   #guide .gb-races { grid-template-columns: repeat(10, 1fr); gap: 4px; padding: 6px 8px; }
   #guide .gb-race { font-size: 10px; padding: 3px 1px; } #guide .gb-race img { height: 34px; }
   #guide .gb-art, #guide .gb-art .castle { height: 104px; } #guide .gb-art .chief { height: 68px; margin-left: -24px; }

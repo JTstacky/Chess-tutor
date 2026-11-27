@@ -9,10 +9,10 @@ export function drawChiefAim(g, race, tip, aim, t, now, scale, {spr, stamp, spri
   if (!aim || t < 0 || t >= 1) return;
   const fade = Math.min(1, (1-t)*3), dx=aim.x-tip.x, dy=aim.y-tip.y, angle=Math.atan2(-dy,dx);
   const image = (key,x,y,w,h,rot=0,alpha=fade) => { const im=spr(key); if(im) stamp(g,im,x,y,w,h??w*im.height/im.width,{rot,alpha}); };
-  const impact = (point, size=18*scale, alpha=fade) => sprite(g,'fx_0',point.x,point.y-size/2,size,{alpha});
+  const impact = (point, size=18*scale, alpha=fade) => { const key=race==='robots'&&spr('anim_robots_spark')?'anim_robots_spark':'fx_0';sprite(g,key,point.x,point.y-size/2,size,{alpha}); };
   const bolt = (a,b,width,colour,phase=0) => {
     const q=Math.min(1,Math.max(0,(t-phase*.08)/.24)),vx=b.x-a.x,vy=b.y-a.y;
-    if(q<1)image('proj_d_1',a.x+vx*q,a.y+vy*q,30*scale,undefined,Math.atan2(-vy,vx));
+    if(q<1)image(race==='robots'?'proj_d_0':'proj_f_1',a.x+vx*q,a.y+vy*q,30*scale,undefined,Math.atan2(-vy,vx));
   };
   if (!aim.air && aim.kind==='single' && ['fantasy','beastfolk'].includes(race)) {
     image('kingfx_'+race+'_0',aim.x,16*scale,36*scale,30*scale,0,fade);impact(aim,16*scale);return;
@@ -29,7 +29,7 @@ export function drawChiefAim(g, race, tip, aim, t, now, scale, {spr, stamp, spri
   }
   if(race==='aliens') {
     const q=Math.min(1,t/.4);
-    if(q<1)image('proj_b_1',tip.x+dx*q,tip.y+dy*q,30*scale,undefined,angle);
+    if(q<1)image('kingfx_aliens_0',tip.x+dx*q,tip.y+dy*q,30*scale,undefined,angle);
     else impact(aim,15*scale);return;
   }
   if(race==='elementals') {

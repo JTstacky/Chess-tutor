@@ -7,10 +7,13 @@ import { sound, unlockAudio, music, musicState } from './sfx.js';
 viewArt.onSound = (kind, x) => { if (game.state === 'play') sound(kind, x); };      // shots and hits are heard when they are first drawn
 import { attachInput, blockBrowserGestures, PULL_MAX } from './input.js';
 import { createOnline } from './online.js';
+import { renderDpr, createRenderBudget } from './render-budget.js';
 
 const canvas = document.getElementById('game');
-const g = canvas.getContext('2d');
+// The backdrop covers every pixel; an opaque surface avoids needless full-screen alpha compositing.
+const g = canvas.getContext('2d', { alpha: false });
 const $ = (id) => document.getElementById(id);
+const renderBudget = createRenderBudget();
 
 const ui = { armed: [null, null], aims: new Map(), aimOf: [null, null], kick: [0, 0], toast: [null, null], shake: 0, aiLevel: 'normal', pick: null, menu: true, topY: 700, races: ['fantasy', 'pirates'], pauseHold: 0, held: null };
 const game = {
@@ -105,7 +108,7 @@ $('btn-guide').addEventListener('click', async () => { unlockAudio(); const m = 
 $('btn-resume').addEventListener('click', resume);
 $('btn-restart').addEventListener('click', () => start(game.s.mode, ui.aiLevel));
 // quitting throws the match away, so a single stray tap must not do it
-$('btn-quit').addEventListener('click', () => { if (performance.now() - quitArmed < 2500) toMenu(); else { quitArmed = performance.now(); $('btn-quit').textContent = 'Tap again to quit'; } });
+$('btn-quit').addEventListener('click', () => { if (quitArmed && performance.now() - quitArmed < 2500) toMenu(); else { quitArmed = performance.now(); $('btn-quit').textContent = 'Tap again to quit'; } });
 $('btn-rematch').addEventListener('click', () => { if (game.online) { game.online.cmd('rematch', { races: false }); show(null); } else start(game.s.mode, ui.aiLevel); });
 $('btn-over-menu').addEventListener('click', toMenu);
 document.addEventListener('visibilitychange', () => { if (document.hidden && !game.online) pause(); });
@@ -113,20 +116,22 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && !ga
 // ---------- loop ----------
 function resize() {
   const was = game.lay;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const w = window.innerWidth, h = window.innerHeight;
+  const dpr = renderDpr(w, h, window.devicePixelRatio || 1, navigator.deviceMemory || 8, renderBudget.quality);
   canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
   canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
   game.lay = computeLayout(w, h, dpr, layoutView(), safeInsets());
   // the world-to-screen mapping changed (rotate, resize): drags in progress would jump, so drop them
   if (was && (Math.abs(was.s - game.lay.s) > 1e-6 || Math.abs(was.ox - game.lay.ox) > 0.5 || Math.abs(was.gy - game.lay.gy) > 0.5)) { ui.aims.clear(); ui.held = null; }
+  // A phone's rotation cover must not conceal a live solo/local battle that keeps playing underneath.
+  if (w <= 520 && h > w && game.state === 'play' && !game.online) pause();
   placeFullscreen();
 }
 // left/right safe-area insets (notched phones in landscape), read from a hidden probe styled with env()
 const safeProbe = document.createElement('div');
-safeProbe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)';
+safeProbe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
 document.body.appendChild(safeProbe);
-function safeInsets() { const cs = getComputedStyle(safeProbe); return { l: parseFloat(cs.paddingLeft) || 0, r: parseFloat(cs.paddingRight) || 0 }; }
+function safeInsets() { const cs = getComputedStyle(safeProbe); return { l: parseFloat(cs.paddingLeft) || 0, r: parseFloat(cs.paddingRight) || 0, t: parseFloat(cs.paddingTop) || 0, b: parseFloat(cs.paddingBottom) || 0 }; }
 // the race-pick screen needs the tall view for its cards; a match zooms in on the forts
 const layoutView = () => (game.state === 'pick' ? 'pick' : 'play');
 
@@ -162,7 +167,7 @@ function placeFullscreen(force = false) {
   if (game.state === 'pick') at = 'none';
   else if (game.state === 'play' || game.state === 'paused') {   // paused too: leaving the app pauses the match, and in the corner it vanished on the right player's panel (owner bug 2026-11-26)
     const lay = game.lay, c = worldToScreen(lay, PAUSE.x, PAUSE.y);
-    const sz = lay.compact ? Math.max(32, Math.round(PAUSE.r * 2 * lay.s)) : 44;     // on phones, the same size as the pause button
+    const sz = 44;
     at = `${Math.round(c.x + PAUSE.r * lay.s + 8)},${Math.round(c.y - sz / 2)},${sz}`;
   } else at = 'corner';
   if (at === fsAt && !force) return;
@@ -228,6 +233,7 @@ function advance(dt) {
 }
 let last = performance.now(), acc = 0;
 function frame(t) {
+  if (renderBudget.sample(t - last, game.state === 'play' && !document.hidden)) resize();
   // game feel: a few frames of hit-stop when a block breaks, slow motion on the winning hit (both players alike)
   let real = Math.min(0.25, (t - last) / 1000); last = t;
   if (ui.hitstop > 0) { ui.hitstop -= real; real = 0; } else if (ui.slowmo > 0) { ui.slowmo -= real; real *= KO.rate; }

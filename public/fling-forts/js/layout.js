@@ -16,21 +16,26 @@ export const PLAY_SKY = 500, PHONE_SKY = 350;
 export const PHONE_H = 520, PHONE_BTN = 44, PHONE_GAP = 4;
 let LAY = null;                           // the layout now on screen, so buttons() matches what is drawn
 export function computeLayout(cssW, cssH, dpr, view = 'play', safe = { l: 0, r: 0 }) {
+  safe = { l: 0, r: 0, t: 0, b: 0, ...safe };
+  const usableW = cssW - 2 * Math.max(safe.l, safe.r), usableH = cssH - safe.t - safe.b;
   const phone = cssH < PHONE_H && cssW > cssH;
+  const regularScale = Math.min(usableW / W, usableH / (HUD_H + PLAY_SKY));
   let lay;
   if (view === 'pick') {
     // the race pick covers the field and has no control strip, so it uses the whole height (BUGS.md S1: on phones
     // it used to get only the top 60%, with cards 43-53 px wide)
-    const s = Math.min(cssW / W, cssH / SKY_MIN);
-    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: null };
-  } else if (phone) {
-    const hud = 3 * PHONE_BTN + 4 * PHONE_GAP, s = Math.min(cssW / W, (cssH - hud) / (view === 'pick' ? SKY_MIN : PHONE_SKY));
-    const inset = Math.max(safe.l, safe.r), bw = Math.max(PHONE_BTN, Math.min(84, Math.floor((cssW / 2 - 10 - inset - 5 * PHONE_GAP) / BPER)));
-    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH - hud, w: cssW, h: cssH, dpr, portrait: false, compact: { bw, bh: PHONE_BTN, gap: PHONE_GAP, l: 5 + safe.l, r: 5 + safe.r } };
+    const s = Math.min(usableW / W, usableH / SKY_MIN);
+    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH - safe.b, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: null };
+  } else if (phone || regularScale * BH < PHONE_BTN) {
+    const hud = 3 * PHONE_BTN + 4 * PHONE_GAP, s = Math.min(usableW / W, (usableH - hud) / (phone ? PHONE_SKY : PLAY_SKY));
+    const inset = Math.max(safe.l, safe.r), gapX = Math.max(0, Math.min(PHONE_GAP, Math.floor((cssW / 2 - 10 - inset - BPER * PHONE_BTN) / (BPER - 1))));
+    const bw = Math.max(PHONE_BTN, Math.min(84, Math.floor((cssW / 2 - 10 - inset - 5 * gapX) / BPER)));
+    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH - safe.b - hud, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: { bw, bh: PHONE_BTN, gap: PHONE_GAP, gapX, l: 5 + safe.l, r: 5 + safe.r } };
   } else {
-    const s = Math.min(cssW / W, cssH / (HUD_H + (view === 'pick' ? SKY_MIN : PLAY_SKY)));
-    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH - HUD_H * s, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: null };
+    const s = regularScale;
+    lay = { view, s, ox: (cssW - W * s) / 2, gy: cssH - safe.b - HUD_H * s, w: cssW, h: cssH, dpr, portrait: cssH > cssW * 1.1, compact: null };
   }
+  lay.safe = safe;
   LAY = lay;
   return lay;
 }
@@ -50,7 +55,7 @@ export function buttons(p, lay = LAY) {
     const col = i % BPER, row = Math.floor(i / BPER);
     const kind = AMMO[key] ? 'ammo' : BUILD[key] ? 'build' : key === 'hero' ? 'hero' : key === 'ult' ? 'ult' : key === 'power' ? 'power' : 'unit', slot = kind === 'unit' ? Number(key[1]) : -1;
     if (c) {
-      const px = p === 0 ? c.l + col * (c.bw + c.gap) : lay.w - c.r - c.bw - col * (c.bw + c.gap), py = lay.gy + c.gap + row * (c.bh + c.gap);
+      const px = p === 0 ? c.l + col * (c.bw + c.gapX) : lay.w - c.r - c.bw - col * (c.bw + c.gapX), py = lay.gy + c.gap + row * (c.bh + c.gap);
       out.push({ key, kind, slot, x: (px - lay.ox) / lay.s, y: (lay.gy - py) / lay.s, w: c.bw / lay.s, h: c.bh / lay.s });
       return;
     }
@@ -64,7 +69,7 @@ export function buttonAt(p, x, y) { return buttons(p).find((b) => x >= b.x - 3 &
 export const keyFor = (s, p, b) => (b.kind === 'ammo' && !S.hasAmmo(s, p, b.key) ? null : b.kind === 'unit' ? S.raceOf(s, p)[b.key[0] === 'a' ? 'air' : 'ground'][b.slot] || null : b.kind === 'hero' ? S.raceOf(s, p).hero : b.key);
 export const PAUSE = { x: W / 2, y: SKY_MIN - 96, r: 26 };
 // race pick: three cards per player in their own half, a Ready button under them (world coords for player 0)
-export const PICK = { cards: S.RACE_KEYS.map((k, i) => ({ key: k, x: 12 + (i % 5) * 126, y: 566 - Math.floor(i / 5) * 150, w: 120, h: 144 })), ready: { x: 170, y: 100, w: 300, h: 86 } };   // 86 tall: at least 44 CSS px on a 667x375 phone
+export const PICK = { cards: S.RACE_KEYS.map((k, i) => ({ key: k, x: 12 + (i % 5) * 126, y: 566 - Math.floor(i / 5) * 150, w: 120, h: 144 })), ready: { x: 170, y: 104, w: 300, h: 102 } };   // at least 44 CSS px on a 568px-wide phone
 export function pickHit(p, x, y) {
   const u = p === 0 ? x : W - x;
   const hit = (r) => u >= r.x && u <= r.x + r.w && y <= r.y && y >= r.y - r.h;

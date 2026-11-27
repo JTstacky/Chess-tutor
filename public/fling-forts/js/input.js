@@ -46,7 +46,8 @@ export function attachInput(canvas, game) {
       const c = powerCost(s, p);
       if (c == null) return toast(p, 'Fling shot power is at its top level');
       if (pl.gold < c) return toast(p, `Power level ${(pl.power || 0) + 1} needs ${c} gold`);
-      if (game.act.upgradePower(s, p)) { game.sound('click'); toast(p, `Fling shot power: level ${(pl.power || 0) + 1}`); }
+      const next = (pl.power || 0) + 1;   // read before the action: locally it raises pl.power at once, online it only queues the order
+      if (game.act.upgradePower(s, p)) { game.sound('click'); toast(p, `Fling shot power: level ${next}`); }
       return;
     }
     if (b.kind === 'ult') {
@@ -101,10 +102,11 @@ export function attachInput(canvas, game) {
       return;
     }
     if (!game.playing()) return;
-    if (game.online && (p !== game.online.side || game.online.wait || game.online.reconnecting)) return;
     const live = game.s.phase === 'play' || game.s.phase === 'sudden';
     try { canvas.setPointerCapture(e.pointerId); } catch {}
     if (Math.hypot(w.x - PAUSE.x, w.y - PAUSE.y) < PAUSE.r + 10) { ui.aims.set(e.pointerId, { p, kind: 'pause', at: game.now() }); ui.pauseHold = game.now(); return; }
+    // Pause is shared UI at the centre line, not an order for the right-hand seat.
+    if (game.online && (p !== game.online.side || game.online.wait || game.online.reconnecting)) return;
     if (game.s.mode === 'solo' && p === 1) return;                 // the computer's side
     if (!live) return;                                             // between rounds: nothing to aim or buy
     if (w.y < 0) {                                                 // the control strip under the ground

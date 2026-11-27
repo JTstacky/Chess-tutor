@@ -3,10 +3,14 @@
 import * as S from './sim.js';
 import {hasRotorRig,paintRotorCraft,rotorPhase} from './rotor-animation.js';
 import { victoryDance, slingFall } from './celebration.js';
-import { MONSTER_FLIGHT, TRACKED_FACING, monsterFacing, attackFacing, DEFENCE_SHOT, drawUltimateStrike, dropBombStyle, ultimatePayload } from './animation-fixes.js';
+import { MONSTER_FLIGHT, TRACKED_FACING, monsterFacing, attackFacing, shotShooter, DEFENCE_SHOT, drawUltimateStrike, dropBombStyle, ultimatePayload } from './animation-fixes.js';
+import {reactionKick,beginPoseFrame,rememberPose,takeDeathPose} from './animation-reactions.js';
+import {drawTroopDeath} from './animation-deaths.js';
 import { chiefAim, drawChiefAim } from './chief-effects.js';
 import { drawCastleSmoke } from './castle-smoke.js';
 import { CONTRAST_KINDS, prepareTroopContrast, drawTroopContrast, rotorContrastSource } from './troop-contrast.js';
+import { filteredSprite } from './sprite-filter.js';
+import { drawCachedControl } from './control-cache.js';
 import { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, BH, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit } from './layout.js';
 export { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit };
 
@@ -32,7 +36,7 @@ export const art = { ready: false, img: {}, meta: null, base: 'assets/', groups:
 // The first three races' old sheets (t_<old unit>, king_/fortblk_ forge, reed, moss) are fallbacks only: group 'legacy',
 // fetched the first time something actually asks for one (Codex art review L02/L03)
 const LEGACY = /^(t_(netter|caller|spore|slinger|skimmer|anvil|bark|keg|sprout)|(king|fortblk)_(forge|reed|moss))(_|$)/;
-const raceGroup = (name) => { if (LEGACY.test(name)) return 'legacy'; const cm = /^(castle|fortblk|king2|kingatk|kingair|kingairfx|kingfx)_([a-z]+)(?:_|$)/.exec(name); if (cm && RACE_DATA_KEYS.has(cm[2])) return cm[2] + '#'; if (name.startsWith('ultfx_')) return 'ult+'; const m = /^(t|u2|w|f|a|h|w2|f2|fortblk|castle|kingatk|kingfx|king2|kingko)_([a-z]+)(?:_|$)/.exec(name); return m && RACE_DATA_KEYS.has(m[2]) ? m[2] + (m[1] === 'u2' || m[1] === 'king2' || m[1] === 'w' || m[1] === 'f' || m[1] === 'a' || m[1] === 'h' || m[1] === 'w2' || m[1] === 'f2' || m[1] === 'kingko' ? '+' : '') : 'core'; };
+const raceGroup = (name) => { if (name === 'anim_robots_spark') return 'robots#'; if (LEGACY.test(name)) return 'legacy'; const cm = /^(castle|fortblk|king2|kingatk|kingair|kingairfx|kingfx)_([a-z]+)(?:_|$)/.exec(name); if (cm && RACE_DATA_KEYS.has(cm[2])) return cm[2] + '#'; if (name.startsWith('ultfx_')) return 'ult+'; const m = /^(t|u2|w|f|a|h|w2|f2|fortblk|castle|kingatk|kingfx|king2|kingko)_([a-z]+)(?:_|$)/.exec(name); return m && RACE_DATA_KEYS.has(m[2]) ? m[2] + (m[1] === 'u2' || m[1] === 'king2' || m[1] === 'w' || m[1] === 'f' || m[1] === 'a' || m[1] === 'h' || m[1] === 'w2' || m[1] === 'f2' || m[1] === 'kingko' ? '+' : '') : 'core'; };
 let RACE_DATA_KEYS = new Set();
 let manifestIn; const manifest = new Promise((ok) => { manifestIn = ok; });   // settles once sprites.json is read and every sprite has its group
 let PREVIEW = true;
@@ -47,6 +51,7 @@ function loadSprite(key) {
   }));
   return IMAGE_LOADS.get(file).then((im) => {
     if (im) {
+      if (!art.img[key]) art.revision = (art.revision || 0) + 1;
       art.img[key] = im;
       const kind = key.replace(/^(t|u2|w2?|f2?|a|h)_/, '').replace(/_\d+$/, '');
       if (CONTRAST_KINDS.has(kind)) prepareTroopContrast(im);
@@ -143,10 +148,16 @@ function sprite(g, key, x, y, h, { flip = false, rot = 0, alpha = 1, sx = 1, sy 
   g.scale((flip ? -1 : 1) * sx, sy);
   if (alpha !== 1) g.globalAlpha *= alpha;
   const ink = contrast && art.contrast !== false;
-  const rotorSpr = ink && rotor ? key => { const source = spr(key); return source && rotorContrastSource(source); } : spr;
-  if (!rotor || !paintRotorCraft(g,rotor.kind,rotor.now,rotor.id,ink ? rotorContrastSource(im) : im,w,h,anchorY,rotorSpr)) {
-    if (ink) drawTroopContrast(g, im, w, h, anchorY);
-    else g.drawImage(im, -w / 2, -h * anchorY, w, h);
+  const filter = g.filter; g.filter = 'none';
+  const tintPixels = Math.max(32, Math.ceil(h * (DRAW_LAY?.s || 1) * (DRAW_LAY?.dpr || 1) * 2 / 16) * 16);
+  const tint = source => filteredSprite(source, filter, tintPixels);
+  const rotorSpr = key => { const source = spr(key); return source && tint(ink ? rotorContrastSource(source) : source); };
+  if (!rotor || !paintRotorCraft(g,rotor.kind,rotor.now,rotor.id,tint(ink ? rotorContrastSource(im) : im),w,h,anchorY,rotorSpr)) {
+    if (ink && filter !== 'none') {
+      const f = prepareTroopContrast(im), px = f.pad * w / f.w, py = f.pad * h / f.h;
+      g.drawImage(tint(f.canvas), -w / 2 - px, -h * anchorY - py, w + px * 2, h + py * 2);
+    } else if (ink) drawTroopContrast(g, im, w, h, anchorY);
+    else g.drawImage(tint(im), -w / 2, -h * anchorY, w, h);
   }
   g.restore();
   return true;
@@ -185,6 +196,7 @@ function text(g, str, x, y, px, col = '#fff', align = 'center', stroke = INK) {
 function drawBackdrop(g, lay) {
   const bg = spr('bg');
   g.setTransform(lay.dpr, 0, 0, lay.dpr, 0, 0);
+  g.fillStyle = '#3b3229'; g.fillRect(0, 0, lay.w, lay.h); // clear the narrow margins below compact HUDs too
   if (bg) {
     // cover the whole canvas; the meadow at the bottom of the picture sits just above the ground line
     const k = Math.max(lay.w / bg.width, (lay.gy + 20) / (bg.height * 0.93));
@@ -199,14 +211,14 @@ function drawBackdrop(g, lay) {
 }
 
 // Each chief has his own attack: his own weapon pose (kingatk_<race>_0) and his own effect picture (kingfx_<race>_0),
-// moved in its own way. style: beam and bolt stretch out from the weapon; shot flies out and pops; wave rolls forward
+// moved in its own way. Compact packets fly from the weapon; shots fly out and pop; waves roll forward
 // and grows; ground bursts up from the floor in front; slash pops and twists; arc sweeps a crescent round him; puff
 // billows out. len is how far past the weapon's tip the effect reaches (the rules' range follows it: KING_ATK in
 // js/tuning.js) and h its height, for a chief CHIEF_H tall; ground effects take their size from len alone.
 const KING_FX = {
   fantasy: { style: 'ground', h: 62, len: 58 },      // warhammer: rock shockwave
-  aliens: { style: 'beam', h: 34, len: 150 },        // ray gun: green laser
-  robots: { style: 'bolt', h: 46, len: 140 },        // tesla prod: lightning
+  aliens: { style: 'packet', h: 26, len: 150 },      // a compact plasma seed
+  robots: { style: 'packet', key: 'proj_d_0', h: 24, len: 140 }, // a thrown capacitor
   monsters: { style: 'slash', h: 60, len: 52 },      // claws: three slash marks
   military: { style: 'shot', h: 26, len: 130, burst: 50 },      // bazooka: rocket
   undead: { style: 'shot', h: 46, len: 120, burst: 40, pop: false },   // staff: ghost-fire skull
@@ -223,16 +235,16 @@ function stamp(g, im, cx, cy, w, h, { rot = 0, flipX = false, flipY = false, alp
   g.drawImage(im, -w / 2, -h / 2, w, h); g.restore();
 }
 /** A chief's attack effect, t running 0..1 from the moment he strikes. tip is the world point where his weapon ends
- *  in the attack picture (measured per picture: assets/tips.json), so the beam leaves the gun and not his belly.
+ *  in the attack picture (measured per picture: assets/tips.json), so the projectile leaves the weapon.
  *  x is his centre, H his height, face +1/-1. */
 function drawKingFx(g, race, tip, x, H, face, t, now, aim = null) {
-  const base = KING_FX[race], F = aim?.len ? {...base, len: Math.max(10, aim.len - (tip.x-x)*face) / (H/CHIEF_H)} : base, im = F && spr(`kingfx_${race}_0`);
+  const base = KING_FX[race], F = aim?.len ? {...base, len: Math.max(10, aim.len - (tip.x-x)*face) / (H/CHIEF_H)} : base, im = F && spr(F.key || `kingfx_${race}_0`);
   if (!im) return;
   const k = H / CHIEF_H, h = F.h * k, w = h * im.width / im.height, len = F.len * k, fl = face < 0;
   const ox = tip.x, oy = tip.y, ease = 1 - (1 - t) * (1 - t), fade = t < 0.6 ? 1 : (1 - t) / 0.4;
-  if (F.style === 'beam' || F.style === 'bolt') {
+  if (F.style === 'packet') {
     const q = Math.min(1, t / .65), size = Math.min(w, 38 * k);
-    if (q < 1) stamp(g, im, ox + face * len * q, oy, size, h, { flipX: fl, alpha: fade });
+    if (q < 1) stamp(g, im, ox + face * len * q, oy, size, size*im.height/im.width, { flipX: fl, alpha: fade, rot: Math.sin(t*14)*.08 });
     else sprite(g, 'fx_0', ox + face * len, oy - h / 2, h, { alpha: fade });
   } else if (F.style === 'shot') {
     // leaves the tip nose first (the picture's own tail trails back over the weapon for the first moment)
@@ -624,6 +636,7 @@ function unitFrame(u, spec, now, hit) {
 const HELD = new Map();                               // troop id -> { key, fr, t }: the pose it is showing and since when
 const HITS = new Map();                               // troop id -> { t0, seen, kick }: the run of blows it is taking
 function drawUnits(g, s, now) {
+  beginPoseFrame();
   if (HITS.size > 400) HITS.clear();
   if (HELD.size > 600) HELD.clear();
   const us = s.units.slice().sort((a, b) => (UNIT[a.kind].air ? 1 : 0) - (UNIT[b.kind].air ? 1 : 0) || b.lane - a.lane);
@@ -649,7 +662,7 @@ function drawUnits(g, s, now) {
     let hit = HITS.get(u.id);
     if (u.hurt > 0) { if (!hit || now - hit.seen > 0.1) { HITS.set(u.id, hit = { t0: now, seen: now, kick: 0 }); art.onSound?.('hit', u.x); } hit.seen = now; }
     let fr = unitFrame(u, spec, now, hit);
-    const dirU = attackFacing(u, now, s.hits, s.fx);
+    const dirU = attackFacing(u, now, s.hits, s.fx, s.units);
     if (art.trace) { art.trace.push(['face', u.id, u.kind, dirU]); if(fr.rotor)art.trace.push(['rotor',u.id,u.kind,rotorPhase(now,u.id)]); }
     // no picture is shown for a single frame: once a troop changes pose it holds it for at least 1/15 s (a blow
     // landing mid-recovery, or blows arriving every other frame, otherwise make it flick between two poses)
@@ -673,7 +686,7 @@ function drawUnits(g, s, now) {
     // knock-back eases toward where the hit has got to (out while the blows land, home as it recovers) instead of
     // being read straight off u.hurt, so a second blow mid-recovery does not snap the troop back to upright first
     let kick = 0;
-    if (hit) { const want = u.hurt > 0.09 ? 1 : u.hurt > 0 ? u.hurt / 0.09 : 0; hit.kick += (want - hit.kick) * 0.4; kick = hit.kick; if (u.hurt <= 0 && kick < 0.02) HITS.delete(u.id); }
+    if (hit) { kick = reactionKick(hit,u.hurt,now); if (u.hurt <= 0 && kick < 0.02) HITS.delete(u.id); }
     const lunge = ae >= 0 ? Math.sin(Math.PI * Math.min(1, ae * 1.3)) : 0;
     const lean = (lunge * 0.1 - kick * 0.14) * dirU, dx = (lunge * spec.r * 0.28 - kick * spec.r * 0.38) * dirU;
     const hc = hit ? (now - hit.t0) / 0.075 : 9, sq = hc >= 0 && hc < 1 ? 1 - 0.08 * Math.sin(Math.PI * hc) : 1;                 // a quick squash as the blow lands
@@ -682,6 +695,7 @@ function drawUnits(g, s, now) {
     if (u.slow > 0 || fl) g.filter = `${u.slow > 0 ? 'hue-rotate(160deg) saturate(0.7) ' : ''}${fl}`.trim();                      // white flash on the hit
     const rg = art.reg?.[fr.key] || REG0, hk = h * fr.k;         // the frame's registration: holds the body steady through its cycle
     if (!sprite(g, fr.key, u.x + dx + dirU * rg[1] * hk, y + hop + fr.dy * h + rg[2] * hk, hk * rg[0], { contrast: CONTRAST_KINDS.has(u.kind), rotor: fr.rotor, flip: dirU < 0, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
+    rememberPose(u,{key:fr.key,x:u.x+dx+dirU*rg[1]*hk,y:y+hop+fr.dy*h+rg[2]*hk,h:hk*rg[0],flip:dirU<0,rot:lean,sx:2-sq,sy:sq,rotor:fr.rotor,contrast:CONTRAST_KINDS.has(u.kind),ground:air?0:y});
     g.restore();
     if (!spec.range && !spec.heal && ae >= 0.1 && ae < 0.62) {       // a melee blow: a blade leaves a slash arc, anything else an impact burst, where it lands
       const blade = BLADE.has(u.kind), fxi = spr(blade ? 'proj_f_4' : 'proj_f_5'), q = (ae - 0.1) / 0.52;
@@ -752,7 +766,7 @@ const PROJ = {
   arrow: ['proj_a_0', 26], bullet: ['proj_a_1', 16], ball: ['proj_a_2', 17], rock: ['proj_a_3', 17], grenade: ['proj_a_4', 13], fire: ['proj_a_5', 28],
   gfire: ['proj_b_0', 28], ray: ['proj_b_1', 18], acid: ['proj_b_2', 20], web: ['proj_b_3', 20], skull: ['proj_b_4', 26], ice: ['proj_b_5', 22],
   gust: ['proj_c_0', 26], claw: ['proj_c_1', 26], wisp: ['proj_c_2', 22], bomb: ['proj_c_3', 16],
-  laser: ['proj_d_0', 30], zap: ['proj_d_1', 30], shotball: ['proj_d_2', 20], tracer: ['proj_d_3', 24], rivet: ['proj_d_4', 20], ring: ['proj_d_5', 18],
+  laser: ['proj_d_0', 15], zap: ['proj_d_1', 30], shotball: ['proj_d_2', 20], tracer: ['proj_d_3', 24], rivet: ['proj_d_4', 20], ring: ['proj_d_5', 18],
   javelin: ['proj_e_0', 30], screech: ['proj_e_1', 22], spike: ['proj_e_2', 22], coconut: ['proj_e_3', 15], wail: ['proj_e_4', 26], magma: ['proj_e_5', 24],
   orb: ['proj_f_0', 20], dart: ['proj_f_1', 18], shell: ['proj_f_2', 22], keg: ['proj_f_3', 17],
 };
@@ -764,12 +778,10 @@ const SHOT = {
   buccaneer: 'shotball', cannoneer: 'ball', parrots: 'coconut', sloop: 'keg', frost: 'ice', gale: 'gust', storm: 'zap',
   shaman: 'wisp', wyvern: 'magma', tesla: 'zap', gyro: 'rivet', zeppelin: 'bomb', bomber: 'bomb', vultures: 'bomb',
 };
-const SHOT_HIT = { magma: '#ff8a3c', laser: '#ff6a5c', zap: '#fff6a0', ring: '#8fd0ff', orb: '#9dff6a', dart: '#8fd0ff', wail: '#b6e3ff', fire: '#ffb347', gfire: '#9dff6a', acid: '#9dff6a', ray: '#b6f6ff', ice: '#d6f3ff', skull: '#b6e3ff', wisp: '#b9ffb0', web: '#ffffff', gust: '#ffffff' };
+const SHOT_HIT = { magma: '#ff8a3c', laser: '#8fd0ff', zap: '#fff6a0', ring: '#8fd0ff', orb: '#9dff6a', dart: '#8fd0ff', wail: '#b6e3ff', fire: '#ffb347', gfire: '#9dff6a', acid: '#9dff6a', ray: '#b6f6ff', ice: '#d6f3ff', skull: '#b6e3ff', wisp: '#b9ffb0', web: '#ffffff', gust: '#ffffff' };
 const BOLT = new WeakMap();                           // bolt effect -> { sp, m, flyer }, fixed at first draw
 function shooterOf(s, f) {
-  let u = null, best = 3;
-  for (const e of s.units) { if (e.owner !== f.owner || e.hp <= 0) continue; const d = Math.abs(e.x - f.x); if (d < best) { best = d; u = e; } }
-  return u;
+  return shotShooter(s.units,f);
 }
 function muzzleOf(s, f, now) {
   const u = shooterOf(s, f);
@@ -858,50 +870,15 @@ export function noteEvent(e, s) {
   else if (e.type === 'chief-up') VFX.push({ type: 'rise', p: e.p, dur: 0.8 });
   else if (e.type === 'power') VFX.push({ type: 'power', p: e.p, level: e.level, dur: 0.9 });
   else if (e.type === 'ult' && e.shape === 'summon') VFX.push({ type: 'summon', p: e.p, x: S.gateX(e.p) + S.dir(e.p) * 185, race: s.players[e.p].race, dur: 2.4 });
-  else if (e.type === 'bounty' && UNIT[e.kind] && e.y != null && VFX.reduce((n, v) => n + (v.type === 'death'), 0) < 24) VFX.push({ type: 'death', kind: e.kind, x: e.x, y: e.y, p: 1 - e.p, dur: UNIT[e.kind].air ? 1 : 0.75 });
-  else if (e.type === 'round-start') { VFX.length = 0; DOWN_AT[0] = DOWN_AT[1] = null; }
+  else if (e.type === 'bounty' && UNIT[e.kind] && e.y != null && VFX.reduce((n, v) => n + (v.type === 'death'), 0) < 24) VFX.push({ type: 'death', pose: takeDeathPose(e), kind: e.kind, x: e.x, y: e.y, p: 1 - e.p, dur: UNIT[e.kind].air ? 1 : 0.75 });
+  else if (e.type === 'round-start') { beginPoseFrame(); HITS.clear(); HELD.clear(); VFX.length = 0; DOWN_AT[0] = DOWN_AT[1] = null; }
   if (VFX.length > 70) VFX.splice(0, VFX.length - 70);
 }
 const rnd = (i, k) => { const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };      // steady pseudo-random per particle
-// How a beaten troop leaves (art review A11): its own knocked-back picture plays out an exit that fits what it is,
-// in place of the one beige puff every troop used to get. The rules have already removed it; this is only the picture.
-const DIE_BREAK = { robots_scrap: '#9aa3ad', robots_tread: '#9aa3ad', robots_laser: '#9aa3ad', robots_bomb: '#9aa3ad', steampunk_clockwork: '#c9973f', steampunk_knight: '#c9973f', steampunk_boiler: '#c9973f',
-  military_tank: '#6f7f55', aliens_walker: '#8f9bd0', pirates_cannoneer: '#5a5560', undead_skeleton: '#efe8d6', undead_golem: '#efe8d6', elementals_golem: '#8f8a84', monsters_gargoyle: '#8f8a84' };     // falls to pieces: chips of what it is made of
-const DIE_SINK = new Set(['aliens_blob', 'aliens_bloblet', 'monsters_slime', 'monsters_slimelet', 'elementals_imp', 'elementals_frost', 'elementals_thorn']);      // soft things flatten and melt away
-const DIE_FADE = new Set(['undead_ghost', 'elementals_gale', 'elementals_storm']);                                   // spirits and weather thin out and drift up
-function drawDeath(g, f, a, q) {
-  const u = UNIT[f.kind], h = u.r * 3.5, back = -S.dir(f.p), hm = art.meta?.[`h_${f.kind}`], own = hm && spr(`h_${f.kind}_1`);
-  const key = own ? `h_${f.kind}_1` : unitKey(f.kind, 3), hk = h * (own ? hm.k || 1 : 1), flip = f.p === 1, feet = f.y - u.r;
-  if (!spr(key)) { sprite(g, 'fx_3', f.x, f.y - 10, 50 * (1 + q), { alpha: 1 - q }); return; }
-  const chips = (col, n, y0) => {
-    for (let i = 0; i < n; i++) {
-      const an = rnd(i, f.x) * Math.PI, v = 50 + rnd(i, 2) * 90, r = 2 + rnd(i, 3) * 3, x = f.x + Math.cos(an) * v * q, y = Math.max(1, y0 + Math.sin(an) * v * q - 260 * q * q);
-      g.globalAlpha = 1 - q * q; g.fillStyle = i % 3 ? col : '#3a3a40'; g.strokeStyle = INK; g.lineWidth = 1.2; g.beginPath(); g.rect(x - r, -y - r, r * 2, r * 1.6); g.fill(); g.stroke();
-    }
-    g.globalAlpha = 1;
-  };
-  if (u.air && DIE_FADE.has(f.kind)) {                       // thins out: stretches upward and fades
-    sprite(g, key, f.x, feet + 26 * q, hk, { flip, alpha: (1 - q) * (1 - q), sx: 1 - 0.45 * q, sy: 1 + 0.5 * q });
-  } else if (u.air) {                                        // shot down: tumbles out of the sky, wings folded, and hits the ground
-    const T = 0.62, c = Math.min(1, a / (f.dur * T)), y = feet * (1 - c * c), machine = MACHINE.has(f.kind);
-    if (c < 1) {
-      if (machine) for (let i = 1; i <= 3; i++) { const cc = Math.max(0, c - i * 0.09); sprite(g, 'fx_3', f.x + back * 6 * i, feet * (1 - cc * cc) + hk * 0.5, 16 + 9 * i, { alpha: 0.5 - i * 0.12 }); }   // a trail of smoke
-      sprite(g, key, f.x + back * 14 * c, y, hk, { flip, rot: back * c * (machine ? 1.1 : 2.6), sx: machine ? 1 : 1 - 0.3 * c });
-    } else {
-      const d = (a - f.dur * T) / (f.dur * (1 - T)), fr = Math.min(3, Math.floor(d * 4));
-      if (machine) { sprite(g, `fx_${fr}`, f.x + back * 14, 0, 60 * (1 + d * 0.4), { alpha: 1 - d * d }); chips(DIE_BREAK[f.kind] || '#8a8f98', 7, 6); }
-      else { sprite(g, key, f.x + back * 14, 0, hk, { flip, rot: back * 2.6, alpha: 1 - d, sx: 0.7, sy: 1 - 0.5 * d }); sprite(g, 'fx_3', f.x + back * 14, 2, 34 * (1 + d), { alpha: 0.7 * (1 - d) }); }
-    }
-  } else if (DIE_SINK.has(f.kind)) {                         // soft: spreads flat and melts into the ground
-    sprite(g, key, f.x, feet, hk, { flip, alpha: q < 0.5 ? 1 : 1 - (q - 0.5) * 2, sx: 1 + 0.55 * q, sy: Math.max(0.08, 1 - 0.92 * q) });
-  } else if (DIE_BREAK[f.kind]) {                            // built or stacked: jolts, then drops in pieces
-    if (q < 0.4) sprite(g, key, f.x + Math.sin(a * 90) * 2.5 * (1 - q), feet - h * 0.25 * (q / 0.4) ** 2, hk, { flip, rot: back * 0.25 * q, alpha: 1 - (q / 0.4) ** 2 * 0.7, sy: 1 - 0.35 * (q / 0.4) });
-    chips(DIE_BREAK[f.kind], Math.round(5 + u.r / 4), h * 0.4);
-  } else {                                                   // flesh and blood: keels over backwards and lies there a moment
-    const c = Math.min(1, q / 0.55), e = c * c * (3 - 2 * c), d = Math.max(0, (q - 0.7) / 0.3);
-    sprite(g, key, f.x + back * h * 0.28 * e, feet - h * 0.3 * e + (e >= 1 ? 0 : Math.sin(Math.PI * c) * h * 0.06), hk, { flip, rot: back * 1.45 * e, alpha: 1 - d, sy: 1 - 0.15 * d });
-    if (c >= 1 && d < 1) sprite(g, 'fx_3', f.x + back * h * 0.4, 0, 22 * (1 + d), { alpha: 0.45 * (1 - d) });      // a little dust as it lands
-  }
+// Death motion continues the last rendered pose; the simulation remains untouched.
+function drawDeath(g,f,a,q) {
+  const spec=UNIT[f.kind],key=unitKey(f.kind,3),h=spec.r*3.5;
+  drawTroopDeath(g,f,a,q,{spec,sprite,spr,machine:MACHINE.has(f.kind),fallback:{key,x:f.x,y:f.y-spec.r,h,flip:f.p===1}});
 }
 function drawVfx(g, s, now) {
   for (const f of VFX) {
@@ -1070,7 +1047,7 @@ function drawFx(g, s, now) {
             const [ax, ay] = at(Math.max(0, q - dq * 1.6 * i)), sz = pr[1] * 1.4 * (1 - i * 0.17);
             stamp(g, pim, ax, ay, sz, sz * pim.height / pim.width, { flipX: left, rot: left ? Math.atan2(-vy, -vx) : Math.atan2(-vy, vx), alpha: 0.34 - i * 0.09 });
           }
-          if (shot === 'bullet' || shot === 'tracer' || shot === 'rivet' || shot === 'ray' || shot === 'laser' || shot === 'dart') { const trail = Math.min(.06 / fl, 18 / Math.max(1, Math.hypot(ftx-bx, fty-by))), [sx, sy] = at(Math.max(0, q - trail)); g.globalAlpha = 0.45; g.strokeStyle = shot === 'ray' || shot === 'dart' ? '#8ff3ff' : shot === 'laser' ? '#ff6a5c' : '#ffe9a8'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(sx, -sy); g.lineTo(px, -py); g.stroke(); g.globalAlpha = 1; }
+          if (shot === 'bullet' || shot === 'tracer' || shot === 'rivet' || shot === 'ray' || shot === 'laser' || shot === 'dart') { const trail = Math.min(.06 / fl, 18 / Math.max(1, Math.hypot(ftx-bx, fty-by))), [sx, sy] = at(Math.max(0, q - trail)); g.globalAlpha = 0.45; g.strokeStyle = shot === 'ray' || shot === 'dart' ? '#8ff3ff' : shot === 'laser' ? '#8fd0ff' : '#ffe9a8'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(sx, -sy); g.lineTo(px, -py); g.stroke(); g.globalAlpha = 1; }
           // thrown round things tumble (about a turn and a half a second, forwards); everything else flies nose first
           const rot = spin ? (left ? 1 : -1) * f.t * 9.5 : left ? Math.atan2(-vy, -vx) : Math.atan2(-vy, vx);
           stamp(g, pim, px, py, len, pr[1] * 1.4 * (spin ? 1 : 2 - stretch) * pim.height / pim.width, { flipX: left, rot });
@@ -1221,6 +1198,8 @@ function drawHud(g, s, ui, now) {
         || (key === 'vault' && !S.placeOk(s, p, 'vault', 0))
         || ((key === 'wall' || key === 'tower' || key === 'mine') && !S.freeSlots(s, p))   // all building spots taken
         || shut || (b.kind === 'hero' && !S.heroOk(s, p));
+      const cacheKey = [pl.race, key, ai, can, locked, on, free, pl.freeShots, cost, Math.ceil(wait), pl.heroCd, art.revision].join(':');
+      drawCachedControl(g, DRAW_LAY, real, `${p}:${b.key}`, cacheKey, (g) => {
       g.save(); g.globalAlpha = ai ? 0.45 : can && !locked ? 1 : 0.5;
       g.translate(real.x, -real.y); g.scale(k, k);
       rrect(g, b.x, -b.y + 3, b.w, b.h, 12); g.fillStyle = 'rgba(40,22,8,0.55)'; g.fill();
@@ -1251,8 +1230,13 @@ function drawHud(g, s, ui, now) {
       } else if (b.kind === 'hero' && pl.heroCd > 0) {
         g.fillStyle = 'rgba(30,16,4,0.55)'; rrect(g, b.x, -b.y, b.w * pl.heroCd / S.HERO_CD, b.h - 3, 13); g.fill();
       }
-      if (b.kind === 'ammo' && on && pl.reload > 0) { const a = AMMO[key].reload; g.fillStyle = 'rgba(30,16,4,0.5)'; rrect(g, b.x, -b.y, b.w * Math.min(1, pl.reload / a), b.h - 3, 13); g.fill(); }
       g.restore();
+      });
+      if (b.kind === 'ammo' && on && pl.reload > 0) {
+        g.save(); g.globalAlpha = ai ? .45 : can && !locked ? 1 : .5;
+        g.translate(real.x, -real.y); g.scale(k, k);
+        g.fillStyle = 'rgba(30,16,4,0.5)'; rrect(g, b.x, -b.y, b.w * Math.min(1, pl.reload / AMMO[key].reload), b.h - 3, 13); g.fill(); g.restore();
+      }
     }
     // a finger resting on a button (ui.held, set by input.js) shows its full name in a tag above it
     const held = ui.held && ui.held.p === p ? buttons(p).find((q) => keyFor(s, p, q) === ui.held.key) : null;
@@ -1389,13 +1373,14 @@ export function draw(g, lay, s, ui, now) {
   if (!PREVIEW && s.players.some(p => p.ult >= .5 || p.ultUsed)) loadGroup('ult+');
   for (const v of VFX) if (v.type === 'collapse' && v.t0 == null) { v.t0 = now; DOWN_AT[v.p] = now; }      // before the castle is drawn, or it shows one frame as finished rubble
   drawBackdrop(g, lay);
-  ui.topY = Math.min((lay.gy - 8) / lay.s, 880);
+  ui.topY = (lay.gy - (lay.safe?.t || 0) - 8) / lay.s;
   const shake = ui.shake > 0 ? ui.shake * 7 : 0;
   const cam = camera(lay, ui);
   const worldT = () => g.setTransform(lay.dpr * lay.s * cam.z, 0, 0, lay.dpr * lay.s * cam.z, lay.dpr * (cam.ox + (shake ? Math.sin(now * 90) * shake : 0)), lay.dpr * (cam.oy + (shake ? Math.cos(now * 70) * shake : 0)));
   const flatT = () => g.setTransform(lay.dpr * lay.s, 0, 0, lay.dpr * lay.s, lay.dpr * lay.ox, lay.dpr * lay.gy);
   worldT();
-  PAUSE.y = ui.topY - 100;
+  PAUSE.r = Math.max(26, 22 / lay.s); // at least a 44px touch target, including small phones
+  PAUSE.y = ui.topY - Math.max(100, 56 + (22 + 6) / lay.s);
   const wrecks = [];                            // the losing sling must remain readable in front of castle dust
   drawFort(g, s, 0, ui, now, wrecks); drawFort(g, s, 1, ui, now, wrecks);
   if (ui.menu) return;
