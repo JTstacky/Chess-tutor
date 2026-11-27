@@ -15,7 +15,13 @@ import { chiefAim, drawChiefAim } from './chief-effects.js';
 import { drawCastleSmoke } from './castle-smoke.js';
 import { CONTRAST_KINDS, prepareTroopContrast, drawTroopContrast, rotorContrastSource } from './troop-contrast.js';
 import { filteredSprite } from './sprite-filter.js';
+import { transformSprite, transformStamp } from './sprite-transform.js';
 import { drawCachedControl } from './control-cache.js';
+import { drawGroundMarker, drawVictoryMarker, drawAirMarker, drawHealthBar } from './shape-cache.js';
+import { drawCachedBackdrop } from './backdrop-cache.js';
+import { liveFilteredSprite } from './live-filter-cache.js';
+import { drawDebris } from './particle-draw.js';
+import {createFortImpactQueue,trimDecorativeChips} from './fort-impact-queue.js';
 import { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, BH, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit, pickStack, pickPoint, pickToScreen } from './layout.js';
 export { HUD_H, SKY_MIN, PHONE_H, PHONE_BTN, PHONE_GAP, BTN_KEYS, computeLayout, worldToScreen, screenToWorld, buttons, buttonAt, keyFor, PAUSE, PICK, pickHit, pickPoint, pickToScreen };
 
@@ -91,6 +97,7 @@ export async function loadArt(base = 'assets/') {
 }
 /** The loaded image for a key, or null. Asking for a sprite of a race that has not loaded yet starts its load. */
 const FULL = new Map();                               // in-between sheet -> did all its frames load
+const FULL_KEYS = new Map();                          // same settled answer per pose; avoid a regex on every troop frame
 const spr = (key) => {
   // Menu/picker portraits are individual images, never a request for a whole race library.
   // A match explicitly preloads just its two races below; shared fallback references decode once.
@@ -98,8 +105,12 @@ const spr = (key) => {
   const grp = art.groupOf[key];
   if (grp && grp.endsWith('+')) {                     // in-between frames: used only once the whole set is in, so a sequence never plays with holes
     if (art.state[grp]?.ready) {
-      const sheet = key.replace(/_\d+$/, ''); let ok = FULL.get(sheet);
-      if (ok === undefined) { ok = (art.meta[sheet]?.frames || []).every((_, i) => !!art.img[`${sheet}_${i}`]); FULL.set(sheet, ok); }
+      let ok=FULL_KEYS.get(key);
+      if(ok===undefined){
+        const sheet = key.replace(/_\d+$/, ''); ok = FULL.get(sheet);
+        if (ok === undefined) { ok = (art.meta[sheet]?.frames || []).every((_, i) => !!art.img[`${sheet}_${i}`]); FULL.set(sheet, ok); }
+        FULL_KEYS.set(key,ok);
+      }
       return ok ? art.img[key] : null;       // one frame failed to load: the whole sheet stays off and the four base poses play
     }
     if (!art.state[grp.slice(0, -1)]) loadGroup(grp.slice(0, -1));
@@ -143,17 +154,16 @@ function blockKey(race, kind, worn) {
 // ---------- drawing helpers ----------
 function rrect(g, x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
 /** Draw a sprite with its bottom-centre at world (x, y), `h` world units tall. flip mirrors it; rot spins about its centre. */
-function sprite(g, key, x, y, h, { flip = false, rot = 0, alpha = 1, sx = 1, sy = 1, anchorY = 1, rotor = null, contrast = false } = {}) {
+function sprite(g, key, x, y, h, { flip = false, rot = 0, alpha = 1, sx = 1, sy = 1, anchorY = 1, rotor = null, contrast = false, basis = null } = {}) {
   const im = spr(key);
   if (!im) return false;
   const w = h * im.width / im.height;
-  g.save();
-  g.translate(x, -y);
-  if (rot) { g.translate(0, -h * (anchorY - 0.5)); g.rotate(rot); g.translate(0, h * (anchorY - 0.5)); }
-  g.scale((flip ? -1 : 1) * sx, sy);
+  const oldAlpha=alpha!==1?g.globalAlpha:1;
+  if(!basis)g.save();
+  transformSprite(g, x, y, h, flip, rot, sx, sy, anchorY, basis);
   if (alpha !== 1) g.globalAlpha *= alpha;
   const ink = contrast && art.contrast !== false;
-  const filter = g.filter; g.filter = 'none';
+  const filter = g.filter; if (filter !== 'none') g.filter = 'none';
   const tintPixels = Math.max(32, Math.ceil(h * (DRAW_LAY?.s || 1) * (DRAW_LAY?.dpr || 1) * 2 / 16) * 16);
   const tint = source => filteredSprite(source, filter, tintPixels);
   const rotorSpr = key => { const source = spr(key); return source && tint(ink ? rotorContrastSource(source) : source); };
@@ -164,12 +174,15 @@ function sprite(g, key, x, y, h, { flip = false, rot = 0, alpha = 1, sx = 1, sy 
     } else if (ink) drawTroopContrast(g, im, w, h, anchorY);
     else g.drawImage(tint(im), -w / 2, -h * anchorY, w, h);
   }
-  g.restore();
+  if(basis){
+    g.setTransform(basis.a,basis.b,basis.c,basis.d,basis.e,basis.f);
+    if(filter!=='none')g.filter=filter;
+    if(alpha!==1)g.globalAlpha=oldAlpha;
+  }else g.restore();
   return true;
 }
 function bar(g, x, y, w, h, frac, col, back = 'rgba(40,24,10,0.75)') {
-  rrect(g, x - w / 2, -y - h, w, h, h / 2); g.fillStyle = back; g.fill();
-  if (frac > 0) { rrect(g, x - w / 2 + 1.5, -y - h + 1.5, Math.max(h - 3, (w - 3) * Math.min(1, frac)), h - 3, (h - 3) / 2); g.fillStyle = col; g.fill(); }
+  drawHealthBar(g, x, y, w, h, frac, col, back, (DRAW_LAY?.s || 1) * (DRAW_LAY?.dpr || 1));
 }
 /** Break a sprite into six pieces (a 3 by 2 cut of its picture) flying out from world (x, y). k runs 0..1.
  *  Returns false if the sprite is not loaded. */
@@ -199,6 +212,9 @@ function text(g, str, x, y, px, col = '#fff', align = 'center', stroke = INK) {
 
 // ---------- scene ----------
 function drawBackdrop(g, lay) {
+  drawCachedBackdrop(g, lay, spr('bg'), spr('ground'), c => paintBackdrop(c, lay));
+}
+function paintBackdrop(g, lay) {
   const bg = spr('bg');
   g.setTransform(lay.dpr, 0, 0, lay.dpr, 0, 0);
   g.fillStyle = '#3b3229'; g.fillRect(0, 0, lay.w, lay.h); // clear the narrow margins below compact HUDs too
@@ -236,8 +252,10 @@ const KING_FX_T = 0.42;                          // seconds an attack effect pla
 /** Draw an image centred on world (cx, cy), w by h, turned and mirrored. */
 function stamp(g, im, cx, cy, w, h, { rot = 0, flipX = false, flipY = false, alpha = 1 } = {}) {
   if (alpha <= 0) return;
-  g.save(); g.translate(cx, -cy); g.scale(flipX ? -1 : 1, flipY ? -1 : 1); g.rotate(rot); g.globalAlpha = alpha;
-  g.drawImage(im, -w / 2, -h / 2, w, h); g.restore();
+  g.save(); transformStamp(g,cx,cy,rot,flipX,flipY); g.globalAlpha = alpha;
+  const filter = g.filter; if(filter!=='none')g.filter = 'none';
+  const pixels = Math.max(32, Math.ceil(h * (DRAW_LAY?.s || 1) * (DRAW_LAY?.dpr || 1) * 2 / 16) * 16);
+  g.drawImage(filteredSprite(im, filter, pixels), -w / 2, -h / 2, w, h); g.restore();
 }
 /** A chief's attack effect, t running 0..1 from the moment he strikes. tip is the world point where his weapon ends
  *  in the attack picture (measured per picture: assets/tips.json), so the projectile leaves the weapon.
@@ -643,6 +661,7 @@ const HELD = new Map();                               // troop id -> { key, fr, 
 const HITS = new Map();                               // troop id -> { t0, seen, kick }: the run of blows it is taking
 function drawUnits(g, s, now) {
   beginPoseFrame();
+  const basis=g.getTransform();
   if (HITS.size > 400) HITS.clear();
   if (HELD.size > 600) HELD.clear();
   const us = s.units.slice().sort((a, b) => (UNIT[a.kind].air ? 1 : 0) - (UNIT[b.kind].air ? 1 : 0) || b.lane - a.lane);
@@ -661,8 +680,8 @@ function drawUnits(g, s, now) {
       const pose = { ...u, hurt: 0, act: 0, walk: footTime * 0.09 * h * 0.85 };
       const fr = unitFrame(pose, spec, s.time - s.ko.at, null), rg = art.reg?.[fr.key] || REG0, hk = h * fr.k;
       const x = u.x + S.dir(u.owner) * dance.x * h, yy = air ? victoryFlightY(u.kind,u.y,h,dance,machine,DRAW_LAY,art.meta) : y + dance.y * h;
-      g.beginPath(); g.ellipse(x, air ? 0 : -y + 1, spec.r * 1.1, spec.r * .3, 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = air ? .35 : .8; g.fill(); g.globalAlpha = 1;
-      sprite(g, fr.key, x + face * rg[1] * hk, yy + fr.dy * h + rg[2] * hk, hk * rg[0], { contrast: CONTRAST_KINDS.has(u.kind), rotor: fr.rotor, flip: face < 0, rot: S.dir(u.owner) * dance.rot, sx: dance.sx, sy: dance.sy });
+      g.globalAlpha = 1; drawVictoryMarker(g, x, air ? 0 : -y + 1, spec.r, air, col.main, DRAW_LAY.s * DRAW_LAY.dpr);
+      sprite(g, fr.key, x + face * rg[1] * hk, yy + fr.dy * h + rg[2] * hk, hk * rg[0], { basis, contrast: CONTRAST_KINDS.has(u.kind), rotor: fr.rotor, flip: face < 0, rot: S.dir(u.owner) * dance.rot, sx: dance.sx, sy: dance.sy });
       if (art.trace) art.trace.push(['victory', u.id, u.kind, fr.key, !!spr(fr.key), dance.step, x, yy, face]);
       continue;
     }
@@ -681,9 +700,8 @@ function drawUnits(g, s, now) {
     if (fr.walk) hop = 0;                           // the walk cycle has its own bob drawn in
     if (lose) { g.save(); g.filter = 'saturate(0.35) brightness(0.85)'; }
     // team-colour disc on the ground (a fainter shadow under flyers)
-    g.beginPath(); g.ellipse(u.x, air ? 0 : -y + 1, spec.r * (air ? 0.9 : 1.15), spec.r * (air ? 0.24 : 0.34), 0, 0, 7); g.fillStyle = col.main; g.globalAlpha = air ? 0.35 : 0.8; g.fill();
-    if (!air) { g.lineWidth = 2; g.strokeStyle = col.dark; g.stroke(); }
     g.globalAlpha = 1;
+    drawGroundMarker(g, u.x, air ? 0 : -y + 1, spec.r, air, col, DRAW_LAY.s * DRAW_LAY.dpr);
     // eased body motion on top of the frames: a hit knocks the troop back and it springs upright again, a strike
     // lunges forward and settles; both ease in and out so nothing snaps
     const he = u.hurt > 0 ? 1 - u.hurt / HURT_T : -1, ae = u.act > 0 && u.hurt <= 0 ? Math.max(0, 1 - u.act / ACT_T) : -1;
@@ -698,7 +716,7 @@ function drawUnits(g, s, now) {
     const fl = he >= 0 && he < 0.22 ? `brightness(${1.9 - he * 4})` : '';
     if (u.slow > 0 || fl) g.filter = `${u.slow > 0 ? 'hue-rotate(160deg) saturate(0.7) ' : ''}${fl}`.trim();                      // white flash on the hit
     const rg = art.reg?.[fr.key] || REG0, hk = h * fr.k;         // the frame's registration: holds the body steady through its cycle
-    if (!sprite(g, fr.key, u.x + dx + dirU * rg[1] * hk, y + hop + fr.dy * h + rg[2] * hk, hk * rg[0], { contrast: CONTRAST_KINDS.has(u.kind), rotor: fr.rotor, flip: dirU < 0, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
+    if (!sprite(g, fr.key, u.x + dx + dirU * rg[1] * hk, y + hop + fr.dy * h + rg[2] * hk, hk * rg[0], { basis, contrast: CONTRAST_KINDS.has(u.kind), rotor: fr.rotor, flip: dirU < 0, rot: lean + (lose ? -dirU * (0.22 + 0.04 * Math.sin(now * 2 + u.id)) : 0), sx: 2 - sq, sy: lose ? sq * 0.92 : sq }) && !coming(fr.key)) { g.beginPath(); g.arc(u.x, -y - spec.r, spec.r, 0, 7); g.fillStyle = col.main; g.fill(); }
     rememberPose(u,{key:fr.key,x:u.x+dx+dirU*rg[1]*hk,y:y+hop+fr.dy*h+rg[2]*hk,h:hk*rg[0],flip:dirU<0,rot:lean,sx:2-sq,sy:sq,rotor:fr.rotor,contrast:CONTRAST_KINDS.has(u.kind),ground:air?0:y});
     g.restore();
     drawBomberCue(g,fr,{x:u.x+dx+dirU*rg[1]*hk,y:y+hop+fr.dy*h+rg[2]*hk,h:hk*rg[0],face:dirU,now,seed:u.id},{sprite,trace:art.trace});
@@ -712,7 +730,7 @@ function drawUnits(g, s, now) {
       drawMeleeStructureChips(g,u,s,ox,oy,q,dirU,debris);
       g.globalAlpha = 1;
     }
-    if (air) { g.beginPath(); g.arc(u.x, -(y + h + 12), 5, 0, 7); g.fillStyle = col.main; g.fill(); g.lineWidth = 2; g.strokeStyle = '#fff'; g.stroke(); }
+    if (air) drawAirMarker(g, u.x, -(y + h + 12), col.main, DRAW_LAY.s * DRAW_LAY.dpr);
     if (u.hp < u.maxHp && !koS) bar(g, u.x, y + h + 4, Math.max(22, spec.r * 2), 6, u.hp / u.maxHp, col.main);
     if (lose) g.restore();
   }
@@ -810,19 +828,12 @@ function cloud(g, x, y, size, q, { flip = false, alpha = 1 } = {}) {
 }
 /** n pieces of rubble thrown from world (x, y), q running 0..1: they arc out, spin, drop to the ground and fade. */
 function debris(g, x, y, q, n, seed, { size = 14, away = 0, speed = 1, set = [0, 1, 2, 3, 4] } = {}) {
-  if (!spr('rubble2_0')) return false;
-  for (let i = 0; i < n; i++) {
-    const im = spr(`rubble2_${set[i % set.length]}`); if (!im) continue;
-    const an = away ? 0.25 + rnd(i, seed) * 1.2 : (i / n) * Math.PI + (rnd(i, seed) - 0.5) * 0.5, v = (80 + rnd(i, seed + 1) * 90) * speed, d = size * (0.75 + rnd(i, seed + 2) * 0.5);
-    const px = x + (away || 1) * Math.cos(an) * v * q, py = Math.max(d * 0.4, y + Math.sin(an) * v * 1.5 * q - 300 * q * q);
-    stamp(g, im, px, py, d * im.width / im.height, d, { rot: q * (6 + rnd(i, seed + 3) * 8) * (i % 2 ? 1 : -1), alpha: q < 0.7 ? 1 : (1 - q) / 0.3 });
-  }
-  return true;
+  return drawDebris(g,x,y,q,n,seed,{size,away,speed,set},spr,DRAW_LAY.s*DRAW_LAY.dpr);
 }
 // ---- fling shot damage numbers. The rules do not say how much a shot took off, so main.js calls preStep before each
 // step of the rules while shots are flying, and the number is what the struck side lost over that step. ----
 let SNAP = null;
-const CHIP_AT = [0, 0];
+const CHIP_AT = [0, 0], FORT_IMPACTS=createFortImpactQueue({tracked:true});
 const hpOf = (s) => ({ f: s.players.map((p) => p.fortHp), k: s.players.map((p) => p.kingHp), u: new Map(s.units.map((u) => [u.id, [u.hp, u.x, u.owner, u.y + (UNIT[u.kind]?.r || 12)]])), b: new Map(s.buildings.map((b) => [b, b.dead ? 0 : b.hp])),
   roll: s.projectiles.filter((q) => q.rolling != null).map((q) => q.owner) });
 export function preStep(s) { SNAP = s.projectiles.length ? hpOf(s) : null; }
@@ -860,7 +871,8 @@ export function noteEvent(e, s) {
     if (small && t - (CHIP_AT[e.p] || 0) < 260) return;
     CHIP_AT[e.p] = t;
     const inside = e.x > x0 + 16 && e.x < x1 - 16, x = inside ? e.x : front - S.dir(e.p) * (14 + Math.random() * 26);
-    VFX.push({ type: 'chips', x, y: Math.max(34, Math.min(FORT.h - 6, (e.y ?? 90) + (inside ? 0 : 20 + Math.random() * 50))), p: e.p, big: (e.dmg || 0) >= 14, dur: 0.75 });
+    const effect=FORT_IMPACTS.add(e.p,inside?e.x:front,Math.max(34,Math.min(FORT.h-6,(e.y??90)+(inside?0:45))),t,(e.dmg||0)>=14,()=>({ type: 'chips', x, y: Math.max(34, Math.min(FORT.h - 6, (e.y ?? 90) + (inside ? 0 : 20 + Math.random() * 50))), p: e.p, big: (e.dmg || 0) >= 14, dur: 0.75 }));
+    if(effect)VFX.push(effect);
   }
   else if (e.type === 'impact' || e.type === 'shield-hit') {                     // a fling shot lands: what it took off, as a number that pops and floats up
     const n = shotDamage(s, e.type === 'impact' ? 1 - e.p : e.p, e.x);
@@ -873,8 +885,8 @@ export function noteEvent(e, s) {
   else if (e.type === 'power') VFX.push({ type: 'power', p: e.p, level: e.level, dur: 0.9 });
   else if (e.type === 'ult' && e.shape === 'summon') VFX.push({ type: 'summon', p: e.p, x: S.gateX(e.p) + S.dir(e.p) * 185, race: s.players[e.p].race, dur: 2.4 });
   else if (e.type === 'bounty' && UNIT[e.kind] && e.y != null && VFX.reduce((n, v) => n + (v.type === 'death'), 0) < 24) VFX.push({ type: 'death', pose: takeDeathPose(e), kind: e.kind, x: e.x, y: e.y, p: 1 - e.p, dur: UNIT[e.kind].air ? 1 : 0.75 });
-  else if (e.type === 'round-start') { beginPoseFrame(); HITS.clear(); HELD.clear(); VFX.length = 0; DOWN_AT[0] = DOWN_AT[1] = null; }
-  if (VFX.length > 70) VFX.splice(0, VFX.length - 70);
+  else if (e.type === 'round-start') { beginPoseFrame(); HITS.clear(); HELD.clear(); FORT_IMPACTS.clear(); VFX.length = 0; DOWN_AT[0] = DOWN_AT[1] = null; }
+  trimDecorativeChips(VFX,70,FORT_IMPACTS.remove);
 }
 const rnd = (i, k) => { const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };      // steady pseudo-random per particle
 // Death motion continues the last rendered pose; the simulation remains untouched.
@@ -952,7 +964,9 @@ function drawVfx(g, s, now) {
     }
     g.globalAlpha = 1;
   }
-  for (let i = VFX.length - 1; i >= 0; i--) if (VFX[i].t0 != null && now - VFX[i].t0 > VFX[i].dur) VFX.splice(i, 1);
+  for (let i = VFX.length - 1; i >= 0; i--) if (VFX[i].t0 != null && now - VFX[i].t0 > VFX[i].dur) {
+    const effect=VFX.splice(i,1)[0];if(effect.type==='chips')FORT_IMPACTS.remove(effect);
+  }
   // Race-specific fronts remain pinned to the simulated wave. Painted echoes stay behind it.
   for (const w of s.waves || []) {
     const race=s.players[w.owner].race,key=`ultfx_b_${ULT_WAVE[race]??0}`,d=S.dir(w.owner),h=170;
@@ -1166,7 +1180,9 @@ function drawUltButton(g, s, p, real, k, b, narrow, ai, col) {
     const beat = ready ? 1 + 0.07 * Math.sin(performance.now() / 110) : 1, d = (b.h - 3) * (narrow ? 0.62 : 0.8) * beat, cx = narrow ? b.w / 2 : b.x + (b.h - 3) * 0.5 + 2, cy = (b.h - 3) * (narrow ? 0.4 : 0.5);
     g.save(); if (!ready) { g.globalAlpha *= 0.55 + 0.35 * pl.ult; g.filter = `saturate(${0.25 + 0.75 * pl.ult})`; }
     if (ready) { const gl = g.createRadialGradient(cx, cy, d * 0.3, cx, cy, d * 0.75); gl.addColorStop(0, 'rgba(255,240,150,0.9)'); gl.addColorStop(1, 'rgba(255,240,150,0)'); g.fillStyle = gl; g.fillRect(cx - d, cy - d, d * 2, d * 2); }
-    g.drawImage(ic, cx - d / 2, cy - d / 2, d, d); g.restore();
+    const tint = g.filter; g.filter = 'none';
+    const pixels = Math.max(32, Math.ceil(d * k * DRAW_LAY.s * DRAW_LAY.dpr * 2 / 16) * 16);
+    g.drawImage(liveFilteredSprite(`ultimate:${p}`, ic, tint, pixels), cx - d / 2, cy - d / 2, d, d); g.restore();
     if (!narrow) tx = b.x + (b.h - 3) + (b.w - (b.h - 3)) / 2;
   }
   if (narrow && ic) text(g, label, tx, -(b.h - 14), 12, '#fff', 'center', INK);
@@ -1190,7 +1206,10 @@ function drawHud(g, s, ui, now) {
       // narrow boxes drop the name and stack picture over price
       const k = real.h / BH, b = { ...real, x: 0, y: 0, w: real.w / k, h: BH }, narrow = b.w < 96;
       if (b.kind === 'ult') { drawUltButton(g, s, p, real, k, b, narrow, ai, col); continue; }
-      if (b.kind === 'power') { drawPowerButton(g, s, p, real, k, b, narrow, ai, col); continue; }
+      if (b.kind === 'power') {
+        const cost=S.powerCost(s,p), state=[pl.race,pl.power,cost,cost==null||pl.gold>=cost,ai,art.revision].join(':');
+        drawCachedControl(g,DRAW_LAY,real,`${p}:power`,state,c=>drawPowerButton(c,s,p,real,k,b,narrow,ai,col));continue;
+      }
       const cost = S.costFor(s, p, key);
       const shut = !S.isOpen(s, p, key), wait = shut ? Math.max(0, S.unlockAt(s, p, key) - (s.roundT || 0)) : 0;
       const free = b.kind === 'ammo' && key !== 'stone' && pl.freeShots > 0;
